@@ -15,19 +15,15 @@ exports.AddNews = async (req, res) => {
       section 
     } = req.body;
 
-    // Validation
     if (!title || !slug || !category || !content || !section) {
       return res.status(400).json({
         success: false,
         msg: "Missing required fields: title, slug, category, content, section"
       });
     }
-
-    // Find existing config or create new
     let newsConfig = await NewsConfig.findOne({ isActive: true });
     
     if (!newsConfig) {
-      // Create initial config if none exists
       newsConfig = new NewsConfig({
         india: [],
         sports: [],
@@ -42,7 +38,7 @@ exports.AddNews = async (req, res) => {
       });
     }
 
-    // Check if slug already exists in target section
+
     if (newsConfig[section].some(item => 
       item.slug.toLowerCase() === slug.toLowerCase()
     )) {
@@ -52,7 +48,6 @@ exports.AddNews = async (req, res) => {
       });
     }
 
-    // Create new news item
     const newItem = {
       title,
       slug,
@@ -64,11 +59,8 @@ exports.AddNews = async (req, res) => {
       tags,
     };
 
-    // Add to specific section array
     newsConfig[section].push(newItem);
     newsConfig.lastUpdated = new Date();
-
-    // Save updated config
     const savedConfig = await newsConfig.save();
 
     return res.status(201).json({
@@ -136,7 +128,6 @@ exports.getNewsBySlug = async (req, res) => {
       });
     }
     
-    // Check if section exists
     if (!newsConfig[section]) {
       return res.status(404).json({
         success: false,
@@ -217,7 +208,6 @@ exports.deleteNewsBySlug = async (req, res) => {
       });
     }
     
-    // Find and remove item by slug
     const initialLength = newsConfig[section].length;
     newsConfig[section] = newsConfig[section].filter(
       (item) => !item.slug.toLowerCase().includes(slug.toLowerCase())
@@ -272,7 +262,7 @@ exports.updateNewsBySlug = async (req, res) => {
       });
     }
     
-    // Find item by slug
+
     const itemIndex = newsConfig[section].findIndex(
       (item) => item.slug.toLowerCase().includes(slug.toLowerCase())
     );
@@ -284,7 +274,6 @@ exports.updateNewsBySlug = async (req, res) => {
       });
     }
     
-    // Update item
     newsConfig[section][itemIndex] = {
       ...newsConfig[section][itemIndex],
       ...updateData,

@@ -1,23 +1,8 @@
 "use client";
 
-import React, {
-  useState,
-  useEffect,
-  useCallback,
-  ChangeEvent,
-  FC,
-  useContext,
-  useMemo,
-} from "react";
-import { UserContext } from "@/app/Context/ManageUserContext";
-import {
-  newsService,
-  NewsItem,
-  useNewsBySection,
-  useAddNews,
-  useUpdateNews,
-  useDeleteNews,
-} from "@/app/hooks/NewsApi";
+import React, { useState, useEffect, useCallback, ChangeEvent, FC, useContext, useMemo } from "react";
+import { UserContext } from "@/app/Dashboard/Context/ManageUserContext";
+import { newsService, NewsItem, useNewsBySection, useAddNews, useUpdateNews, useDeleteNews } from "@/app/Dashboard/hooks/NewsApi";
 import styles from "./Main.module.scss";
 
 interface LatestNewsSectionProps {
@@ -43,19 +28,12 @@ const LatestNewsSection: FC<LatestNewsSectionProps> = ({ section }) => {
   const canUpdate = userPermissions.update !== false;
   const canDelete = userPermissions.delete !== false;
 
-  const {
-    data: newsData,
-    loading: fetchLoading,
-    error: fetchError,
-    refetch,
-  } = useNewsBySection(section);
+  const { data: newsData, loading: fetchLoading, error: fetchError, refetch } = useNewsBySection(section);
 
   const { mutate: addNews, loading: addLoading } = useAddNews();
-  
   const { mutate: updateNews } = useUpdateNews(section);
   const { mutate: deleteNews } = useDeleteNews(section);
 
-  const [items, setItems] = useState<NewsItem[]>([]);
   const [editingSlug, setEditingSlug] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<"all" | "draft" | "published" | "archived">("all");
@@ -72,11 +50,7 @@ const LatestNewsSection: FC<LatestNewsSectionProps> = ({ section }) => {
     status: "draft",
   });
 
-  useEffect(() => {
-    if (newsData) {
-      setItems(newsData);
-    }
-  }, [newsData]);
+  const processedNewsData = useMemo<NewsItem[]>(() => newsData ?? [], [newsData]);
 
   useEffect(() => {
     if (showToast) {
@@ -116,7 +90,7 @@ const LatestNewsSection: FC<LatestNewsSectionProps> = ({ section }) => {
         setFormState((prev) => {
           const updated = { ...prev, [field]: value };
           if (field === "title" && !editingSlug) {
-            (updated as any).slug = generateSlug(value);
+            updated.slug = generateSlug(value);
           }
           return updated;
         });
@@ -148,7 +122,7 @@ const LatestNewsSection: FC<LatestNewsSectionProps> = ({ section }) => {
         ...formState,
         section,
         publishedAt: new Date().toISOString(),
-      } as any);
+      } as NewsItem & { section: string });
 
       showNotification("Article created", "success");
       resetForm();
@@ -171,31 +145,22 @@ const LatestNewsSection: FC<LatestNewsSectionProps> = ({ section }) => {
     [canUpdate, showNotification]
   );
 
-const handleUpdate = useCallback(async () => {
-  if (!canUpdate || !editingSlug) return;
+  const handleUpdate = useCallback(async () => {
+    if (!canUpdate || !editingSlug) return;
 
-  try {
-    // Debug log to verify data
-    console.log('📝 Update payload:', {
-      slug: editingSlug,
-      news: formState
-    });
+    try {
+      await updateNews({
+        slug: editingSlug,
+        news: formState,
+      });
 
-    // ✅ Correct structure for your hook
-    await updateNews({
-      slug: editingSlug,
-      news: formState
-    });
-    
-    showNotification("Article updated", "success");
-    resetForm();
-    refetch();
-  } catch (err: any) {
-    console.error('❌ Update failed:', err);
-    showNotification(err.message || "Update failed", "error");
-  }
-}, [canUpdate, editingSlug, formState, updateNews, resetForm, refetch, showNotification]);
-
+      showNotification("Article updated", "success");
+      resetForm();
+      refetch();
+    } catch (err: any) {
+      showNotification(err.message || "Update failed", "error");
+    }
+  }, [canUpdate, editingSlug, formState, updateNews, resetForm, refetch, showNotification]);
 
   const handleDelete = useCallback(
     async (slug: string) => {
@@ -206,14 +171,14 @@ const handleUpdate = useCallback(async () => {
       if (!confirm("Delete this article permanently?")) return;
 
       try {
-        await deleteNews({ section, slug });
+        await deleteNews({ slug });
         showNotification("Article deleted", "success");
         refetch();
       } catch (err: any) {
         showNotification(err.message || "Delete failed", "error");
       }
     },
-    [canDelete, deleteNews, refetch, showNotification, section]
+    [canDelete, deleteNews, refetch, showNotification]
   );
 
   const handleDuplicate = useCallback(
@@ -234,8 +199,8 @@ const handleUpdate = useCallback(async () => {
     [canCreate, showNotification]
   );
 
-  const filteredAndSortedItems = useMemo(() => {
-    let result = [...items];
+  const filteredAndSortedItems = useMemo<NewsItem[]>(() => {
+    let result = [...processedNewsData];
 
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
@@ -252,23 +217,17 @@ const handleUpdate = useCallback(async () => {
     }
 
     if (sortBy === "newest") {
-      result.sort(
-        (a, b) =>
-          new Date(b.publishedAt || 0).getTime() - new Date(a.publishedAt || 0).getTime()
-      );
+      result.sort((a, b) => new Date(b.publishedAt || 0).getTime() - new Date(a.publishedAt || 0).getTime());
     } else if (sortBy === "oldest") {
-      result.sort(
-        (a, b) =>
-          new Date(a.publishedAt || 0).getTime() - new Date(b.publishedAt || 0).getTime()
-      );
+      result.sort((a, b) => new Date(a.publishedAt || 0).getTime() - new Date(b.publishedAt || 0).getTime());
     } else if (sortBy === "title") {
       result.sort((a, b) => a.title.localeCompare(b.title));
     }
 
     return result;
-  }, [items, searchQuery, filterStatus, sortBy]);
+  }, [processedNewsData, searchQuery, filterStatus, sortBy]);
 
-  if (fetchLoading || (!items.length && fetchLoading)) {
+  if (fetchLoading) {
     return (
       <div className={styles.loading}>
         <div className={styles.spinner} />
@@ -325,18 +284,18 @@ const handleUpdate = useCallback(async () => {
 
             <div className={styles.stats}>
               <div className={styles.statCard}>
-                <span className={styles.statNumber}>{items.length}</span>
+                <span className={styles.statNumber}>{processedNewsData.length}</span>
                 <span className={styles.statLabel}>Total</span>
               </div>
               <div className={styles.statCard}>
                 <span className={styles.statNumber}>
-                  {items.filter((i) => i.status === "published").length}
+                  {processedNewsData.filter((i) => i.status === "published").length}
                 </span>
                 <span className={styles.statLabel}>Published</span>
               </div>
               <div className={styles.statCard}>
                 <span className={styles.statNumber}>
-                  {items.filter((i) => i.status === "draft").length}
+                  {processedNewsData.filter((i) => i.status === "draft").length}
                 </span>
                 <span className={styles.statLabel}>Drafts</span>
               </div>
@@ -483,11 +442,7 @@ const handleUpdate = useCallback(async () => {
             <div className={styles.formActions}>
               {isEditing ? (
                 <>
-                  <button
-                    onClick={handleUpdate}
-                    className={styles.primaryBtn}
-                    disabled={!canUpdate}
-                  >
+                  <button onClick={handleUpdate} className={styles.primaryBtn} disabled={!canUpdate}>
                     Update Article
                   </button>
                   <button onClick={resetForm} className={styles.secondaryBtn}>
@@ -537,7 +492,7 @@ const handleUpdate = useCallback(async () => {
               <div className={styles.filters}>
                 <select
                   value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value as any)}
+                  onChange={(e) => setFilterStatus(e.target.value as "all" | "draft" | "published" | "archived")}
                   className={styles.filterSelect}
                 >
                   <option value="all">All</option>
@@ -548,7 +503,7 @@ const handleUpdate = useCallback(async () => {
 
                 <select
                   value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as any)}
+                  onChange={(e) => setSortBy(e.target.value as "newest" | "oldest" | "title")}
                   className={styles.filterSelect}
                 >
                   <option value="newest">Newest</option>

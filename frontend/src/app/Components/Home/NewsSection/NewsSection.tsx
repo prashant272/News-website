@@ -73,7 +73,6 @@ const NewsSection: React.FC = () => {
   return (
     <section className={styles.newsSection}>
       <div className={styles.container}>
-        {/* Main Featured Article - ALWAYS LIVE */}
         <article className={styles.mainArticle}>
           <div className={styles.imageWrapper}>
             <img src={mainArticle.image} alt={mainArticle.title} />
@@ -100,7 +99,6 @@ const NewsSection: React.FC = () => {
           </div>
         </article>
 
-        {/* Secondary LIVE/Fresh Articles */}
         <div className={styles.secondaryGrid}>
           {secondaryArticles.map((item) => (
             <article key={item.id} className={styles.secondaryArticle}>

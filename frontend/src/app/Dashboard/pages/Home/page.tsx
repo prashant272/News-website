@@ -1,5 +1,5 @@
 "use client";
-import LatestNewsSection from "@/app/Components/Home/LatestNewsSection/Main";
+import LatestNewsSection from "@/app/Dashboard/Components/Home/LatestNewsSection/Main";
 import React, { useState } from "react";
 
 const sections = [

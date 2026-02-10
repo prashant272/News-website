@@ -18,8 +18,7 @@ const LatestNews: React.FC = () => {
 
   const displayNews: LatestNewsItem[] = React.useMemo(() => {
     const latestNews: LatestNewsItem[] = [];
-    
-    // Prioritize sections with data
+  
     const sections = [
       { key: 'india', data: indiaNews },
       { key: 'sports', data: sportsNews },

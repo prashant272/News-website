@@ -20,7 +20,15 @@ export interface SectionData {
   topNews: TopNewsItem[];
 }
 
-// INDIA NEWS DATA
+export interface PhotoItem {
+  id: string | number;
+  image: string;
+  title: string;
+  slug?: string;
+  category?: string;
+  description?: string;
+}
+
 export const indiaMainNews: NewsGridItem[] = [
   {
     id: 'india-1',
@@ -105,9 +113,15 @@ export const indiaSubCategories = [
   'Chhattisgarh'
 ];
 
-// WORLD NEWS DATA
+export const indiaSectionData: SectionData = {
+  sectionTitle: 'India',
+  subCategories: indiaSubCategories,
+  mainNews: indiaMainNews,
+  topNews: indiaTopNews
+};
+
 export const worldMainNews: NewsGridItem[] = [
-{
+  {
     id: 'world-1',
     category: 'USA',
     title: 'Donald Trump announces major policy changes in first week as 47th US President',
@@ -120,7 +134,6 @@ export const worldMainNews: NewsGridItem[] = [
     title: 'Russia-Ukraine peace talks resume in Geneva, both sides express optimism for ceasefire',
     image: '/images/russia-ukraine-peace-talks.jpg',
     slug: 'russia-ukraine-peace-talks-geneva',
-  
   },
   {
     id: 'world-3',
@@ -128,7 +141,6 @@ export const worldMainNews: NewsGridItem[] = [
     title: 'Israel-Gaza conflict: UN Security Council passes resolution for immediate humanitarian aid',
     image: '/images/israel-gaza-un-resolution.jpg',
     slug: 'israel-gaza-un-humanitarian-aid',
-  
   },
   {
     id: 'world-4',
@@ -136,7 +148,6 @@ export const worldMainNews: NewsGridItem[] = [
     title: 'China launches new space station module, invites international astronauts for collaboration',
     image: '/images/china-space-station-launch.jpg',
     slug: 'china-space-station-international',
-  
   },
   {
     id: 'world-5',
@@ -144,7 +155,6 @@ export const worldMainNews: NewsGridItem[] = [
     title: 'UK economy shows recovery: GDP growth exceeds expectations in Q4 2025',
     image: '/images/uk-economy-gdp-growth.jpg',
     slug: 'uk-economy-gdp-growth-q4',
-  
   },
   {
     id: 'world-6',
@@ -152,7 +162,6 @@ export const worldMainNews: NewsGridItem[] = [
     title: 'Climate summit in Paris: World leaders commit to net-zero emissions by 2040',
     image: '/images/climate-summit-paris-2026.jpg',
     slug: 'climate-summit-paris-net-zero',
-  
   },
   {
     id: 'world-7',
@@ -160,7 +169,6 @@ export const worldMainNews: NewsGridItem[] = [
     title: 'Japan unveils bullet train capable of 400 km/h speed, connects Tokyo to Osaka in 1 hour',
     image: '/images/japan-bullet-train-400kmph.jpg',
     slug: 'japan-bullet-train-400-kmph',
-  
   },
   {
     id: 'world-8',
@@ -168,7 +176,6 @@ export const worldMainNews: NewsGridItem[] = [
     title: 'NATO Summit 2026: Alliance members pledge increased defense spending amid tensions',
     image: '/images/nato-summit-2026-defense.jpg',
     slug: 'nato-summit-defense-spending',
-  
   },
   {
     id: 'world-9',
@@ -176,7 +183,6 @@ export const worldMainNews: NewsGridItem[] = [
     title: 'South Africa elections 2026: ANC faces biggest challenge in three decades',
     image: '/images/south-africa-elections-anc.jpg',
     slug: 'south-africa-elections-anc-challenge',
-  
   },
   {
     id: 'world-10',
@@ -184,7 +190,6 @@ export const worldMainNews: NewsGridItem[] = [
     title: 'Brazil announces major initiative to combat Amazon deforestation with $10B fund',
     image: '/images/brazil-amazon-deforestation.jpg',
     slug: 'brazil-amazon-deforestation-initiative',
-    
   },
   {
     id: 'world-11',
@@ -192,7 +197,6 @@ export const worldMainNews: NewsGridItem[] = [
     title: 'Australia battles worst bushfire season in decade, thousands evacuated from Sydney',
     image: '/images/australia-bushfires-sydney.jpg',
     slug: 'australia-bushfires-evacuation',
-  
   },
   {
     id: 'world-12',
@@ -200,7 +204,6 @@ export const worldMainNews: NewsGridItem[] = [
     title: 'Saudi Arabia announces Vision 2040: Ambitious plan to diversify economy beyond oil',
     image: '/images/saudi-vision-2040-economy.jpg',
     slug: 'saudi-vision-2040-economic-plan',
-  
   },
 ];
 
@@ -241,7 +244,13 @@ export const worldSubCategories = [
   'Australia'
 ];
 
-// BUSINESS NEWS DATA
+export const worldSectionData: SectionData = {
+  sectionTitle: 'World',
+  subCategories: worldSubCategories,
+  mainNews: worldMainNews,
+  topNews: worldTopNews
+};
+
 export const businessMainNews: NewsGridItem[] = [
   {
     id: 'business-1',
@@ -324,7 +333,13 @@ export const businessSubCategories = [
   'IPO'
 ];
 
-// TECHNOLOGY NEWS DATA
+export const businessSectionData: SectionData = {
+  sectionTitle: 'Business',
+  subCategories: businessSubCategories,
+  mainNews: businessMainNews,
+  topNews: businessTopNews
+};
+
 export const technologyMainNews: NewsGridItem[] = [
   {
     id: 'tech-1',
@@ -407,7 +422,13 @@ export const technologySubCategories = [
   'Science'
 ];
 
-// SPORTS NEWS DATA
+export const technologySectionData: SectionData = {
+  sectionTitle: 'Technology',
+  subCategories: technologySubCategories,
+  mainNews: technologyMainNews,
+  topNews: technologyTopNews
+};
+
 export const sportsMainNews: NewsGridItem[] = [
   {
     id: 'sports-1',
@@ -490,7 +511,13 @@ export const sportsSubCategories = [
   'Wrestling'
 ];
 
-// ENTERTAINMENT NEWS DATA
+export const sportsSectionData: SectionData = {
+  sectionTitle: 'Sports',
+  subCategories: sportsSubCategories,
+  mainNews: sportsMainNews,
+  topNews: sportsTopNews
+};
+
 export const entertainmentMainNews: NewsGridItem[] = [
   {
     id: 'ent-main-1',
@@ -575,7 +602,12 @@ export const entertainmentSubCategories = [
   'Box Office'
 ];
 
-// LIFESTYLE NEWS DATA
+export const entertainmentSectionData: SectionData = {
+  sectionTitle: 'Entertainment',
+  subCategories: entertainmentSubCategories,
+  mainNews: entertainmentMainNews,
+  topNews: entertainmentTopNews
+};
 
 export const lifestyleMainNews: NewsGridItem[] = [
   {
@@ -591,7 +623,6 @@ export const lifestyleMainNews: NewsGridItem[] = [
     title: 'India sets global fashion trends in 2026: Festive fusion wear dominates international runways',
     image: '/images/india-fashion-trends-global.jpg',
     slug: 'india-fashion-trends-global-fusion-wear',
-  
   },
   {
     id: 'lifestyle-3',
@@ -599,7 +630,6 @@ export const lifestyleMainNews: NewsGridItem[] = [
     title: 'Brain wealth over brain health: Cognitive longevity becomes top wellness priority for 2026',
     image: '/images/brain-wealth-cognitive-longevity.jpg',
     slug: 'brain-wealth-cognitive-longevity-wellness',
-  
   },
   {
     id: 'lifestyle-4',
@@ -607,7 +637,6 @@ export const lifestyleMainNews: NewsGridItem[] = [
     title: 'Sound healing tourism takes over: Luxury hotels install vibroacoustic therapy beds worth Rs 10 lakh',
     image: '/images/sound-healing-tourism-hotels.jpg',
     slug: 'sound-healing-tourism-vibroacoustic-therapy',
-  
   },
   {
     id: 'lifestyle-5',
@@ -615,7 +644,6 @@ export const lifestyleMainNews: NewsGridItem[] = [
     title: 'Dry January goes mainstream in India: 32% millennials pledge alcohol-free month for health reset',
     image: '/images/dry-january-india-alcohol-free.jpg',
     slug: 'dry-january-india-alcohol-free-trend',
-  
   },
   {
     id: 'lifestyle-6',
@@ -623,7 +651,6 @@ export const lifestyleMainNews: NewsGridItem[] = [
     title: 'Weight-loss injections boom: 1.6 million Indians use Ozempic, Mounjaro for wellness goals',
     image: '/images/ozempic-mounjaro-weight-loss-india.jpg',
     slug: 'ozempic-mounjaro-weight-loss-india-boom',
-  
   },
   {
     id: 'lifestyle-7',
@@ -631,7 +658,6 @@ export const lifestyleMainNews: NewsGridItem[] = [
     title: 'Cool-cations replace beach holidays: Alpine wellness retreats see 400% booking surge',
     image: '/images/cool-cations-alpine-wellness-retreats.jpg',
     slug: 'cool-cations-alpine-wellness-retreat-trend',
-  
   },
   {
     id: 'lifestyle-8',
@@ -639,7 +665,6 @@ export const lifestyleMainNews: NewsGridItem[] = [
     title: 'Sustainable fashion becomes mandatory: Government introduces eco-certification for clothing brands',
     image: '/images/sustainable-fashion-eco-certification.jpg',
     slug: 'sustainable-fashion-eco-certification-mandatory',
-  
   },
   {
     id: 'lifestyle-9',
@@ -647,7 +672,6 @@ export const lifestyleMainNews: NewsGridItem[] = [
     title: 'Proffee trend explodes: Protein coffee becomes Rs 500 crore market in India',
     image: '/images/proffee-protein-coffee-market.jpg',
     slug: 'proffee-protein-coffee-market-india',
-  
   },
   {
     id: 'lifestyle-10',
@@ -655,7 +679,6 @@ export const lifestyleMainNews: NewsGridItem[] = [
     title: 'AI fitness coaches replace gym trainers: 5 million Indians switch to personalized digital workouts',
     image: '/images/ai-fitness-coaches-digital-workouts.jpg',
     slug: 'ai-fitness-coaches-personalized-workouts',
-    
   },
   {
     id: 'lifestyle-11',
@@ -663,7 +686,6 @@ export const lifestyleMainNews: NewsGridItem[] = [
     title: 'Forest bathing retreats in Uttarakhand booked till December: Shinrin-yoku therapy gains popularity',
     image: '/images/forest-bathing-uttarakhand-shinrin-yoku.jpg',
     slug: 'forest-bathing-uttarakhand-shinrin-yoku-therapy',
-  
   },
   {
     id: 'lifestyle-12',
@@ -671,7 +693,6 @@ export const lifestyleMainNews: NewsGridItem[] = [
     title: 'Walking pad craze hits India: Under-desk treadmills sell out within hours of restocking',
     image: '/images/walking-pad-treadmill-india-sold-out.jpg',
     slug: 'walking-pad-under-desk-treadmill-sold-out',
-  
   },
 ];
 
@@ -714,8 +735,13 @@ export const lifestyleSubCategories = [
   'Parenting'
 ];
 
+export const lifestyleSectionData: SectionData = {
+  sectionTitle: 'Lifestyle',
+  subCategories: lifestyleSubCategories,
+  mainNews: lifestyleMainNews,
+  topNews: lifestyleTopNews
+};
 
-// TRAVEL-FOCUSED NEWS
 export const lifestyleTravelNews: NewsGridItem[] = [
   {
     id: 'travel-1',
@@ -761,7 +787,6 @@ export const lifestyleTravelNews: NewsGridItem[] = [
   }
 ];
 
-// FOOD & NUTRITION NEWS
 export const lifestyleFoodNews: NewsGridItem[] = [
   {
     id: 'food-1',
@@ -807,7 +832,6 @@ export const lifestyleFoodNews: NewsGridItem[] = [
   }
 ];
 
-// HEALTH & FITNESS NEWS
 export const lifestyleHealthNews: NewsGridItem[] = [
   {
     id: 'health-1',
@@ -853,7 +877,6 @@ export const lifestyleHealthNews: NewsGridItem[] = [
   }
 ];
 
-// FASHION NEWS
 export const lifestyleFashionNews: NewsGridItem[] = [
   {
     id: 'fashion-1',
@@ -899,7 +922,6 @@ export const lifestyleFashionNews: NewsGridItem[] = [
   }
 ];
 
-// BEAUTY NEWS
 export const lifestyleBeautyNews: NewsGridItem[] = [
   {
     id: 'beauty-1',
@@ -945,7 +967,6 @@ export const lifestyleBeautyNews: NewsGridItem[] = [
   }
 ];
 
-// WELLNESS & MENTAL HEALTH NEWS
 export const lifestyleWellnessNews: NewsGridItem[] = [
   {
     id: 'wellness-1',
@@ -991,7 +1012,6 @@ export const lifestyleWellnessNews: NewsGridItem[] = [
   }
 ];
 
-// HOME & LIVING NEWS
 export const lifestyleHomeNews: NewsGridItem[] = [
   {
     id: 'home-1',
@@ -1037,7 +1057,16 @@ export const lifestyleHomeNews: NewsGridItem[] = [
   }
 ];
 
-// HEALTH NEWS DATA
+export const allLifestyleNews = {
+  travel: lifestyleTravelNews,
+  food: lifestyleFoodNews,
+  health: lifestyleHealthNews,
+  fashion: lifestyleFashionNews,
+  beauty: lifestyleBeautyNews,
+  wellness: lifestyleWellnessNews,
+  home: lifestyleHomeNews
+};
+
 export const healthMainNews: NewsGridItem[] = [
   {
     id: 'health-1',
@@ -1052,7 +1081,6 @@ export const healthMainNews: NewsGridItem[] = [
     title: 'GLP-1 medications boom: 1 in 8 Indians use Ozempic, Mounjaro as government slashes prices to Rs 4,000',
     image: '/images/glp1-ozempic-price-slash-india.jpg',
     slug: 'glp1-ozempic-price-slash-4000-rupees',
-  
   },
   {
     id: 'health-3',
@@ -1060,7 +1088,6 @@ export const healthMainNews: NewsGridItem[] = [
     title: 'AI diagnostic tools deployed in 500 Indian hospitals: Disease detection 30% faster, 95% accuracy rate',
     image: '/images/ai-diagnostic-500-hospitals-india.jpg',
     slug: 'ai-diagnostic-500-hospitals-95-percent-accuracy',
-  
   },
   {
     id: 'health-4',
@@ -1068,7 +1095,6 @@ export const healthMainNews: NewsGridItem[] = [
     title: 'Budget 2026 healthcare allocation: Rs 1 lakh crore for preventive care, NCD screening for adults 30+',
     image: '/images/budget-2026-preventive-care-1-lakh-crore.jpg',
     slug: 'budget-2026-preventive-care-ncd-screening',
-  
   },
   {
     id: 'health-5',
@@ -1076,7 +1102,6 @@ export const healthMainNews: NewsGridItem[] = [
     title: 'National suicide prevention helpline launched: 24/7 support in 12 languages, toll-free across India',
     image: '/images/suicide-prevention-helpline-12-languages.jpg',
     slug: 'suicide-prevention-helpline-24-7-india',
-  
   },
   {
     id: 'health-6',
@@ -1084,7 +1109,6 @@ export const healthMainNews: NewsGridItem[] = [
     title: 'Ayushman Bharat Digital Mission hits 500 million: Universal health ID rollout by December 2026',
     image: '/images/ayushman-bharat-500-million-health-id.jpg',
     slug: 'ayushman-bharat-500-million-universal-health-id',
-  
   },
   {
     id: 'health-7',
@@ -1092,7 +1116,6 @@ export const healthMainNews: NewsGridItem[] = [
     title: 'Pancreatic cancer RAS inhibitor shows 60% survival improvement in phase III clinical trial',
     image: '/images/pancreatic-ras-inhibitor-60-percent.jpg',
     slug: 'pancreatic-ras-inhibitor-60-percent-survival',
-  
   },
   {
     id: 'health-8',
@@ -1100,7 +1123,6 @@ export const healthMainNews: NewsGridItem[] = [
     title: 'AIIMS diabetes reversal program: Free 12-week intensive lifestyle intervention shows 70% success rate',
     image: '/images/aiims-diabetes-reversal-70-percent.jpg',
     slug: 'aiims-diabetes-reversal-70-percent-success',
-  
   },
   {
     id: 'health-9',
@@ -1108,7 +1130,6 @@ export const healthMainNews: NewsGridItem[] = [
     title: 'Telemedicine consultations cross 100 million: Indians prefer online doctors, saves Rs 500 per visit',
     image: '/images/telemedicine-100-million-consultations.jpg',
     slug: 'telemedicine-100-million-consultations-india',
-  
   },
   {
     id: 'health-10',
@@ -1116,7 +1137,6 @@ export const healthMainNews: NewsGridItem[] = [
     title: 'Tuberculosis cases drop 40%: India on track to eliminate TB by 2030, WHO praises efforts',
     image: '/images/tuberculosis-40-percent-drop-india-2030.jpg',
     slug: 'tuberculosis-40-percent-drop-eliminate-2030',
-    
   },
 ];
 
@@ -1156,24 +1176,13 @@ export const healthSubCategories = [
   'Policy'
 ];
 
-export interface PhotoItem {
-  id: string | number;
-  image: string;
-  title: string;
-  slug?: string;
-  category?: string;
-  description?: string;
-}
+export const healthSectionData: SectionData = {
+  sectionTitle: 'Health',
+  subCategories: healthSubCategories,
+  mainNews: healthMainNews,
+  topNews: healthTopNews
+};
 
-// Photos section uses the same SectionData interface as news sections
-export interface PhotosSectionData {
-  sectionTitle: string;
-  subCategories: string[];
-  mainNews: NewsGridItem[];  // Photos displayed in main grid
-  topNews: TopNewsItem[];     // Featured photos in sidebar
-}
-
-// PHOTOS DATA
 export const photosSubCategories = [
   'India',
   'Sports',
@@ -1183,7 +1192,6 @@ export const photosSubCategories = [
   'Lifestyle'
 ];
 
-// Main Photos Grid (displayed in 3-column grid)
 export const photosMainNews: NewsGridItem[] = [
   {
     id: 'photo-1',
@@ -1355,7 +1363,6 @@ export const photosMainNews: NewsGridItem[] = [
   }
 ];
 
-// Top/Featured Photos (displayed in sidebar)
 export const photosTopNews: TopNewsItem[] = [
   {
     id: 'photo-top-1',
@@ -1395,87 +1402,9 @@ export const photosTopNews: TopNewsItem[] = [
   }
 ];
 
-// Complete Photos Section Data (matching SectionData interface)
 export const photosSectionData: SectionData = {
   sectionTitle: 'Photos',
   subCategories: photosSubCategories,
   mainNews: photosMainNews,
   topNews: photosTopNews
-};
-
-
-// Complete Health Section Data Object
-export const healthSectionData: SectionData = {
-  sectionTitle: 'Health',
-  subCategories: healthSubCategories,
-  mainNews: healthMainNews,
-  topNews: healthTopNews
-};
-
-
-
-
-// Complete Lifestyle Section Data Object
-export const lifestyleSectionData: SectionData = {
-  sectionTitle: 'Lifestyle',
-  subCategories: lifestyleSubCategories,
-  mainNews: lifestyleMainNews,
-  topNews: lifestyleTopNews
-};
-
-// Export all lifestyle news collections
-export const allLifestyleNews = {
-  travel: lifestyleTravelNews,
-  food: lifestyleFoodNews,
-  health: lifestyleHealthNews,
-  fashion: lifestyleFashionNews,
-  beauty: lifestyleBeautyNews,
-  wellness: lifestyleWellnessNews,
-  home: lifestyleHomeNews
-};
-
-
-// Complete Section Data Object
-export const entertainmentSectionData: SectionData = {
-  sectionTitle: 'Entertainment',
-  subCategories: entertainmentSubCategories,
-  mainNews: entertainmentMainNews,
-  topNews: entertainmentTopNews
-};
-
-
-// Complete Section Data Objects
-export const indiaSectionData: SectionData = {
-  sectionTitle: 'India',
-  subCategories: indiaSubCategories,
-  mainNews: indiaMainNews,
-  topNews: indiaTopNews
-};
-
-export const worldSectionData: SectionData = {
-  sectionTitle: 'World',
-  subCategories: worldSubCategories,
-  mainNews: worldMainNews,
-  topNews: worldTopNews
-};
-
-export const businessSectionData: SectionData = {
-  sectionTitle: 'Business',
-  subCategories: businessSubCategories,
-  mainNews: businessMainNews,
-  topNews: businessTopNews
-};
-
-export const technologySectionData: SectionData = {
-  sectionTitle: 'Technology',
-  subCategories: technologySubCategories,
-  mainNews: technologyMainNews,
-  topNews: technologyTopNews
-};
-
-export const sportsSectionData: SectionData = {
-  sectionTitle: 'Sports',
-  subCategories: sportsSubCategories,
-  mainNews: sportsMainNews,
-  topNews: sportsTopNews
 };

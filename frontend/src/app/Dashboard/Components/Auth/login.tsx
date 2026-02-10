@@ -3,8 +3,9 @@
 import React, { useContext, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Bounce, toast } from "react-toastify";
-import { UserContext } from "@/app/Context/ManageUserContext";
+import { UserContext } from "@/app/Dashboard/Context/ManageUserContext";
 import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight } from "lucide-react";
+import { AuthChildProps } from "./types";
 
 type Role = "User" | "Admin" | "SuperAdmin";
 
@@ -21,7 +22,7 @@ interface LoginResponse {
   success?: boolean;
 }
 
-export const SignIn: React.FC<SignInProps> = ({ setMode }) => {
+export const SignIn: React.FC<AuthChildProps> = ({ setMode }) => {
   const [formData, setFormData] = useState({ role: "User" as Role, email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -79,7 +80,7 @@ export const SignIn: React.FC<SignInProps> = ({ setMode }) => {
             Userdispatch({ type: "SIGN_IN", payload: data });
 
             // Role-based routing
-           router.push("/pages/Home")
+           router.push("/Dashboard/pages/Home")
             break;
           }
 

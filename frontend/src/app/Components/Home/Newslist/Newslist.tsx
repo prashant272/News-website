@@ -21,6 +21,7 @@ interface NewsArticle {
   isVideo: boolean;
 }
 
+
 interface TrendingItem {
   id: string;
   title: string;
@@ -43,17 +44,17 @@ const NewsList: React.FC = () => {
     
     const articles: NewsArticle[] = [];
     
-    // Take 2 from each section
     Object.entries(sectionArticles).forEach(([section, items]) => {
       items.slice(0, 2).forEach((item, idx) => {
-        articles.push({
-          id: `${section}-${item.slug}-${idx}`,
-          category: item.category,
-          title: item.title,
-          image: item.image || '',
-          isOpinion: item.tags?.includes('opinion'),
-          isVideo: item.tags?.includes('video'),
-        });
+     articles.push({
+  id: `${section}-${item.slug}-${idx}`,
+  category: item.category,
+  title: item.title,
+  image: item.image || '',
+  isOpinion: item.tags?.includes('opinion') ?? false,
+  isVideo: item.tags?.includes('video') ?? false,
+});
+;
       });
     });
     
@@ -63,7 +64,6 @@ const NewsList: React.FC = () => {
   const trendingItems: TrendingItem[] = useMemo(() => {
     if (!allNews) return [];
     
-    // ONLY trending tagged items
     return allNews
       .filter(item => item.tags?.includes('trending'))
       .slice(0, 5)
@@ -113,7 +113,6 @@ const NewsList: React.FC = () => {
   return (
     <section className={styles.newsListSection}>
       <div className={styles.container}>
-        {/* Main News List - 1-2 per section */}
         <div className={styles.mainContent}>
           <div className={styles.newsGrid}>
             {newsArticles.map((article) => (
@@ -152,7 +151,6 @@ const NewsList: React.FC = () => {
           </div>
         </div>
 
-        {/* Trending Sidebar - ONLY trending tag */}
         <aside className={styles.sidebar}>
           <div className={styles.trendingSection}>
             <div className={styles.trendingHeader}>
@@ -178,7 +176,6 @@ const NewsList: React.FC = () => {
             </div>
           </div>
 
-          {/* Advertisement */}
           <div className={styles.adSpace}>
             <div className={styles.adContent}>
               <span className={styles.adLabel}>ADVERTISEMENT</span>

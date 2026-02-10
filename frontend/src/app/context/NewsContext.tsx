@@ -1,71 +1,80 @@
 "use client";
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { useAllNews, useNewsBySection, NewsItem, ApiResponse } from '@/app/hooks/NewsApi';
+
+import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { useAllNews, NewsItem, NewsSections, NewsDocument } from "@/app/hooks/NewsApi";
 
 interface NewsContextType {
   allNews: NewsItem[] | null;
   indiaNews: NewsItem[] | null;
   sportsNews: NewsItem[] | null;
   businessNews: NewsItem[] | null;
+  lifestyleNews: NewsItem[] | null;
+  entertainmentNews: NewsItem[] | null;
+  sections: NewsSections | null;
   loading: boolean;
   error: string | null;
-  refetchAll: () => void;
-  refetchIndia: () => void;
+  refetch: () => void;
 }
 
 const NewsContext = createContext<NewsContextType | undefined>(undefined);
 
 export const NewsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const { data: allNewsData, loading, error, refetch: refetchAll } = useAllNews();
-  const { data: indiaData, refetch: refetchIndia } = useNewsBySection('india');
-  
+  const { data: rawData, loading, error, refetch } = useAllNews();
+
+  const sections = rawData && rawData.length > 0 ? rawData[0] : null;
+
   const [allNews, setAllNews] = useState<NewsItem[] | null>(null);
   const [indiaNews, setIndiaNews] = useState<NewsItem[] | null>(null);
   const [sportsNews, setSportsNews] = useState<NewsItem[] | null>(null);
   const [businessNews, setBusinessNews] = useState<NewsItem[] | null>(null);
+  const [lifestyleNews, setLifestyleNews] = useState<NewsItem[] | null>(null);
+  const [entertainmentNews, setEntertainmentNews] = useState<NewsItem[] | null>(null);
 
-  // Flatten all news from sections
-  console.log(allNewsData)
-useEffect(() => {
-  if (allNewsData?.[0]) {
-    const config = allNewsData[0];
+  useEffect(() => {
+    if (!sections) {
+      setAllNews(null);
+      setIndiaNews(null);
+      setSportsNews(null);
+      setBusinessNews(null);
+      setLifestyleNews(null);
+      setEntertainmentNews(null);
+      return;
+    }
 
-    setIndiaNews(config.india || null);
-    setSportsNews(config.sports || null);
-    setBusinessNews(config.business || null);
+    setIndiaNews(sections.india ?? null);
+    setSportsNews(sections.sports ?? null);
+    setBusinessNews(sections.business ?? null);
+    setLifestyleNews(sections.lifestyle ?? null);
+    setEntertainmentNews(sections.entertainment ?? null);
 
     const flattened: NewsItem[] = [];
+    const keys: (keyof NewsSections)[] = ["india", "sports", "business", "lifestyle", "entertainment"];
 
-    ['india', 'sports', 'business'].forEach(section => {
-      if (Array.isArray(config[section])) {
-        flattened.push(...config[section]);
-      }
+    keys.forEach((key) => {
+      const arr = sections[key];
+      if (Array.isArray(arr)) flattened.push(...arr);
     });
 
-    setAllNews(flattened);
-  }
-}, [allNewsData]);
+    setAllNews(flattened.length > 0 ? flattened : null);
+  }, [sections]);
 
+  const value: NewsContextType = {
+    allNews,
+    indiaNews,
+    sportsNews,
+    businessNews,
+    lifestyleNews,
+    entertainmentNews,
+    sections,
+    loading,
+    error,
+    refetch,
+  };
 
-  return (
-    <NewsContext.Provider value={{
-      allNews,indiaNews,
-      sportsNews,
-      businessNews,
-      loading,
-      error,
-      refetchAll,
-      refetchIndia,
-    }}>
-      {children}
-    </NewsContext.Provider>
-  );
+  return <NewsContext.Provider value={value}>{children}</NewsContext.Provider>;
 };
 
 export const useNewsContext = () => {
   const context = useContext(NewsContext);
-  if (!context) {
-    throw new Error('useNewsContext must be used within NewsProvider');
-  }
   return context;
 };

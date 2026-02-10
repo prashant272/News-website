@@ -2,7 +2,7 @@ import React from 'react';
 import styles from './HeroSection.module.scss';
 
 const HeroSection: React.FC = () => {
-  const videoId = 'xJ05rWqlS8w'; // Extracted from https://youtu.be/xJ05rWqlS8w
+  const videoId = 'xJ05rWqlS8w'; 
 
   return (
     <section className={styles.hero}>

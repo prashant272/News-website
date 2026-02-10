@@ -89,7 +89,6 @@ const LifestyleSection: React.FC = () => {
         </nav>
 
         <div className={styles.contentGrid}>
-          {/* Article Grid */}
           <div className={styles.articleGrid}>
             {lifestyleArticles.map((article) => (
               <article key={article.id} className={styles.articleCard}>
@@ -111,7 +110,6 @@ const LifestyleSection: React.FC = () => {
             ))}
           </div>
 
-          {/* Ad Section */}
           <aside className={styles.adSidebar}>
             <span className={styles.adLabel}>ADVERTISEMENT</span>
             <div className={styles.adFrame}>

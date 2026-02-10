@@ -10,23 +10,33 @@ const NewsRouter = require("./routes/news.routes")
 const OTPRouter = require("./routes/otp.route")
 
 const app = express()
+
+dotenv.config({path:"./Config/config.env"})
+connectdb()
+
 app.use(cors())
+
+app.use((req, res, next) => {
+  res.setHeader("Cache-Control", "no-store")
+  res.setHeader("Pragma", "no-cache")
+  res.setHeader("Expires", "0")
+  next()
+})
+
 app.use(bodyParser.json({
     limit:"30mb"
 }))
-dotenv.config({path:"./Config/config.env"})
-connectdb()
-app.get("/",(req,res)=>{
-    try {
-        res.send("Hello")
-    } catch (error) {
-        console.log(error);
-    }
-})
+
 app.use(morgan("dev"))
+
+app.get("/",(req,res)=>{
+    res.send("Hello")
+})
+
 app.use("/auth",AuthRouter)
 app.use("/news",NewsRouter)
 app.use("/otp",OTPRouter)
+
 app.listen(process.env.PORT,()=>{
-    console.log("server is runing");
+    console.log("server is running");
 })

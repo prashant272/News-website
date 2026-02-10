@@ -18,15 +18,16 @@ interface ArticleData {
   section: string;
   category: string;
   title: string;
-  subtitle?: string;
+  subtitle: string;  
   image: string;
-  date?: string;
+  date: string;
   author?: string;
   readTime?: string;
   content: string;
   tags?: string[];
   slug: string;
 }
+
 
 interface SidebarNewsItem {
   id: string | number;

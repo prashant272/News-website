@@ -6,7 +6,7 @@ import { useNewsContext } from '@/app/context/NewsContext';
 import styles from './NewsSection.module.scss';
 
 export interface NewsGridItem {
-  sectionTitle: string;
+  // sectionTitle: string;
   id: string | number;
   image: string;
   title: string;
@@ -81,7 +81,6 @@ const NewsSection: React.FC<NewsSectionProps> = ({
 
   const section = getSectionFromUrl();
 
-  // Get section-specific news
   const sectionNews = (() => {
     switch (section) {
       case 'india': return indiaNews || [];
@@ -92,19 +91,17 @@ const NewsSection: React.FC<NewsSectionProps> = ({
     }
   })();
 
-  // Main grid: 12 recent articles
   const mainNews: NewsGridItem[] = React.useMemo(() => {
     return sectionNews.slice(0, 12).map((item, index) => ({
-      sectionTitle: sectionTitle,
+      // sectionTitle: sectionTitle,
       id: `${section}-${item.slug}-${index}`,
       image: item.image || '',
       title: item.title,
       slug: item.slug,
       category: item.category || item.subCategory,
     }));
-  }, [sectionNews, sectionTitle, section]);
+  }, [sectionNews, section]);
 
-  // Top news: 5 most recent
   const topNews: TopNewsItem[] = React.useMemo(() => {
     return sectionNews.slice(0, 5).map((item, index) => ({
       id: `${section}-top-${index}`,

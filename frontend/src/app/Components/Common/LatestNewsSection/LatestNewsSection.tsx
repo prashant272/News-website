@@ -19,6 +19,7 @@ interface LatestNewsSectionProps {
   readMoreLink?: string;
   columns?: 2 | 3 | 4;
   limit?: number;
+  newsData: LatestNewsItem[];
 }
 
 const getSectionKeyFromTitle = (title: string): 'india' | 'sports' | 'business' | 'entertainment' | 'lifestyle' | 'all' => {
@@ -53,6 +54,7 @@ const LatestNewsSection: React.FC<LatestNewsSectionProps> = ({
       default: return allNews || [];
     }
   };
+
 
   const rawData = getSectionData();
   const dynamicReadMoreLink = readMoreLink || `/Pages/${effectiveSectionKey}`;

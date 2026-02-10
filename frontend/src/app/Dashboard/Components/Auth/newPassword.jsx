@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { Bounce, toast } from 'react-toastify';
 import { FaLock } from 'react-icons/fa';
-import { UserContext } from '@/app/Context/ManageUserContext';
+import { UserContext } from '@/app/Dashboard/Context/ManageUserContext';
 
 export const NewPassword = ({ setMode, Email }) => {
   const [formData, setFormData] = useState({});

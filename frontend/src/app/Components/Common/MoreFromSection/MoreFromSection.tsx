@@ -17,6 +17,7 @@ interface MoreFromSectionProps {
   sectionKey?: 'india' | 'sports' | 'business' | 'entertainment' | 'lifestyle' | 'all';
   columns?: 2 | 3;
   limit?: number;
+  items:any;
 }
 
 const MoreFromSection: React.FC<MoreFromSectionProps> = ({ 

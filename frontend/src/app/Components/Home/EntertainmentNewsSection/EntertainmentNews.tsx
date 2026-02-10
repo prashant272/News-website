@@ -33,7 +33,7 @@ const Entertainment: React.FC = () => {
       (
         item.subCategory?.toLowerCase() === activeCategory.toLowerCase() ||
         item.tags?.some(tag => tag.toLowerCase() === activeCategory.toLowerCase()) ||
-        activeCategory === 'Bollywood'  // Default: Bollywood + general entertainment
+        activeCategory === 'Bollywood'  
       )
     );
   }, [allNews, activeCategory]);

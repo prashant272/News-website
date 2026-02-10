@@ -1,10 +1,30 @@
 "use client";
 
-import React, { useContext, useState, useCallback, useMemo, useRef, useEffect } from "react";
+import React, {
+  useContext,
+  useState,
+  useCallback,
+  useMemo,
+  useRef,
+  useEffect,
+} from "react";
 import { useRouter } from "next/navigation";
 import { Bounce, toast } from "react-toastify";
-import { UserContext } from "@/app/Context/ManageUserContext";
-import { Users, Shield, Crown, Mail, Lock, Eye, EyeOff, Image, Loader2, Key, Check } from "lucide-react";
+import { UserContext } from "@/app/Dashboard/Context/ManageUserContext";
+import {
+  Users,
+  Shield,
+  Crown,
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  Image,
+  Loader2,
+  Key,
+  Check,
+} from "lucide-react";
+import { AuthChildProps } from "./types";
 
 interface SignUpProps {
   setMode: (mode: string) => void;
@@ -21,7 +41,8 @@ interface SignUpFormData {
 }
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+const PASSWORD_REGEX =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
 interface SignUpResponse {
   status: number;
@@ -32,7 +53,18 @@ interface SignUpResponse {
   };
 }
 
-export const SignUp: React.FC<SignUpProps> = ({ setMode }) => {
+// helper to extract message from unknown error
+const getErrorMessage = (err: unknown): string => {
+  if (err instanceof Error) return err.message;
+  if (typeof err === "string") return err;
+  if (err && typeof err === "object" && "message" in err) {
+    const maybeMessage = (err as { message?: unknown }).message;
+    if (typeof maybeMessage === "string") return maybeMessage;
+  }
+  return "Something went wrong";
+};
+
+export const SignUp: React.FC<AuthChildProps> = ({ setMode }) => {
   const [step, setStep] = useState<"form" | "otp">("form");
   const [formData, setFormData] = useState<SignUpFormData>({
     name: "",
@@ -69,30 +101,45 @@ export const SignUp: React.FC<SignUpProps> = ({ setMode }) => {
     []
   );
 
-  const handleOtpChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^0-9]/g, "").slice(0, 6);
-    setOtp(value);
-  }, []);
+  const handleOtpChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value.replace(/[^0-9]/g, "").slice(0, 6);
+      setOtp(value);
+    },
+    []
+  );
 
-  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && file.size < 2 * 1024 * 1024) {
-      const reader = new FileReader();
-      reader.onload = (ev) =>
-        setFormData((prev) => ({
-          ...prev,
-          profilePicture: ev.target?.result as string,
-        }));
-      reader.readAsDataURL(file);
-      toast.success("Profile picture selected!", { position: "top-right", autoClose: 2000 });
-    } else {
-      toast.error("Image must be under 2MB", { position: "top-center", transition: Bounce });
-    }
-  }, []);
+  const handleFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file && file.size < 2 * 1024 * 1024) {
+        const reader = new FileReader();
+        reader.onload = (ev: ProgressEvent<FileReader>) =>
+          setFormData((prev) => ({
+            ...prev,
+            profilePicture: ev.target?.result as string,
+          }));
+        reader.readAsDataURL(file);
+        toast.success("Profile picture selected!", {
+          position: "top-right",
+          autoClose: 2000,
+        });
+      } else {
+        toast.error("Image must be under 2MB", {
+          position: "top-center",
+          transition: Bounce,
+        });
+      }
+    },
+    []
+  );
 
   const sendOtpToAdmin = useCallback(async () => {
     if (!isFormValid) {
-      toast.error("Please fill all fields correctly", { position: "top-center", transition: Bounce });
+      toast.error("Please fill all fields correctly", {
+        position: "top-center",
+        transition: Bounce,
+      });
       return;
     }
 
@@ -109,15 +156,18 @@ export const SignUp: React.FC<SignUpProps> = ({ setMode }) => {
       const resolve = new Promise((resolve, reject) => {
         setTimeout(() => {
           const status = responseData?.Status || responseData?.status;
-          
-          if (status === 'OTP Sent Successfully') {
+
+          if (status === "OTP Sent Successfully") {
             setShowOtpInput(true);
             setStep("otp");
-            toast.success(`✅ OTP sent to ${formData.email}! Check administrator email`, {
-              position: "top-center",
-              autoClose: 5000,
-              transition: Bounce,
-            });
+            toast.success(
+              `✅ OTP sent to ${formData.email}! Check administrator email`,
+              {
+                position: "top-center",
+                autoClose: 5000,
+                transition: Bounce,
+              }
+            );
             resolve(responseData);
           } else {
             reject(new Error(`OTP Status: ${status}`));
@@ -126,20 +176,24 @@ export const SignUp: React.FC<SignUpProps> = ({ setMode }) => {
       });
 
       await toast.promise(resolve, {
-        pending: '📧 Sending approval code to administrator...',
-        success: '🎉 OTP sent successfully! Check email.',
+        pending: "📧 Sending approval code to administrator...",
+        success: "🎉 OTP sent successfully! Check email.",
         error: {
-          render({ data: err }) {
-            return `❌ Failed: ${err.message}`;
+          render({ data }) {
+            const msg = getErrorMessage(data);
+            return `❌ Failed: ${msg}`;
           },
         },
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(
-        error?.response?.data?.message || 
-        error?.message || 
-        'Failed to send OTP to administrator', 
-        { position: "top-center", transition: Bounce }
+        getErrorMessage(
+          (error as any)?.response?.data?.message ?? error
+        ) || "Failed to send OTP to administrator",
+        {
+          position: "top-center",
+          transition: Bounce,
+        }
       );
     } finally {
       setLoading(false);
@@ -148,7 +202,10 @@ export const SignUp: React.FC<SignUpProps> = ({ setMode }) => {
 
   const verifyOtpAndSignup = useCallback(async () => {
     if (!otpData || otp.length !== 6) {
-      toast.error("Please enter valid 6-digit OTP", { position: "top-center", transition: Bounce });
+      toast.error("Please enter valid 6-digit OTP", {
+        position: "top-center",
+        transition: Bounce,
+      });
       return;
     }
 
@@ -162,7 +219,7 @@ export const SignUp: React.FC<SignUpProps> = ({ setMode }) => {
 
       const verifyResolve = new Promise((resolve, reject) => {
         setTimeout(() => {
-          if (verifyData?.msg === 'OTP verified successfully') {
+          if (verifyData?.msg === "OTP verified successfully") {
             toast.success("✅ Administrator approved!", {
               position: "top-center",
               autoClose: 2000,
@@ -170,17 +227,18 @@ export const SignUp: React.FC<SignUpProps> = ({ setMode }) => {
             });
             resolve(verifyData);
           } else {
-            reject(new Error(verifyData?.msg || 'Invalid OTP'));
+            reject(new Error(verifyData?.msg || "Invalid OTP"));
           }
         }, 1000);
       });
 
       await toast.promise(verifyResolve, {
-        pending: '🔍 Verifying administrator approval...',
-        success: '✅ Approved! Creating your account...',
+        pending: "🔍 Verifying administrator approval...",
+        success: "✅ Approved! Creating your account...",
         error: {
-          render({ data: err }) {
-            return `❌ ${err.message}`;
+          render({ data }) {
+            const msg = getErrorMessage(data);
+            return `❌ ${msg}`;
           },
         },
       });
@@ -208,10 +266,10 @@ export const SignUp: React.FC<SignUpProps> = ({ setMode }) => {
           transition: Bounce,
         });
       }
-    } catch (error: any) {
-      toast.error(error.message || 'Registration failed', { 
-        position: "top-center", 
-        transition: Bounce 
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error) || "Registration failed", {
+        position: "top-center",
+        transition: Bounce,
       });
     } finally {
       setLoading(false);
@@ -230,7 +288,11 @@ export const SignUp: React.FC<SignUpProps> = ({ setMode }) => {
     return (
       <Icon
         className={`h-4 w-4 ${
-          role === "USER" ? "text-blue-400" : role === "ADMIN" ? "text-orange-400" : "text-purple-400"
+          role === "USER"
+            ? "text-blue-400"
+            : role === "ADMIN"
+            ? "text-orange-400"
+            : "text-purple-400"
         }`}
       />
     );
@@ -254,7 +316,6 @@ export const SignUp: React.FC<SignUpProps> = ({ setMode }) => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
       <div className="w-full max-w-sm">
         <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 shadow-2xl">
-          
           <div className="text-center mb-6">
             <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center mx-auto mb-3">
               {step === "form" ? (
@@ -267,27 +328,48 @@ export const SignUp: React.FC<SignUpProps> = ({ setMode }) => {
               {step === "form" ? "Create Account" : "Admin Approval"}
             </h2>
             {step === "otp" && (
-              <p className="text-sm text-gray-400 mt-1">Enter 6-digit code from administrator email</p>
+              <p className="text-sm text-gray-400 mt-1">
+                Enter 6-digit code from administrator email
+              </p>
             )}
           </div>
 
           {step === "form" ? (
             <form className="space-y-3">
-             <div className="relative">
-  <select
-    value={formData.role}
-    onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value as Role }))}
-    className="w-full pl-9 pr-3 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white text-sm font-semibold 
+              <div className="relative">
+                <select
+                  value={formData.role}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      role: e.target.value as Role,
+                    }))
+                  }
+                  className="w-full pl-9 pr-3 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white text-sm font-semibold 
                focus:ring-2 focus:ring-teal-500/50 focus:border-transparent transition-all"
-    disabled={loading}
-  >
-    <option className="bg-slate-900 text-white" value="USER">👤 User</option>
-    <option className="bg-slate-900 text-white" value="ADMIN">🛡️ Admin</option>
-    <option className="bg-slate-900 text-white" value="SUPER_ADMIN">👑 Super Admin</option>
-  </select>
-  <RoleIcon role={formData.role} />
-</div>
-
+                  disabled={loading}
+                >
+                  <option
+                    className="bg-slate-900 text-white"
+                    value="USER"
+                  >
+                    👤 User
+                  </option>
+                  <option
+                    className="bg-slate-900 text-white"
+                    value="ADMIN"
+                  >
+                    🛡️ Admin
+                  </option>
+                  <option
+                    className="bg-slate-900 text-white"
+                    value="SUPER_ADMIN"
+                  >
+                    👑 Super Admin
+                  </option>
+                </select>
+                <RoleIcon role={formData.role} />
+              </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="relative">
@@ -315,7 +397,9 @@ export const SignUp: React.FC<SignUpProps> = ({ setMode }) => {
                     onChange={handleChange("email")}
                     className={`w-full pl-9 pr-3 py-2.5 bg-white/10 border rounded-xl text-white text-sm 
                                focus:ring-2 focus:ring-teal-500/50 focus:border-transparent transition-all border-white/20 ${
-                                 !isValid.email && formData.email ? "border-red-500 ring-red-500/30" : ""
+                                 !isValid.email && formData.email
+                                   ? "border-red-500 ring-red-500/30"
+                                   : ""
                                }`}
                     disabled={loading}
                   />
@@ -333,7 +417,9 @@ export const SignUp: React.FC<SignUpProps> = ({ setMode }) => {
                   onChange={handleChange("password")}
                   className={`w-full pl-9 pr-10 py-2.5 bg-white/10 border rounded-xl text-white text-sm 
                                focus:ring-2 focus:ring-teal-500/50 focus:border-transparent transition-all border-white/20 ${
-                                 !isValid.password && formData.password ? "border-red-500 ring-red-500/30" : ""
+                                 !isValid.password && formData.password
+                                   ? "border-red-500 ring-red-500/30"
+                                   : ""
                                }`}
                   disabled={loading}
                 />
@@ -342,16 +428,32 @@ export const SignUp: React.FC<SignUpProps> = ({ setMode }) => {
                   onClick={() => setShowPassword((v) => !v)}
                   className="absolute inset-y-0 right-0 pr-3 flex items-center hover:text-teal-400"
                 >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
                 </button>
               </div>
 
-              <label className="block w-full h-12 border-2 border-dashed border-white/30 rounded-xl bg-white/5 
+              <label
+                className="block w-full h-12 border-2 border-dashed border-white/30 rounded-xl bg-white/5 
                                 flex items-center justify-center text-xs text-gray-400 hover:border-teal-500 
-                                hover:bg-teal-500/10 transition-all cursor-pointer group">
-                <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" disabled={loading} />
+                                hover:bg-teal-500/10 transition-all cursor-pointer group"
+              >
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="hidden"
+                  disabled={loading}
+                />
                 {formData.profilePicture ? (
-                  <img src={formData.profilePicture} alt="Preview" className="w-8 h-8 rounded-full object-cover ring-1 ring-teal-500 mr-2" />
+                  <img
+                    src={formData.profilePicture}
+                    alt="Preview"
+                    className="w-8 h-8 rounded-full object-cover ring-1 ring-teal-500 mr-2"
+                  />
                 ) : (
                   <Image className="w-4 h-4 mr-1 group-hover:text-teal-400" />
                 )}
@@ -382,8 +484,12 @@ export const SignUp: React.FC<SignUpProps> = ({ setMode }) => {
             <>
               <div className="bg-white/10 p-4 rounded-xl border border-white/20 mb-6">
                 <p className="text-xs text-gray-400 mb-1">Admin Verification</p>
-                <p className="text-sm font-semibold text-white truncate">{otpData?.email}</p>
-                <p className="text-xs text-gray-400 mt-1">Enter 6-digit OTP from admin email</p>
+                <p className="text-sm font-semibold text-white truncate">
+                  {otpData?.email}
+                </p>
+                <p className="text-xs text-gray-400 mt-1">
+                  Enter 6-digit OTP from admin email
+                </p>
               </div>
 
               {showOtpInput ? (
@@ -400,7 +506,11 @@ export const SignUp: React.FC<SignUpProps> = ({ setMode }) => {
                       onChange={handleOtpChange}
                       className={`w-full pl-9 pr-3 py-2.5 bg-white/10 border rounded-xl text-white text-sm font-mono tracking-widest text-center
                                   focus:ring-2 focus:ring-teal-500/50 focus:border-transparent transition-all border-white/20 ${
-                                    otp.length === 6 ? "border-emerald-500 bg-emerald-500/10" : otp.length > 0 ? "border-red-500 ring-red-500/30" : ""
+                                    otp.length === 6
+                                      ? "border-emerald-500 bg-emerald-500/10"
+                                      : otp.length > 0
+                                      ? "border-red-500 ring-red-500/30"
+                                      : ""
                                   }`}
                       maxLength={6}
                       disabled={loading}
@@ -434,14 +544,20 @@ export const SignUp: React.FC<SignUpProps> = ({ setMode }) => {
                           : "bg-gray-600 cursor-not-allowed"
                       }`}
                     >
-                      {loading ? <Loader2 className="animate-spin h-4 w-4 mx-auto" /> : "Create Account"}
+                      {loading ? (
+                        <Loader2 className="animate-spin h-4 w-4 mx-auto" />
+                      ) : (
+                        "Create Account"
+                      )}
                     </button>
                   </div>
                 </form>
               ) : (
                 <div className="text-center py-8">
                   <Check className="w-16 h-16 text-teal-400 mx-auto mb-4 opacity-75" />
-                  <p className="text-sm text-gray-300 mb-2">Ready for admin approval</p>
+                  <p className="text-sm text-gray-300 mb-2">
+                    Ready for admin approval
+                  </p>
                   <button
                     type="button"
                     onClick={sendOtpToAdmin}
