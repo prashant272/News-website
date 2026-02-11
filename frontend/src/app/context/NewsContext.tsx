@@ -76,5 +76,10 @@ export const NewsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
 export const useNewsContext = () => {
   const context = useContext(NewsContext);
+  
+  if (context === undefined) {
+    throw new Error("useNewsContext must be used within a NewsProvider");
+  }
+  
   return context;
 };

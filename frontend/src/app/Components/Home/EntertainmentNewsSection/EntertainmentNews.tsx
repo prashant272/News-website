@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import React, { useState, useMemo } from 'react';
 import { useNewsContext } from '@/app/context/NewsContext';
 import styles from './EntertainmentNews.module.scss';
@@ -19,24 +19,59 @@ interface EntArticle {
   category: string;
 }
 
-const categories = ['Bollywood', 'TV', 'OTT', 'Reviews', 'Regional', 'Hollywood', 'Korean', 'Photos', 'Web Stories', 'Videos'];
-
 const Entertainment: React.FC = () => {
-  const { allNews, loading } = useNewsContext();
-  const [activeCategory, setActiveCategory] = useState('Bollywood');
+  const { entertainmentNews, loading } = useNewsContext();
+  
+  const availableCategories = useMemo(() => {
+    if (!entertainmentNews || entertainmentNews.length === 0) return [];
+
+    const categoryCount: Record<string, number> = {};
+
+    entertainmentNews.forEach(item => {
+      const subCat = item.subCategory;
+      if (subCat) {
+        categoryCount[subCat] = (categoryCount[subCat] || 0) + 1;
+      }
+    });
+
+    const categories = Object.entries(categoryCount)
+      .filter(([_, count]) => count > 0)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count);
+
+    return categories.map(c => c.name);
+  }, [entertainmentNews]);
+
+  const [activeCategory, setActiveCategory] = useState(() => 
+    availableCategories.length > 0 ? availableCategories[0] : 'Bollywood'
+  );
+
+  useMemo(() => {
+    if (availableCategories.length > 0 && !availableCategories.includes(activeCategory)) {
+      setActiveCategory(availableCategories[0]);
+    }
+  }, [availableCategories, activeCategory]);
+
+  const getImageSrc = (img?: string): string => {
+    if (!img) {
+      return 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=800&q=80';
+    }
+    if (img.startsWith('http') || img.startsWith('data:')) {
+      return img;
+    }
+    if (img.startsWith('/')) {
+      return img;
+    }
+    return `/uploads/${img}`;
+  };
 
   const filteredEntNews = useMemo(() => {
-    if (!allNews) return [];
+    if (!entertainmentNews) return [];
     
-    return allNews.filter(item => 
-      item.category.toLowerCase() === 'entertainment' &&
-      (
-        item.subCategory?.toLowerCase() === activeCategory.toLowerCase() ||
-        item.tags?.some(tag => tag.toLowerCase() === activeCategory.toLowerCase()) ||
-        activeCategory === 'Bollywood'  
-      )
+    return entertainmentNews.filter(item => 
+      item.subCategory?.toLowerCase() === activeCategory.toLowerCase()
     );
-  }, [allNews, activeCategory]);
+  }, [entertainmentNews, activeCategory]);
 
   const entertainmentArticles: EntArticle[] = useMemo(() => {
     if (!filteredEntNews.length) return [];
@@ -44,7 +79,7 @@ const Entertainment: React.FC = () => {
     return filteredEntNews.slice(0, 6).map((item, index) => ({
       id: `${activeCategory.toLowerCase()}-${item.slug}-${index}`,
       title: item.title,
-      image: item.image ? `/public/${item.image}` : 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=800&q=80',
+      image: getImageSrc(item.image),
       category: activeCategory,
     }));
   }, [filteredEntNews, activeCategory]);
@@ -53,6 +88,14 @@ const Entertainment: React.FC = () => {
     return (
       <section className={styles.sportsSection}>
         <div className={styles.container}>
+          <div className={styles.header}>
+            <h2 className={styles.title}>Entertainment</h2>
+            <div className={styles.categoryNav}>
+              {Array(6).fill(0).map((_, i) => (
+                <div key={i} className="h-10 w-24 bg-gray-200 rounded-full animate-pulse"></div>
+              ))}
+            </div>
+          </div>
           <div className={styles.articlesContainer}>
             <div className={styles.articlesGrid}>
               <article className={`${styles.featuredArticle} animate-pulse`}>
@@ -76,13 +119,43 @@ const Entertainment: React.FC = () => {
     );
   }
 
+  if (!entertainmentNews || entertainmentNews.length === 0) {
+    return (
+      <section className={styles.sportsSection}>
+        <div className={styles.container}>
+          <div className={styles.header}>
+            <h2 className={styles.title}>Entertainment</h2>
+          </div>
+          <div className={styles.articlesContainer}>
+            <p className="text-center text-gray-500 py-8">No entertainment news available</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (availableCategories.length === 0) {
+    return (
+      <section className={styles.sportsSection}>
+        <div className={styles.container}>
+          <div className={styles.header}>
+            <h2 className={styles.title}>Entertainment</h2>
+          </div>
+          <div className={styles.articlesContainer}>
+            <p className="text-center text-gray-500 py-8">No entertainment categories available</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className={styles.sportsSection}>
       <div className={styles.container}>
         <div className={styles.header}>
           <h2 className={styles.title}>Entertainment</h2>
           <nav className={styles.categoryNav}>
-            {categories.map((category) => (
+            {availableCategories.map((category) => (
               <button
                 key={category}
                 className={`${styles.categoryButton} ${
@@ -97,46 +170,52 @@ const Entertainment: React.FC = () => {
         </div>
 
         <div className={styles.articlesContainer}>
-          <div className={styles.articlesGrid}>
-            {/* Featured Article */}
-            {entertainmentArticles[0] && (
-              <article className={styles.featuredArticle}>
-                <div className={styles.featuredImage}>
-                  <img src={entertainmentArticles[0].image} alt={entertainmentArticles[0].title} />
-                  <div className={styles.imageOverlay}></div>
-                </div>
-                <div className={styles.featuredContent}>
-                  <span className={styles.categoryBadge}>{entertainmentArticles[0].category}</span>
-                  <h3 className={styles.featuredTitle}>{entertainmentArticles[0].title}</h3>
-                </div>
-              </article>
-            )}
-
-            {/* Regular Articles List */}
-            <div className={styles.regularArticles}>
-              {entertainmentArticles.slice(1).map((article) => (
-                <article key={article.id} className={styles.regularArticle}>
-                  <div className={styles.articleContent}>
-                    <span className={styles.categoryBadge}>{article.category}</span>
-                    <h4 className={styles.articleTitle}>{article.title}</h4>
+          {entertainmentArticles.length > 0 ? (
+            <div className={styles.articlesGrid}>
+              {entertainmentArticles[0] && (
+                <article className={styles.featuredArticle}>
+                  <div className={styles.featuredImage}>
+                    <img src={entertainmentArticles[0].image} alt={entertainmentArticles[0].title} />
+                    <div className={styles.imageOverlay}></div>
                   </div>
-                  <div className={styles.articleImage}>
-                    <img src={article.image} alt={article.title} />
+                  <div className={styles.featuredContent}>
+                    <span className={styles.categoryBadge}>{entertainmentArticles[0].category}</span>
+                    <h3 className={styles.featuredTitle}>{entertainmentArticles[0].title}</h3>
                   </div>
                 </article>
-              ))}
+              )}
+
+              <div className={styles.regularArticles}>
+                {entertainmentArticles.slice(1).map((article) => (
+                  <article key={article.id} className={styles.regularArticle}>
+                    <div className={styles.articleContent}>
+                      <span className={styles.categoryBadge}>{article.category}</span>
+                      <h4 className={styles.articleTitle}>{article.title}</h4>
+                    </div>
+                    <div className={styles.articleImage}>
+                      <img src={article.image} alt={article.title} />
+                    </div>
+                  </article>
+                ))}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-gray-500">No articles found for {activeCategory}</p>
+            </div>
+          )}
         </div>
 
-        <div className={styles.readMoreWrapper}>
-          <button className={styles.readMoreButton}>
-            More Entertainment News
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <path d="M7 4L13 10L7 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-          </button>
-        </div>
+        {entertainmentArticles.length > 0 && (
+          <div className={styles.readMoreWrapper}>
+            <button className={styles.readMoreButton}>
+              More Entertainment News
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M7 4L13 10L7 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );

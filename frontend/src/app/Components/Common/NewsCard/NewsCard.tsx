@@ -1,8 +1,9 @@
-"use client"
-import React from 'react';
-import styles from './NewsCard.module.scss';
-import Link from 'next/link';
+'use client'
+import React, { useMemo } from 'react';
 import { usePathname } from 'next/navigation';
+import Link from 'next/link';
+import { useNewsContext } from '@/app/context/NewsContext';
+import styles from './NewsCard.module.scss';
 
 export interface NewsItem {
   id: string | number;
@@ -18,18 +19,19 @@ export interface NewsItem {
 }
 
 export interface CategorySection {
-  categoryName: string;
+  categoryName: any;
   items: NewsItem[];
   subcategories?: string[];
 }
 
 interface NewsCardsProps {
-  data: CategorySection[];
+  data?: CategorySection[];
   columns?: 2 | 3 | 4;
   showSubcategories?: boolean;
   animationEnabled?: boolean;
   showViewMore?: boolean;
   maxHeadlines?: number;
+  overrideSection?: 'india' | 'sports' | 'business' | 'entertainment' | 'lifestyle' | 'all';
 }
 
 const NewsCards: React.FC<NewsCardsProps> = ({ 
@@ -38,9 +40,70 @@ const NewsCards: React.FC<NewsCardsProps> = ({
   showSubcategories = false,
   animationEnabled = true,
   showViewMore = true,
-  maxHeadlines = 4
+  maxHeadlines = 4,
+  overrideSection
 }) => {
   const pathname = usePathname();
+  const { allNews, indiaNews, sportsNews, businessNews, entertainmentNews, lifestyleNews } = useNewsContext();
+
+  const section = useMemo(() => {
+    if (overrideSection) return overrideSection;
+
+    const parts = pathname.split('/').filter(Boolean);
+    const pagesIndex = parts.indexOf('Pages');
+
+    if (pagesIndex !== -1 && parts[pagesIndex + 1]) {
+      const candidate = parts[pagesIndex + 1];
+      if (['india', 'sports', 'business', 'entertainment', 'lifestyle'].includes(candidate)) {
+        return candidate;
+      }
+    }
+
+    return 'india';
+  }, [pathname, overrideSection]);
+
+  const sectionData = useMemo(() => {
+    switch (section) {
+      case 'india':        return indiaNews || [];
+      case 'sports':       return sportsNews || [];
+      case 'business':     return businessNews || [];
+      case 'entertainment': return entertainmentNews || [];
+      case 'lifestyle':    return lifestyleNews || [];
+      default:             return allNews || [];
+    }
+  }, [section, allNews, indiaNews, sportsNews, businessNews, entertainmentNews, lifestyleNews]);
+
+  const contextData: CategorySection[] = useMemo(() => {
+    if (!sectionData || sectionData.length === 0) return [];
+
+    const grouped: Record<string, NewsItem[]> = {};
+
+    sectionData.forEach((item: any) => {
+      const category = item.category || section.toUpperCase();
+      if (!grouped[category]) {
+        grouped[category] = [];
+      }
+      grouped[category].push({
+        id: item._id || item.id || item.slug,
+        title: item.title,
+        image: item.image,
+        category: item.category,
+        slug: item.slug,
+        date: item.date,
+        isLive: item.isLive,
+        isVideo: item.isVideo,
+        isPhoto: item.isPhoto
+      });
+    });
+
+    return Object.entries(grouped).map(([categoryName, items]) => ({
+      categoryName,
+      items: items.slice(0, maxHeadlines + 1),
+      subcategories: []
+    }));
+  }, [sectionData, section, maxHeadlines]);
+
+  const displayData =  contextData;
 
   const CATEGORY_TO_SECTION_MAP: Record<string, string> = {
     'Cricket': 'sports',
@@ -73,7 +136,7 @@ const NewsCards: React.FC<NewsCardsProps> = ({
   };
 
   const getSectionFromCategory = (categoryName: string): string => {
-    return CATEGORY_TO_SECTION_MAP[categoryName] || 'news';
+    return CATEGORY_TO_SECTION_MAP[categoryName] || section;
   };
 
   const getItemLink = (item: NewsItem, categoryName: string): string => {
@@ -81,19 +144,9 @@ const NewsCards: React.FC<NewsCardsProps> = ({
       return `/news/${item.id}`;
     }
 
-    console.log('Item:', item.title);
-    console.log('Item category:', item.category);
-    console.log('CategoryName from section:', categoryName);
-
     const itemCategory = item.category || categoryName;
     const itemSection = getSectionFromCategory(itemCategory);
-    const itemCategorySlug = itemCategory.toLowerCase().replace(/\s+/g, '-');
-
-    console.log('Final itemCategory:', itemCategory);
-    console.log('Final itemSection:', itemSection);
-    console.log('Final itemCategorySlug:', itemCategorySlug);
-    console.log('Current pathname:', pathname);
-    console.log('---');
+    const itemCategorySlug = itemCategory.toLowerCase().replace(/\\s+/g, '-');
 
     const expectedPath = `/Pages/${itemSection}/${itemCategorySlug}`;
     const normalizedPathname = pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
@@ -106,15 +159,44 @@ const NewsCards: React.FC<NewsCardsProps> = ({
   };
 
   const getCategoryLink = (categoryName: string): string => {
-    const section = getSectionFromCategory(categoryName);
-    const categorySlug = categoryName.toLowerCase().replace(/\s+/g, '-');
-    return `/Pages/${section}/${categorySlug}`;
+    const categorySection = getSectionFromCategory(categoryName);
+    const categorySlug = categoryName.toLowerCase().replace(/\\s+/g, '-');
+    return `/Pages/${categorySection}/${categorySlug}`;
   };
+
+  if (displayData.length === 0) {
+    return (
+      <div className={styles.categoryCardsWrapper}>
+        <div className={`${styles.categoryCardsGrid} ${styles[`cols${columns}`]}`}>
+          {Array(columns).fill(0).map((_, i) => (
+            <div key={i} className={styles.categoryCard} style={{ opacity: 0.5 }}>
+              <div className={styles.categoryHeader}>
+                <div className="h-6 bg-gray-200 rounded w-32 mb-4"></div>
+              </div>
+              <div className={styles.featuredSection}>
+                <div className={styles.imageContainer} style={{ background: '#e5e7eb' }}>
+                  <div className="animate-pulse bg-gray-300 h-full w-full"></div>
+                </div>
+                <div className="h-6 bg-gray-200 rounded w-full mt-4"></div>
+              </div>
+              <div className={styles.headlinesSection}>
+                <div className="space-y-2 mt-4">
+                  <div className="h-4 bg-gray-200 rounded w-full"></div>
+                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                  <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.categoryCardsWrapper}>
       <div className={`${styles.categoryCardsGrid} ${styles[`cols${columns}`]}`}>
-        {data.map((categorySection, index) => {
+        {displayData.map((categorySection, index) => {
           const featuredItem = categorySection.items[0];
           const headlineItems = categorySection.items.slice(1, maxHeadlines + 1);
           
@@ -135,13 +217,13 @@ const NewsCards: React.FC<NewsCardsProps> = ({
                 {showSubcategories && categorySection.subcategories && categorySection.subcategories.length > 0 && (
                   <div className={styles.subcategoriesWrapper}>
                     {categorySection.subcategories.map((subcat, idx) => {
-                      const section = getSectionFromCategory(categorySection.categoryName);
-                      const subcatSlug = subcat.toLowerCase().replace(/\s+/g, '-');
+                      const subcatSection = getSectionFromCategory(categorySection.categoryName);
+                      const subcatSlug = subcat.toLowerCase().replace(/\\s+/g, '-');
                       
                       return (
                         <Link
                           key={`${subcat}-${idx}`}
-                          href={`/Pages/${section}/${subcatSlug}`}
+                          href={`/Pages/${subcatSection}/${subcatSlug}`}
                           className={styles.subcategoryPill}
                         >
                           {subcat}

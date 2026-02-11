@@ -1,5 +1,6 @@
 "use client";
 import React, { useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { useNewsContext } from '@/app/context/NewsContext';
 import styles from './Newslist.module.scss';
 
@@ -9,27 +10,53 @@ interface RawNewsItem {
   summary?: string;
   image?: string;
   category: string;
+  subCategory?: string;
   tags?: string[];
+  isTrending?: boolean;
 }
 
 interface NewsArticle {
   id: string;
   category: string;
+  subCategory?: string;
   title: string;
   image: string;
+  slug: string;
   isOpinion: boolean;
   isVideo: boolean;
 }
-
 
 interface TrendingItem {
   id: string;
   title: string;
   image: string;
+  slug: string;
+  category: string;
+  subCategory?: string;
 }
 
 const NewsList: React.FC = () => {
   const { allNews, loading } = useNewsContext();
+  const router = useRouter();
+
+  const getImageSrc = (img?: string): string => {
+    if (!img) {
+      return 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80';
+    }
+    if (img.startsWith('http') || img.startsWith('data:')) {
+      return img;
+    }
+    if (img.startsWith('/')) {
+      return img;
+    }
+    return `/uploads/${img}`;
+  };
+
+  const handleCardClick = (slug: string, category: string, subCategory?: string) => {
+    const cat = category || 'news';
+    const subCat = subCategory || 'general';
+    router.push(`/Pages/${cat}/${subCat}/${slug}`);
+  };
 
   const newsArticles: NewsArticle[] = useMemo(() => {
     if (!allNews) return [];
@@ -46,15 +73,16 @@ const NewsList: React.FC = () => {
     
     Object.entries(sectionArticles).forEach(([section, items]) => {
       items.slice(0, 2).forEach((item, idx) => {
-     articles.push({
-  id: `${section}-${item.slug}-${idx}`,
-  category: item.category,
-  title: item.title,
-  image: item.image || '',
-  isOpinion: item.tags?.includes('opinion') ?? false,
-  isVideo: item.tags?.includes('video') ?? false,
-});
-;
+        articles.push({
+          id: `${section}-${item.slug}-${idx}`,
+          category: item.category,
+          subCategory: item.subCategory,
+          title: item.title,
+          image: getImageSrc(item.image),
+          slug: item.slug,
+          isOpinion: item.tags?.includes('opinion') ?? false,
+          isVideo: item.tags?.includes('video') ?? false,
+        });
       });
     });
     
@@ -65,12 +93,15 @@ const NewsList: React.FC = () => {
     if (!allNews) return [];
     
     return allNews
-      .filter(item => item.tags?.includes('trending'))
+      .filter(item => item.isTrending === true)
       .slice(0, 5)
       .map((item, index) => ({
         id: `${index}-${item.slug}`,
         title: item.title,
-        image: item.image || '',
+        image: getImageSrc(item.image),
+        slug: item.slug,
+        category: item.category,
+        subCategory: item.subCategory,
       }));
   }, [allNews]);
 
@@ -116,10 +147,15 @@ const NewsList: React.FC = () => {
         <div className={styles.mainContent}>
           <div className={styles.newsGrid}>
             {newsArticles.map((article) => (
-              <article key={article.id} className={styles.newsCard}>
+              <article 
+                key={article.id} 
+                className={styles.newsCard}
+                onClick={() => handleCardClick(article.slug, article.category, article.subCategory)}
+                style={{ cursor: 'pointer' }}
+              >
                 <div className={styles.cardImage}>
                   <img 
-                    src={article.image ? `/public/${article.image}` : 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80'}
+                    src={article.image}
                     alt={article.title}
                   />
                   {article.isVideo && (
@@ -160,13 +196,18 @@ const NewsList: React.FC = () => {
             
             <div className={styles.trendingList}>
               {trendingItems.map((item, index) => (
-                <article key={item.id} className={styles.trendingCard}>
+                <article 
+                  key={item.id} 
+                  className={styles.trendingCard}
+                  onClick={() => handleCardClick(item.slug, item.category, item.subCategory)}
+                  style={{ cursor: 'pointer' }}
+                >
                   <div className={styles.trendingRank}>
                     <span>{index + 1}</span>
                   </div>
                   <div className={styles.trendingImage}>
                     <img 
-                      src={item.image ? `/public/${item.image}` : 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80'}
+                      src={item.image}
                       alt={item.title}
                     />
                   </div>

@@ -1,14 +1,16 @@
+@import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
 // Color Variables
-$primary-red: #ff4444;
-$secondary-orange: #ff9900;
-$dark-bg: #0a0a0a;
-$darker-bg: #050505;
-$card-bg: rgba(255, 255, 255, 0.04);
-$text-light: #f0f0f0;
-$text-gray: #b0b0b0;
-$text-muted: #808080;
-$border-color: rgba(255, 255, 255, 0.08);
-$hover-bg: rgba(255, 255, 255, 0.06);
+$primary-blue: #3b82f6;
+$secondary-purple: #8b5cf6;
+$light-bg: #ffffff;
+$lighter-bg: #f8f9fa;
+$card-bg: #ffffff;
+$text-dark: #111827;
+$text-gray: #6b7280;
+$text-muted: #9ca3af;
+$border-color: rgba(0, 0, 0, 0.08);
+$hover-bg: rgba(59, 130, 246, 0.06);
 
 // Breakpoints
 $mobile: 500px;
@@ -17,8 +19,8 @@ $desktop: 992px;
 $large: 1200px;
 
 .footer {
-  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
-  color: $text-light;
+  background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 50%, #f8f9fa 100%);
+  color: $text-dark;
   padding: 5rem 0 0;
   position: relative;
   overflow: hidden;
@@ -31,8 +33,8 @@ $large: 1200px;
     right: 0;
     bottom: 0;
     background-image: 
-      radial-gradient(circle at 20% 30%, rgba(255, 68, 68, 0.06) 0%, transparent 50%),
-      radial-gradient(circle at 80% 70%, rgba(255, 153, 0, 0.05) 0%, transparent 50%);
+      radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.03) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.03) 0%, transparent 50%);
     pointer-events: none;
   }
 
@@ -40,11 +42,11 @@ $large: 1200px;
     content: '';
     position: absolute;
     top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: 
-      repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255, 255, 255, 0.015) 2px, rgba(255, 255, 255, 0.015) 4px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.05) 50%, transparent);
     pointer-events: none;
   }
 }
@@ -118,12 +120,12 @@ $large: 1200px;
   width: 70px;
   height: 70px;
   border-radius: 50%;
-  background: linear-gradient(135deg, $primary-red 0%, $secondary-orange 100%);
+  background: linear-gradient(135deg, $primary-blue 0%, $secondary-purple 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
-  box-shadow: 0 8px 32px rgba(255, 68, 68, 0.4);
+  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.25);
   transition: all 0.4s ease;
 
   &::before {
@@ -131,30 +133,31 @@ $large: 1200px;
     position: absolute;
     inset: -3px;
     border-radius: 50%;
-    background: linear-gradient(135deg, $primary-red, $secondary-orange);
-    opacity: 0.3;
+    background: linear-gradient(135deg, $primary-blue, $secondary-purple);
+    opacity: 0.2;
     filter: blur(12px);
     animation: pulse 3s ease-in-out infinite;
   }
 
   &:hover {
     transform: scale(1.05);
-    box-shadow: 0 12px 40px rgba(255, 68, 68, 0.6);
+    box-shadow: 0 12px 40px rgba(59, 130, 246, 0.35);
   }
 }
 
 @keyframes pulse {
   0%, 100% {
-    opacity: 0.3;
+    opacity: 0.2;
     transform: scale(1);
   }
   50% {
-    opacity: 0.5;
+    opacity: 0.3;
     transform: scale(1.05);
   }
 }
 
 .logoText {
+  font-family: 'Inter', sans-serif;
   font-size: 0.7rem;
   font-weight: 800;
   text-align: center;
@@ -166,22 +169,25 @@ $large: 1200px;
 }
 
 .brandName {
+  font-family: 'Lora', serif;
   font-size: 1.5rem;
   font-weight: 700;
-  color: $text-light;
+  color: $text-dark;
   margin: 0 0 0.25rem 0;
-  letter-spacing: 0.5px;
+  letter-spacing: -0.01em;
 }
 
 .tagline {
+  font-family: 'Lora', serif;
   font-size: 0.95rem;
-  color: $secondary-orange;
+  color: $primary-blue;
   font-style: italic;
   font-weight: 500;
   margin: 0;
 }
 
 .description {
+  font-family: 'Inter', sans-serif;
   font-size: 0.95rem;
   line-height: 1.7;
   color: $text-gray;
@@ -200,23 +206,24 @@ $large: 1200px;
   display: flex;
   align-items: center;
   gap: 0.875rem;
+  font-family: 'Inter', sans-serif;
   font-size: 0.95rem;
   color: $text-gray;
   text-decoration: none;
   transition: all 0.3s ease;
 
   &:hover {
-    color: $text-light;
+    color: $text-dark;
     transform: translateX(5px);
 
     .contactIcon {
-      color: $secondary-orange;
+      color: $primary-blue;
     }
   }
 }
 
 .contactIcon {
-  color: $primary-red;
+  color: $primary-blue;
   font-size: 1.1rem;
   flex-shrink: 0;
   transition: color 0.3s ease;
@@ -224,13 +231,14 @@ $large: 1200px;
 
 // Section Title
 .sectionTitle {
+  font-family: 'Lora', serif;
   font-size: 1.25rem;
   font-weight: 700;
   margin: 0 0 1.25rem 0;
-  color: $text-light;
+  color: $text-dark;
   position: relative;
   padding-bottom: 0.875rem;
-  letter-spacing: 0.5px;
+  letter-spacing: -0.01em;
 
   &::after {
     content: '';
@@ -239,9 +247,9 @@ $large: 1200px;
     left: 0;
     width: 50px;
     height: 3px;
-    background: linear-gradient(90deg, $primary-red, $secondary-orange);
+    background: linear-gradient(90deg, $primary-blue, $secondary-purple);
     border-radius: 2px;
-    box-shadow: 0 0 10px rgba(255, 68, 68, 0.5);
+    box-shadow: 0 0 8px rgba(59, 130, 246, 0.3);
   }
 }
 
@@ -266,23 +274,24 @@ $large: 1200px;
 
     .chevron {
       transform: translateX(4px);
-      color: $secondary-orange;
+      color: $primary-blue;
     }
 
     .link {
-      color: $text-light;
+      color: $text-dark;
     }
   }
 }
 
 .chevron {
-  color: $primary-red;
+  color: $primary-blue;
   font-size: 0.75rem;
   flex-shrink: 0;
   transition: all 0.3s ease;
 }
 
 .link {
+  font-family: 'Inter', sans-serif;
   color: $text-gray;
   text-decoration: none;
   font-size: 0.95rem;
@@ -297,9 +306,9 @@ $large: 1200px;
   margin-bottom: 3rem;
   padding: 3rem;
   background: $card-bg;
-  backdrop-filter: blur(12px);
   border: 1px solid $border-color;
-  border-radius: 16px;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
 
   @media (max-width: $desktop) {
     grid-template-columns: 1fr;
@@ -325,14 +334,16 @@ $large: 1200px;
 }
 
 .newsletterTitle {
+  font-family: 'Lora', serif;
   font-size: 1.75rem;
   font-weight: 700;
   margin: 0;
-  color: $text-light;
-  background: linear-gradient(90deg, $primary-red, $secondary-orange);
+  color: $text-dark;
+  background: linear-gradient(90deg, $primary-blue, $secondary-purple);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  letter-spacing: -0.02em;
 
   @media (max-width: $mobile) {
     font-size: 1.5rem;
@@ -340,6 +351,7 @@ $large: 1200px;
 }
 
 .newsletterText {
+  font-family: 'Inter', sans-serif;
   font-size: 0.95rem;
   color: $text-gray;
   margin: 0;
@@ -375,9 +387,10 @@ $large: 1200px;
   width: 100%;
   padding: 1rem 1rem 1rem 3.25rem;
   border: 1px solid $border-color;
-  background: rgba(0, 0, 0, 0.3);
-  color: $text-light;
+  background: #f9fafb;
+  color: $text-dark;
   border-radius: 12px;
+  font-family: 'Inter', sans-serif;
   font-size: 0.95rem;
   outline: none;
   transition: all 0.3s ease;
@@ -387,28 +400,30 @@ $large: 1200px;
   }
 
   &:focus {
-    border-color: $primary-red;
-    box-shadow: 0 0 0 3px rgba(255, 68, 68, 0.15);
-    background: rgba(0, 0, 0, 0.4);
+    border-color: $primary-blue;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    background: #ffffff;
   }
 }
 
 .newsletterButton {
   padding: 1rem 2.5rem;
-  background: linear-gradient(135deg, $primary-red, $secondary-orange);
+  background: linear-gradient(135deg, $primary-blue, $secondary-purple);
   color: white;
   border: none;
   border-radius: 12px;
+  font-family: 'Inter', sans-serif;
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
   white-space: nowrap;
-  box-shadow: 0 4px 16px rgba(255, 68, 68, 0.3);
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.25);
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(255, 68, 68, 0.5);
+    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.35);
+    background: linear-gradient(135deg, #2563eb, #7c3aed);
   }
 
   &:active {
@@ -428,10 +443,12 @@ $large: 1200px;
 }
 
 .socialTitle {
+  font-family: 'Lora', serif;
   font-size: 1.5rem;
   font-weight: 700;
   margin: 0;
-  color: $text-light;
+  color: $text-dark;
+  letter-spacing: -0.01em;
 
   @media (max-width: $mobile) {
     font-size: 1.25rem;
@@ -448,11 +465,11 @@ $large: 1200px;
   width: 50px;
   height: 50px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.05);
+  background: #f9fafb;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: $text-light;
+  color: $text-gray;
   text-decoration: none;
   font-size: 1.25rem;
   transition: all 0.3s ease;
@@ -464,7 +481,7 @@ $large: 1200px;
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, $primary-red, $secondary-orange);
+    background: linear-gradient(135deg, $primary-blue, $secondary-purple);
     opacity: 0;
     transition: opacity 0.3s ease;
   }
@@ -472,15 +489,20 @@ $large: 1200px;
   svg {
     position: relative;
     z-index: 1;
+    transition: all 0.3s ease;
   }
 
   &:hover {
     transform: translateY(-5px) scale(1.05);
     border-color: transparent;
-    box-shadow: 0 12px 32px rgba(255, 68, 68, 0.4);
+    box-shadow: 0 12px 32px rgba(59, 130, 246, 0.25);
 
     &::before {
       opacity: 1;
+    }
+
+    svg {
+      color: white;
     }
   }
 
@@ -493,6 +515,7 @@ $large: 1200px;
 .bottomBar {
   padding: 2rem 0;
   border-top: 1px solid $border-color;
+  background: linear-gradient(180deg, transparent, rgba(249, 250, 251, 0.5));
 }
 
 .bottomContent {
@@ -509,6 +532,7 @@ $large: 1200px;
 }
 
 .copyright {
+  font-family: 'Inter', sans-serif;
   font-size: 0.9rem;
   color: $text-muted;
   margin: 0;
@@ -531,6 +555,7 @@ $large: 1200px;
 }
 
 .legalLink {
+  font-family: 'Inter', sans-serif;
   color: $text-gray;
   text-decoration: none;
   font-size: 0.9rem;
@@ -544,12 +569,12 @@ $large: 1200px;
     left: 0;
     width: 0;
     height: 2px;
-    background: linear-gradient(90deg, $primary-red, $secondary-orange);
+    background: linear-gradient(90deg, $primary-blue, $secondary-purple);
     transition: width 0.3s ease;
   }
 
   &:hover {
-    color: $primary-red;
+    color: $primary-blue;
 
     &::after {
       width: 100%;
@@ -561,4 +586,161 @@ $large: 1200px;
   color: $border-color;
   font-size: 0.9rem;
   user-select: none;
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .footer {
+    background: linear-gradient(180deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+    color: #f9fafb;
+
+    &::before {
+      background-image: 
+        radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.08) 0%, transparent 50%);
+    }
+
+    &::after {
+      background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.05) 50%, transparent);
+    }
+  }
+
+  .grid {
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .brandName {
+    color: #f9fafb;
+  }
+
+  .tagline {
+    color: #60a5fa;
+  }
+
+  .description {
+    color: #d1d5db;
+  }
+
+  .contactItem {
+    color: #d1d5db;
+
+    &:hover {
+      color: #f9fafb;
+
+      .contactIcon {
+        color: #60a5fa;
+      }
+    }
+  }
+
+  .contactIcon {
+    color: #60a5fa;
+  }
+
+  .sectionTitle {
+    color: #f9fafb;
+
+    &::after {
+      background: linear-gradient(90deg, #60a5fa, #a78bfa);
+    }
+  }
+
+  .linkItem {
+    &:hover {
+      .chevron {
+        color: #60a5fa;
+      }
+
+      .link {
+        color: #f9fafb;
+      }
+    }
+  }
+
+  .chevron {
+    color: #60a5fa;
+  }
+
+  .link {
+    color: #d1d5db;
+  }
+
+  .newsletterSection {
+    background: rgba(30, 41, 59, 0.5);
+    border-color: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(20px);
+  }
+
+  .newsletterTitle {
+    color: #f9fafb;
+  }
+
+  .newsletterText {
+    color: #d1d5db;
+  }
+
+  .newsletterInput {
+    background: rgba(15, 23, 42, 0.5);
+    border-color: rgba(255, 255, 255, 0.08);
+    color: #f9fafb;
+
+    &:focus {
+      border-color: #60a5fa;
+      box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15);
+      background: rgba(15, 23, 42, 0.7);
+    }
+  }
+
+  .newsletterButton {
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+
+    &:hover {
+      background: linear-gradient(135deg, #60a5fa, #a78bfa);
+    }
+  }
+
+  .socialTitle {
+    color: #f9fafb;
+  }
+
+  .socialLink {
+    background: rgba(30, 41, 59, 0.5);
+    border-color: rgba(255, 255, 255, 0.08);
+    color: #d1d5db;
+
+    &::before {
+      background: linear-gradient(135deg, #60a5fa, #a78bfa);
+    }
+
+    &:hover {
+      svg {
+        color: white;
+      }
+    }
+  }
+
+  .bottomBar {
+    border-top-color: rgba(255, 255, 255, 0.08);
+    background: linear-gradient(180deg, transparent, rgba(15, 23, 42, 0.5));
+  }
+
+  .copyright {
+    color: #6b7280;
+  }
+
+  .legalLink {
+    color: #d1d5db;
+
+    &::after {
+      background: linear-gradient(90deg, #60a5fa, #a78bfa);
+    }
+
+    &:hover {
+      color: #60a5fa;
+    }
+  }
+
+  .separator {
+    color: rgba(255, 255, 255, 0.1);
+  }
 }

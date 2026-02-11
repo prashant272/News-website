@@ -1,5 +1,7 @@
 "use client";
+
 import React, { useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { useNewsContext } from '@/app/context/NewsContext';
 import styles from './NewsSection.module.scss';
 
@@ -10,7 +12,11 @@ interface NewsItem {
   content?: string;
   image?: string;
   category?: string;
+  subCategory?: string;
   tags?: string[];
+  isLatest?: boolean;
+  isTrending?: boolean;
+  _id?: string;
 }
 
 interface DisplayNewsItem {
@@ -19,47 +25,77 @@ interface DisplayNewsItem {
   description: string;
   image: string;
   category?: string;
-  isLive: boolean;
+  subCategory?: string;
+  slug: string;
   isVideo: boolean;
 }
 
 const NewsSection: React.FC = () => {
-  const { indiaNews, loading } = useNewsContext();
+  const { allNews, loading } = useNewsContext();
+  const router = useRouter();
+
+  const getImageSrc = (img?: string): string => {
+    if (!img) {
+      return 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80';
+    }
+    if (img.startsWith('http') || img.startsWith('data:')) {
+      return img;
+    }
+    if (img.startsWith('/')) {
+      return img;
+    }
+    return `/uploads/${img}`;
+  };
+
+  const handleCardClick = (item: DisplayNewsItem) => {
+    const category = item.category || 'news';
+    const subCategory = item.subCategory || 'general';
+    const slug = item.slug;
+    
+    router.push(`/Pages/${category}/${subCategory}/${slug}`);
+  };
 
   const liveNews = useMemo(() => {
-    if (!indiaNews) return [];
-    
-    return indiaNews
-      .filter(item => 
-        item.tags?.includes('live') || 
-        item.tags?.includes('fresh') ||
-        item.tags?.includes('breaking')
-      )
-      .slice(0, 4)
-      .map((item, index) => ({
-        id: item.slug,
-        title: item.title,
-        description: item.summary || item.content?.substring(0, 100) + '...',
-        image: item.image ? `/public/${item.image}` : 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80',
-        category: item.category || 'Breaking News',
-        isLive: index === 0 || item.tags?.includes('live'),
-        isVideo: item.tags?.includes('video') || index === 3,
-      }));
-  }, [indiaNews]);
+    if (!allNews || loading) return [];
 
-  if (loading || liveNews.length === 0) {
+    return allNews
+      .filter((item) => item.isLatest === true)
+      .map((item) => ({
+        id: item.slug || item._id || `item-${Math.random().toString(36).slice(2, 9)}`,
+        title: item.title,
+        description: item.summary || (item.content ? item.content.substring(0, 150) + '...' : ''),
+        image: getImageSrc(item.image),
+        category: item.category || 'Breaking News',
+        subCategory: item.subCategory || 'General',
+        slug: item.slug,
+        isVideo: item.tags?.includes('video') || false,
+      }))
+      .slice(0, 4);
+  }, [allNews, loading]);
+
+  if (loading) {
     return (
       <section className={styles.newsSection}>
         <div className={styles.container}>
-          <div className={styles.secondaryGrid}>
-            {Array(4).fill(0).map((_, i) => (
-              <article key={i} className={`${styles.secondaryArticle} animate-pulse`}>
-                <div className="bg-gray-200 h-32 w-full rounded"></div>
-                <div className="mt-3 space-y-2">
-                  <div className="h-5 bg-gray-200 rounded w-3/4"></div>
-                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+          <div className={styles.newsGrid}>
+            {/* Featured skeleton */}
+            <div className={`${styles.loadingCard} ${styles.featuredArticle}`}>
+              <div className={`${styles.loadingSkeleton}`} style={{ height: '400px' }}></div>
+              <div style={{ padding: '2.5rem' }}>
+                <div className={`${styles.loadingSkeleton}`} style={{ height: '32px', width: '80%', marginBottom: '1rem', borderRadius: '8px' }}></div>
+                <div className={`${styles.loadingSkeleton}`} style={{ height: '20px', width: '60%', borderRadius: '8px' }}></div>
+              </div>
+            </div>
+
+            {/* Card skeletons */}
+            {Array(6).fill(0).map((_, i) => (
+              <div key={i} className={styles.loadingCard}>
+                <div className={`${styles.loadingSkeleton}`} style={{ height: '240px' }}></div>
+                <div style={{ padding: '1.75rem' }}>
+                  <div className={`${styles.loadingSkeleton}`} style={{ height: '24px', width: '90%', marginBottom: '0.75rem', borderRadius: '6px' }}></div>
+                  <div className={`${styles.loadingSkeleton}`} style={{ height: '16px', width: '70%', borderRadius: '6px' }}></div>
                 </div>
-              </article>
+              </div>
             ))}
           </div>
         </div>
@@ -67,61 +103,92 @@ const NewsSection: React.FC = () => {
     );
   }
 
-  const mainArticle = liveNews[0];
-  const secondaryArticles = liveNews.slice(1);
+  if (liveNews.length === 0) {
+    return (
+      <section className={styles.newsSection}>
+        <div className={styles.container}>
+          <div className={styles.newsGrid}>
+            <div className={styles.noLive}>
+              <h3>No live updates right now</h3>
+              <p>Check back later for breaking news and live coverage.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  const featuredArticle = liveNews[0];
+  const regularArticles = liveNews.slice(1);
 
   return (
     <section className={styles.newsSection}>
       <div className={styles.container}>
-        <article className={styles.mainArticle}>
-          <div className={styles.imageWrapper}>
-            <img src={mainArticle.image} alt={mainArticle.title} />
-            <div className={styles.overlay}>
-              <span className={styles.liveBadge}>
-                <span className={styles.liveDot}></span>
-                LIVE
-              </span>
-              <span className={styles.category}>{mainArticle.category}</span>
+        <div className={styles.newsGrid}>
+          {/* Featured Hero Article */}
+          <article 
+            className={styles.featuredArticle}
+            onClick={() => handleCardClick(featuredArticle)}
+            style={{ cursor: 'pointer' }}
+          >
+            <div className={styles.featuredImage}>
+              <img src={featuredArticle.image} alt={featuredArticle.title} loading="eager" />
+              <div className={styles.overlay}>
+                <span className={styles.category}>{featuredArticle.category}</span>
+              </div>
             </div>
-          </div>
-          <div className={styles.mainContent}>
-            <h1 className={styles.mainTitle}>{mainArticle.title}</h1>
-            <p className={styles.mainDescription}>{mainArticle.description}</p>
-            <div className={styles.metadata}>
-              <span className={styles.timestamp}>Updated 45 mins ago</span>
-              <button className={styles.readMore}>
+            <div className={styles.featuredContent}>
+              <h1 className={styles.featuredTitle}>{featuredArticle.title}</h1>
+              <p className={styles.featuredDescription}>{featuredArticle.description}</p>
+              <button 
+                className={styles.readMore}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleCardClick(featuredArticle);
+                }}
+              >
                 Read Full Story
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                   <path d="M7 4L13 10L7 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                 </svg>
               </button>
             </div>
-          </div>
-        </article>
+          </article>
 
-        <div className={styles.secondaryGrid}>
-          {secondaryArticles.map((item) => (
-            <article key={item.id} className={styles.secondaryArticle}>
-              <div className={styles.secondaryImage}>
-                <img src={item.image} alt={item.title} />
-                {item.isLive && (
-                  <span className={styles.liveTag}>
-                    <span className={styles.pulseDot}></span>
-                    LIVE
-                  </span>
-                )}
+          {/* Regular Article Cards */}
+          {regularArticles.map((item) => (
+            <article 
+              key={item.id} 
+              className={styles.articleCard}
+              onClick={() => handleCardClick(item)}
+              style={{ cursor: 'pointer' }}
+            >
+              <div className={styles.cardImage}>
+                <img src={item.image} alt={item.title} loading="lazy" />
                 {item.isVideo && (
-                  <div className={styles.playButton}>
-                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                      <circle cx="16" cy="16" r="16" fill="rgba(255, 255, 255, 0.95)" />
-                      <path d="M12 9L23 16L12 23V9Z" fill="#000" />
-                    </svg>
-                  </div>
+                  <>
+                    <div className={styles.liveTag}>
+                      <span className={styles.pulseDot}></span>
+                      Live
+                    </div>
+                    <div className={styles.playButton}>
+                      <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+                        <circle cx="28" cy="28" r="28" fill="rgba(255, 255, 255, 0.98)" />
+                        <path d="M22 16L40 28L22 40V16Z" fill="#3b82f6" />
+                      </svg>
+                    </div>
+                  </>
                 )}
               </div>
-              <div className={styles.secondaryContent}>
-                <h3 className={styles.secondaryTitle}>{item.title}</h3>
-                <p className={styles.secondaryDescription}>{item.description}</p>
+              <div className={styles.cardContent}>
+                <h3 className={styles.cardTitle}>{item.title}</h3>
+                <p className={styles.cardDescription}>{item.description}</p>
+                <div className={styles.cardMeta}>
+                  <span className={styles.timestamp}>Just now</span>
+                  <span style={{ textTransform: 'uppercase', fontSize: '0.75rem', fontWeight: 600, color: '#8b5cf6' }}>
+                    {item.category}
+                  </span>
+                </div>
               </div>
             </article>
           ))}

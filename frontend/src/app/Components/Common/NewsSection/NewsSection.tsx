@@ -1,17 +1,18 @@
 "use client";
 import React from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useNewsContext } from '@/app/context/NewsContext';
+import { getImageSrc } from '@/Utils/imageUtils';
 import styles from './NewsSection.module.scss';
 
 export interface NewsGridItem {
-  // sectionTitle: string;
   id: string | number;
   image: string;
   title: string;
   slug?: string;
   category?: string;
+  subCategory: string;
 }
 
 export interface TopNewsItem {
@@ -19,12 +20,13 @@ export interface TopNewsItem {
   title: string;
   image: string;
   slug?: string;
+  subCategory?: string;
 }
 
 interface NewsSectionProps {
   sectionTitle: string;
   subCategories?: string[];
-  mainNews: NewsGridItem[];
+  mainNews?: NewsGridItem[];
   topNews?: TopNewsItem[];
   showSidebar?: boolean;
   gridColumns?: 2 | 3 | 4;
@@ -32,54 +34,52 @@ interface NewsSectionProps {
 }
 
 const CATEGORY_TO_SECTION_MAP: Record<string, string> = {
-  // Sports
   'Cricket': 'sports', 'Football': 'sports', 'Tennis': 'sports',
   'Badminton': 'sports', 'Hockey': 'sports', 'Athletics': 'sports',
-  
-  // Business  
   'Markets': 'business', 'Economy': 'business', 'Banking': 'business',
   'Startups': 'business', 'Cryptocurrency': 'business',
-  
-  // Tech
   'AI': 'tech', 'Smartphones': 'tech', 'Gadgets': 'tech',
-  
-  // Entertainment
   'Bollywood': 'entertainment', 'Hollywood': 'entertainment',
   'TV': 'entertainment', 'OTT': 'entertainment',
-  
-  // Lifestyle
   'Food': 'lifestyle', 'Travel': 'lifestyle', 'Beauty': 'lifestyle',
-  
-  // Default mappings
   'Maharashtra': 'india', 'National': 'india', 'Politics': 'india',
 };
 
-const getSectionFromCategory = (categoryName: string): string => {
-  return CATEGORY_TO_SECTION_MAP[categoryName] || 'news';
+const getSectionFromUrl = (pathname: string): string => {
+  const parts = pathname.split('/').filter(Boolean);
+  const pagesIndex = parts.indexOf('Pages');
+  if (pagesIndex !== -1 && parts[pagesIndex + 1]) {
+    return parts[pagesIndex + 1];
+  }
+  return 'india';
+};
+
+const getSection = (
+  pathname: string,
+  category?: string,
+  fallback: string = 'india'
+): string => {
+  const fromUrl = getSectionFromUrl(pathname);
+  if (['india', 'sports', 'business', 'entertainment', 'lifestyle', 'tech'].includes(fromUrl)) {
+    return fromUrl;
+  }
+  if (category && CATEGORY_TO_SECTION_MAP[category]) {
+    return CATEGORY_TO_SECTION_MAP[category];
+  }
+  return fallback;
 };
 
 const NewsSection: React.FC<NewsSectionProps> = ({
   sectionTitle,
   subCategories = [],
+  mainNews: providedMainNews,
+  topNews: providedTopNews,
   showSidebar = true,
   gridColumns = 3,
-  currentSection
 }) => {
   const pathname = usePathname();
-  const { allNews, indiaNews, sportsNews, businessNews, entertainmentNews } = useNewsContext();
-
-  const getSectionFromUrl = (): string => {
-    const parts = pathname.split('/').filter(Boolean);
-    const pagesIndex = parts.indexOf('Pages');
-    
-    if (pagesIndex !== -1 && parts[pagesIndex + 1]) {
-      return parts[pagesIndex + 1];
-    }
-    
-    return currentSection || 'sports';
-  };
-
-  const section = getSectionFromUrl();
+  const section = getSectionFromUrl(pathname);
+  const { allNews, indiaNews, sportsNews, businessNews, entertainmentNews, lifestyleNews } = useNewsContext();
 
   const sectionNews = (() => {
     switch (section) {
@@ -87,31 +87,37 @@ const NewsSection: React.FC<NewsSectionProps> = ({
       case 'sports': return sportsNews || [];
       case 'business': return businessNews || [];
       case 'entertainment': return entertainmentNews || [];
+      case 'lifestyle': return lifestyleNews || [];
       default: return allNews || [];
     }
   })();
 
   const mainNews: NewsGridItem[] = React.useMemo(() => {
+    if (providedMainNews) return providedMainNews;
+    
     return sectionNews.slice(0, 12).map((item, index) => ({
-      // sectionTitle: sectionTitle,
-      id: `${section}-${item.slug}-${index}`,
-      image: item.image || '',
+      id: `${section}-${item.slug || 'no-slug'}-${index}`,
+      image: getImageSrc(item.image),
       title: item.title,
       slug: item.slug,
-      category: item.category || item.subCategory,
+      category: item.category,
+      subCategory: item.subCategory || ''
     }));
-  }, [sectionNews, section]);
+  }, [providedMainNews, sectionNews, section]);
 
   const topNews: TopNewsItem[] = React.useMemo(() => {
+    if (providedTopNews) return providedTopNews;
+    
     return sectionNews.slice(0, 5).map((item, index) => ({
       id: `${section}-top-${index}`,
       title: item.title,
-      image: item.image || '',
+      image: getImageSrc(item.image),
       slug: item.slug,
+      subCategory: item.subCategory
     }));
-  }, [sectionNews, section]);
+  }, [providedTopNews, sectionNews, section]);
 
-  if (!sectionNews.length) {
+  if (!sectionNews.length && !providedMainNews) {
     return (
       <div className={styles.pageWrapper}>
         <section className={styles.sectionContainer}>
@@ -136,10 +142,10 @@ const NewsSection: React.FC<NewsSectionProps> = ({
           {subCategories.length > 0 && (
             <nav className={styles.subCategoryNav}>
               {subCategories.map((cat) => {
-                const categorySlug = cat.toLowerCase().replace(/\s+/g, '-');
+                const categorySlug = cat.toLowerCase().replace(/\\s+/g, '-');
                 return (
-                  <Link 
-                    key={cat} 
+                  <Link
+                    key={cat}
                     href={`/Pages/${section}/${categorySlug}`}
                     className={styles.subCategoryLink}
                   >
@@ -150,18 +156,16 @@ const NewsSection: React.FC<NewsSectionProps> = ({
             </nav>
           )}
         </div>
-
         <div className={showSidebar ? styles.layoutWithSidebar : styles.layoutFullWidth}>
           <div className={`${styles.mainGrid} ${styles[`cols${gridColumns}`]}`}>
             {mainNews.map((news) => (
-              <NewsCard 
-                key={news.id} 
+              <NewsCard
+                key={news.id}
                 currentSection={section}
-                {...news} 
+                {...news}
               />
             ))}
           </div>
-
           {showSidebar && topNews.length > 0 && (
             <aside className={styles.sidebar}>
               <div className={styles.adPlaceholder}>Advertisement</div>
@@ -170,14 +174,14 @@ const NewsSection: React.FC<NewsSectionProps> = ({
                 {topNews.map((news) => (
                   <Link
                     key={news.id}
-                    href={news.slug ? `/Pages/${section}/${news.slug}` : '#'}
+                    href={news.slug ? `/Pages/${section}/${news.subCategory}/${news.slug}` : '#'}
                     className={styles.topNewsItem}
                   >
                     <p>{news.title}</p>
-                    <img 
-                      src={news.image ? `/public/${news.image}` : 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80'}
-                      alt={news.title} 
-                      loading="lazy" 
+                    <img
+                      src={news.image}
+                      alt={news.title}
+                      loading="lazy"
                     />
                   </Link>
                 ))}
@@ -194,15 +198,20 @@ interface NewsCardProps extends NewsGridItem {
   currentSection: string;
 }
 
-const NewsCard: React.FC<NewsCardProps> = ({ image, title, slug, category, currentSection }) => {
+const NewsCard: React.FC<NewsCardProps> = ({ image, title, slug, category, currentSection, subCategory }) => {
+  const pathname = usePathname();
+  const section = getSection(pathname, category, currentSection);
+
+  const displayImage = getImageSrc(image);
+
   if (!slug) {
     return (
       <div className={styles.newsCard}>
         <div className={styles.imageWrapper}>
-          <img 
-            src={image ? `/public/${image}` : 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80'}
-            alt={title} 
-            loading="lazy" 
+          <img
+            src={displayImage}
+            alt={title}
+            loading="lazy"
           />
           {category && <span className={styles.categoryBadge}>{category}</span>}
         </div>
@@ -211,17 +220,15 @@ const NewsCard: React.FC<NewsCardProps> = ({ image, title, slug, category, curre
     );
   }
 
-  const itemSection = category ? getSectionFromCategory(category) : currentSection;
-  const categorySlug = category?.toLowerCase().replace(/\s+/g, '-') || '';
-  const href = `/Pages/${itemSection}/${categorySlug}/${slug}`;
+  const href = `/Pages/${section}/${subCategory}/${slug}`;
 
   return (
     <Link href={href} className={styles.newsCard}>
       <div className={styles.imageWrapper}>
-        <img 
-          src={image ? `/public/${image}` : 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80'}
-          alt={title} 
-          loading="lazy" 
+        <img
+          src={displayImage}
+          alt={title}
+          loading="lazy"
         />
         {category && <span className={styles.categoryBadge}>{category}</span>}
       </div>

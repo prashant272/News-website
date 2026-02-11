@@ -34,7 +34,7 @@ export const indiaMainNews: NewsGridItem[] = [
     id: 'india-1',
     image: '/images/ajit-pawar-plane-crash.jpg',
     title: "'Runway was not in sight...': Crew to ATC moments before Ajit Pawar's plane crashed in Baramati",
-    slug: 'ajit-pawar-plane-crash-atc-conversation',
+    slug: 'ajit-pawar-maharashtra-crisis-2026',
     category: 'Maharashtra'
   },
   {
@@ -79,7 +79,7 @@ export const indiaTopNews: TopNewsItem[] = [
     id: 'india-top-1',
     title: 'Ajit Pawar death: Devendra Fadnavis expresses grief, announces state mourning',
     image: '/images/fadnavis-mourning.jpg',
-    slug: 'fadnavis-ajit-pawar-mourning'
+    slug: 'ajit-pawar-maharashtra-crisis-2026'
   },
   {
     id: 'india-top-2',

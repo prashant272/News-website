@@ -1,8 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Darker+Grotesque:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
 
 .newsListSection {
   min-height: 100vh;
-  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+  background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 50%, #f8f9fa 100%);
   padding: 3rem 2rem;
   position: relative;
   overflow: hidden;
@@ -15,8 +15,8 @@
     right: 0;
     bottom: 0;
     background-image: 
-      radial-gradient(circle at 20% 30%, rgba(255, 68, 68, 0.06) 0%, transparent 50%),
-      radial-gradient(circle at 80% 70%, rgba(255, 153, 0, 0.05) 0%, transparent 50%);
+      radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.03) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.03) 0%, transparent 50%);
     pointer-events: none;
   }
 
@@ -24,11 +24,10 @@
     content: '';
     position: absolute;
     top: 0;
-    left: 0;
     right: 0;
-    bottom: 0;
-    background-image: 
-      repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255, 255, 255, 0.015) 2px, rgba(255, 255, 255, 0.015) 4px);
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.05) 50%, transparent);
     pointer-events: none;
   }
 }
@@ -62,11 +61,11 @@
 }
 
 .newsCard {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%);
+  background: #ffffff;
   border-radius: 16px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
   position: relative;
@@ -78,17 +77,17 @@
     left: 0;
     width: 4px;
     height: 0;
-    background: linear-gradient(180deg, #ff4444, #ff9900);
+    background: linear-gradient(180deg, #3b82f6, #8b5cf6);
     transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1;
   }
 
   &:hover {
-    transform: translateY(-6px);
-    border-color: rgba(255, 153, 0, 0.25);
-    background: linear-gradient(135deg, rgba(255, 153, 0, 0.06) 0%, rgba(255, 68, 68, 0.03) 100%);
+    transform: translateY(-4px);
+    border-color: rgba(139, 92, 246, 0.3);
     box-shadow: 
-      0 12px 40px rgba(255, 153, 0, 0.15),
-      0 0 0 1px rgba(255, 153, 0, 0.1);
+      0 8px 20px rgba(0, 0, 0, 0.08),
+      0 0 0 1px rgba(139, 92, 246, 0.1);
 
     &::before {
       height: 100%;
@@ -101,7 +100,7 @@
   width: 100%;
   height: 200px;
   overflow: hidden;
-  background: rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
 
   img {
     width: 100%;
@@ -120,42 +119,51 @@
   top: 0.75rem;
   right: 0.75rem;
   z-index: 2;
-  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4));
+  filter: drop-shadow(0 4px 12px rgba(239, 68, 68, 0.4));
   animation: pulse 2s ease-in-out infinite;
 
   svg {
     display: block;
   }
+
+  circle {
+    fill: rgba(239, 68, 68, 0.95);
+  }
+
+  path {
+    fill: #ffffff;
+  }
 }
 
 .cardContent {
-  padding: 1.25rem;
+  padding: 1.5rem;
 }
 
 .cardHeader {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  margin-bottom: 0.875rem;
+  margin-bottom: 1rem;
   flex-wrap: wrap;
 }
 
 .categoryBadge {
-  font-family: 'Darker Grotesque', sans-serif;
-  font-weight: 700;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
   font-size: 0.75rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: #ff9900;
-  padding: 0.375rem 0.75rem;
-  background: rgba(255, 153, 0, 0.1);
-  border: 1px solid rgba(255, 153, 0, 0.25);
-  border-radius: 6px;
+  color: #3b82f6;
+  padding: 0.5rem 1rem;
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 100px;
   transition: all 0.3s ease;
 
   .newsCard:hover & {
-    background: rgba(255, 153, 0, 0.2);
-    border-color: rgba(255, 153, 0, 0.4);
+    background: rgba(59, 130, 246, 0.12);
+    border-color: rgba(59, 130, 246, 0.3);
+    color: #2563eb;
   }
 }
 
@@ -163,16 +171,16 @@
   display: flex;
   align-items: center;
   gap: 0.375rem;
-  font-family: 'Darker Grotesque', sans-serif;
-  font-weight: 700;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
   font-size: 0.7rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: #ff4444;
-  padding: 0.375rem 0.75rem;
-  background: rgba(255, 68, 68, 0.1);
-  border: 1px solid rgba(255, 68, 68, 0.25);
-  border-radius: 6px;
+  color: #ef4444;
+  padding: 0.5rem 1rem;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 100px;
 
   svg {
     width: 14px;
@@ -181,19 +189,20 @@
 }
 
 .cardTitle {
-  font-family: 'Darker Grotesque', sans-serif;
+  font-family: 'Lora', serif;
   font-weight: 600;
-  font-size: 1.05rem;
-  line-height: 1.45;
-  color: rgba(255, 255, 255, 0.95);
+  font-size: 1.125rem;
+  line-height: 1.5;
+  color: #111827;
   transition: color 0.3s ease;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  letter-spacing: -0.01em;
 
   .newsCard:hover & {
-    color: #fff;
+    color: #3b82f6;
   }
 }
 
@@ -205,10 +214,10 @@
 }
 
 .trendingSection {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+  background: #ffffff;
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
   padding: 2rem;
   position: relative;
   overflow: hidden;
@@ -220,8 +229,9 @@
     left: 0;
     right: 0;
     height: 3px;
-    background: linear-gradient(90deg, #ff4444, #ff9900);
-    opacity: 0.8;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
+    background-size: 200% 100%;
+    animation: shimmer 4s linear infinite;
   }
 }
 
@@ -231,15 +241,11 @@
 }
 
 .trendingTitle {
-  font-family: 'Playfair Display', serif;
-  font-weight: 900;
-  font-size: 2.5rem;
-  color: #fff;
+  font-family: 'Lora', serif;
+  font-weight: 700;
+  font-size: 2rem;
+  color: #111827;
   letter-spacing: -0.02em;
-  background: linear-gradient(135deg, #fff 0%, #e0e0e0 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
   position: relative;
   display: inline-block;
 }
@@ -247,7 +253,7 @@
 .trendingAccent {
   width: 60px;
   height: 4px;
-  background: linear-gradient(90deg, #ff4444, #ff9900);
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
   border-radius: 2px;
   margin-top: 0.75rem;
 }
@@ -255,26 +261,26 @@
 .trendingList {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
 }
 
 .trendingCard {
   display: grid;
-  grid-template-columns: 40px 80px 1fr;
+  grid-template-columns: 45px 85px 1fr;
   gap: 1rem;
   align-items: start;
   padding: 1rem;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.01) 100%);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.02) 0%, rgba(139, 92, 246, 0.02) 100%);
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.06);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
 
   &:hover {
-    background: linear-gradient(135deg, rgba(255, 153, 0, 0.08) 0%, rgba(255, 68, 68, 0.04) 100%);
-    border-color: rgba(255, 153, 0, 0.2);
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(139, 92, 246, 0.06) 100%);
+    border-color: rgba(59, 130, 246, 0.2);
     transform: translateX(4px);
-    box-shadow: -2px 4px 12px rgba(255, 153, 0, 0.1);
+    box-shadow: -2px 4px 16px rgba(59, 130, 246, 0.12);
   }
 }
 
@@ -282,32 +288,33 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(135deg, rgba(255, 68, 68, 0.15) 0%, rgba(255, 153, 0, 0.15) 100%);
-  border: 2px solid rgba(255, 153, 0, 0.3);
-  border-radius: 10px;
-  font-family: 'Playfair Display', serif;
-  font-weight: 900;
+  width: 45px;
+  height: 45px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+  border: 2px solid rgba(59, 130, 246, 0.25);
+  border-radius: 12px;
+  font-family: 'Lora', serif;
+  font-weight: 700;
   font-size: 1.25rem;
-  color: #ff9900;
+  color: #3b82f6;
   flex-shrink: 0;
   transition: all 0.3s ease;
 
   .trendingCard:hover & {
-    background: linear-gradient(135deg, rgba(255, 68, 68, 0.25) 0%, rgba(255, 153, 0, 0.25) 100%);
-    border-color: rgba(255, 153, 0, 0.5);
-    transform: scale(1.1);
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%);
+    border-color: rgba(59, 130, 246, 0.4);
+    transform: scale(1.08);
   }
 }
 
 .trendingImage {
-  width: 80px;
-  height: 60px;
-  border-radius: 8px;
+  width: 85px;
+  height: 64px;
+  border-radius: 10px;
   overflow: hidden;
-  background: rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
   flex-shrink: 0;
+  border: 1px solid rgba(0, 0, 0, 0.06);
 
   img {
     width: 100%;
@@ -322,11 +329,11 @@
 }
 
 .trendingText {
-  font-family: 'Darker Grotesque', sans-serif;
-  font-weight: 600;
-  font-size: 0.95rem;
-  line-height: 1.4;
-  color: rgba(255, 255, 255, 0.85);
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: #374151;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
@@ -334,21 +341,21 @@
   transition: color 0.3s ease;
 
   .trendingCard:hover & {
-    color: #fff;
+    color: #111827;
   }
 }
 
 // Advertisement Space
 .adSpace {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+  background: #ffffff;
   border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   padding: 2rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 300px;
+  min-height: 320px;
 }
 
 .adContent {
@@ -360,47 +367,121 @@
 }
 
 .adLabel {
-  font-family: 'Darker Grotesque', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-weight: 600;
   font-size: 0.75rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.3);
+  color: #9ca3af;
 }
 
 .adPlaceholder {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 200px;
-  height: 200px;
-  background: linear-gradient(135deg, rgba(255, 153, 0, 0.05) 0%, rgba(255, 68, 68, 0.03) 100%);
-  border-radius: 12px;
-  border: 2px dashed rgba(255, 153, 0, 0.2);
+  width: 220px;
+  height: 220px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.03) 0%, rgba(139, 92, 246, 0.03) 100%);
+  border-radius: 16px;
+  border: 2px dashed rgba(59, 130, 246, 0.2);
+
+  svg {
+    circle {
+      stroke: rgba(59, 130, 246, 0.3);
+    }
+
+    text {
+      fill: rgba(59, 130, 246, 0.5);
+    }
+  }
 }
 
+// Animations
 @keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(0.95);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+// Loading States
+.newsCard.animate-pulse,
+.trendingSection.animate-pulse {
+  animation: pulse-bg 1.5s ease-in-out infinite;
+  
+  .bg-gray-200 {
+    background: linear-gradient(90deg, #f3f4f6 0%, #e5e7eb 50%, #f3f4f6 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s linear infinite;
+  }
+}
+
+@keyframes pulse-bg {
   0%, 100% {
     opacity: 1;
   }
   50% {
-    opacity: 0.7;
+    opacity: 0.85;
   }
 }
 
 // Responsive
 @media (max-width: 1023px) {
   .newsListSection {
-    padding: 2rem 1rem;
+    padding: 2rem 1.5rem;
   }
 
   .container {
     grid-template-columns: 1fr;
-    gap: 2rem;
+    gap: 2.5rem;
   }
 
   .newsGrid {
+    gap: 1.75rem;
+  }
+
+  .trendingSection {
+    padding: 1.75rem;
+  }
+
+  .trendingTitle {
+    font-size: 1.75rem;
+  }
+}
+
+@media (max-width: 639px) {
+  .newsListSection {
+    padding: 2rem 1rem;
+  }
+
+  .newsGrid {
+    grid-template-columns: 1fr;
     gap: 1.5rem;
+  }
+
+  .cardImage {
+    height: 180px;
+  }
+
+  .cardContent {
+    padding: 1.25rem;
+  }
+
+  .cardTitle {
+    font-size: 1rem;
   }
 
   .trendingSection {
@@ -408,37 +489,152 @@
   }
 
   .trendingTitle {
-    font-size: 2rem;
-  }
-}
-
-@media (max-width: 639px) {
-  .newsGrid {
-    grid-template-columns: 1fr;
-  }
-
-  .cardImage {
-    height: 180px;
+    font-size: 1.5rem;
   }
 
   .trendingCard {
-    grid-template-columns: 35px 70px 1fr;
-    gap: 0.75rem;
+    grid-template-columns: 40px 75px 1fr;
+    gap: 0.875rem;
     padding: 0.875rem;
   }
 
   .trendingRank {
-    width: 35px;
-    height: 35px;
-    font-size: 1.1rem;
+    width: 40px;
+    height: 40px;
+    font-size: 1.125rem;
   }
 
   .trendingImage {
-    width: 70px;
-    height: 52px;
+    width: 75px;
+    height: 56px;
   }
 
   .trendingText {
-    font-size: 0.9rem;
+    font-size: 0.875rem;
+  }
+
+  .adSpace {
+    min-height: 280px;
+    padding: 1.5rem;
+  }
+
+  .adPlaceholder {
+    width: 180px;
+    height: 180px;
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .newsListSection {
+    background: linear-gradient(180deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+
+    &::before {
+      background-image: 
+        radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.08) 0%, transparent 50%);
+    }
+
+    &::after {
+      background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.05) 50%, transparent);
+    }
+  }
+
+  .newsCard {
+    background: rgba(30, 41, 59, 0.8);
+    border-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+
+    &:hover {
+      border-color: rgba(139, 92, 246, 0.4);
+      box-shadow: 
+        0 8px 20px rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(139, 92, 246, 0.2);
+    }
+  }
+
+  .categoryBadge {
+    color: #60a5fa;
+    background: rgba(59, 130, 246, 0.15);
+    border-color: rgba(59, 130, 246, 0.3);
+
+    .newsCard:hover & {
+      background: rgba(59, 130, 246, 0.25);
+      border-color: rgba(59, 130, 246, 0.4);
+      color: #93c5fd;
+    }
+  }
+
+  .opinionBadge {
+    color: #f87171;
+    background: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.3);
+  }
+
+  .cardTitle {
+    color: #f9fafb;
+
+    .newsCard:hover & {
+      color: #60a5fa;
+    }
+  }
+
+  .trendingSection,
+  .adSpace {
+    background: rgba(30, 41, 59, 0.8);
+    border-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+  }
+
+  .trendingTitle {
+    color: #f9fafb;
+  }
+
+  .trendingCard {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.06) 0%, rgba(139, 92, 246, 0.04) 100%);
+    border-color: rgba(255, 255, 255, 0.08);
+
+    &:hover {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(139, 92, 246, 0.1) 100%);
+      border-color: rgba(59, 130, 246, 0.3);
+    }
+  }
+
+  .trendingRank {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%);
+    border-color: rgba(59, 130, 246, 0.4);
+    color: #60a5fa;
+
+    .trendingCard:hover & {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.3) 0%, rgba(139, 92, 246, 0.3) 100%);
+      border-color: rgba(59, 130, 246, 0.5);
+    }
+  }
+
+  .trendingText {
+    color: #d1d5db;
+
+    .trendingCard:hover & {
+      color: #f9fafb;
+    }
+  }
+
+  .adLabel {
+    color: #6b7280;
+  }
+
+  .adPlaceholder {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(139, 92, 246, 0.06) 100%);
+    border-color: rgba(59, 130, 246, 0.3);
+
+    svg {
+      circle {
+        stroke: rgba(59, 130, 246, 0.4);
+      }
+
+      text {
+        fill: rgba(59, 130, 246, 0.6);
+      }
+    }
   }
 }

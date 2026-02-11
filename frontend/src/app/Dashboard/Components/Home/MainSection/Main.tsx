@@ -1,8 +1,7 @@
 "use client";
-
 import React, { useState, useEffect, useCallback, ChangeEvent, FC, useContext, useMemo } from "react";
 import { UserContext } from "@/app/Dashboard/Context/ManageUserContext";
-import { newsService, NewsItem, useNewsBySection, useAddNews, useUpdateNews, useDeleteNews } from "@/app/Dashboard/hooks/NewsApi";
+import { newsService, NewsItem, useNewsBySection, useAddNews, useUpdateNews, useDeleteNews, useSetNewsFlags } from "@/app/Dashboard/hooks/NewsApi";
 import styles from "./Main.module.scss";
 
 interface LatestNewsSectionProps {
@@ -22,17 +21,16 @@ const LatestNewsSection: FC<LatestNewsSectionProps> = ({ section }) => {
   const { UserAuthData } = useContext(UserContext) as any;
   const userPermissions = UserAuthData?.permissions || {};
   const userRole = UserAuthData?.role || "USER";
-
   const canCreate = userPermissions.create !== false;
   const canRead = userPermissions.read !== false;
   const canUpdate = userPermissions.update !== false;
   const canDelete = userPermissions.delete !== false;
 
   const { data: newsData, loading: fetchLoading, error: fetchError, refetch } = useNewsBySection(section);
-
   const { mutate: addNews, loading: addLoading } = useAddNews();
   const { mutate: updateNews } = useUpdateNews(section);
   const { mutate: deleteNews } = useDeleteNews(section);
+  const { mutate: setFlags, loading: flagsLoading } = useSetNewsFlags(section);
 
   const [editingSlug, setEditingSlug] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -49,6 +47,9 @@ const LatestNewsSection: FC<LatestNewsSectionProps> = ({ section }) => {
     tags: [],
     status: "draft",
   });
+
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [showImage, setShowImage] = useState(false);
 
   const processedNewsData = useMemo<NewsItem[]>(() => newsData ?? [], [newsData]);
 
@@ -72,6 +73,8 @@ const LatestNewsSection: FC<LatestNewsSectionProps> = ({ section }) => {
       tags: [],
       status: "draft",
     });
+    setImagePreview(null);
+    setShowImage(false);
     setEditingSlug(null);
   }, []);
 
@@ -106,24 +109,46 @@ const LatestNewsSection: FC<LatestNewsSectionProps> = ({ section }) => {
     setFormState((prev) => ({ ...prev, tags }));
   }, []);
 
+  const handleImageChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      showNotification("Please select an image file", "error");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      showNotification("Image too large (max 5MB)", "error");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const dataUrl = event.target?.result as string;
+      setFormState((prev) => ({ ...prev, image: dataUrl }));
+      setImagePreview(dataUrl);
+      setShowImage(true);
+    };
+    reader.readAsDataURL(file);
+
+    e.target.value = "";
+  }, [showNotification]);
+
   const handleAdd = useCallback(async () => {
     if (!canCreate) {
       showNotification("No permission to create articles", "error");
       return;
     }
-
     if (!formState.title || !formState.slug || !formState.content) {
       showNotification("Title, Slug and Content are required", "error");
       return;
     }
-
     try {
       await addNews({
         ...formState,
         section,
         publishedAt: new Date().toISOString(),
       } as NewsItem & { section: string });
-
       showNotification("Article created", "success");
       resetForm();
       refetch();
@@ -140,6 +165,8 @@ const LatestNewsSection: FC<LatestNewsSectionProps> = ({ section }) => {
       }
       setEditingSlug(item.slug);
       setFormState({ ...item });
+      setImagePreview(item.image || null);
+      setShowImage(!!item.image);
       window.scrollTo({ top: 120, behavior: "smooth" });
     },
     [canUpdate, showNotification]
@@ -147,13 +174,11 @@ const LatestNewsSection: FC<LatestNewsSectionProps> = ({ section }) => {
 
   const handleUpdate = useCallback(async () => {
     if (!canUpdate || !editingSlug) return;
-
     try {
       await updateNews({
         slug: editingSlug,
         news: formState,
       });
-
       showNotification("Article updated", "success");
       resetForm();
       refetch();
@@ -169,7 +194,6 @@ const LatestNewsSection: FC<LatestNewsSectionProps> = ({ section }) => {
         return;
       }
       if (!confirm("Delete this article permanently?")) return;
-
       try {
         await deleteNews({ slug });
         showNotification("Article deleted", "success");
@@ -179,6 +203,23 @@ const LatestNewsSection: FC<LatestNewsSectionProps> = ({ section }) => {
       }
     },
     [canDelete, deleteNews, refetch, showNotification]
+  );
+
+  const handleToggleFlag = useCallback(
+    async (slug: string, field: "isLatest" | "isTrending", newValue: boolean) => {
+      if (flagsLoading) return;
+      try {
+        await setFlags({ slug, [field]: newValue });
+        showNotification(
+          `Article ${newValue ? "marked as" : "removed from"} ${field === "isLatest" ? "Latest" : "Trending"}`,
+          "success"
+        );
+        refetch();
+      } catch (err: any) {
+        showNotification(err.message || "Failed to update flag", "error");
+      }
+    },
+    [setFlags, flagsLoading, showNotification, refetch]
   );
 
   const handleDuplicate = useCallback(
@@ -194,6 +235,8 @@ const LatestNewsSection: FC<LatestNewsSectionProps> = ({ section }) => {
         slug: `${item.slug}-copy-${Date.now().toString(36).slice(-4)}`,
         status: "draft",
       });
+      setImagePreview(item.image || null);
+      setShowImage(!!item.image);
       window.scrollTo({ top: 120, behavior: "smooth" });
     },
     [canCreate, showNotification]
@@ -201,7 +244,6 @@ const LatestNewsSection: FC<LatestNewsSectionProps> = ({ section }) => {
 
   const filteredAndSortedItems = useMemo<NewsItem[]>(() => {
     let result = [...processedNewsData];
-
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       result = result.filter(
@@ -211,11 +253,9 @@ const LatestNewsSection: FC<LatestNewsSectionProps> = ({ section }) => {
           item.tags.some((t) => t.toLowerCase().includes(q))
       );
     }
-
     if (filterStatus !== "all") {
       result = result.filter((item) => item.status === filterStatus);
     }
-
     if (sortBy === "newest") {
       result.sort((a, b) => new Date(b.publishedAt || 0).getTime() - new Date(a.publishedAt || 0).getTime());
     } else if (sortBy === "oldest") {
@@ -223,7 +263,6 @@ const LatestNewsSection: FC<LatestNewsSectionProps> = ({ section }) => {
     } else if (sortBy === "title") {
       result.sort((a, b) => a.title.localeCompare(b.title));
     }
-
     return result;
   }, [processedNewsData, searchQuery, filterStatus, sortBy]);
 
@@ -267,7 +306,6 @@ const LatestNewsSection: FC<LatestNewsSectionProps> = ({ section }) => {
           <span>{showToast.message}</span>
         </div>
       )}
-
       <div className={styles.container}>
         <div className={styles.header}>
           <div className={styles.headerContent}>
@@ -281,7 +319,6 @@ const LatestNewsSection: FC<LatestNewsSectionProps> = ({ section }) => {
                 {userRole !== "USER" && <span className={styles.roleBadge}> • {userRole}</span>}
               </p>
             </div>
-
             <div className={styles.stats}>
               <div className={styles.statCard}>
                 <span className={styles.statNumber}>{processedNewsData.length}</span>
@@ -323,7 +360,6 @@ const LatestNewsSection: FC<LatestNewsSectionProps> = ({ section }) => {
                 </button>
               )}
             </div>
-
             <div className={styles.formGrid}>
               <div className={styles.formGroup}>
                 <label className={styles.label}>
@@ -338,7 +374,6 @@ const LatestNewsSection: FC<LatestNewsSectionProps> = ({ section }) => {
                   disabled={!(canCreate || canUpdate)}
                 />
               </div>
-
               <div className={styles.formGroup}>
                 <label className={styles.label}>
                   Slug <span className={styles.required}>*</span>
@@ -352,7 +387,6 @@ const LatestNewsSection: FC<LatestNewsSectionProps> = ({ section }) => {
                   disabled={!(canCreate || canUpdate)}
                 />
               </div>
-
               <div className={styles.formGroup}>
                 <label className={styles.label}>Category *</label>
                 <input
@@ -363,7 +397,6 @@ const LatestNewsSection: FC<LatestNewsSectionProps> = ({ section }) => {
                   placeholder="Politics, Cricket, ..."
                 />
               </div>
-
               <div className={styles.formGroup}>
                 <label className={styles.label}>Sub-category</label>
                 <input
@@ -373,7 +406,6 @@ const LatestNewsSection: FC<LatestNewsSectionProps> = ({ section }) => {
                   onChange={handleChange("subCategory")}
                 />
               </div>
-
               <div className={styles.formGroup}>
                 <label className={styles.label}>Status</label>
                 <select
@@ -386,18 +418,51 @@ const LatestNewsSection: FC<LatestNewsSectionProps> = ({ section }) => {
                   <option value="archived">Archived</option>
                 </select>
               </div>
-
               <div className={styles.formGroup}>
-                <label className={styles.label}>Image URL</label>
+                <label className={styles.label}>Featured Image</label>
                 <input
-                  type="text"
-                  className={styles.input}
-                  value={formState.image ?? ""}
-                  onChange={handleChange("image")}
-                  placeholder="https://..."
+                  id="file-upload"
+                  type="file"
+                  accept="image/*"
+                  className={styles.hidden}
+                  onChange={handleImageChange}
                 />
+                <div
+                  className={styles.imageUploadArea}
+                  onClick={() => document.getElementById("file-upload")?.click()}
+                >
+                  {showImage || imagePreview || formState.image ? (
+                    <div className={styles.previewContainer}>
+                      <img
+                        src={imagePreview || formState.image || ""}
+                        alt="Preview"
+                        className={styles.imagePreview}
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = "/fallback-image.jpg";
+                        }}
+                      />
+                      <button
+                        type="button"
+                        className={styles.removeImageBtn}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setFormState((prev) => ({ ...prev, image: "" }));
+                          setImagePreview(null);
+                          setShowImage(false);
+                        }}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ) : (
+                    <div className={styles.uploadPlaceholder}>
+                      <span className={styles.uploadIcon}>📸</span>
+                      <p>Click to upload image</p>
+                      <small>PNG, JPG, max 5MB</small>
+                    </div>
+                  )}
+                </div>
               </div>
-
               <div className={`${styles.formGroup} ${styles.fullWidth}`}>
                 <label className={styles.label}>Summary</label>
                 <textarea
@@ -408,7 +473,6 @@ const LatestNewsSection: FC<LatestNewsSectionProps> = ({ section }) => {
                   placeholder="Short summary..."
                 />
               </div>
-
               <div className={`${styles.formGroup} ${styles.fullWidth}`}>
                 <label className={styles.label}>
                   Content <span className={styles.required}>*</span>
@@ -425,7 +489,6 @@ const LatestNewsSection: FC<LatestNewsSectionProps> = ({ section }) => {
                   {Math.ceil((formState.content?.length || 0) / 500)} min read
                 </div>
               </div>
-
               <div className={`${styles.formGroup} ${styles.fullWidth}`}>
                 <label className={styles.label}>Tags</label>
                 <input
@@ -438,7 +501,6 @@ const LatestNewsSection: FC<LatestNewsSectionProps> = ({ section }) => {
                 <small className={styles.hint}>Separate with commas</small>
               </div>
             </div>
-
             <div className={styles.formActions}>
               {isEditing ? (
                 <>
@@ -477,7 +539,6 @@ const LatestNewsSection: FC<LatestNewsSectionProps> = ({ section }) => {
         <div className={styles.articlesSection}>
           <div className={styles.articlesSectionHeader}>
             <h2 className={styles.sectionTitle}>Articles ({filteredAndSortedItems.length})</h2>
-
             <div className={styles.toolbar}>
               <div className={styles.searchBox}>
                 <span className={styles.searchIcon}>🔍</span>
@@ -488,7 +549,6 @@ const LatestNewsSection: FC<LatestNewsSectionProps> = ({ section }) => {
                   className={styles.searchInput}
                 />
               </div>
-
               <div className={styles.filters}>
                 <select
                   value={filterStatus}
@@ -500,7 +560,6 @@ const LatestNewsSection: FC<LatestNewsSectionProps> = ({ section }) => {
                   <option value="draft">Draft</option>
                   <option value="archived">Archived</option>
                 </select>
-
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as "newest" | "oldest" | "title")}
@@ -510,7 +569,6 @@ const LatestNewsSection: FC<LatestNewsSectionProps> = ({ section }) => {
                   <option value="oldest">Oldest</option>
                   <option value="title">Title A–Z</option>
                 </select>
-
                 <div className={styles.viewToggle}>
                   <button
                     className={`${styles.viewBtn} ${viewMode === "grid" ? styles.viewBtnActive : ""}`}
@@ -551,7 +609,6 @@ const LatestNewsSection: FC<LatestNewsSectionProps> = ({ section }) => {
                       </span>
                     </div>
                   )}
-
                   <div className={styles.cardContent}>
                     <div className={styles.cardMeta}>
                       <span className={styles.categoryBadge}>{item.category}</span>
@@ -559,14 +616,11 @@ const LatestNewsSection: FC<LatestNewsSectionProps> = ({ section }) => {
                         <span className={styles.subCategoryBadge}>{item.subCategory}</span>
                       )}
                     </div>
-
                     <h3 className={styles.cardTitle}>{item.title}</h3>
-
                     <p className={styles.cardSummary}>
                       {item.summary || item.content.slice(0, 160)}
                       {(item.summary || item.content).length > 160 ? "..." : ""}
                     </p>
-
                     {!!item.tags?.length && (
                       <div className={styles.tags}>
                         {item.tags.slice(0, 5).map((tag) => (
@@ -577,7 +631,6 @@ const LatestNewsSection: FC<LatestNewsSectionProps> = ({ section }) => {
                         {item.tags.length > 5 && <span className={styles.tagMore}>+{item.tags.length - 5}</span>}
                       </div>
                     )}
-
                     <div className={styles.cardFooter}>
                       <div className={styles.cardInfo}>
                         <span className={styles.infoItem}>
@@ -591,7 +644,6 @@ const LatestNewsSection: FC<LatestNewsSectionProps> = ({ section }) => {
                           </span>
                         )}
                       </div>
-
                       <div className={styles.cardActions}>
                         <button
                           onClick={() => handleDuplicate(item)}
@@ -617,6 +669,28 @@ const LatestNewsSection: FC<LatestNewsSectionProps> = ({ section }) => {
                         >
                           🗑️
                         </button>
+                        {canUpdate && (
+                          <>
+                            <button
+                              type="button"
+                              className={`${styles.flagBtn} ${item.isLatest ? styles.flagActive : ""}`}
+                              onClick={() => handleToggleFlag(item.slug, "isLatest", !item.isLatest)}
+                              disabled={flagsLoading}
+                              title={item.isLatest ? "Remove from Latest" : "Mark as Latest"}
+                            >
+                              {item.isLatest ? "★ Latest" : "☆ Latest"}
+                            </button>
+                            <button
+                              type="button"
+                              className={`${styles.flagBtn} ${item.isTrending ? styles.flagActive : ""}`}
+                              onClick={() => handleToggleFlag(item.slug, "isTrending", !item.isTrending)}
+                              disabled={flagsLoading}
+                              title={item.isTrending ? "Remove from Trending" : "Mark as Trending"}
+                            >
+                              {item.isTrending ? "🔥 Trending" : "☆ Trending"}
+                            </button>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Navbar from "./Components/Common/Navbar/Navber";
+import Navbar from "./Components/Common/Navbar/Navbar";
 import Footer from "./Components/Common/Footer/Footer";
 import { NewsProvider } from "./context/NewsContext";
 import { UserProvider } from "./Dashboard/Context/ManageUserContext";
@@ -32,8 +32,8 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Navbar />
           <NewsProvider>
+        <Navbar />
          <UserProvider>
          <ToastContainer/>
           <main>

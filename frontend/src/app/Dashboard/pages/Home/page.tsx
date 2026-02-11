@@ -1,6 +1,7 @@
 "use client";
-import LatestNewsSection from "@/app/Dashboard/Components/Home/LatestNewsSection/Main";
+import LatestNewsSection from "@/app/Dashboard/Components/Home/MainSection/Main";
 import React, { useState } from "react";
+import ProtectedRoute from "../../ProtectedRoute/ProtectedRoute";
 
 const sections = [
   { id: "india" as const, label: "India News", icon: "🇮🇳" },
@@ -21,86 +22,168 @@ const NewsAdminPage = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-slate-200 p-6 flex gap-6">
-      {/* Sidebar Tabs */}
-      <div className="w-72 bg-slate-800/80 backdrop-blur-xl border border-slate-700 rounded-3xl p-6 shadow-2xl sticky top-6 h-fit max-h-[80vh] overflow-y-auto">
-        <div className="mb-8 pb-6 border-b border-slate-700">
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent mb-2 tracking-tight">
-            News Sections
-          </h1>
-          <p className="text-sm text-slate-400">Manage your news content</p>
-        </div>
+   <>
+   <ProtectedRoute>
+     <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 text-slate-100 p-4 md:p-6">
+      <div className="max-w-[1600px] mx-auto flex gap-4 md:gap-6">
+        {/* Sidebar */}
+        <aside
+          className={`
+            transition-all duration-300 ease-in-out
+            ${isSidebarCollapsed ? "w-20" : "w-72"}
+            bg-slate-800/50 backdrop-blur-xl border border-slate-700/50 
+            rounded-2xl p-4 shadow-xl sticky top-4 h-fit max-h-[calc(100vh-2rem)]
+            overflow-hidden flex flex-col
+          `}
+        >
+          {/* Header */}
+          <div className={`mb-6 pb-4 border-b border-slate-700/50 ${isSidebarCollapsed ? "text-center" : ""}`}>
+            {!isSidebarCollapsed ? (
+              <>
+                <div className="flex items-center justify-between mb-2">
+                  <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent">
+                    News Sections
+                  </h1>
+                  <button
+                    onClick={() => setIsSidebarCollapsed(true)}
+                    className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-700/50 text-slate-400 hover:text-slate-200 transition-all duration-200"
+                    title="Collapse sidebar"
+                  >
+                    ⬅
+                  </button>
+                </div>
+                <p className="text-xs text-slate-400">Manage your content</p>
+              </>
+            ) : (
+              <button
+                onClick={() => setIsSidebarCollapsed(false)}
+                className="w-12 h-12 mx-auto flex items-center justify-center rounded-xl hover:bg-slate-700/50 text-slate-400 hover:text-slate-200 transition-all duration-200 text-xl"
+                title="Expand sidebar"
+              >
+                ➤
+              </button>
+            )}
+          </div>
 
-        <div className="space-y-2">
-          {sections.map((section) => (
-            <button
-              key={section.id}
-              className={`
-                w-full flex items-center gap-3 p-4 rounded-2xl text-left transition-all duration-200 group
-                ${
-                  activeSection === section.id
-                    ? "bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 text-slate-100 shadow-lg shadow-emerald-500/25 border-2 border-emerald-400/50 transform scale-[1.02]"
-                    : "bg-slate-700/50 hover:bg-slate-600 text-slate-300 hover:text-slate-100 hover:shadow-md hover:border-slate-500/50 border border-slate-700/50"
-                }
-                hover:-translate-x-1 hover:shadow-emerald-500/20
-              `}
-              onClick={() => setActiveSection(section.id)}
-            >
-              <span className="text-2xl flex-shrink-0">{section.icon}</span>
-              <div className="flex-1 min-w-0">
-                <div className="font-semibold truncate">{section.label}</div>
-                <div className="text-xs text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity">
-                  {activeSection === section.id ? "Active" : "Click to edit"}
+          {/* Navigation */}
+          <nav className="flex-1 overflow-y-auto space-y-2 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
+            {sections.map((section) => (
+              <button
+                key={section.id}
+                onClick={() => setActiveSection(section.id)}
+                className={`
+                  w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all duration-200
+                  ${
+                    activeSection === section.id
+                      ? "bg-blue-500/20 text-blue-100 border border-blue-400/40 shadow-lg shadow-blue-500/10"
+                      : "hover:bg-slate-700/50 text-slate-300 hover:text-slate-100 border border-transparent"
+                  }
+                  ${isSidebarCollapsed ? "justify-center" : ""}
+                `}
+                title={isSidebarCollapsed ? section.label : ""}
+              >
+                <span className={`text-2xl flex-shrink-0 ${isSidebarCollapsed ? "" : ""}`}>
+                  {section.icon}
+                </span>
+                {!isSidebarCollapsed && (
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-sm truncate">{section.label}</div>
+                  </div>
+                )}
+                {!isSidebarCollapsed && activeSection === section.id && (
+                  <div className="w-2 h-2 bg-blue-400 rounded-full flex-shrink-0" />
+                )}
+              </button>
+            ))}
+          </nav>
+
+          {/* Footer Info */}
+          {!isSidebarCollapsed && (
+            <div className="mt-4 pt-4 border-t border-slate-700/50">
+              <div className="text-xs text-slate-500 text-center">
+                <div className="font-semibold text-slate-400 mb-1">Quick Stats</div>
+                <div className="flex justify-between px-2">
+                  <span>9 Sections</span>
+                  <span className="text-blue-400">•</span>
+                  <span>248 Articles</span>
                 </div>
               </div>
-              {activeSection === section.id && (
-                <div className="w-2 h-2 bg-emerald-400 rounded-full animate-ping ml-auto" />
-              )}
-            </button>
-          ))}
-        </div>
+            </div>
+          )}
+        </aside>
 
-        {/* Sidebar Toggle */}
-        <div className="mt-8 pt-6 border-t border-slate-700">
-          <button
-            className="w-full flex items-center gap-3 p-3 bg-slate-700/50 hover:bg-slate-600 text-slate-400 hover:text-slate-200 rounded-2xl transition-all duration-200"
-            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-          >
-            <span className="text-xl">{isSidebarCollapsed ? "➤" : "⬅"}</span>
-            <span>{isSidebarCollapsed ? "Expand" : "Collapse"}</span>
-          </button>
-        </div>
-      </div>
+        {/* Main Content */}
+        <main className="flex-1 min-w-0 space-y-4">
+          {/* Active Section Header */}
+          <div className="bg-slate-800/40 backdrop-blur-xl border border-slate-700/50 rounded-2xl p-5 shadow-lg">
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div className="flex items-center gap-3">
+                <span className="text-4xl">
+                  {sections.find((s) => s.id === activeSection)?.icon}
+                </span>
+                <div>
+                  <h2 className="text-2xl font-bold text-slate-100">
+                    {sections.find((s) => s.id === activeSection)?.label}
+                  </h2>
+                  <p className="text-sm text-slate-400">
+                    Manage and organize your {activeSection} articles
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <div className="px-4 py-2 bg-blue-500/10 border border-blue-400/30 rounded-lg text-sm">
+                  <span className="text-slate-400">Section:</span>
+                  <span className="text-blue-400 font-semibold ml-2 capitalize">
+                    {activeSection}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
 
-      {/* Main Content */}
-      <div className="flex-1 space-y-6">
+          {/* Content Area */}
+          <div className="bg-slate-800/30 backdrop-blur-xl border border-slate-700/50 rounded-2xl shadow-lg overflow-hidden">
+            <LatestNewsSection section={activeSection} />
+          </div>
 
-        {/* Content */}
-        <div className="bg-slate-900/50 backdrop-blur-xl border border-slate-700 rounded-3xl p-8 shadow-2xl min-h-[70vh]">
-          <LatestNewsSection section={activeSection} />
-        </div>
-
-        {/* Footer Stats */}
-        <div className="bg-slate-800/70 backdrop-blur-xl border border-slate-700 rounded-3xl p-6 text-sm grid grid-cols-4 gap-6 md:grid-cols-5">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-emerald-400 mb-1">9</div>
-            <div className="text-slate-400">Active Sections</div>
+          {/* Stats Footer */}
+          <div className="bg-slate-800/40 backdrop-blur-xl border border-slate-700/50 rounded-2xl p-6 shadow-lg">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="text-center p-4 bg-slate-700/20 rounded-xl border border-slate-600/30 hover:border-blue-400/30 transition-all duration-200">
+                <div className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent mb-1">
+                  9
+                </div>
+                <div className="text-xs text-slate-400 font-medium">Active Sections</div>
+              </div>
+              
+              <div className="text-center p-4 bg-slate-700/20 rounded-xl border border-slate-600/30 hover:border-emerald-400/30 transition-all duration-200">
+                <div className="text-3xl font-bold bg-gradient-to-r from-emerald-400 to-green-400 bg-clip-text text-transparent mb-1">
+                  248
+                </div>
+                <div className="text-xs text-slate-400 font-medium">Total Articles</div>
+              </div>
+              
+              <div className="text-center p-4 bg-slate-700/20 rounded-xl border border-slate-600/30 hover:border-purple-400/30 transition-all duration-200">
+                <div className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-1">
+                  12.4k
+                </div>
+                <div className="text-xs text-slate-400 font-medium">Total Views</div>
+              </div>
+              
+              <div className="text-center p-4 bg-slate-700/20 rounded-xl border border-slate-600/30 hover:border-orange-400/30 transition-all duration-200">
+                <div className="text-3xl font-bold bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent mb-1">
+                  47
+                </div>
+                <div className="text-xs text-slate-400 font-medium">Draft Articles</div>
+              </div>
+            </div>
           </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-cyan-400 mb-1">248</div>
-            <div className="text-slate-400">Total Articles</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-purple-400 mb-1">12.4k</div>
-            <div className="text-slate-400">Total Views</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-orange-400 mb-1">47</div>
-            <div className="text-slate-400">Drafts</div>
-          </div>
-        </div>
+        </main>
       </div>
     </div>
+   </ProtectedRoute>
+   </>
   );
 };
 

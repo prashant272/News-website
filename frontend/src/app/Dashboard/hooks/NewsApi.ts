@@ -1,4 +1,3 @@
-// Dashboard/hooks/NewsApi.ts
 import { baseURL } from "@/Utils/Utils";
 import { useCallback, useEffect, useState } from "react";
 
@@ -13,6 +12,8 @@ export interface NewsItem {
   tags: string[];
   status: "draft" | "published" | "archived";
   publishedAt?: string;
+  isLatest?: boolean;
+  isTrending?: boolean;
 }
 
 export interface ApiResponse<T = unknown> {
@@ -30,7 +31,10 @@ class NewsService {
       headers: { "Content-Type": "application/json" },
       ...options,
     });
-    if (!res.ok) throw new Error(`API Error: ${res.status}`);
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      throw new Error(errorData.msg || `API Error: ${res.status}`);
+    }
     return res.json();
   }
 
@@ -53,6 +57,16 @@ class NewsService {
 
   deleteNews = (params: { section: string; slug: string }): Promise<ApiResponse<{ deleted: boolean }>> =>
     this.request(`/deletenews/${params.section}/${params.slug}`, { method: "DELETE" });
+
+  setNewsFlags = (params: {
+    section: string;
+    slug: string;
+    flags: Partial<Pick<NewsItem, "isLatest" | "isTrending">>;
+  }): Promise<ApiResponse<NewsItem>> =>
+    this.request(`/flags/${params.section}/${params.slug}`, {
+      method: "PATCH",
+      body: JSON.stringify(params.flags),
+    });
 }
 
 export const newsService = new NewsService();
@@ -74,7 +88,7 @@ export const useApi = <T,>(fetchFn: () => Promise<ApiResponse<T>>): UseApiResult
       setLoading(true);
       const res = await fetchFn();
       if (!res.success) throw new Error(res.msg || "API Error");
-      setData(res.news ?? res.data ?? null);
+      setData((res.news ?? res.data ?? null) as T);
       setError(null);
     } catch (err: any) {
       setError(err.message);
@@ -88,9 +102,7 @@ export const useApi = <T,>(fetchFn: () => Promise<ApiResponse<T>>): UseApiResult
     fetchData().finally(() => {
       if (mounted) setLoading(false);
     });
-    return () => {
-      mounted = false;
-    };
+    return () => { mounted = false; };
   }, [fetchData]);
 
   return { data, loading, error, refetch: fetchData };
@@ -135,8 +147,6 @@ export const useNewsBySlug = (section: string, slug: string): UseApiResult<NewsI
 export const useAllNews = (): UseApiResult<NewsItem[]> =>
   useApi<NewsItem[]>(() => newsService.getAllNews());
 
-console.log(useAllNews)
-
 export const useAddNews = (): UseApiMutationResult<ApiResponse<NewsItem>> =>
   useApiMutation<ApiResponse<NewsItem>>(newsService.addNews);
 
@@ -148,4 +158,14 @@ export const useUpdateNews = (section: string): UseApiMutationResult<ApiResponse
 export const useDeleteNews = (section: string): UseApiMutationResult<ApiResponse<{ deleted: boolean }>> =>
   useApiMutation<ApiResponse<{ deleted: boolean }>>((payload: { slug: string }) =>
     newsService.deleteNews({ section, slug: payload.slug })
+  );
+
+
+export const useSetNewsFlags = (section: string): UseApiMutationResult<ApiResponse<NewsItem>> =>
+  useApiMutation<ApiResponse<NewsItem>>((payload: { slug: string; isLatest?: boolean; isTrending?: boolean }) =>
+    newsService.setNewsFlags({
+      section,
+      slug: payload.slug,
+      flags: { isLatest: payload.isLatest, isTrending: payload.isTrending },
+    })
   );

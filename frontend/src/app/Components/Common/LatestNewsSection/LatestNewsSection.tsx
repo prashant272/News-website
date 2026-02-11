@@ -1,7 +1,9 @@
 "use client";
-import React from 'react';
+
+import React, { useMemo } from 'react';
 import Link from 'next/link';
 import { useNewsContext } from '@/app/context/NewsContext';
+import { getImageSrc } from '@/Utils/imageUtils'; 
 import styles from './LatestNewsSection.module.scss';
 
 export interface LatestNewsItem {
@@ -19,7 +21,7 @@ interface LatestNewsSectionProps {
   readMoreLink?: string;
   columns?: 2 | 3 | 4;
   limit?: number;
-  newsData: LatestNewsItem[];
+  newsData?: LatestNewsItem[]; 
 }
 
 const getSectionKeyFromTitle = (title: string): 'india' | 'sports' | 'business' | 'entertainment' | 'lifestyle' | 'all' => {
@@ -32,68 +34,77 @@ const getSectionKeyFromTitle = (title: string): 'india' | 'sports' | 'business' 
   return 'all';
 };
 
-const LatestNewsSection: React.FC<LatestNewsSectionProps> = ({
+const NewsGridSkeleton: React.FC<{ columns: number; sectionTitle: string }> = ({ columns, sectionTitle }) => (
+  <section className={styles.latestNewsSection}>
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <h2 className={styles.title}>{sectionTitle}</h2>
+        <div className={styles.titleUnderline}></div>
+      </div>
+      <div className={`${styles.newsGrid} ${styles[`cols${columns}`]} animate-pulse`}>
+        {Array(columns).fill(0).map((_, i) => (
+          <div key={i} className={styles.newsItem}>
+            <div className={`${styles.content} space-y-2`}>
+              <div className="h-4 bg-gray-200 rounded w-20"></div>
+              <div className="h-6 bg-gray-200 rounded w-full"></div>
+            </div>
+            <div className={`${styles.imageWrapper} bg-gray-200 h-48 rounded`}></div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+);
+
+const LatestNewsSection: React.FC<LatestNewsSectionProps> = React.memo(({
   sectionTitle,
   sectionKey,
   showReadMore = true,
   readMoreLink,
   columns = 3,
-  limit = 6
+  limit = 6,
+  newsData 
 }) => {
-  const { allNews, indiaNews, sportsNews, businessNews, entertainmentNews, lifestyleNews } = useNewsContext();
-
+  const context = useNewsContext();
+  
   const effectiveSectionKey = sectionKey || getSectionKeyFromTitle(sectionTitle);
 
-  const getSectionData = () => {
+  const sectionData = useMemo(() => {
+    
+    if (!context) return [];
+    
     switch (effectiveSectionKey) {
-      case 'india': return indiaNews || [];
-      case 'sports': return sportsNews || [];
-      case 'business': return businessNews || [];
-      case 'entertainment': return entertainmentNews || [];
-      case 'lifestyle': return lifestyleNews || [];
-      default: return allNews || [];
+      case 'india':         return context.indiaNews || [];
+      case 'sports':        return context.sportsNews || [];
+      case 'business':      return context.businessNews || [];
+      case 'entertainment': return context.entertainmentNews || [];
+      case 'lifestyle':     return context.lifestyleNews || [];
+      default:              return context.allNews || [];
     }
-  };
+  }, [context, effectiveSectionKey]);
+  
 
-
-  const rawData = getSectionData();
   const dynamicReadMoreLink = readMoreLink || `/Pages/${effectiveSectionKey}`;
 
-  const finalNewsData = React.useMemo(() => {
-    const data = Array.isArray(rawData) ? rawData.slice(0, limit) : [];
-    
+  const finalNewsData = useMemo(() => {
+    const data = Array.isArray(sectionData) ? sectionData.slice(0, limit) : [];
     return data.map((item: any, index) => ({
       id: `${effectiveSectionKey}-${item?.slug || index}`,
       category: item?.category || effectiveSectionKey.toUpperCase(),
       title: item?.title || 'Loading...',
-      image: item?.image || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80',
+      image: getImageSrc(item?.image),
       slug: item?.slug,
     }));
-  }, [rawData, effectiveSectionKey, limit]);
+  }, [sectionData, effectiveSectionKey, limit]);
+
+  if (context?.loading) {
+    return <NewsGridSkeleton columns={columns} sectionTitle={sectionTitle} />;
+  }
 
   if (finalNewsData.length === 0) {
-    return (
-      <section className={styles.latestNewsSection}>
-        <div className={styles.container}>
-          <div className={styles.header}>
-            <h2 className={styles.title}>{sectionTitle}</h2>
-            <div className={styles.titleUnderline}></div>
-          </div>
-          <div className={`${styles.newsGrid} ${styles[`cols${columns}`]} animate-pulse`}>
-            {Array(columns).fill(0).map((_, i) => (
-              <div key={i} className={styles.newsItem}>
-                <div className={`${styles.content} space-y-2`}>
-                  <div className="h-4 bg-gray-200 rounded w-20"></div>
-                  <div className="h-6 bg-gray-200 rounded w-full"></div>
-                </div>
-                <div className={`${styles.imageWrapper} bg-gray-200 h-48 rounded`}></div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    );
+    return null;
   }
+  
 
   return (
     <section className={styles.latestNewsSection}>
@@ -105,9 +116,8 @@ const LatestNewsSection: React.FC<LatestNewsSectionProps> = ({
 
         <div className={`${styles.newsGrid} ${styles[`cols${columns}`]}`}>
           {finalNewsData.map((item) => {
-            const href = item.slug 
-              ? `/Pages/${effectiveSectionKey}/${item.slug}` 
-              : `#${item.id}`;
+            const categorySlug = item.category.toLowerCase().replace(/\s+/g, '-');
+            const href = `/Pages/${effectiveSectionKey}/${categorySlug}/${item.slug}`;
             
             return (
               <Link key={item.id} href={href} className={styles.newsItem}>
@@ -117,9 +127,10 @@ const LatestNewsSection: React.FC<LatestNewsSectionProps> = ({
                 </div>
                 <div className={styles.imageWrapper}>
                   <img 
-                    src={item.image.startsWith('http') ? item.image : `/public/${item.image}`}
+                    src={item.image}
                     alt={item.title}
                     loading="lazy"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   />
                 </div>
               </Link>
@@ -140,6 +151,8 @@ const LatestNewsSection: React.FC<LatestNewsSectionProps> = ({
       </div>
     </section>
   );
-};
+});
+
+LatestNewsSection.displayName = 'LatestNewsSection';
 
 export default LatestNewsSection;

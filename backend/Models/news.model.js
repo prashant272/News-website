@@ -50,6 +50,8 @@ const newsItemSchema = new mongoose.Schema({
       trim: true,
     },
   ],
+  isLatest:   { type: Boolean, default: false },
+  isTrending: { type: Boolean, default: false },
 }, ); 
 
 const newsSchema = new mongoose.Schema(
