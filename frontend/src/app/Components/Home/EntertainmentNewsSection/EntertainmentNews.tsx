@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { useNewsContext } from '@/app/context/NewsContext';
 import styles from './EntertainmentNews.module.scss';
 
@@ -14,12 +15,14 @@ interface RawEntItem {
 
 interface EntArticle {
   id: string;
+  slug: string;
   title: string;
   image: string;
   category: string;
 }
 
 const Entertainment: React.FC = () => {
+  const router = useRouter();
   const { entertainmentNews, loading } = useNewsContext();
   
   const availableCategories = useMemo(() => {
@@ -78,11 +81,20 @@ const Entertainment: React.FC = () => {
     
     return filteredEntNews.slice(0, 6).map((item, index) => ({
       id: `${activeCategory.toLowerCase()}-${item.slug}-${index}`,
+      slug: item.slug,
       title: item.title,
       image: getImageSrc(item.image),
       category: activeCategory,
     }));
   }, [filteredEntNews, activeCategory]);
+
+  const handleArticleClick = (slug: string, category: string) => {
+    router.push(`/Pages/entertainment/${category}/${slug}`);
+  };
+
+  const handleReadMoreClick = () => {
+    router.push('/Pages/entertainment');
+  };
 
   if (loading) {
     return (
@@ -173,7 +185,11 @@ const Entertainment: React.FC = () => {
           {entertainmentArticles.length > 0 ? (
             <div className={styles.articlesGrid}>
               {entertainmentArticles[0] && (
-                <article className={styles.featuredArticle}>
+                <article 
+                  className={styles.featuredArticle}
+                  onClick={() => handleArticleClick(entertainmentArticles[0].slug, entertainmentArticles[0].category)}
+                  style={{ cursor: 'pointer' }}
+                >
                   <div className={styles.featuredImage}>
                     <img src={entertainmentArticles[0].image} alt={entertainmentArticles[0].title} />
                     <div className={styles.imageOverlay}></div>
@@ -187,7 +203,12 @@ const Entertainment: React.FC = () => {
 
               <div className={styles.regularArticles}>
                 {entertainmentArticles.slice(1).map((article) => (
-                  <article key={article.id} className={styles.regularArticle}>
+                  <article 
+                    key={article.id} 
+                    className={styles.regularArticle}
+                    onClick={() => handleArticleClick(article.slug, article.category)}
+                    style={{ cursor: 'pointer' }}
+                  >
                     <div className={styles.articleContent}>
                       <span className={styles.categoryBadge}>{article.category}</span>
                       <h4 className={styles.articleTitle}>{article.title}</h4>
@@ -208,7 +229,10 @@ const Entertainment: React.FC = () => {
 
         {entertainmentArticles.length > 0 && (
           <div className={styles.readMoreWrapper}>
-            <button className={styles.readMoreButton}>
+            <button 
+              className={styles.readMoreButton}
+              onClick={handleReadMoreClick}
+            >
               More Entertainment News
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                 <path d="M7 4L13 10L7 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />

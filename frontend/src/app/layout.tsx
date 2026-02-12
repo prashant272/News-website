@@ -6,6 +6,7 @@ import Footer from "./Components/Common/Footer/Footer";
 import { NewsProvider } from "./context/NewsContext";
 import { UserProvider } from "./Dashboard/Context/ManageUserContext";
 import { ToastContainer } from "react-toastify";
+import { ThemeProvider } from "./context/ThemeContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,6 +33,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <ThemeProvider>
           <NewsProvider>
         <Navbar />
          <UserProvider>
@@ -42,6 +44,7 @@ export default function RootLayout({
        </UserProvider>
         </NewsProvider>
         <Footer />
+        </ThemeProvider>
       </body>
     </html>
   );

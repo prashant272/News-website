@@ -1,8 +1,76 @@
 @import "tailwindcss";
 
-:root {
+/* Light theme - default and data-theme="light" */
+:root,
+[data-theme="light"] {
   --background: #ffffff;
   --foreground: #171717;
+  
+  /* Navbar variables */
+  --nav-bg: rgba(255, 255, 255, 0.98);
+  --nav-text: #1a1a1a;
+  --nav-text-secondary: #6b7280;
+  --nav-border: rgba(0, 0, 0, 0.06);
+  --nav-hover-bg: rgba(59, 130, 246, 0.08);
+  --nav-hover-text: #3b82f6;
+  --search-bg: white;
+  --search-text: #1a1a1a;
+  --search-border: rgba(59, 130, 246, 0.2);
+  --overlay-bg: rgba(0, 0, 0, 0.4);
+  --shadow-color: rgba(0, 0, 0, 0.08);
+
+  /* Additional app variables */
+  --card-bg: #ffffff;
+  --card-border: rgba(0, 0, 0, 0.1);
+  --primary: #3b82f6;
+  --primary-hover: #2563eb;
+  --secondary: #6b7280;
+  --accent: #8b5cf6;
+  --muted: #f3f4f6;
+  --muted-foreground: #6b7280;
+  --border: rgba(0, 0, 0, 0.1);
+  --input-bg: #ffffff;
+  --input-border: rgba(0, 0, 0, 0.2);
+  --heading-color: #111827;
+  --text-color: #374151;
+  --link-color: #3b82f6;
+  --link-hover: #2563eb;
+}
+
+/* Dark theme - data-theme="dark" */
+[data-theme="dark"] {
+  --background: #0f172a;
+  --foreground: #f1f5f9;
+  
+  /* Navbar variables */
+  --nav-bg: rgba(15, 23, 42, 0.98);
+  --nav-text: #f9fafb;
+  --nav-text-secondary: #d1d5db;
+  --nav-border: rgba(255, 255, 255, 0.08);
+  --nav-hover-bg: rgba(59, 130, 246, 0.15);
+  --nav-hover-text: #60a5fa;
+  --search-bg: #1e293b;
+  --search-text: #f9fafb;
+  --search-border: rgba(59, 130, 246, 0.3);
+  --overlay-bg: rgba(0, 0, 0, 0.7);
+  --shadow-color: rgba(0, 0, 0, 0.4);
+
+  /* Additional app variables */
+  --card-bg: #1e293b;
+  --card-border: rgba(255, 255, 255, 0.1);
+  --primary: #60a5fa;
+  --primary-hover: #3b82f6;
+  --secondary: #94a3b8;
+  --accent: #a78bfa;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+  --border: rgba(255, 255, 255, 0.1);
+  --input-bg: #1e293b;
+  --input-border: rgba(255, 255, 255, 0.2);
+  --heading-color: #f1f5f9;
+  --text-color: #e2e8f0;
+  --link-color: #60a5fa;
+  --link-hover: #93c5fd;
 }
 
 @theme inline {
@@ -10,17 +78,89 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  
+  /* Add custom Tailwind theme colors */
+  --color-card: var(--card-bg);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Global styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  min-height: 100vh;
+}
+
+/* Apply theme to main container */
+#__next,
+main {
+  background-color: var(--background);
+  color: var(--foreground);
+  min-height: 100vh;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--heading-color);
+  transition: color 0.3s ease;
+}
+
+/* Paragraphs and text */
+p, span, div {
+  color: var(--text-color);
+  transition: color 0.3s ease;
+}
+
+/* Links */
+a {
+  color: var(--link-color);
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: var(--link-hover);
+}
+
+/* Cards and containers */
+.card,
+[class*="card"] {
+  background-color: var(--card-bg);
+  border-color: var(--card-border);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Inputs */
+input,
+textarea,
+select {
+  background-color: var(--input-bg);
+  color: var(--foreground);
+  border-color: var(--input-border);
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--muted-foreground);
+}
+
+/* Buttons */
+button {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }

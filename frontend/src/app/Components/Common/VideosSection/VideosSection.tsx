@@ -4,43 +4,69 @@ import styles from './VideosSection.module.scss';
 import { Play } from 'lucide-react'; 
 
 const categories = [
-  'Aap Ki Adalat', 'Aaj Ki Baat', 'News', 'Astrology', 'Originals', 
-  'Yoga', 'Kurukshetra', 'Haqiqat Kya Hai', 'Muqabla', 'Entertainment', 'Sports', 'Lifestyle'
+  'Awards', 'Excellence', 'Leadership', 'Healthcare', 'Education', 
+  'Business', 'Innovation', 'Recognition', 'Events', 'Achievements'
 ];
 
 const videoData = [
   {
     id: '1',
-    category: 'Originals',
-    title: "UGC 2026 Equity Rules Explained: How India's Universities Will Handle Discrimination",
-    image: 'https://images.unsplash.com/photo-1523050353063-95c55a576307?w=400&q=80',
-    tag: 'UGC VS CASTE BIAS'
+    category: 'Leadership',
+    title: "Dr. Preeti Jain | Excellence in Tech Leadership | Prime Time Media",
+    videoUrl: 'https://www.youtube.com/watch?v=voKUcapq1Jc',
+    image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&q=80',
+    tag: 'TECH EXCELLENCE',
+    date: 'Jan 23, 2026'
   },
   {
     id: '2',
-    category: 'Yoga',
-    title: "Yoga With Swami Ramdev: How will 89% of people get a guarantee of longevity?",
-    image: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&q=80',
-    tag: 'BIG NEWS'
+    category: 'Healthcare',
+    title: "Healthcare Excellence Homeopathy of the Year 24-25",
+    videoUrl: 'https://www.youtube.com/watch?v=qmrqjt8VfQ0',
+    image: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=400&q=80',
+    tag: 'HEALTHCARE AWARDS',
+    date: 'Jan 22, 2026'
   },
   {
     id: '3',
-    category: 'Astrology',
-    title: "Aaj Ka Rashifal, 28 Jan 2026: Find out what your stars have in store for you today.",
-    image: 'https://images.unsplash.com/photo-1532968961962-8a0cb3a2d4c5?w=400&q=80',
-    tag: 'आज का राशिफल'
+    category: 'Excellence',
+    title: "Fighter Wings | India Excellence Award 2025 | Prime Time Media",
+    videoUrl: 'https://www.youtube.com/watch?v=ZXbTIuNz2iQ',
+    image: 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=400&q=80',
+    tag: 'INDIA EXCELLENCE',
+    date: 'Jan 23, 2026'
   },
   {
     id: '4',
-    category: 'Aaj Ki Baat',
-    title: "Aaj Ki Baat: What agreement was reached with the EU?",
-    image: 'https://images.unsplash.com/photo-1557426272-fc759fdf7a8d?w=400&q=80',
-    tag: 'WHAT AGREEMENT?'
+    category: 'Awards',
+    title: "Global Icon Awards 2024 - Celebrating Excellence and Innovation",
+    videoUrl: 'https://www.youtube.com/@primetimermedia',
+    image: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=400&q=80',
+    tag: 'GLOBAL ICON',
+    date: 'Mar 19, 2024'
+  },
+  {
+    id: '5',
+    category: 'Education',
+    title: "Global Education Excellence Awards - Recognizing Outstanding Institutions",
+    videoUrl: 'https://www.youtube.com/@primetimermedia',
+    image: 'https://images.unsplash.com/photo-1523050353063-95c55a576307?w=400&q=80',
+    tag: 'EDUCATION',
+    date: '2025'
+  },
+  {
+    id: '6',
+    category: 'Business',
+    title: "India Excellence Awards 2025 - Honoring Business Leadership",
+    videoUrl: 'https://www.youtube.com/@primetimermedia',
+    image: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400&q=80',
+    tag: 'BUSINESS AWARDS',
+    date: '2025'
   }
 ];
 
 export const VideosSection: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('Aap Ki Adalat');
+  const [activeTab, setActiveTab] = useState('Awards');
 
   return (
     <section className={styles.videoSection}>
@@ -65,7 +91,13 @@ export const VideosSection: React.FC = () => {
           {/* Video Cards */}
           <div className={styles.videoGrid}>
             {videoData.map((video) => (
-              <div key={video.id} className={styles.videoCard}>
+              <a 
+                key={video.id} 
+                href={video.videoUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.videoCard}
+              >
                 <div className={styles.thumbnailContainer}>
                   <img src={video.image} alt={video.title} className={styles.thumbnail} />
                   <div className={styles.overlay}>
@@ -77,21 +109,28 @@ export const VideosSection: React.FC = () => {
                   <span className={styles.categoryLabel}>{video.category}</span>
                   <h3 className={styles.videoTitle}>{video.title}</h3>
                 </div>
-              </div>
+              </a>
             ))}
           </div>
 
           {/* Advertisement Block */}
-          {/* <div className={styles.adBlock}>
+          <div className={styles.adBlock}>
             <span className={styles.adLabel}>ADVERTISEMENT</span>
             <div className={styles.adImageWrapper}>
               <img src="/swadeshi-ad.jpg" alt="Swadeshi Way Ad" />
             </div>
-          </div> */}
+          </div>
         </div>
 
         <div className={styles.footerAction}>
-          <button className={styles.viewAllBtn}>View All <span>→</span></button>
+          <a 
+            href="https://www.youtube.com/@primetimermedia"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.viewAllBtn}
+          >
+            View All Videos <span>→</span>
+          </a>
         </div>
       </div>
     </section>

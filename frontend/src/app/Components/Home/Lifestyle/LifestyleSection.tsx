@@ -1,8 +1,8 @@
 'use client';
 import React, { useState, useMemo, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { useNewsContext } from '@/app/context/NewsContext';
 import styles from './LifestyleSection.module.scss';
-
 
 interface RawLifestyleItem {
   slug: string;
@@ -13,20 +13,19 @@ interface RawLifestyleItem {
   subCategory?: string;
 }
 
-
 interface LifestyleArticle {
   id: string;
+  slug: string;
   category: string;
   title: string;
   image: string;
 }
 
-
 interface ArticleCardProps {
   article: LifestyleArticle;
   onImageError: (e: React.SyntheticEvent<HTMLImageElement>) => void;
+  onClick: () => void;
 }
-
 
 interface CategoryNavProps {
   categories: string[];
@@ -34,12 +33,10 @@ interface CategoryNavProps {
   onTabChange: (category: string) => void;
 }
 
-
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1620619767323-b95a89183081?w=500&q=80';
 const MAX_ARTICLES_PER_CATEGORY = 8;
 const SKELETON_ITEMS = 4;
 const CATEGORY_NAV_SKELETON_ITEMS = 6;
-
 
 const getImageSrc = (img?: string): string => {
   if (!img) return FALLBACK_IMAGE;
@@ -48,9 +45,8 @@ const getImageSrc = (img?: string): string => {
   return `/uploads/${img}`;
 };
 
-
-const ArticleCard: React.FC<ArticleCardProps> = React.memo(({ article, onImageError }) => (
-  <article className={styles.articleCard}>
+const ArticleCard: React.FC<ArticleCardProps> = React.memo(({ article, onImageError, onClick }) => (
+  <article className={styles.articleCard} onClick={onClick} style={{ cursor: 'pointer' }}>
     <div className={styles.imageWrapper}>
       <img 
         src={article.image} 
@@ -67,9 +63,7 @@ const ArticleCard: React.FC<ArticleCardProps> = React.memo(({ article, onImageEr
   </article>
 ));
 
-
 ArticleCard.displayName = 'ArticleCard';
-
 
 const CategoryNav: React.FC<CategoryNavProps> = React.memo(({ categories, activeTab, onTabChange }) => (
   <nav className={styles.categoryNav} role="tablist" aria-label="Lifestyle categories">
@@ -88,9 +82,7 @@ const CategoryNav: React.FC<CategoryNavProps> = React.memo(({ categories, active
   </nav>
 ));
 
-
 CategoryNav.displayName = 'CategoryNav';
-
 
 const AdSidebar: React.FC = React.memo(() => (
   <aside className={styles.adSidebar} aria-label="Advertisement">
@@ -107,9 +99,7 @@ const AdSidebar: React.FC = React.memo(() => (
   </aside>
 ));
 
-
 AdSidebar.displayName = 'AdSidebar';
-
 
 const LoadingSkeleton: React.FC = () => (
   <div className={styles.container}>
@@ -133,15 +123,14 @@ const LoadingSkeleton: React.FC = () => (
   </div>
 );
 
-
 const EmptyState: React.FC<{ message: string }> = ({ message }) => (
   <div className="text-center py-8">
     <p className="text-gray-500">{message}</p>
   </div>
 );
 
-
 const LifestyleSection: React.FC = () => {
+  const router = useRouter();
   const { lifestyleNews, loading } = useNewsContext();
   
   const availableCategories = useMemo(() => {
@@ -180,6 +169,7 @@ const LifestyleSection: React.FC = () => {
   const lifestyleArticles: LifestyleArticle[] = useMemo(() => 
     filteredArticles.map((item, index) => ({
       id: `${activeTab.toLowerCase()}-${item.slug}-${index}`,
+      slug: item.slug,
       category: item.subCategory || item.category || 'Lifestyle',
       title: item.title,
       image: getImageSrc(item.image),
@@ -194,6 +184,14 @@ const LifestyleSection: React.FC = () => {
   const handleImageError = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
     e.currentTarget.src = FALLBACK_IMAGE;
   }, []);
+
+  const handleArticleClick = useCallback((slug: string, category: string) => {
+    router.push(`/Pages/lifestyle/${category}/${slug}`);
+  }, [router]);
+
+  const handleReadMoreClick = useCallback(() => {
+    router.push('/Pages/lifestyle');
+  }, [router]);
 
   if (loading) {
     return (
@@ -249,6 +247,7 @@ const LifestyleSection: React.FC = () => {
                   key={article.id} 
                   article={article}
                   onImageError={handleImageError}
+                  onClick={() => handleArticleClick(article.slug, article.category)}
                 />
               ))}
             </div>
@@ -261,7 +260,11 @@ const LifestyleSection: React.FC = () => {
 
         {lifestyleArticles.length > 0 && (
           <div className={styles.footerAction}>
-            <button className={styles.readMoreBtn} aria-label="Read more lifestyle articles">
+            <button 
+              className={styles.readMoreBtn} 
+              aria-label="Read more lifestyle articles"
+              onClick={handleReadMoreClick}
+            >
               Read More <span aria-hidden="true">→</span>
             </button>
           </div>
@@ -270,6 +273,5 @@ const LifestyleSection: React.FC = () => {
     </section>
   );
 };
-
 
 export default LifestyleSection;

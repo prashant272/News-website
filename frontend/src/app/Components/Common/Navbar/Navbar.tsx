@@ -3,8 +3,11 @@ import React, { useState, useEffect, useMemo } from 'react';
 import styles from './Navbar.module.scss';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Search, Menu, X } from 'lucide-react';
+import { Search, Menu, X, Moon, Sun } from 'lucide-react';
 import { useNewsContext } from '@/app/context/NewsContext';
+import { useTheme } from '@/app/context/ThemeContext';
+import Image from 'next/image';
+import logo from "@/assets/Logo/primetimelogo.gif"
 
 interface NavItem {
   label: string;
@@ -36,6 +39,7 @@ const Navbar: React.FC = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   
+  const { theme, toggleTheme } = useTheme();
   const newsContext = useNewsContext();
   const sections = newsContext?.sections;
 
@@ -118,10 +122,37 @@ const Navbar: React.FC = () => {
             </div>
             
             <Link href="/" className={styles.logoContainer} onClick={handleNavClick}>
-              <img src="/logo.png" alt="PrimeTime Logo" className={styles.logoImg} />
+            <span className={styles.brandName}>Prime Time Media</span>
+              <Image 
+                src={logo} 
+                alt="PrimeTime Logo" 
+                className={styles.logoImg}
+                width={150}
+                height={50}
+                priority
+                unoptimized
+              />
             </Link>
-            
 
+            <div className={styles.rightSection}>
+              {/* <button 
+                className={styles.searchButton}
+                onClick={toggleSearch}
+                aria-label="Search"
+              >
+                <Search size={18} />
+                <span>Search</span>
+              </button> */}
+
+              <button 
+                className={styles.themeToggle}
+                onClick={toggleTheme}
+                aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+                title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+              >
+                {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+              </button>
+            </div>
           </div>
 
           {isSearchOpen && (

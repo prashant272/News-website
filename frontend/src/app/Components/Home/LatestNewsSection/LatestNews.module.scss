@@ -1,10 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
 
 .latestNewsSection {
-  background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 50%, #f8f9fa 100%);
+  background-color: var(--background);
   padding: 4rem 2rem;
   position: relative;
   overflow: hidden;
+  transition: background-color 0.3s ease;
 
   &::before {
     content: '';
@@ -13,9 +14,6 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-image: 
-      radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.03) 0%, transparent 50%),
-      radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.03) 0%, transparent 50%);
     pointer-events: none;
   }
 
@@ -27,7 +25,7 @@
     transform: translateX(-50%);
     width: 1px;
     height: 100%;
-    background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.05) 50%, transparent);
+    background: linear-gradient(180deg, transparent, var(--border) 50%, transparent);
     pointer-events: none;
   }
 }
@@ -48,15 +46,16 @@
   font-family: 'Lora', serif;
   font-weight: 700;
   font-size: clamp(2rem, 5vw, 3rem);
-  color: #111827;
+  color: var(--heading-color);
   margin-bottom: 1rem;
   letter-spacing: -0.02em;
+  transition: color 0.3s ease;
 }
 
 .titleUnderline {
   width: 120px;
   height: 4px;
-  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  background: linear-gradient(90deg, var(--primary), var(--accent));
   margin: 0 auto;
   border-radius: 2px;
   box-shadow: 0 2px 12px rgba(59, 130, 246, 0.3);
@@ -66,11 +65,12 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 0;
-  background: #ffffff;
+  background: var(--card-bg);
   border-radius: 20px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--card-border);
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 12px var(--shadow-color);
+  transition: all 0.3s ease;
 
   @media (min-width: 768px) {
     grid-template-columns: repeat(3, 1fr);
@@ -82,14 +82,14 @@
   grid-template-columns: 1fr 140px;
   gap: 1.25rem;
   padding: 1.5rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  border-bottom: 1px solid var(--border);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
   position: relative;
 
   @media (min-width: 768px) {
-    border-right: 1px solid rgba(0, 0, 0, 0.06);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
 
     &:nth-child(3n) {
       border-right: none;
@@ -99,7 +99,7 @@
       border-bottom: none;
     }
 
-    // Special handling for last row if incomplete
+  
     &:nth-last-child(1):nth-child(3n+1),
     &:nth-last-child(1):nth-child(3n+2) {
       border-bottom: none;
@@ -117,17 +117,15 @@
     top: 0;
     width: 3px;
     height: 0;
-    background: linear-gradient(180deg, #3b82f6, #8b5cf6);
+    background: linear-gradient(180deg, var(--primary), var(--accent));
     transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   &:hover {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.04) 0%, rgba(139, 92, 246, 0.02) 100%);
+    background: var(--nav-hover-bg);
     transform: scale(1.02);
     z-index: 2;
-    box-shadow: 
-      0 4px 16px rgba(59, 130, 246, 0.12),
-      inset 0 0 0 1px rgba(59, 130, 246, 0.08);
+    box-shadow: 0 4px 16px var(--shadow-color);
 
     &::before {
       height: 100%;
@@ -156,11 +154,11 @@
   font-size: 0.8125rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: #3b82f6;
+  color: var(--primary);
   transition: color 0.3s ease;
 
   .newsItem:hover & {
-    color: #2563eb;
+    color: var(--primary-hover);
   }
 }
 
@@ -169,7 +167,7 @@
   font-weight: 600;
   font-size: 1.0625rem;
   line-height: 1.5;
-  color: #111827;
+  color: var(--heading-color);
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
@@ -178,7 +176,7 @@
   letter-spacing: -0.01em;
 
   .newsItem:hover & {
-    color: #3b82f6;
+    color: var(--primary);
   }
 }
 
@@ -187,13 +185,13 @@
   height: 90px;
   border-radius: 10px;
   overflow: hidden;
-  background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+  background: var(--muted);
   flex-shrink: 0;
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--border);
   transition: border-color 0.3s ease;
 
   .newsItem:hover & {
-    border-color: rgba(59, 130, 246, 0.25);
+    border-color: var(--primary);
   }
 
   img {
@@ -219,8 +217,8 @@
   align-items: center;
   gap: 0.75rem;
   padding: 1rem 2.5rem;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+  border: 1px solid var(--primary);
   border-radius: 100px;
   font-family: 'Inter', sans-serif;
   font-weight: 600;
@@ -228,9 +226,7 @@
   color: #ffffff;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 
-    0 4px 16px rgba(59, 130, 246, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.25);
   position: relative;
   overflow: hidden;
 
@@ -250,12 +246,10 @@
   }
 
   &:hover {
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-    border-color: rgba(37, 99, 235, 0.5);
+    background: linear-gradient(135deg, var(--primary-hover) 0%, var(--primary) 100%);
+    border-color: var(--primary-hover);
     transform: translateY(-2px);
-    box-shadow: 
-      0 8px 24px rgba(59, 130, 246, 0.35),
-      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.35);
 
     &::before {
       left: 100%;
@@ -268,9 +262,7 @@
 
   &:active {
     transform: translateY(0);
-    box-shadow: 
-      0 2px 8px rgba(59, 130, 246, 0.25),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
   }
 }
 
@@ -279,7 +271,7 @@
   animation: pulse-bg 1.5s ease-in-out infinite;
   
   .bg-gray-200 {
-    background: linear-gradient(90deg, #f3f4f6 0%, #e5e7eb 50%, #f3f4f6 100%);
+    background: linear-gradient(90deg, var(--muted) 0%, var(--border) 50%, var(--muted) 100%);
     background-size: 200% 100%;
     animation: shimmer 1.5s linear infinite;
   }
@@ -366,85 +358,5 @@
   .readMoreButton {
     padding: 0.75rem 1.75rem;
     font-size: 0.875rem;
-  }
-}
-
-// Dark mode support
-@media (prefers-color-scheme: dark) {
-  .latestNewsSection {
-    background: linear-gradient(180deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
-
-    &::before {
-      background-image: 
-        radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
-        radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.08) 0%, transparent 50%);
-    }
-
-    &::after {
-      background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.05) 50%, transparent);
-    }
-  }
-
-  .title {
-    color: #f9fafb;
-  }
-
-  .newsGrid {
-    background: rgba(30, 41, 59, 0.8);
-    border-color: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(20px);
-  }
-
-  .newsItem {
-    border-bottom-color: rgba(255, 255, 255, 0.06);
-
-    @media (min-width: 768px) {
-      border-right-color: rgba(255, 255, 255, 0.06);
-    }
-
-    &::before {
-      background: linear-gradient(180deg, #60a5fa, #a78bfa);
-    }
-
-    &:hover {
-      background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(139, 92, 246, 0.06) 100%);
-      box-shadow: 
-        0 4px 16px rgba(59, 130, 246, 0.2),
-        inset 0 0 0 1px rgba(59, 130, 246, 0.15);
-    }
-  }
-
-  .category {
-    color: #60a5fa;
-
-    .newsItem:hover & {
-      color: #93c5fd;
-    }
-  }
-
-  .newsTitle {
-    color: #f9fafb;
-
-    .newsItem:hover & {
-      color: #60a5fa;
-    }
-  }
-
-  .imageWrapper {
-    border-color: rgba(255, 255, 255, 0.08);
-
-    .newsItem:hover & {
-      border-color: rgba(59, 130, 246, 0.3);
-    }
-  }
-
-  .readMoreButton {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    border-color: rgba(59, 130, 246, 0.4);
-
-    &:hover {
-      background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
-      border-color: rgba(96, 165, 250, 0.5);
-    }
   }
 }

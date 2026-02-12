@@ -95,27 +95,13 @@ exports.AddNews = async (req, res) => {
 
 exports.getAllNews = async (req, res) => {
   try {
-    const { limit = 20, page = 1 } = req.query;
-
-    const skip = (parseInt(page) - 1) * parseInt(limit);
-
     const news = await NewsConfig.find({ isActive: true })
       .sort({ createdAt: -1 })
-      .limit(parseInt(limit))
-      .skip(skip)
       .select("-permissions -__v");
-
-    const total = await NewsConfig.countDocuments({ isActive: true });
 
     res.status(200).json({
       success: true,
       news,
-      pagination: {
-        total,
-        page: parseInt(page),
-        limit: parseInt(limit),
-        pages: Math.ceil(total / parseInt(limit)),
-      },
       msg: "All news fetched successfully",
     });
   } catch (error) {
@@ -127,6 +113,7 @@ exports.getAllNews = async (req, res) => {
     });
   }
 };
+
 
 exports.getNewsBySlug = async (req, res) => {
   try {

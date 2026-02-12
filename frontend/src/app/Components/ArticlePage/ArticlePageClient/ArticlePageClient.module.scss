@@ -1,19 +1,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
 
 .articlePage {
-  background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 50%, #f8f9fa 100%);
+  background-color: var(--background);
   min-height: 100vh;
   padding: 2rem 0;
   position: relative;
   overflow: hidden;
+  transition: background-color 0.3s ease;
 
   &::before {
     content: '';
     position: absolute;
     inset: 0;
-    background-image:
-      radial-gradient(circle at 15% 25%, rgba(59, 130, 246, 0.03) 0%, transparent 50%),
-      radial-gradient(circle at 85% 75%, rgba(139, 92, 246, 0.03) 0%, transparent 50%);
     pointer-events: none;
     z-index: 0;
   }
@@ -26,7 +24,8 @@
     right: 0;
     bottom: 0;
     background-image: 
-      repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.015) 2px, rgba(0, 0, 0, 0.015) 4px);
+      repeating-linear-gradient(0deg, transparent, transparent 2px, var(--border) 2px, var(--border) 4px);
+    opacity: 0.3;
     pointer-events: none;
     z-index: 0;
   }
@@ -52,11 +51,11 @@
   }
 
   .mainContent {
-    background: #ffffff;
+    background: var(--card-bg);
     padding: 2.5rem;
     border-radius: 16px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.06);
-    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 8px var(--shadow-color), 0 4px 16px var(--shadow-color);
+    border: 1px solid var(--card-border);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     
@@ -88,22 +87,23 @@
       text-align: center;
       font-family: 'Inter', sans-serif;
       font-size: 0.6875rem;
-      color: #ffffff;
+      color: var(--muted-foreground);
       margin-bottom: 0.5rem;
       text-transform: uppercase;
       letter-spacing: 0.1em;
       font-weight: 600;
+      transition: color 0.3s ease;
     }
 
     .adPlaceholder {
       width: 100%;
       height: 250px;
-      background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
-      border: 2px dashed rgba(0, 0, 0, 0.1);
+      background: var(--muted);
+      border: 2px dashed var(--border);
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #9ca3af;
+      color: var(--muted-foreground);
       font-family: 'Inter', sans-serif;
       font-size: 0.875rem;
       font-weight: 500;
@@ -116,13 +116,13 @@
         content: '';
         position: absolute;
         inset: 0;
-        background: linear-gradient(135deg, rgba(59, 130, 246, 0.02) 0%, rgba(139, 92, 246, 0.02) 100%);
+        background: var(--nav-hover-bg);
         opacity: 0;
         transition: opacity 0.3s ease;
       }
 
       &:hover {
-        border-color: rgba(139, 92, 246, 0.2);
+        border-color: var(--accent);
         
         &::before {
           opacity: 1;
@@ -138,49 +138,5 @@
   }
   100% {
     background-position: -200% 0;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  .articlePage {
-    background: linear-gradient(180deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
-
-    &::before {
-      background-image:
-        radial-gradient(circle at 15% 25%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
-        radial-gradient(circle at 85% 75%, rgba(139, 92, 246, 0.08) 0%, transparent 50%);
-    }
-
-    &::after {
-      background-image: 
-        repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255, 255, 255, 0.015) 2px, rgba(255, 255, 255, 0.015) 4px);
-    }
-
-    .mainContent {
-      background: rgba(30, 41, 59, 0.8);
-      border-color: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(20px);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-    }
-
-    .adSpace {
-      .advertisement {
-        color: #6b7280;
-      }
-
-      .adPlaceholder {
-        background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.8));
-        border-color: rgba(255, 255, 255, 0.1);
-        color: #6b7280;
-
-        &::before {
-          background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
-        }
-
-        &:hover {
-          border-color: rgba(139, 92, 246, 0.3);
-        }
-      }
-    }
   }
 }

@@ -2,8 +2,9 @@
 
 .pageWrapper {
   min-height: 100vh;
-  background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 50%, #f8f9fa 100%);
+  background-color: var(--background);
   padding: 2rem 1rem;
+  transition: background-color 0.3s ease;
   
   @media (min-width: 768px) {
     padding: 3rem 2rem;
@@ -18,18 +19,20 @@
 .sectionHeader {
   margin-bottom: 2.5rem;
   padding-bottom: 1.5rem;
-  border-bottom: 2px solid rgba(0, 0, 0, 0.08);
+  border-bottom: 2px solid var(--border);
+  transition: border-color 0.3s ease;
 }
 
 .sectionTitle {
   font-family: 'Lora', serif;
   font-size: clamp(1.75rem, 4vw, 2.5rem);
   font-weight: 700;
-  color: #111827;
+  color: var(--heading-color);
   margin-bottom: 1.25rem;
   letter-spacing: -0.02em;
   position: relative;
   display: inline-block;
+  transition: color 0.3s ease;
 
   &::after {
     content: '';
@@ -38,7 +41,7 @@
     left: 0;
     width: 60px;
     height: 4px;
-    background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+    background: linear-gradient(90deg, var(--primary), var(--accent));
     border-radius: 2px;
   }
 }
@@ -52,18 +55,18 @@
 
 .subCategoryLink {
   padding: 0.5rem 1.25rem;
-  background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
   border-radius: 100px;
   font-family: 'Inter', sans-serif;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #4b5563;
+  color: var(--text-color);
   text-decoration: none;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:hover {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
     color: #ffffff;
     border-color: transparent;
     transform: translateY(-2px);
@@ -128,11 +131,11 @@
 }
 
 .newsCard {
-  background: #ffffff;
+  background: var(--card-bg);
   border-radius: 16px;
   overflow: hidden;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--card-border);
+  box-shadow: 0 2px 8px var(--shadow-color);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
   display: flex;
@@ -141,15 +144,15 @@
 
   &:hover {
     transform: translateY(-6px);
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12), 0 0 12px rgba(139, 92, 246, 0.15);
-    border-color: rgba(139, 92, 246, 0.3);
+    box-shadow: 0 12px 28px var(--shadow-color);
+    border-color: var(--accent);
 
     .imageWrapper img {
       transform: scale(1.08);
     }
 
     .newsTitle {
-      color: #8b5cf6;
+      color: var(--accent);
     }
   }
 }
@@ -160,7 +163,7 @@
   height: 0;
   padding-bottom: 60%;
   overflow: hidden;
-  background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+  background: var(--muted);
   flex-shrink: 0;
 
   img {
@@ -179,18 +182,19 @@
   top: 1rem;
   left: 1rem;
   padding: 0.5rem 1rem;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--card-bg);
   backdrop-filter: blur(12px);
   border-radius: 100px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border);
   font-family: 'Inter', sans-serif;
   font-weight: 600;
   font-size: 0.75rem;
-  color: #1f2937;
+  color: var(--primary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px var(--shadow-color);
   z-index: 1;
+  transition: all 0.3s ease;
 }
 
 .newsTitle {
@@ -199,7 +203,7 @@
   font-size: 1.0625rem;
   font-weight: 600;
   line-height: 1.5;
-  color: #111827;
+  color: var(--heading-color);
   letter-spacing: -0.01em;
   transition: color 0.3s ease;
   margin: 0;
@@ -218,8 +222,8 @@
 .adPlaceholder {
   width: 100%;
   height: 250px;
-  background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
-  border: 2px dashed rgba(0, 0, 0, 0.1);
+  background: var(--muted);
+  border: 2px dashed var(--border);
   border-radius: 16px;
   display: flex;
   align-items: center;
@@ -227,19 +231,21 @@
   font-family: 'Inter', sans-serif;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #9ca3af;
+  color: var(--muted-foreground);
   margin-bottom: 2rem;
+  transition: all 0.3s ease;
 }
 
 .topNewsTitle {
   font-family: 'Lora', serif;
   font-size: 1.5rem;
   font-weight: 700;
-  color: #111827;
+  color: var(--heading-color);
   margin-bottom: 1.25rem;
   padding-bottom: 0.75rem;
-  border-bottom: 2px solid rgba(0, 0, 0, 0.08);
+  border-bottom: 2px solid var(--border);
   position: relative;
+  transition: all 0.3s ease;
 
   &::after {
     content: '';
@@ -248,7 +254,7 @@
     left: 0;
     width: 50px;
     height: 2px;
-    background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+    background: linear-gradient(90deg, var(--primary), var(--accent));
   }
 }
 
@@ -263,19 +269,19 @@
   grid-template-columns: 1fr 80px;
   gap: 1rem;
   padding: 1rem;
-  background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
   border-radius: 12px;
   text-decoration: none;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:hover {
     transform: translateX(4px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    border-color: rgba(59, 130, 246, 0.3);
+    box-shadow: 0 4px 12px var(--shadow-color);
+    border-color: var(--primary);
 
     p {
-      color: #3b82f6;
+      color: var(--primary);
     }
 
     img {
@@ -288,7 +294,7 @@
     font-size: 0.9375rem;
     font-weight: 500;
     line-height: 1.5;
-    color: #111827;
+    color: var(--heading-color);
     margin: 0;
     transition: color 0.3s ease;
     display: -webkit-box;
@@ -302,80 +308,35 @@
     height: 80px;
     object-fit: cover;
     border-radius: 8px;
-    background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+    background: var(--muted);
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  .pageWrapper {
-    background: linear-gradient(180deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
-  }
+.trendingBadge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.4rem 0.8rem;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  backdrop-filter: blur(12px);
+  border-radius: 100px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 0.7rem;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
 
-  .sectionHeader {
-    border-bottom-color: rgba(255, 255, 255, 0.1);
-  }
-
-  .sectionTitle {
-    color: #f9fafb;
-  }
-
-  .subCategoryLink {
-    background: rgba(30, 41, 59, 0.8);
-    border-color: rgba(255, 255, 255, 0.1);
-    color: #9ca3af;
-
-    &:hover {
-      color: #ffffff;
-    }
-  }
-
-  .newsCard {
-    background: rgba(30, 41, 59, 0.8);
-    border-color: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(20px);
-
-    &:hover {
-      background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(59, 130, 246, 0.08) 100%);
-      border-color: rgba(139, 92, 246, 0.4);
-    }
-  }
-
-  .categoryBadge {
-    background: rgba(30, 41, 59, 0.95);
-    color: #e5e7eb;
-    border-color: rgba(255, 255, 255, 0.1);
-  }
-
-  .newsTitle {
-    color: #f9fafb;
-  }
-
-  .adPlaceholder {
-    background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.8));
-    border-color: rgba(255, 255, 255, 0.1);
-  }
-
-  .topNewsTitle {
-    color: #f9fafb;
-    border-bottom-color: rgba(255, 255, 255, 0.1);
-  }
-
-  .topNewsItem {
-    background: rgba(30, 41, 59, 0.8);
-    border-color: rgba(255, 255, 255, 0.1);
-
-    &:hover {
-      border-color: rgba(59, 130, 246, 0.4);
-    }
-
-    p {
-      color: #f9fafb;
-
-      &:hover {
-        color: #3b82f6;
-      }
-    }
+  svg {
+    width: 14px;
+    height: 14px;
   }
 }
 
@@ -414,37 +375,3 @@
     }
   }
 }
-.trendingBadge {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  padding: 0.4rem 0.8rem;
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  backdrop-filter: blur(12px);
-  border-radius: 100px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  font-family: 'Inter', sans-serif;
-  font-weight: 600;
-  font-size: 0.7rem;
-  color: #ffffff;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-
-  svg {
-    width: 14px;
-    height: 14px;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  .trendingBadge {
-    background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
-    border-color: rgba(255, 255, 255, 0.15);
-  }
-}
-

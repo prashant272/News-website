@@ -22,7 +22,7 @@ export default function Home() {
        <Sports/>
        <Entertainment/>
        <VideosSection/>
-       <PhotosSection/>
+       {/* <PhotosSection/> */}
        <LifestyleSection/>
        <NewsCards data={stateNewsData} columns={3} />
        {/* <HeroSection/> */}
