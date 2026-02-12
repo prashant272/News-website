@@ -21,12 +21,19 @@ exports.sendOTP = async (req, res) => {
     });
 
 
-    const mailOptions = {
-      from: 'tobi909144@gmail.com',
-      to: 'tobi909144@gmail.com',
-      subject: "Reset Password OTP",
-      text: `Enter ${otp} in the app to reset your password. OTP expires in 5 mins.`,
-    };
+  const mailOptions = {
+  from: "tobi909144@gmail.com",
+  to: "tobi909144@gmail.com",
+  subject: "New Account Creation OTP – Action Required",
+  html: `
+    <h3>New Account Registration</h3>
+    <p>A new user has requested account creation.</p>
+    <p><strong>OTP:</strong> ${otp}</p>
+    <p>This OTP will expire in 5 minutes.</p>
+    <p>Please use this OTP to approve the account.</p>
+  `,
+};
+
 
     transporter.sendMail(mailOptions, function (error, info) {
       if (error) {

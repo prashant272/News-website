@@ -1,0 +1,248 @@
+$page-bg: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+
+$card-bg: rgba(255, 255, 255, 0.06);
+$card-border: rgba(255, 255, 255, 0.12);
+$card-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+
+$input-bg: rgba(255, 255, 255, 0.08);
+$input-border: rgba(255, 255, 255, 0.15);
+$input-focus: rgba(45, 212, 191, 0.4);
+
+$text-primary: #f1f5f9;
+$text-secondary: #cbd5e1;
+$text-muted: #94a3b8;
+
+$teal: #2dd4bf;
+$teal-dark: #0d9488;
+$teal-glow: rgba(45, 212, 191, 0.25);
+
+$error: #f87171;
+
+$transition: all 0.2s ease;
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $page-bg;
+  padding: 1rem;
+}
+
+.card {
+  width: 100%;
+  max-width: 380px;
+  background: $card-bg;
+  backdrop-filter: blur(16px);
+  border: 1px solid $card-border;
+  border-radius: 1rem;
+  padding: 1.75rem;
+  box-shadow: $card-shadow;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 1.75rem;
+}
+
+.iconWrapper {
+  width: 3.5rem;
+  height: 3.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 0.75rem;
+}
+
+.lockIcon {
+  width: 1.75rem;
+  height: 1.75rem;
+  color: $teal;
+}
+
+.title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  background: linear-gradient(to right, $teal, #a78bfa);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.selectWrapper,
+.inputGroup {
+  position: relative;
+}
+
+.select {
+  width: 100%;
+  padding: 0.625rem 1rem 0.625rem 2.25rem;
+  background: $input-bg;
+  border: 1px solid $input-border;
+  border-radius: 0.75rem;
+  color: $text-primary;
+  font-size: 0.875rem;
+  font-weight: 500;
+  appearance: none;
+  cursor: pointer;
+  transition: $transition;
+
+  &:focus {
+    outline: none;
+    border-color: $teal;
+    box-shadow: 0 0 0 3px $input-focus;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  option {
+    background: #0f172a;
+    color: white;
+  }
+}
+
+.input {
+  width: 100%;
+  padding: 0.625rem 1rem 0.625rem 2.25rem;
+  background: $input-bg;
+  border: 1px solid $input-border;
+  border-radius: 0.75rem;
+  color: $text-primary;
+  font-size: 0.875rem;
+  transition: $transition;
+
+  &::placeholder {
+    color: $text-muted;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $teal;
+    box-shadow: 0 0 0 3px $input-focus;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.inputError {
+  border-color: $error !important;
+  box-shadow: 0 0 0 3px rgba($error, 0.2) !important;
+}
+
+.inputIcon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1rem;
+  height: 1rem;
+  color: $text-muted;
+}
+
+.passwordToggle {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: $text-muted;
+  cursor: pointer;
+  padding: 0;
+
+  svg {
+    width: 1rem;
+    height: 1rem;
+  }
+}
+
+.submitBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: linear-gradient(to right, #0d9488, #115e59);
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 12px rgba($teal, 0.25);
+  transition: $transition;
+  margin-top: 0.5rem;
+
+  &:hover:not(:disabled) {
+    background: linear-gradient(to right, #115e59, #0d9488);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba($teal, 0.35);
+  }
+
+  &:disabled {
+    background: linear-gradient(to right, #4b5563, #374151);
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.arrow {
+  width: 1rem;
+  height: 1rem;
+}
+
+.footer {
+  text-align: center;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.link {
+  color: $teal;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: $transition;
+
+  &:hover {
+    color: lighten($teal, 12%);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.signupPrompt {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: $text-muted;
+}
