@@ -52,13 +52,30 @@ const NewsList: React.FC = () => {
   };
 
   const newsArticles: NewsArticle[] = useMemo(() => {
-    if (!allNews) return [];
+    if (!allNews || allNews.length === 0) return [];
 
-    // Take newest items first (assuming allNews is already sorted newest → oldest)
-    const newestFirst = [...allNews].slice(0, 12); // safety limit
+    const grouped = new Map<string, RawNewsItem[]>();
 
-    const articles: NewsArticle[] = newestFirst.map((item, idx) => ({
-      id: `new-${item.slug}-${idx}`,
+    for (const item of allNews) {
+      const cat = item.category || 'Uncategorized';
+      if (!grouped.has(cat)) {
+        grouped.set(cat, []);
+      }
+      grouped.get(cat)!.push(item);
+    }
+
+    const selected: RawNewsItem[] = [];
+    for (const items of grouped.values()) {
+      selected.push(...items.slice(0, 2));
+      if (selected.length >= 12) break;
+    }
+
+    const sortedSelected = selected.sort((a, b) => {
+      return allNews.indexOf(a) - allNews.indexOf(b);
+    });
+
+    const articles: NewsArticle[] = sortedSelected.map((item, idx) => ({
+      id: `div-${item.slug}-${idx}`,
       category: item.category,
       subCategory: item.subCategory,
       title: item.title,
@@ -68,7 +85,6 @@ const NewsList: React.FC = () => {
       isVideo: item.tags?.includes('video') ?? false,
     }));
 
-    // Show only first 6
     return articles.slice(0, 6);
   }, [allNews]);
 
@@ -76,7 +92,7 @@ const NewsList: React.FC = () => {
     if (!allNews) return [];
 
     return allNews
-      .filter(item => item.isTrending === true)
+      .filter((item) => item.isTrending === true)
       .slice(0, 5)
       .map((item, index) => ({
         id: `${index}-${item.slug}`,
@@ -129,44 +145,45 @@ const NewsList: React.FC = () => {
       <div className={styles.container}>
         <div className={styles.mainContent}>
           <div className={styles.newsGrid}>
-            {newsArticles.map((article) => (
-              <article
-                key={article.id}
-                className={styles.newsCard}
-                onClick={() => handleCardClick(article.slug, article.category, article.subCategory)}
-                style={{ cursor: 'pointer' }}
-              >
-                <div className={styles.cardImage}>
-                  <img
-                    src={article.image}
-                    alt={article.title}
-                  />
-                  {article.isVideo && (
-                    <div className={styles.videoIcon}>
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                        <circle cx="12" cy="12" r="12" fill="rgba(255, 68, 68, 0.95)" />
-                        <path d="M9 6L17 12L9 18V6Z" fill="#fff" />
-                      </svg>
-                    </div>
-                  )}
-                </div>
-                <div className={styles.cardContent}>
-                  <div className={styles.cardHeader}>
-                    <span className={styles.categoryBadge}>{article.category}</span>
-                    {article.isOpinion && (
-                      <span className={styles.opinionBadge}>
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                          <rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" strokeWidth="1.5" />
-                          <path d="M5 8L7 10L11 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            {newsArticles.length === 0 ? (
+              <p>No recent news available</p>
+            ) : (
+              newsArticles.map((article) => (
+                <article
+                  key={article.id}
+                  className={styles.newsCard}
+                  onClick={() => handleCardClick(article.slug, article.category, article.subCategory)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <div className={styles.cardImage}>
+                    <img src={article.image} alt={article.title} />
+                    {article.isVideo && (
+                      <div className={styles.videoIcon}>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                          <circle cx="12" cy="12" r="12" fill="rgba(255, 68, 68, 0.95)" />
+                          <path d="M9 6L17 12L9 18V6Z" fill="#fff" />
                         </svg>
-                        OPINION
-                      </span>
+                      </div>
                     )}
                   </div>
-                  <h3 className={styles.cardTitle}>{article.title}</h3>
-                </div>
-              </article>
-            ))}
+                  <div className={styles.cardContent}>
+                    <div className={styles.cardHeader}>
+                      <span className={styles.categoryBadge}>{article.category}</span>
+                      {article.isOpinion && (
+                        <span className={styles.opinionBadge}>
+                          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" strokeWidth="1.5" />
+                            <path d="M5 8L7 10L11 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                          OPINION
+                        </span>
+                      )}
+                    </div>
+                    <h3 className={styles.cardTitle}>{article.title}</h3>
+                  </div>
+                </article>
+              ))
+            )}
           </div>
         </div>
 

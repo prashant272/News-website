@@ -7,6 +7,7 @@ import LatestNewsSection from '@/app/Components/Common/LatestNewsSection/LatestN
 import MoreFromSection from '@/app/Components/Common/MoreFromSection/MoreFromSection';
 import NewsSection from '@/app/Components/Common/NewsSection/NewsSection';
 import { PhotosSection } from '@/app/Components/Common/PhotosSection/Photos';
+import { VideosSection } from '@/app/Components/Common/VideosSection/VideosSection';
 
 interface NewsItem {
   slug: string;
@@ -32,31 +33,55 @@ export default function SubCategoryPage() {
   const category = params?.category as string;
   const subCategory = params?.subCategory as string;
 
+  const normalize = (str: string | undefined) =>
+    str
+      ? decodeURIComponent(str)
+          .toLowerCase()
+          .replace(/&/g, 'and')
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/-+/g, '-')
+          .replace(/^-|-$/g, '')
+          .trim()
+      : '';
+
+  const cleanDisplay = (text: string | undefined): string => {
+    if (!text) return '';
+    return decodeURIComponent(text)
+      .replace(/%26/g, '&')
+      .replace(/%20/g, ' ')
+      .replace(/%2B/g, '+')
+      .replace(/&amp;/g, '&')
+      .trim();
+  };
+
+  const toTitleCase = (str: string) =>
+    str
+      .split(/\s+/)
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+
   useEffect(() => {
     if (!category || !subCategory || !context?.allNews) {
       setIsFiltering(true);
       return;
     }
 
-    const formattedCategory = category
-      .split('-')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
+    const cleanCat = cleanDisplay(category);
+    const cleanSub = cleanDisplay(subCategory);
 
-    const formattedSubCategory = subCategory
-      .split('-')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
+    const formattedCategory = toTitleCase(cleanCat);
+    const formattedSub = toTitleCase(cleanSub);
 
-    setPageTitle(`${formattedCategory} - ${formattedSubCategory}`);
+    setPageTitle(`${formattedCategory} - ${formattedSub}`);
+
+    const normCategory = normalize(category);
+    const normSubCategory = normalize(subCategory);
 
     const filtered = context.allNews.filter((news) => {
-      const newsCategory = news.category?.toLowerCase() || '';
-      const newsSubCategory = news.subCategory?.toLowerCase() || '';
-      const urlCategory = category.toLowerCase();
-      const urlSubCategory = subCategory.toLowerCase();
-      
-      return newsCategory === urlCategory && newsSubCategory === urlSubCategory;
+      return (
+        normalize(news.category) === normCategory &&
+        normalize(news.subCategory) === normSubCategory
+      );
     });
 
     setFilteredNews(filtered);
@@ -69,15 +94,15 @@ export default function SubCategoryPage() {
   const subCategories = Array.from(
     new Set(
       context?.allNews
-        ?.filter(news => news.category?.toLowerCase() === category?.toLowerCase())
-        .map(news => news.subCategory)
-        .filter(sub => {
-          if (!sub) return false;
-          const subLower = sub.toLowerCase();
-          return subLower !== 'india' && subLower !== category?.toLowerCase();
-        })
+        ?.filter(news => normalize(news.category) === normalize(category))
+        .map(news => cleanDisplay(news.subCategory))
+        .filter((sub): sub is string =>
+          !!sub &&
+          sub.toLowerCase() !== 'india' &&
+          sub.toLowerCase() !== cleanDisplay(category).toLowerCase()
+        )
     )
-  ) as string[];
+  );
 
   const transformedNews = filteredNews.map((news, index) => ({
     id: news.id || news.slug || `news-${index}`,
@@ -85,7 +110,7 @@ export default function SubCategoryPage() {
     title: news.title,
     slug: news.slug,
     category: news.category,
-    subCategory: news.subCategory || ''
+    subCategory: cleanDisplay(news.subCategory) || ''
   }));
 
   const transformedLatestNews = (latestNews.length > 0 ? latestNews : filteredNews.slice(0, 6)).map((news, index) => ({
@@ -127,7 +152,7 @@ export default function SubCategoryPage() {
 
   return (
     <>
-      <NewsSection 
+      <NewsSection
         sectionTitle={pageTitle}
         subCategories={subCategories}
         mainNews={transformedNews}
@@ -136,12 +161,12 @@ export default function SubCategoryPage() {
           title: news.title,
           image: news.image || '',
           slug: news.slug,
-          subCategory: news.subCategory
+          subCategory: cleanDisplay(news.subCategory)
         }))}
         showSidebar={true}
         gridColumns={3}
       />
-      
+
       <LatestNewsSection
         sectionTitle={`Latest ${pageTitle} News`}
         newsData={transformedLatestNews}
@@ -149,10 +174,10 @@ export default function SubCategoryPage() {
         readMoreLink={`/Pages/${category}/${subCategory}`}
         columns={3}
       />
-      
-      <PhotosSection />
-      
-      <MoreFromSection 
+
+      <VideosSection />
+
+      <MoreFromSection
         sectionTitle={`More From ${pageTitle}`}
         overrideSection={category as any}
         columns={2}

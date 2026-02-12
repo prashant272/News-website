@@ -13,6 +13,7 @@ export interface NewsGridItem {
   slug?: string;
   category?: string;
   subCategory: string;
+  displaySubCategory?: string;
   isTrending?: boolean;
 }
 
@@ -22,6 +23,7 @@ export interface TopNewsItem {
   image: string;
   slug?: string;
   subCategory?: string;
+  displaySubCategory?: string;
 }
 
 interface NewsSectionProps {
@@ -70,6 +72,14 @@ const getSection = (
   return fallback;
 };
 
+const cleanDisplayText = (text: string): string => {
+  return decodeURIComponent(text)
+    .replace(/%26/g, '&')
+    .replace(/%20/g, ' ')
+    .replace(/%2B/g, '+')
+    .trim();
+};
+
 const NewsSection: React.FC<NewsSectionProps> = ({
   sectionTitle,
   subCategories = [],
@@ -95,7 +105,7 @@ const NewsSection: React.FC<NewsSectionProps> = ({
 
   const mainNews: NewsGridItem[] = React.useMemo(() => {
     if (providedMainNews) return providedMainNews;
-    
+   
     return sectionNews.slice(0, 12).map((item, index) => ({
       id: `${section}-${item.slug || 'no-slug'}-${index}`,
       image: getImageSrc(item.image),
@@ -103,22 +113,24 @@ const NewsSection: React.FC<NewsSectionProps> = ({
       slug: item.slug,
       category: item.category,
       subCategory: item.subCategory || '',
+      displaySubCategory: cleanDisplayText(item.subCategory || ''),
       isTrending: item.isTrending
     }));
   }, [providedMainNews, sectionNews, section]);
-
+  
   const topNews: TopNewsItem[] = React.useMemo(() => {
     if (providedTopNews) return providedTopNews;
-    
+   
     const trendingNews = sectionNews.filter(item => item.isTrending === true);
     const newsToShow = trendingNews.length >= 5 ? trendingNews : sectionNews;
-    
+   
     return newsToShow.slice(0, 5).map((item, index) => ({
       id: `${section}-top-${index}`,
       title: item.title,
       image: getImageSrc(item.image),
       slug: item.slug,
-      subCategory: item.subCategory
+      subCategory: item.subCategory,
+      displaySubCategory: cleanDisplayText(item.subCategory || '')
     }));
   }, [providedTopNews, sectionNews, section]);
 
@@ -149,14 +161,17 @@ const NewsSection: React.FC<NewsSectionProps> = ({
           {subCategories.length > 0 && (
             <nav className={styles.subCategoryNav}>
               {subCategories.map((cat) => {
-                const categorySlug = cat.toLowerCase().replace(/\s+/g, '-');
+                const cleanCat = cleanDisplayText(cat);
+                const categorySlug = encodeURIComponent(
+                  cleanCat.toLowerCase().replace(/\s+/g, '-')
+                );
                 return (
                   <Link
                     key={cat}
                     href={`/Pages/${section}/${categorySlug}`}
                     className={styles.subCategoryLink}
                   >
-                    {cat}
+                    {cleanCat}
                   </Link>
                 );
               })}
@@ -183,7 +198,7 @@ const NewsSection: React.FC<NewsSectionProps> = ({
                 {topNews.map((news) => (
                   <Link
                     key={news.id}
-                    href={news.slug ? `/Pages/${section}/${news.subCategory}/${news.slug}` : '#'}
+                    href={news.slug ? `/Pages/${section}/${encodeURIComponent(news.subCategory || '')}/${encodeURIComponent(news.slug || '')}` : '#'}
                     className={styles.topNewsItem}
                   >
                     <p>{news.title}</p>
@@ -207,10 +222,9 @@ interface NewsCardProps extends NewsGridItem {
   currentSection: string;
 }
 
-const NewsCard: React.FC<NewsCardProps> = ({ image, title, slug, category, currentSection, subCategory, isTrending }) => {
+const NewsCard: React.FC<NewsCardProps> = ({ image, title, slug, category, currentSection, subCategory, displaySubCategory, isTrending }) => {
   const pathname = usePathname();
   const section = getSection(pathname, category, currentSection);
-
   const displayImage = getImageSrc(image);
 
   if (!slug) {
@@ -237,7 +251,7 @@ const NewsCard: React.FC<NewsCardProps> = ({ image, title, slug, category, curre
     );
   }
 
-  const href = `/Pages/${section}/${subCategory}/${slug}`;
+  const href = `/Pages/${section}/${encodeURIComponent(subCategory)}/${encodeURIComponent(slug)}`;
 
   return (
     <Link href={href} className={styles.newsCard}>
@@ -255,7 +269,7 @@ const NewsCard: React.FC<NewsCardProps> = ({ image, title, slug, category, curre
             </svg>
             Trending
           </span>
-          )}
+        )}
       </div>
       <p className={styles.newsTitle}>{title}</p>
     </Link>

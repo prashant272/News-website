@@ -7,6 +7,7 @@ import LatestNewsSection from '@/app/Components/Common/LatestNewsSection/LatestN
 import MoreFromSection from '@/app/Components/Common/MoreFromSection/MoreFromSection';
 import NewsSection from '@/app/Components/Common/NewsSection/NewsSection';
 import { PhotosSection } from '@/app/Components/Common/PhotosSection/Photos';
+import { VideosSection } from '@/app/Components/Common/VideosSection/VideosSection';
 
 interface NewsItem {
   slug: string;
@@ -144,7 +145,7 @@ export default function CategoryPage() {
         columns={3}
       />
 
-      <PhotosSection />
+      <VideosSection/>
       
       <MoreFromSection 
         sectionTitle={`More From ${categoryTitle}`}

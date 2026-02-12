@@ -14,7 +14,6 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [theme, setTheme] = useState<Theme>('light');
   const [mounted, setMounted] = useState(false);
 
-  // Initialize theme from localStorage on mount
   useEffect(() => {
     setMounted(true);
     const storedTheme = localStorage.getItem('theme') as Theme | null;
@@ -23,7 +22,6 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       setTheme(storedTheme);
       document.documentElement.setAttribute('data-theme', storedTheme);
     } else {
-      // Check system preference on first load
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       const initialTheme = prefersDark ? 'dark' : 'light';
       setTheme(initialTheme);
@@ -31,7 +29,6 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     }
   }, []);
 
-  // Toggle theme function
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
@@ -39,7 +36,6 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     document.documentElement.setAttribute('data-theme', newTheme);
   };
 
-  // Prevent flash of wrong theme
   if (!mounted) {
     return null;
   }
