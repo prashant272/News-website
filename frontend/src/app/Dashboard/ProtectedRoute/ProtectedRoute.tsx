@@ -13,12 +13,14 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const router = useRouter();
 
   useEffect(() => {
-    if (!context?.UserAuthData?.token) {
+    if (!context?.initialStateLoaded || !context?.UserAuthData?.token) {
       router.replace("/Dashboard/pages/Auth");
     }
-  }, [context, router]);
+  }, [context?.initialStateLoaded, context?.UserAuthData?.token, router]);
 
-  if (!context?.UserAuthData?.token) return null;
+  if (!context?.initialStateLoaded || !context?.UserAuthData?.token) {
+    return null;
+  }
 
-  return children;
+  return <>{children}</>;
 }

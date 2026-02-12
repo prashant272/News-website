@@ -1,9 +1,10 @@
-'use client'
+"use client";
 
-import React, { useState } from 'react'
-import ProtectedRoute from "../../ProtectedRoute/ProtectedRoute"
-import MainSection from '@/app/Dashboard/Components/Home/MainSection/Main'
-import styles from './Page.module.scss'
+import React, { useState, useContext } from 'react';
+import ProtectedRoute from "../../ProtectedRoute/ProtectedRoute";
+import MainSection from '@/app/Dashboard/Components/Home/MainSection/Main';
+import styles from './Page.module.scss';
+import { UserContext } from "@/app/Dashboard/Context/ManageUserContext";
 
 const sections = [
   { id: 'india' as const, label: 'India', icon: '🇮🇳' },
@@ -15,20 +16,23 @@ const sections = [
   { id: 'world' as const, label: 'World', icon: '🌍' },
   { id: 'health' as const, label: 'Health', icon: '🏥' },
   { id: 'state' as const, label: 'State', icon: '📰' },
-] as const
+] as const;
 
-type SectionId = typeof sections[number]['id']
+type SectionId = typeof sections[number]['id'];
 
 export default function NewsAdminPage() {
-  const [activeSection, setActiveSection] = useState<SectionId>('india')
+  const [activeSection, setActiveSection] = useState<SectionId>('india');
+  const userCtx = useContext(UserContext);
+  const activeSectionData = sections.find(s => s.id === activeSection);
 
-  const activeSectionData = sections.find(s => s.id === activeSection)
+  const handleLogout = () => {
+    userCtx?.logout();
+  };
 
   return (
     <ProtectedRoute>
       <div className={styles.pageContainer}>
         <div className={styles.contentWrapper}>
-          {/* Mobile Tabs */}
           <div className={styles.mobileTabs}>
             <div className={styles.mobileTabsContainer}>
               <div className={styles.tabsList}>
@@ -46,7 +50,6 @@ export default function NewsAdminPage() {
             </div>
           </div>
 
-          {/* Desktop Sidebar */}
           <aside className={styles.desktopSidebar}>
             <h1 className={styles.sidebarTitle}>Sections</h1>
             <nav className={styles.sidebarNav}>
@@ -66,7 +69,6 @@ export default function NewsAdminPage() {
             </nav>
           </aside>
 
-          {/* Main Content */}
           <main className={styles.mainContent}>
             <div className={styles.headerCard}>
               <div className={styles.headerContent}>
@@ -86,34 +88,22 @@ export default function NewsAdminPage() {
                 <div className={styles.activeBadge}>
                   Active: <span>{activeSection}</span>
                 </div>
+                <button
+                  onClick={handleLogout}
+                  className={styles.logoutBtn}
+                  type="button"
+                >
+                  Logout
+                </button>
               </div>
             </div>
 
             <div className={styles.contentCard}>
               <MainSection section={activeSection} />
             </div>
-
-            <div className={styles.statsGrid}>
-              <div className={styles.statCard}>
-                <div className={styles.statNumber}>9</div>
-                <div className={styles.statLabel}>Sections</div>
-              </div>
-              <div className={styles.statCard}>
-                <div className={styles.statNumber}>248</div>
-                <div className={styles.statLabel}>Articles</div>
-              </div>
-              <div className={styles.statCard}>
-                <div className={styles.statNumber}>12.4k</div>
-                <div className={styles.statLabel}>Views</div>
-              </div>
-              <div className={styles.statCard}>
-                <div className={styles.statNumber}>47</div>
-                <div className={styles.statLabel}>Drafts</div>
-              </div>
-            </div>
           </main>
         </div>
       </div>
     </ProtectedRoute>
-  )
+  );
 }

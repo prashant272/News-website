@@ -10,6 +10,7 @@ import React, {
   Dispatch,
   useCallback 
 } from "react";
+import { useRouter } from "next/navigation";
 
 interface UserState {
   token: string | null;
@@ -79,9 +80,8 @@ const reducer: React.Reducer<UserState, UserAction> = (state: UserState, action:
     }
 
     case "SIGN_OUT": {
-      const signoutState: UserState = { token: "", userId: "", profilepic: "" };
+      const signoutState: UserState = { token: null, userId: null, profilepic: null };
       if (typeof window !== "undefined") {
-        localStorage.setItem("UserData", JSON.stringify(signoutState));
         document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax";
         document.cookie = "userId=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax";
       }
@@ -98,6 +98,8 @@ type UserDispatch = Dispatch<UserAction>;
 interface UserContextType {
   UserAuthData: UserState;
   Userdispatch: UserDispatch;
+  logout: () => void;
+  initialStateLoaded: boolean;
   UserSignIn: ApiResponsePromise;
   UserSignUp: ApiResponsePromise;
   UPDATEUSER: ApiResponsePromise;
@@ -212,10 +214,8 @@ interface UserProviderProps {
 
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const [initialStateLoaded, setInitialStateLoaded] = useState(false);
-  
-
   const [state, Userdispatch] = useReducer(reducer, defaultState);
-
+  const router = useRouter();
 
   const initializeUserData = useCallback(() => {
     if (typeof window !== "undefined") {
@@ -236,6 +236,14 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     initializeUserData();
   }, [initializeUserData]);
 
+  const logout = useCallback(() => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("UserData");
+    }
+    Userdispatch({ type: "SIGN_OUT" });
+    router.replace("/Dashboard/pages/Auth");
+  }, [router]);
+
   if (!initialStateLoaded) {
     return <div>Loading...</div>; 
   }
@@ -245,6 +253,8 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       value={{
         UserAuthData: state,
         Userdispatch,
+        logout,
+        initialStateLoaded,
         UserSignIn,
         UserSignUp,
         UPDATEUSER,
