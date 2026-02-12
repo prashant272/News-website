@@ -13,14 +13,15 @@ export interface MoreFromItem {
   slug?: string;
   category?: string;
   section?: string;
+  subCategory?:string;
 }
 
 interface MoreFromSectionProps {
   sectionTitle: string;
-  overrideSection?: 'india' | 'sports' | 'business' | 'entertainment' | 'lifestyle' | 'all'; 
+  overrideSection?: 'india' | 'sports' | 'business' | 'entertainment' | 'lifestyle' | 'all';
   columns?: 2 | 3 | 4;
   limit?: number;
-  excludeSlug?: string;           
+  excludeSlug?: string;
 }
 
 const MoreFromSection: React.FC<MoreFromSectionProps> = ({
@@ -35,17 +36,14 @@ const MoreFromSection: React.FC<MoreFromSectionProps> = ({
 
   const getCurrentSection = (): string => {
     if (overrideSection) return overrideSection;
-
     const parts = pathname.split('/').filter(Boolean);
     const pagesIndex = parts.indexOf('Pages');
-
     if (pagesIndex !== -1 && parts[pagesIndex + 1]) {
       const candidate = parts[pagesIndex + 1];
       if (['india', 'sports', 'business', 'entertainment', 'lifestyle'].includes(candidate)) {
         return candidate;
       }
     }
-
     return 'india';
   };
 
@@ -53,22 +51,20 @@ const MoreFromSection: React.FC<MoreFromSectionProps> = ({
 
   const sectionData = useMemo(() => {
     switch (section) {
-      case 'india':        return indiaNews || [];
-      case 'sports':       return sportsNews || [];
-      case 'business':     return businessNews || [];
+      case 'india':         return indiaNews || [];
+      case 'sports':        return sportsNews || [];
+      case 'business':      return businessNews || [];
       case 'entertainment': return entertainmentNews || [];
-      case 'lifestyle':    return lifestyleNews || [];
-      default:             return allNews || [];
+      case 'lifestyle':     return lifestyleNews || [];
+      default:              return allNews || [];
     }
   }, [section, allNews, indiaNews, sportsNews, businessNews, entertainmentNews, lifestyleNews]);
 
   const items: MoreFromItem[] = useMemo(() => {
     let filtered = sectionData;
-
     if (excludeSlug) {
-      filtered = filtered.filter(item => item.slug !== excludeSlug);
+      filtered = filtered.filter((item: any) => item.slug !== excludeSlug);
     }
-
     return filtered
       .slice(0, limit)
       .map((item: any, index: number) => ({
@@ -76,8 +72,9 @@ const MoreFromSection: React.FC<MoreFromSectionProps> = ({
         title: item.title || 'Untitled',
         image: item.image || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80',
         slug: item.slug,
-        category: item.category,
+        category: item.category || section,
         section,
+        subCategory:item.subCategory
       }));
   }, [sectionData, section, limit, excludeSlug]);
 
@@ -105,8 +102,12 @@ const MoreFromSection: React.FC<MoreFromSectionProps> = ({
 
       <div className={`${styles.itemsGrid} ${styles[`cols${columns}`]}`}>
         {items.map((item, index) => {
+          const categorySlug = (item.subCategory || section)
+            .toLowerCase()
+            .replace(/\s+/g, '-');
+
           const href = item.slug
-            ? `/Pages/${item.section || section}/${item.slug}`
+            ? `/Pages/${item.section || section}/${categorySlug}/${item.slug}`
             : '#';
 
           const isImageLeft = index % 2 === 0;
@@ -119,13 +120,16 @@ const MoreFromSection: React.FC<MoreFromSectionProps> = ({
             >
               <div className={styles.imageContainer}>
                 <img
-                  src={item.image.startsWith('http') || item.image.startsWith('/') ? item.image : `/public/${item.image}`}
+                  src={
+                    item.image.startsWith('http') || item.image.startsWith('/')
+                      ? item.image
+                      : `/public/${item.image}`
+                  }
                   alt={item.title}
                   loading="lazy"
                 />
                 <div className={styles.imageOverlay}></div>
               </div>
-
               <div className={styles.contentContainer}>
                 <h3 className={styles.newsTitle}>{item.title}</h3>
               </div>

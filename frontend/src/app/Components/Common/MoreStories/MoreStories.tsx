@@ -16,6 +16,7 @@ interface Story {
   slug: string;
   section?: string;
   date?: string;
+  subCategory?:string
 }
 
 interface MoreStoriesSectionProps {
@@ -23,7 +24,9 @@ interface MoreStoriesSectionProps {
   title?: string;
   limit?: number;
   excludeSlug?: string;
+  subCategory?:string;
 }
+
 
 function calculateTimeAgo(dateString: string): string {
   try {
@@ -67,12 +70,12 @@ const MoreStoriesSection: React.FC<MoreStoriesSectionProps> = ({
 
   const sectionData = useMemo(() => {
     switch (section) {
-      case 'india':        return indiaNews || [];
-      case 'sports':       return sportsNews || [];
-      case 'business':     return businessNews || [];
+      case 'india':         return indiaNews || [];
+      case 'sports':        return sportsNews || [];
+      case 'business':      return businessNews || [];
       case 'entertainment': return entertainmentNews || [];
-      case 'lifestyle':    return lifestyleNews || [];
-      default:             return allNews || [];
+      case 'lifestyle':     return lifestyleNews || [];
+      default:              return allNews || [];
     }
   }, [section, allNews, indiaNews, sportsNews, businessNews, entertainmentNews, lifestyleNews]);
 
@@ -95,11 +98,14 @@ const MoreStoriesSection: React.FC<MoreStoriesSectionProps> = ({
         timeAgo: item.date ? calculateTimeAgo(item.date) : '1 day ago',
         author: item.author || 'News Desk',
         slug: item.slug || '',
-        section: item.section || section
+        section: item.section || section,
+        subCategory:item.subCategory
       }));
   }, [sectionData, section, limit, excludeSlug]);
 
   const displayStories = contextStories;
+  console.log(displayStories);
+  
 
   if (displayStories.length === 0) {
     return (
@@ -141,8 +147,12 @@ const MoreStoriesSection: React.FC<MoreStoriesSectionProps> = ({
 
         <div className={styles.storiesGrid}>
           {displayStories.map((story, index) => {
+            const categorySlug = (story.subCategory|| section)
+              .toLowerCase()
+              .replace(/\s+/g, '-');
+
             const href = story.slug
-              ? `/Pages/${story.section || section}/${story.slug}`
+              ? `/Pages/${story.section || section}/${categorySlug}/${story.slug}`
               : '#';
 
             return (
@@ -154,9 +164,11 @@ const MoreStoriesSection: React.FC<MoreStoriesSectionProps> = ({
               >
                 <div className={styles.imageWrapper}>
                   <Image
-                    src={story.image.startsWith('http') || story.image.startsWith('/') 
-                      ? story.image 
-                      : `/public/${story.image}`}
+                    src={
+                      story.image.startsWith('http') || story.image.startsWith('/')
+                        ? story.image
+                        : `/public/${story.image}`
+                    }
                     alt={story.title}
                     fill
                     className={styles.storyImage}

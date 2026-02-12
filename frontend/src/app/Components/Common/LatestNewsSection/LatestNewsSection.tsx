@@ -3,7 +3,7 @@
 import React, { useMemo } from 'react';
 import Link from 'next/link';
 import { useNewsContext } from '@/app/context/NewsContext';
-import { getImageSrc } from '@/Utils/imageUtils'; 
+import { getImageSrc } from '@/Utils/imageUtils';
 import styles from './LatestNewsSection.module.scss';
 
 export interface LatestNewsItem {
@@ -21,7 +21,7 @@ interface LatestNewsSectionProps {
   readMoreLink?: string;
   columns?: 2 | 3 | 4;
   limit?: number;
-  newsData?: LatestNewsItem[]; 
+  newsData?: LatestNewsItem[];
 }
 
 const getSectionKeyFromTitle = (title: string): 'india' | 'sports' | 'business' | 'entertainment' | 'lifestyle' | 'all' => {
@@ -63,16 +63,13 @@ const LatestNewsSection: React.FC<LatestNewsSectionProps> = React.memo(({
   readMoreLink,
   columns = 3,
   limit = 6,
-  newsData 
+  newsData,
 }) => {
   const context = useNewsContext();
-  
   const effectiveSectionKey = sectionKey || getSectionKeyFromTitle(sectionTitle);
 
   const sectionData = useMemo(() => {
-    
     if (!context) return [];
-    
     switch (effectiveSectionKey) {
       case 'india':         return context.indiaNews || [];
       case 'sports':        return context.sportsNews || [];
@@ -82,11 +79,13 @@ const LatestNewsSection: React.FC<LatestNewsSectionProps> = React.memo(({
       default:              return context.allNews || [];
     }
   }, [context, effectiveSectionKey]);
-  
 
   const dynamicReadMoreLink = readMoreLink || `/Pages/${effectiveSectionKey}`;
 
   const finalNewsData = useMemo(() => {
+    if (newsData) {
+      return newsData.slice(0, limit);
+    }
     const data = Array.isArray(sectionData) ? sectionData.slice(0, limit) : [];
     return data.map((item: any, index) => ({
       id: `${effectiveSectionKey}-${item?.slug || index}`,
@@ -95,7 +94,7 @@ const LatestNewsSection: React.FC<LatestNewsSectionProps> = React.memo(({
       image: getImageSrc(item?.image),
       slug: item?.slug,
     }));
-  }, [sectionData, effectiveSectionKey, limit]);
+  }, [newsData, sectionData, effectiveSectionKey, limit]);
 
   if (context?.loading) {
     return <NewsGridSkeleton columns={columns} sectionTitle={sectionTitle} />;
@@ -104,7 +103,6 @@ const LatestNewsSection: React.FC<LatestNewsSectionProps> = React.memo(({
   if (finalNewsData.length === 0) {
     return null;
   }
-  
 
   return (
     <section className={styles.latestNewsSection}>
@@ -118,7 +116,6 @@ const LatestNewsSection: React.FC<LatestNewsSectionProps> = React.memo(({
           {finalNewsData.map((item) => {
             const categorySlug = item.category.toLowerCase().replace(/\s+/g, '-');
             const href = `/Pages/${effectiveSectionKey}/${categorySlug}/${item.slug}`;
-            
             return (
               <Link key={item.id} href={href} className={styles.newsItem}>
                 <div className={styles.content}>
@@ -126,7 +123,7 @@ const LatestNewsSection: React.FC<LatestNewsSectionProps> = React.memo(({
                   <h3 className={styles.newsTitle}>{item.title}</h3>
                 </div>
                 <div className={styles.imageWrapper}>
-                  <img 
+                  <img
                     src={item.image}
                     alt={item.title}
                     loading="lazy"
