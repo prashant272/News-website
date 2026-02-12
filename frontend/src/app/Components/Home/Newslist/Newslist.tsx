@@ -40,15 +40,8 @@ const NewsList: React.FC = () => {
   const router = useRouter();
 
   const getImageSrc = (img?: string): string => {
-    if (!img) {
-      return 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80';
-    }
-    if (img.startsWith('http') || img.startsWith('data:')) {
-      return img;
-    }
-    if (img.startsWith('/')) {
-      return img;
-    }
+    if (!img) return 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80';
+    if (img.startsWith('http') || img.startsWith('data:') || img.startsWith('/')) return img;
     return `/uploads/${img}`;
   };
 
@@ -60,38 +53,28 @@ const NewsList: React.FC = () => {
 
   const newsArticles: NewsArticle[] = useMemo(() => {
     if (!allNews) return [];
-    
-    const sectionArticles: { [key: string]: RawNewsItem[] } = {};
-    
-    allNews.forEach(item => {
-      const section = item.category.toLowerCase();
-      if (!sectionArticles[section]) sectionArticles[section] = [];
-      sectionArticles[section].push(item);
-    });
-    
-    const articles: NewsArticle[] = [];
-    
-    Object.entries(sectionArticles).forEach(([section, items]) => {
-      items.slice(0, 2).forEach((item, idx) => {
-        articles.push({
-          id: `${section}-${item.slug}-${idx}`,
-          category: item.category,
-          subCategory: item.subCategory,
-          title: item.title,
-          image: getImageSrc(item.image),
-          slug: item.slug,
-          isOpinion: item.tags?.includes('opinion') ?? false,
-          isVideo: item.tags?.includes('video') ?? false,
-        });
-      });
-    });
-    
-    return articles.slice(0, 12);
+
+    // Take newest items first (assuming allNews is already sorted newest → oldest)
+    const newestFirst = [...allNews].slice(0, 12); // safety limit
+
+    const articles: NewsArticle[] = newestFirst.map((item, idx) => ({
+      id: `new-${item.slug}-${idx}`,
+      category: item.category,
+      subCategory: item.subCategory,
+      title: item.title,
+      image: getImageSrc(item.image),
+      slug: item.slug,
+      isOpinion: item.tags?.includes('opinion') ?? false,
+      isVideo: item.tags?.includes('video') ?? false,
+    }));
+
+    // Show only first 6
+    return articles.slice(0, 6);
   }, [allNews]);
 
   const trendingItems: TrendingItem[] = useMemo(() => {
     if (!allNews) return [];
-    
+
     return allNews
       .filter(item => item.isTrending === true)
       .slice(0, 5)
@@ -111,7 +94,7 @@ const NewsList: React.FC = () => {
         <div className={styles.container}>
           <div className={styles.mainContent}>
             <div className={styles.newsGrid}>
-              {Array(8).fill(0).map((_, i) => (
+              {Array(6).fill(0).map((_, i) => (
                 <article key={i} className={`${styles.newsCard} animate-pulse`}>
                   <div className="bg-gray-200 h-40 w-full rounded"></div>
                   <div className="mt-3 space-y-2">
@@ -147,14 +130,14 @@ const NewsList: React.FC = () => {
         <div className={styles.mainContent}>
           <div className={styles.newsGrid}>
             {newsArticles.map((article) => (
-              <article 
-                key={article.id} 
+              <article
+                key={article.id}
                 className={styles.newsCard}
                 onClick={() => handleCardClick(article.slug, article.category, article.subCategory)}
                 style={{ cursor: 'pointer' }}
               >
                 <div className={styles.cardImage}>
-                  <img 
+                  <img
                     src={article.image}
                     alt={article.title}
                   />
@@ -193,11 +176,11 @@ const NewsList: React.FC = () => {
               <h2 className={styles.trendingTitle}>Trending</h2>
               <div className={styles.trendingAccent}></div>
             </div>
-            
+
             <div className={styles.trendingList}>
               {trendingItems.map((item, index) => (
-                <article 
-                  key={item.id} 
+                <article
+                  key={item.id}
                   className={styles.trendingCard}
                   onClick={() => handleCardClick(item.slug, item.category, item.subCategory)}
                   style={{ cursor: 'pointer' }}
@@ -206,7 +189,7 @@ const NewsList: React.FC = () => {
                     <span>{index + 1}</span>
                   </div>
                   <div className={styles.trendingImage}>
-                    <img 
+                    <img
                       src={item.image}
                       alt={item.title}
                     />
