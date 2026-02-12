@@ -151,7 +151,7 @@ export const SignIn: React.FC<AuthChildProps> = ({ setMode }) => {
             >
               <option value="User">👤 User</option>
               <option value="Admin">🛡️ Admin</option>
-              <option value="SuperAdmin">👑 Super Admin</option>
+              <option value="SUPER_ADMIN">👑 Super Admin</option>
             </select>
           </div>
 
