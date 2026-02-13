@@ -1,4 +1,5 @@
-import { LatestNewsItem } from '@/app/Components/Common/LatestNewsSection/LatestNewsSection';
+import { LatestNewsItem } from "../NewsData/NewsData";
+
 
 // LATEST INDIA NEWS
 export const latestIndiaNews: LatestNewsItem[] = [

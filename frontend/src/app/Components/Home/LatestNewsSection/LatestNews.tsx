@@ -1,74 +1,52 @@
 "use client";
+
 import React from 'react';
+import Link from 'next/link';
 import { useNewsContext } from '@/app/context/NewsContext';
 import styles from './LatestNews.module.scss';
 
-interface NewsItem {
-  slug: string;
-  title: string;
-  image?: string;
-  category?: string;
-  isLatest?: boolean;
-  section?: string;
-  subCategory?:string;
-}
-
-interface LatestNewsItem {
+interface DisplayItem {
   id: string;
-  category: string;
   title: string;
   image: string;
-  slug: string;
+  category: string;
   section: string;
-  subCategory?:string;
+  subCategory?: string;
+  slug: string;
+  href: string;
 }
 
 const LatestNews: React.FC = () => {
-  const { allNews, indiaNews, sportsNews, businessNews, loading } = useNewsContext();
+  const { allNews, loading } = useNewsContext();
 
-  const getImageSrc = (img?: string): string => {
-    if (!img) {
-      return 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80';
+  const displayNews: DisplayItem[] = (() => {
+    if (!allNews || !Array.isArray(allNews) || allNews.length === 0) {
+      return [];
     }
-    if (img.startsWith('http') || img.startsWith('data:')) {
-      return img;
-    }
-    if (img.startsWith('/')) {
-      return img;
-    }
-    return `/uploads/${img}`;
-  };
 
-  const displayNews: LatestNewsItem[] = React.useMemo(() => {
-    const latestNews: LatestNewsItem[] = [];
+    const latestItems = allNews
+      .filter((item: any) => item.isLatest === true)
+      .slice(0, 6);
 
-    const sections = [
-      { key: 'india',    data: indiaNews    },
-      { key: 'sports',   data: sportsNews   },
-      { key: 'business', data: businessNews },
-    ];
+    const itemsToMap = latestItems.length > 0 ? latestItems : allNews.slice(0, 6);
 
-    sections.forEach(({ key, data }) => {
-      if (!data || !Array.isArray(data) || data.length === 0) return;
+    return itemsToMap.map((item: any, idx: number) => {
+      const section = item.section || 'news';
+      const sub = item.subCategory || section;
+      const catSlug = sub.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
 
-      const latestItems = data.filter((item: NewsItem) => item.isLatest === true);
-
-      if (latestItems.length > 0) {
-        const item = latestItems[0];
-        latestNews.push({
-          id: `${key}-${item.slug}`,
-          section: key,
-          category: item.category || key.charAt(0).toUpperCase() + key.slice(1),
-          title: item.title,
-          image: getImageSrc(item.image),
-          slug: item.slug,
-          subCategory:item.subCategory
-        });
-      }
+      return {
+        id: `latest-${item.slug || idx}`,
+        title: item.title || 'Untitled',
+        image: item.image || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80',
+        category: item.category || section.charAt(0).toUpperCase() + section.slice(1),
+        section,
+        subCategory: item.subCategory,
+        slug: item.slug || '',
+        href: item.slug ? `/Pages/${section}/${catSlug}/${item.slug}` : '#',
+      };
     });
-
-    return latestNews.slice(0, 6);
-  }, [indiaNews, sportsNews, businessNews]);
+  })();
 
   if (loading) {
     return (
@@ -117,16 +95,14 @@ const LatestNews: React.FC = () => {
               .toLowerCase()
               .replace(/\s+/g, '-');
 
-            const href = `/Pages/${item.section}/${categorySlug}/${item.slug}`;
-
             return (
               <article key={item.id} className={styles.newsItem}>
                 <div className={styles.content}>
                   <span className={styles.category}>{item.category}</span>
                   <h3 className={styles.newsTitle}>
-                    <a href={href} className="hover:underline">
+                    <Link href={item.href} className="hover:underline">
                       {item.title}
-                    </a>
+                    </Link>
                   </h3>
                 </div>
                 <div className={styles.imageWrapper}>
@@ -143,12 +119,12 @@ const LatestNews: React.FC = () => {
         </div>
 
         <div className={styles.readMoreWrapper}>
-          <button className={styles.readMoreButton}>
+          <Link href="/Pages/all" className={styles.readMoreButton}>
             Read More News
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
               <path d="M7 4L13 10L7 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
             </svg>
-          </button>
+          </Link>
         </div>
       </div>
     </section>

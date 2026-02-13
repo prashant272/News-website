@@ -1,10 +1,11 @@
-"use client";
-import React from 'react';
+'use client';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useNewsContext } from '@/app/context/NewsContext';
 import { getImageSrc } from '@/Utils/imageUtils';
 import styles from './NewsSection.module.scss';
+import { useActiveAds } from '@/app/hooks/useAds';
+import { useState, useEffect,useMemo } from 'react';
 
 export interface NewsGridItem {
   id: string | number;
@@ -103,9 +104,8 @@ const NewsSection: React.FC<NewsSectionProps> = ({
     }
   })();
 
-  const mainNews: NewsGridItem[] = React.useMemo(() => {
+  const mainNews: NewsGridItem[] = useMemo(() => {
     if (providedMainNews) return providedMainNews;
-   
     return sectionNews.slice(0, 12).map((item, index) => ({
       id: `${section}-${item.slug || 'no-slug'}-${index}`,
       image: getImageSrc(item.image),
@@ -118,12 +118,10 @@ const NewsSection: React.FC<NewsSectionProps> = ({
     }));
   }, [providedMainNews, sectionNews, section]);
   
-  const topNews: TopNewsItem[] = React.useMemo(() => {
+  const topNews: TopNewsItem[] = useMemo(() => {
     if (providedTopNews) return providedTopNews;
-   
     const trendingNews = sectionNews.filter(item => item.isTrending === true);
     const newsToShow = trendingNews.length >= 5 ? trendingNews : sectionNews;
-   
     return newsToShow.slice(0, 5).map((item, index) => ({
       id: `${section}-top-${index}`,
       title: item.title,
@@ -133,6 +131,19 @@ const NewsSection: React.FC<NewsSectionProps> = ({
       displaySubCategory: cleanDisplayText(item.subCategory || '')
     }));
   }, [providedTopNews, sectionNews, section]);
+
+  const { data: ads, loading: adsLoading } = useActiveAds();
+  const activeAds = (ads || []).filter(ad => ad.isActive);
+
+  const [currentAdIndex, setCurrentAdIndex] = useState(0);
+
+  useEffect(() => {
+    if (activeAds.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentAdIndex((prev) => (prev + 1) % activeAds.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [activeAds.length]);
 
   if (!sectionNews.length && !providedMainNews) {
     return (
@@ -190,7 +201,53 @@ const NewsSection: React.FC<NewsSectionProps> = ({
           </div>
           {showSidebar && topNews.length > 0 && (
             <aside className={styles.sidebar}>
-              <div className={styles.adPlaceholder}>Advertisement</div>
+              <div className="mb-6">
+                {adsLoading ? (
+                  <div className="bg-gray-100 border border-gray-300 rounded p-4 text-center text-sm text-gray-600 min-h-[250px] flex items-center justify-center">
+                    Loading advertisement...
+                  </div>
+                ) : activeAds.length > 0 ? (
+                  <div className="relative rounded-lg overflow-hidden shadow-sm min-h-[250px]">
+                    {activeAds.map((ad, index) => (
+                      <a
+                        key={ad._id}
+                        href={ad.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`block absolute inset-0 transition-opacity duration-800 ease-in-out ${index === currentAdIndex ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                      >
+                        <img
+                          src={ad.imageUrl}
+                          alt={ad.title || 'Advertisement'}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                        {ad.title && (
+                          <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs font-medium p-3 text-center">
+                            {ad.title}
+                          </div>
+                        )}
+                      </a>
+                    ))}
+                    {activeAds.length > 1 && (
+                      <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-2 z-10">
+                        {activeAds.map((_, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => setCurrentAdIndex(idx)}
+                            className={`w-2.5 h-2.5 rounded-full transition-all ${idx === currentAdIndex ? 'bg-white scale-125' : 'bg-white/50'}`}
+                            aria-label={`Go to ad ${idx + 1}`}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="bg-gray-100 border border-gray-300 rounded p-4 text-center text-sm text-gray-600 min-h-[250px] flex items-center justify-center">
+                    Advertisement space
+                  </div>
+                )}
+              </div>
               <h3 className={styles.topNewsTitle}>
                 {hasTrendingNews ? 'Trending News' : 'Top News'}
               </h3>

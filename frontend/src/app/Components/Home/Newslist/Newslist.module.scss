@@ -523,3 +523,11 @@
     height: 180px;
   }
 }
+
+.adSpace {
+  margin-top: 2rem;
+}
+
+.adContent:hover img {
+  transform: scale(1.03);
+}

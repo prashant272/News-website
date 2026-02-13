@@ -10,6 +10,15 @@ interface NewsContextType {
   businessNews: NewsItem[] | null;
   lifestyleNews: NewsItem[] | null;
   entertainmentNews: NewsItem[] | null;
+  healthNews: NewsItem[] | null;
+  techNews: NewsItem[] | null;
+  worldNews: NewsItem[] | null;
+  educationNews: NewsItem[] | null;
+  environmentNews: NewsItem[] | null;
+  scienceNews: NewsItem[] | null;
+  opinionNews: NewsItem[] | null;
+  autoNews: NewsItem[] | null;
+  travelNews: NewsItem[] | null;
   sections: NewsSections | null;
   loading: boolean;
   error: string | null;
@@ -29,6 +38,15 @@ export const NewsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [businessNews, setBusinessNews] = useState<NewsItem[] | null>(null);
   const [lifestyleNews, setLifestyleNews] = useState<NewsItem[] | null>(null);
   const [entertainmentNews, setEntertainmentNews] = useState<NewsItem[] | null>(null);
+  const [healthNews, setHealthNews] = useState<NewsItem[] | null>(null);
+  const [techNews, setTechNews] = useState<NewsItem[] | null>(null);
+  const [worldNews, setWorldNews] = useState<NewsItem[] | null>(null);
+  const [educationNews, setEducationNews] = useState<NewsItem[] | null>(null);
+  const [environmentNews, setEnvironmentNews] = useState<NewsItem[] | null>(null);
+  const [scienceNews, setScienceNews] = useState<NewsItem[] | null>(null);
+  const [opinionNews, setOpinionNews] = useState<NewsItem[] | null>(null);
+  const [autoNews, setAutoNews] = useState<NewsItem[] | null>(null);
+  const [travelNews, setTravelNews] = useState<NewsItem[] | null>(null);
 
   useEffect(() => {
     if (!sections) {
@@ -38,6 +56,15 @@ export const NewsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setBusinessNews(null);
       setLifestyleNews(null);
       setEntertainmentNews(null);
+      setHealthNews(null);
+      setTechNews(null);
+      setWorldNews(null);
+      setEducationNews(null);
+      setEnvironmentNews(null);
+      setScienceNews(null);
+      setOpinionNews(null);
+      setAutoNews(null);
+      setTravelNews(null);
       return;
     }
 
@@ -46,9 +73,33 @@ export const NewsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setBusinessNews(sections.business ?? null);
     setLifestyleNews(sections.lifestyle ?? null);
     setEntertainmentNews(sections.entertainment ?? null);
+    setHealthNews(sections.health ?? null);
+    setTechNews(sections.tech ?? null);
+    setWorldNews(sections.world ?? null);
+    setEducationNews(sections.education ?? null);
+    setEnvironmentNews(sections.environment ?? null);
+    setScienceNews(sections.science ?? null);
+    setOpinionNews(sections.opinion ?? null);
+    setAutoNews(sections.auto ?? null);
+    setTravelNews(sections.travel ?? null);
 
     const flattened: NewsItem[] = [];
-    const keys: (keyof NewsSections)[] = ["india", "sports", "business", "lifestyle", "entertainment"];
+    const keys: (keyof NewsSections)[] = [
+      "india",
+      "sports",
+      "business",
+      "lifestyle",
+      "entertainment",
+      "health",
+      "tech",
+      "world",
+      "education",
+      "environment",
+      "science",
+      "opinion",
+      "auto",
+      "travel"
+    ];
 
     keys.forEach((key) => {
       const arr = sections[key];
@@ -65,6 +116,15 @@ export const NewsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     businessNews,
     lifestyleNews,
     entertainmentNews,
+    healthNews,
+    techNews,
+    worldNews,
+    educationNews,
+    environmentNews,
+    scienceNews,
+    opinionNews,
+    autoNews,
+    travelNews,
     sections,
     loading,
     error,

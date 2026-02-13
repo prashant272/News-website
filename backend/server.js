@@ -8,6 +8,7 @@ const morgan = require("morgan")
 const AuthRouter = require("./routes/auth.routes")
 const NewsRouter = require("./routes/news.routes")
 const OTPRouter = require("./routes/otp.route")
+const AdsRouter = require("./routes/advertisement.route")
 
 const app = express()
 
@@ -36,6 +37,7 @@ app.get("/",(req,res)=>{
 app.use("/auth",AuthRouter)
 app.use("/news",NewsRouter)
 app.use("/otp",OTPRouter)
+app.use("/ads",AdsRouter)
 
 app.listen(process.env.PORT,()=>{
     console.log("server is running");

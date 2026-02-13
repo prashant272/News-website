@@ -140,3 +140,13 @@
     background-position: -200% 0;
   }
 }
+.adSpace > div:not(.advertisement):hover img {
+  transform: scale(1.03);
+}
+
+.shareSection {
+  margin: 24px 0;
+  padding: 16px 0;
+  border-top: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e5e7eb;
+}

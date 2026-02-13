@@ -256,6 +256,7 @@
 }
 
 .adBlock {
+  height: 80%;
   background: var(--card-bg);
   border-radius: 16px;
   border: 1px solid var(--card-border);
@@ -352,5 +353,13 @@
     &:active {
       transform: translateY(0);
     }
+  }
+}
+
+.adImageWrapper {
+  transition: all 0.3s ease;
+
+  &:hover img {
+    transform: scale(1.03);
   }
 }

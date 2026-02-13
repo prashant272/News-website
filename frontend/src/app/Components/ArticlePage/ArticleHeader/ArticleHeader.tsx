@@ -36,16 +36,6 @@ export default function ArticleHeader({ article }: ArticleHeaderProps) {
           priority
         />
       </div>
-
-      <div className={styles.meta}>
-        {article.author && (
-          <span className={styles.author}>By {article.author}</span>
-        )}
-        <span className={styles.date}>{formattedDate}</span>
-        {article.readTime && (
-          <span className={styles.readTime}>{article.readTime}</span>
-        )}
-      </div>
     </div>
   );
 }

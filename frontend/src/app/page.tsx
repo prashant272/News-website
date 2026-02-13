@@ -12,20 +12,37 @@ import Footer from "./Components/Common/Footer/Footer";
 import NewsCards from "./Components/Common/NewsCard/NewsCard";
 import { stateNewsData } from "@/Data/NewsCardData/NewsCardData";
 import LifestyleSection from "./Components/Home/Lifestyle/LifestyleSection";
+import SocialShare from "./Components/Common/SocialShare/SocialShare";
 
 export default function Home() {
   return (
-       <>
-       <NewsSection/>
-       <NewsList/>
-       <LatestNews/>
-       <Sports/>
-       <Entertainment/>
-       <VideosSection/>
-       {/* <PhotosSection/> */}
-       <LifestyleSection/>
-       {/* <NewsCards data={stateNewsData} columns={3} /> */}
-       {/* <HeroSection/> */}
-       </>
+    <>
+      <NewsSection/>
+      <NewsList/>
+      
+      <SocialShare 
+        url={typeof window !== 'undefined' ? window.location.href : 'https://yoursite.com'}
+        title="Your News Site - Latest Breaking News & Updates"
+        description="Get the latest breaking news, sports updates, entertainment stories, lifestyle tips, and more. Your trusted source for news."
+        image="/og-image.jpg" 
+        isArticle={false}
+      />
+      
+      <LatestNews/>
+      <Sports/>
+      <Entertainment/>
+      <VideosSection/>
+      {/* <PhotosSection/> */}
+      <LifestyleSection/>
+      {/* <NewsCards data={stateNewsData} columns={3} /> */}
+      {/* <HeroSection/> */}
+            <SocialShare 
+        url={typeof window !== 'undefined' ? window.location.href : 'https://yoursite.com'}
+        title="Your News Site - Latest Breaking News & Updates"
+        description="Get the latest breaking news, sports updates, entertainment stories, lifestyle tips, and more. Your trusted source for news."
+        image="/og-image.jpg" 
+        isArticle={false}
+      />
+    </>
   );
 }

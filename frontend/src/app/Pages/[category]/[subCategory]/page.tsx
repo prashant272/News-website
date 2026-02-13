@@ -8,6 +8,7 @@ import MoreFromSection from '@/app/Components/Common/MoreFromSection/MoreFromSec
 import NewsSection from '@/app/Components/Common/NewsSection/NewsSection';
 import { PhotosSection } from '@/app/Components/Common/PhotosSection/Photos';
 import { VideosSection } from '@/app/Components/Common/VideosSection/VideosSection';
+import SocialShare from '@/app/Components/Common/SocialShare/SocialShare';
 
 interface NewsItem {
   slug: string;
@@ -29,6 +30,7 @@ export default function SubCategoryPage() {
   const [filteredNews, setFilteredNews] = useState<NewsItem[]>([]);
   const [pageTitle, setPageTitle] = useState<string>('');
   const [isFiltering, setIsFiltering] = useState(true);
+  const [currentUrl, setCurrentUrl] = useState<string>('');
 
   const category = params?.category as string;
   const subCategory = params?.subCategory as string;
@@ -61,6 +63,10 @@ export default function SubCategoryPage() {
       .join(' ');
 
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setCurrentUrl(window.location.href);
+    }
+
     if (!category || !subCategory || !context?.allNews) {
       setIsFiltering(true);
       return;
@@ -167,9 +173,17 @@ export default function SubCategoryPage() {
         gridColumns={3}
       />
 
+      <SocialShare 
+        url={currentUrl || `https://yoursite.com/${category}/${subCategory}`}
+        title={`${pageTitle} - Latest News & Updates`}
+        description={`Explore the latest ${pageTitle} news, trending stories, and in-depth coverage. Stay updated with breaking news and analysis.`}
+        image={filteredNews[0]?.image || ''}
+        isArticle={false}
+      />
+
       <LatestNewsSection
         sectionTitle={`Latest ${pageTitle} News`}
-        newsData={transformedLatestNews}
+        // newsData={transformedLatestNews}
         showReadMore={true}
         readMoreLink={`/Pages/${category}/${subCategory}`}
         columns={3}

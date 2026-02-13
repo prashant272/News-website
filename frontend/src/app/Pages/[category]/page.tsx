@@ -8,6 +8,7 @@ import MoreFromSection from '@/app/Components/Common/MoreFromSection/MoreFromSec
 import NewsSection from '@/app/Components/Common/NewsSection/NewsSection';
 import { PhotosSection } from '@/app/Components/Common/PhotosSection/Photos';
 import { VideosSection } from '@/app/Components/Common/VideosSection/VideosSection';
+import SocialShare from '@/app/Components/Common/SocialShare/SocialShare';
 
 interface NewsItem {
   slug: string;
@@ -29,10 +30,15 @@ export default function CategoryPage() {
   const [filteredNews, setFilteredNews] = useState<NewsItem[]>([]);
   const [categoryTitle, setCategoryTitle] = useState<string>('');
   const [isFiltering, setIsFiltering] = useState(true);
+  const [currentUrl, setCurrentUrl] = useState<string>('');
 
   const category = params?.category as string;
 
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setCurrentUrl(window.location.href);
+    }
+
     if (!category || !context?.allNews) {
       setIsFiltering(true);
       return;
@@ -47,6 +53,8 @@ export default function CategoryPage() {
 
     const filtered = context.allNews.filter((news) => {
       const newsCategory = news.category?.toLowerCase() || '';
+      console.log(newsCategory);
+      
       const urlCategory = category.toLowerCase();
       
       return newsCategory === urlCategory;
@@ -125,7 +133,6 @@ export default function CategoryPage() {
     notFound();
   }
 
-
   return (
     <>
       <NewsSection 
@@ -136,10 +143,18 @@ export default function CategoryPage() {
         showSidebar={true}
         gridColumns={3}
       />
+
+      <SocialShare 
+        url={currentUrl || `https://yoursite.com/${category}`}
+        title={`${categoryTitle} - Latest News & Updates`}
+        description={`Stay updated with the latest ${categoryTitle} news, breaking stories, trending topics, and in-depth analysis.`}
+        image={filteredNews[0]?.image || ''}
+        isArticle={false}
+      />
       
       <LatestNewsSection
         sectionTitle={`Latest ${categoryTitle} News`}
-        newsData={transformedLatestNews}
+        // newsData={transformedLatestNews}
         showReadMore={true}
         readMoreLink={`/Pages/${category}`}
         columns={3}
@@ -152,6 +167,13 @@ export default function CategoryPage() {
         overrideSection={category as any}
         columns={2}
         limit={8}
+      />
+            <SocialShare 
+        url={currentUrl || `https://yoursite.com/${category}`}
+        title={`${categoryTitle} - Latest News & Updates`}
+        description={`Stay updated with the latest ${categoryTitle} news, breaking stories, trending topics, and in-depth analysis.`}
+        image={filteredNews[0]?.image || ''}
+        isArticle={false}
       />
     </>
   );

@@ -1,84 +1,33 @@
 "use client";
 
-import React, { useMemo } from 'react';
-import { usePathname } from 'next/navigation';
+import React from 'react';
 import Link from 'next/link';
-import { useNewsContext } from '@/app/context/NewsContext';
+import { useNewsSectionData, MoreFromItem } from '@/app/hooks/useNewsSectionData';
 import styles from './MoreFromSection.module.scss';
-
-export interface MoreFromItem {
-  id: string | number;
-  title: string;
-  image: string;
-  slug?: string;
-  category?: string;
-  section?: string;
-  subCategory?:string;
-}
 
 interface MoreFromSectionProps {
   sectionTitle: string;
-  overrideSection?: 'india' | 'sports' | 'business' | 'entertainment' | 'lifestyle' | 'all';
+  overrideSection?: string;
   columns?: 2 | 3 | 4;
   limit?: number;
   excludeSlug?: string;
 }
 
-const MoreFromSection: React.FC<MoreFromSectionProps> = ({
+export default function MoreFromSection({
   sectionTitle,
   overrideSection,
   columns = 3,
   limit = 6,
   excludeSlug,
-}) => {
-  const pathname = usePathname();
-  const { allNews, indiaNews, sportsNews, businessNews, entertainmentNews, lifestyleNews } = useNewsContext();
+}: MoreFromSectionProps) {
+  const { items, isLoading } = useNewsSectionData<MoreFromItem>({
+    variant: 'more-from',
+    overrideSection,
+    limit,
+    excludeSlug,
+  });
 
-  const getCurrentSection = (): string => {
-    if (overrideSection) return overrideSection;
-    const parts = pathname.split('/').filter(Boolean);
-    const pagesIndex = parts.indexOf('Pages');
-    if (pagesIndex !== -1 && parts[pagesIndex + 1]) {
-      const candidate = parts[pagesIndex + 1];
-      if (['india', 'sports', 'business', 'entertainment', 'lifestyle'].includes(candidate)) {
-        return candidate;
-      }
-    }
-    return 'india';
-  };
-
-  const section = getCurrentSection();
-
-  const sectionData = useMemo(() => {
-    switch (section) {
-      case 'india':         return indiaNews || [];
-      case 'sports':        return sportsNews || [];
-      case 'business':      return businessNews || [];
-      case 'entertainment': return entertainmentNews || [];
-      case 'lifestyle':     return lifestyleNews || [];
-      default:              return allNews || [];
-    }
-  }, [section, allNews, indiaNews, sportsNews, businessNews, entertainmentNews, lifestyleNews]);
-
-  const items: MoreFromItem[] = useMemo(() => {
-    let filtered = sectionData;
-    if (excludeSlug) {
-      filtered = filtered.filter((item: any) => item.slug !== excludeSlug);
-    }
-    return filtered
-      .slice(0, limit)
-      .map((item: any, index: number) => ({
-        id: `${section}-${item.slug || 'no-slug'}-${index}`,
-        title: item.title || 'Untitled',
-        image: item.image || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80',
-        slug: item.slug,
-        category: item.category || section,
-        section,
-        subCategory:item.subCategory
-      }));
-  }, [sectionData, section, limit, excludeSlug]);
-
-  if (items.length === 0) {
+  if (isLoading || items.length === 0) {
     return (
       <div className={styles.moreFromWrapper}>
         <div className={`${styles.itemsGrid} ${styles[`cols${columns}`]} animate-pulse`}>
@@ -102,13 +51,11 @@ const MoreFromSection: React.FC<MoreFromSectionProps> = ({
 
       <div className={`${styles.itemsGrid} ${styles[`cols${columns}`]}`}>
         {items.map((item, index) => {
-          const categorySlug = (item.subCategory || section)
+          const categorySlug = (item.subCategory || item.section)
             .toLowerCase()
             .replace(/\s+/g, '-');
 
-          const href = item.slug
-            ? `/Pages/${item.section || section}/${categorySlug}/${item.slug}`
-            : '#';
+          const href = item.slug ? item.href : '#';
 
           const isImageLeft = index % 2 === 0;
 
@@ -120,11 +67,7 @@ const MoreFromSection: React.FC<MoreFromSectionProps> = ({
             >
               <div className={styles.imageContainer}>
                 <img
-                  src={
-                    item.image.startsWith('http') || item.image.startsWith('/')
-                      ? item.image
-                      : `/public/${item.image}`
-                  }
+                  src={item.image}
                   alt={item.title}
                   loading="lazy"
                 />
@@ -139,6 +82,4 @@ const MoreFromSection: React.FC<MoreFromSectionProps> = ({
       </div>
     </div>
   );
-};
-
-export default MoreFromSection;
+}

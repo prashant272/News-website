@@ -1,14 +1,12 @@
 .navbarWrapper {
   width: 100%;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   position: sticky;
   top: 0;
   z-index: 1000;
   background: var(--nav-bg);
   backdrop-filter: blur(24px) saturate(180%);
   box-shadow: 0 1px 0 var(--nav-border);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
+  transition: all 0.3s ease;
   &.scrolled {
     box-shadow: 0 4px 12px var(--shadow-color);
   }
@@ -19,514 +17,215 @@
   margin: 0 auto;
 }
 
-.topHeader {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
+.adBanner {
+  width: 100%;
+  height: 80px;
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--nav-border);
+  background: rgba(240, 240, 240, 0.08);
+}
+
+.adLink {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.adImageWrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.adImage {
+  object-fit: contain !important;
+}
+
+.adLoading,
+.adPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
   align-items: center;
-  padding: 16px 40px;
+  justify-content: center;
+  background: rgba(200, 200, 200, 0.08);
+  border: 1px dashed var(--nav-border);
+  color: var(--nav-text-secondary);
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.adDots {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  &.active {
+    background: #fff;
+    transform: scale(1.3);
+  }
+}
+
+.mainHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
   gap: 24px;
   border-bottom: 1px solid var(--nav-border);
+}
 
-  .leftSection {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-
-    .menuButton {
-      display: none;
-      background: transparent;
-      border: none;
-      color: var(--nav-text);
-      cursor: pointer;
-      padding: 8px;
-      border-radius: 12px;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-
-      &:hover {
-        background: var(--nav-hover-bg);
-        color: var(--nav-hover-text);
-        transform: scale(1.05);
-      }
-
-      &:active {
-        transform: scale(0.95);
-      }
+.leftSection {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+  .menuButton {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--nav-text);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    &:hover {
+      background: var(--nav-hover-bg);
     }
   }
-
   .logoContainer {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 12px;
+    gap: 10px;
     text-decoration: none;
-    transition: transform 0.3s ease;
-
     .logoImg {
-      width: 40px;
-      height: 48px;
-      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08));
-      transition: all 0.3s ease;
+      width: 44px;
+      height: 44px;
+      object-fit: contain;
     }
-
- .brandName {
-  font-size: 28px;
-  font-weight: 700;
-  background: linear-gradient(135deg, #dc2626, #b91c1c, #991b1b, #7f1d1d);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: -0.5px;
-  transition: all 0.3s ease;
-  white-space: nowrap;
-}
-
-    &:hover {
-      transform: scale(1.04);
-      
-      .logoImg {
-        filter: drop-shadow(0 4px 8px rgba(59, 130, 246, 0.2));
-      }
-    }
-  }
-
-  .rightSection {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 12px;
-
-    .searchButton {
-      background: var(--nav-hover-bg);
-      border: 1px solid var(--nav-border);
-      color: var(--nav-text-secondary);
-      cursor: pointer;
-      padding: 10px 20px;
-      border-radius: 100px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 14px;
-      font-weight: 500;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
-
-      &:hover {
-        border-color: #3b82f6;
-        color: var(--nav-hover-text);
-        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
-        transform: translateY(-1px);
-      }
-
-      &:active {
-        transform: translateY(0);
-      }
-
-      svg {
-        transition: transform 0.3s ease;
-      }
-
-      &:hover svg {
-        transform: rotate(90deg);
-      }
-    }
-
-    .themeToggle {
-      background: var(--nav-hover-bg);
-      border: 1px solid var(--nav-border);
-      color: var(--nav-text-secondary);
-      cursor: pointer;
-      padding: 10px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 40px;
-      height: 40px;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
-
-      &:hover {
-        border-color: #3b82f6;
-        color: var(--nav-hover-text);
-        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
-        transform: translateY(-1px) rotate(15deg);
-      }
-
-      &:active {
-        transform: translateY(0) rotate(0deg);
-      }
-
-      svg {
-        transition: transform 0.4s ease;
-      }
+    .brandName {
+      font-size: 22px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #dc2626, #991b1b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      white-space: nowrap;
     }
   }
 }
 
-.searchOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: var(--overlay-bg);
-  backdrop-filter: blur(8px);
-  z-index: 999;
-  animation: fadeIn 0.25s ease;
-  cursor: pointer;
-}
-
-.searchBar {
-  padding: 0 40px 20px;
-  animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  z-index: 1001;
-
-  .searchInputWrapper {
-    position: relative;
-    max-width: 800px;
-    margin: 0 auto;
-
-    .searchInput {
-      width: 100%;
-      padding: 16px 56px 16px 24px;
-      border: 2px solid var(--search-border);
-      border-radius: 24px;
-      font-size: 16px;
-      outline: none;
-      background: var(--search-bg);
-      color: var(--search-text);
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-      font-family: inherit;
-      box-shadow: 0 8px 24px rgba(59, 130, 246, 0.15);
-
-      &:focus {
-        border-color: #3b82f6;
-        box-shadow: 0 12px 32px rgba(59, 130, 246, 0.25);
-      }
-
-      &::placeholder {
-        color: var(--nav-text-secondary);
-      }
-    }
-
-    .searchIcon {
-      position: absolute;
-      right: 20px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--nav-hover-text);
-      pointer-events: none;
-    }
-
-    .closeSearch {
-      position: absolute;
-      right: 60px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: transparent;
-      border: none;
-      color: var(--nav-text-secondary);
-      cursor: pointer;
-      padding: 4px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s ease;
-
-      &:hover {
-        color: var(--nav-text);
-        background: var(--nav-hover-bg);
-      }
-    }
-  }
-}
-
-.mainNav {
-  border-top: 1px solid var(--nav-border);
-  padding: 0 32px;
-  overflow: hidden;
-
-  .navLoading {
-    padding: 18px 20px;
-    text-align: center;
+.navListDesktop {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+  .navItem a {
+    padding: 12px 18px;
     color: var(--nav-text-secondary);
-    font-size: 14px;
-  }
-
-  .navList {
-    display: flex;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    gap: 4px;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(59, 130, 246, 0.2) transparent;
-    scroll-behavior: smooth;
-    justify-content: center;
-
-    &::-webkit-scrollbar {
-      height: 4px;
-    }
-
-    &::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    &::-webkit-scrollbar-thumb {
-      background: rgba(59, 130, 246, 0.2);
-      border-radius: 4px;
-
-      &:hover {
-        background: rgba(59, 130, 246, 0.4);
-      }
-    }
-
-    .navItem {
-      a {
-        display: flex;
-        align-items: center;
-        padding: 18px 20px;
-        color: var(--nav-text-secondary);
-        text-decoration: none;
-        font-weight: 500;
-        font-size: 15px;
-        white-space: nowrap;
-        border-radius: 12px;
-        position: relative;
-        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-
-        &::before {
-          content: '';
-          position: absolute;
-          bottom: 6px;
-          left: 50%;
-          transform: translateX(-50%) scaleX(0);
-          width: 32px;
-          height: 4px;
-          background: linear-gradient(90deg, #3b82f6, #8b5cf6);
-          border-radius: 4px;
-          transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        &:hover {
-          color: var(--nav-hover-text);
-          background: var(--nav-hover-bg);
-          transform: translateY(-2px);
-
-          &::before {
-            transform: translateX(-50%) scaleX(1);
-          }
-        }
-
-        &.active {
-          color: var(--nav-hover-text);
-          background: var(--nav-hover-bg);
-          font-weight: 600;
-
-          &::before {
-            transform: translateX(-50%) scaleX(1);
-          }
-        }
-      }
+    text-decoration: none;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    &:hover,
+    &.active {
+      background: var(--nav-hover-bg);
+      color: var(--nav-hover-text);
     }
   }
 }
 
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+.rightSection {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.mobileMenu {
+  display: none;
+  &.open {
+    display: block;
   }
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
+.navListMobile {
+  list-style: none;
+  margin: 0;
+  padding: 12px 0;
+  background: var(--nav-bg);
+  border-top: 1px solid var(--nav-border);
+  li a {
+    display: block;
+    padding: 16px 24px;
+    color: var(--nav-text);
+    text-decoration: none;
+    font-size: 16px;
+    border-bottom: 1px solid var(--nav-border);
+    &:last-child {
+      border-bottom: none;
+    }
+    &.active {
+      font-weight: 600;
+      background: var(--nav-hover-bg);
+    }
   }
 }
 
 @media (max-width: 1024px) {
-  .topHeader {
-    padding: 14px 24px;
-    
-    .logoContainer .brandName {
-      font-size: 18px;
-    }
+  .mainHeader {
+    padding: 12px 20px;
   }
-
-  .mainNav {
-    padding: 0 24px;
-
-    .navList {
-      justify-content: flex-start;
+  .navListDesktop {
+    display: none;
+  }
+  .leftSection .menuButton {
+    display: block;
+  }
+  .mobileMenu {
+    display: block;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+    &.open {
+      max-height: 600px;
     }
   }
 }
 
 @media (max-width: 768px) {
-  .topHeader {
-    grid-template-columns: auto 1fr auto;
-    padding: 12px 20px;
-    gap: 12px;
-
-    .leftSection {
-      .menuButton {
-        display: flex;
-      }
-    }
-
-    .logoContainer {
-      justify-content: flex-start;
-
-      .logoImg {
-        height: 38px;
-      }
-
-      .brandName {
-        font-size: 16px;
-      }
-    }
-
-    .rightSection {
-      .searchButton {
-        padding: 8px;
-        border-radius: 50%;
-        min-width: 40px;
-        height: 40px;
-        justify-content: center;
-
-        span {
-          display: none;
-        }
-
-        svg {
-          margin: 0;
-        }
-      }
-    }
+  .adBanner {
+    height: 100px;
   }
-
-  .searchBar {
-    padding: 0 20px 16px;
-
-    .searchInputWrapper {
-      .searchInput {
-        padding: 14px 48px 14px 20px;
-        font-size: 15px;
-      }
-    }
+  .adLoading,
+  .adPlaceholder {
+    font-size: 14px;
   }
-
-  .mainNav {
-    padding: 0;
-    border-top: none;
-
-    .navList {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      right: 0;
-      flex-direction: column;
-      background: var(--nav-bg);
-      backdrop-filter: blur(24px);
-      gap: 0;
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 0 0 rgba(0, 0, 0, 0);
-      border-top: 1px solid transparent;
-    }
-
-    &.navOpen .navList {
-      max-height: 600px;
-      box-shadow: 0 8px 24px var(--shadow-color);
-      border-top-color: var(--nav-border);
-    }
-
-    .navItem {
-      border-bottom: 1px solid var(--nav-border);
-
-      &:last-child {
-        border-bottom: none;
-      }
-
-      a {
-        padding: 18px 28px;
-        border-radius: 0;
-
-        &::before {
-          left: 28px;
-          transform: translateX(0) scaleX(0);
-          transform-origin: left;
-        }
-
-        &:hover {
-          transform: translateY(0);
-          padding-left: 32px;
-        }
-
-        &:hover::before,
-        &.active::before {
-          transform: translateX(0) scaleX(1);
-        }
-      }
-    }
+  .adDots {
+    bottom: 8px;
   }
-}
-
-@media (max-width: 480px) {
-  .topHeader {
+  .dot {
+    width: 8px;
+    height: 8px;
+  }
+  .mainHeader {
     padding: 10px 16px;
-
-    .logoContainer {
-      .logoImg {
-        height: 34px;
-      }
-
-      .brandName {
-        font-size: 14px;
-      }
-    }
-
-    .rightSection {
-      gap: 8px;
-
-      .themeToggle {
-        min-width: 36px;
-        height: 36px;
-        padding: 8px;
-
-        svg {
-          width: 16px;
-          height: 16px;
-        }
-      }
-
-      .searchButton {
-        min-width: 36px;
-        height: 36px;
-
-        svg {
-          width: 16px;
-          height: 16px;
-        }
-      }
-    }
   }
-
-  .searchBar {
-    padding: 0 16px 14px;
+  .logoContainer .brandName {
+    font-size: 18px;
   }
 }
