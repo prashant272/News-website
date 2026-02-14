@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useNewsSectionData, LatestItem } from '@/app/hooks/useNewsSectionData';
 import styles from './LatestNewsSection.module.scss';
 
+
 interface LatestNewsSectionProps {
   sectionTitle: string;
   overrideSection?: string;
@@ -15,6 +16,7 @@ interface LatestNewsSectionProps {
   newsData?: LatestItem[];
 }
 
+
 export default function LatestNewsSection({
   sectionTitle,
   overrideSection,
@@ -24,15 +26,17 @@ export default function LatestNewsSection({
   columns = 3,
   limit = 6,
 }: LatestNewsSectionProps) {
-  const { items, section, isLoading } = useNewsSectionData<LatestItem>({
+  const { items: allItems, section, isLoading } = useNewsSectionData<LatestItem>({
     variant: 'latest',
     overrideSection,
     limit,
   });
 
+  const items = allItems.filter((item: any) => item.isLatest === true);
+
   const dynamicReadMoreLink = readMoreLink || `/Pages/${section}`;
 
-  if (isLoading || items.length === 0) {
+  if (isLoading) {
     return (
       <section className={styles.latestNewsSection}>
         <div className={styles.container}>
@@ -51,6 +55,22 @@ export default function LatestNewsSection({
               </div>
             ))}
           </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (items.length === 0) {
+    return (
+      <section className={styles.latestNewsSection}>
+        <div className={styles.container}>
+          <div className={styles.header}>
+            <h2 className={styles.title}>{sectionTitle}</h2>
+            <div className={styles.titleUnderline}></div>
+          </div>
+          <p className="text-center text-gray-500 py-12">
+            No latest news available right now.
+          </p>
         </div>
       </section>
     );

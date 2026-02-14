@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { useAllNews, NewsItem, NewsSections, NewsDocument } from "@/app/hooks/NewsApi";
 
+
 interface NewsContextType {
   allNews: NewsItem[] | null;
   indiaNews: NewsItem[] | null;
@@ -13,6 +14,7 @@ interface NewsContextType {
   healthNews: NewsItem[] | null;
   awardsNews: NewsItem[] | null;
   techNews: NewsItem[] | null;
+  technologyNews: NewsItem[] | null;
   worldNews: NewsItem[] | null;
   educationNews: NewsItem[] | null;
   environmentNews: NewsItem[] | null;
@@ -20,13 +22,16 @@ interface NewsContextType {
   opinionNews: NewsItem[] | null;
   autoNews: NewsItem[] | null;
   travelNews: NewsItem[] | null;
+  stateNews: NewsItem[] | null;
   sections: NewsSections | null;
   loading: boolean;
   error: string | null;
   refetch: () => void;
 }
 
+
 const NewsContext = createContext<NewsContextType | undefined>(undefined);
+
 
 export const NewsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { data: rawData, loading, error, refetch } = useAllNews();
@@ -42,6 +47,7 @@ export const NewsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [healthNews, setHealthNews] = useState<NewsItem[] | null>(null);
   const [awardsNews, setAwardsNews] = useState<NewsItem[] | null>(null);
   const [techNews, setTechNews] = useState<NewsItem[] | null>(null);
+  const [technologyNews, setTechnologyNews] = useState<NewsItem[] | null>(null);
   const [worldNews, setWorldNews] = useState<NewsItem[] | null>(null);
   const [educationNews, setEducationNews] = useState<NewsItem[] | null>(null);
   const [environmentNews, setEnvironmentNews] = useState<NewsItem[] | null>(null);
@@ -49,6 +55,7 @@ export const NewsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [opinionNews, setOpinionNews] = useState<NewsItem[] | null>(null);
   const [autoNews, setAutoNews] = useState<NewsItem[] | null>(null);
   const [travelNews, setTravelNews] = useState<NewsItem[] | null>(null);
+  const [stateNews, setStateNews] = useState<NewsItem[] | null>(null);
 
   useEffect(() => {
     if (!sections) {
@@ -61,6 +68,7 @@ export const NewsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setHealthNews(null);
       setAwardsNews(null);
       setTechNews(null);
+      setTechnologyNews(null);
       setWorldNews(null);
       setEducationNews(null);
       setEnvironmentNews(null);
@@ -68,9 +76,12 @@ export const NewsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setOpinionNews(null);
       setAutoNews(null);
       setTravelNews(null);
+      setStateNews(null);
       return;
     }
 
+    const technologyData = sections.technology ?? null;
+    
     setIndiaNews(sections.india ?? null);
     setSportsNews(sections.sports ?? null);
     setBusinessNews(sections.business ?? null);
@@ -78,7 +89,8 @@ export const NewsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setEntertainmentNews(sections.entertainment ?? null);
     setHealthNews(sections.health ?? null);
     setAwardsNews(sections.awards ?? null);
-    setTechNews(sections.tech ?? null);
+    setTechNews(technologyData);
+    setTechnologyNews(technologyData);
     setWorldNews(sections.world ?? null);
     setEducationNews(sections.education ?? null);
     setEnvironmentNews(sections.environment ?? null);
@@ -86,6 +98,7 @@ export const NewsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setOpinionNews(sections.opinion ?? null);
     setAutoNews(sections.auto ?? null);
     setTravelNews(sections.travel ?? null);
+    setStateNews(sections.state ?? null);
 
     const flattened: NewsItem[] = [];
     const keys: (keyof NewsSections)[] = [
@@ -96,14 +109,15 @@ export const NewsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       "entertainment",
       "health",
       "awards",
-      "tech",
+      "technology",
       "world",
       "education",
       "environment",
       "science",
       "opinion",
       "auto",
-      "travel"
+      "travel",
+      "state"
     ];
 
     keys.forEach((key) => {
@@ -124,6 +138,7 @@ export const NewsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     healthNews,
     awardsNews,
     techNews,
+    technologyNews,
     worldNews,
     educationNews,
     environmentNews,
@@ -131,6 +146,7 @@ export const NewsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     opinionNews,
     autoNews,
     travelNews,
+    stateNews,
     sections,
     loading,
     error,
@@ -139,6 +155,7 @@ export const NewsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   return <NewsContext.Provider value={value}>{children}</NewsContext.Provider>;
 };
+
 
 export const useNewsContext = () => {
   const context = useContext(NewsContext);

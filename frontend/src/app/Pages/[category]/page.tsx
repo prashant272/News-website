@@ -10,6 +10,7 @@ import { PhotosSection } from '@/app/Components/Common/PhotosSection/Photos';
 import { VideosSection } from '@/app/Components/Common/VideosSection/VideosSection';
 import SocialShare from '@/app/Components/Common/SocialShare/SocialShare';
 
+
 interface NewsItem {
   slug: string;
   title: string;
@@ -18,11 +19,13 @@ interface NewsItem {
   image?: string;
   category?: string;
   subCategory?: string;
+  section?: string;
   tags?: string[];
   isLatest?: boolean;
   isTrending?: boolean;
   _id?: string;
 }
+
 
 export default function CategoryPage() {
   const params = useParams();
@@ -51,12 +54,21 @@ export default function CategoryPage() {
 
     setCategoryTitle(formattedCategory);
 
+    const urlCategory = category.toLowerCase();
+    const sectionMap: { [key: string]: string } = {
+      'technology': 'tech'
+    };
+    
+    const mappedSection = sectionMap[urlCategory] || urlCategory;
+
     const filtered = context.allNews.filter((news) => {
       const newsCategory = news.category?.toLowerCase() || '';
+      const newsSection = news.section?.toLowerCase() || '';
       
-      const urlCategory = category.toLowerCase();
-      
-      return newsCategory === urlCategory;
+      return newsCategory === urlCategory || 
+             newsCategory === mappedSection ||
+             newsSection === urlCategory || 
+             newsSection === mappedSection;
     });
 
     setFilteredNews(filtered);
@@ -153,7 +165,7 @@ export default function CategoryPage() {
       
       <LatestNewsSection
         sectionTitle={`Latest ${categoryTitle} News`}
-        // newsData={transformedLatestNews}
+        overrideSection={category}
         showReadMore={true}
         readMoreLink={`/Pages/${category}`}
         columns={3}
@@ -167,7 +179,8 @@ export default function CategoryPage() {
         columns={2}
         limit={8}
       />
-            <SocialShare 
+
+      <SocialShare 
         url={currentUrl || `https://yoursite.com/${category}`}
         title={`${categoryTitle} - Latest News & Updates`}
         description={`Stay updated with the latest ${categoryTitle} news, breaking stories, trending topics, and in-depth analysis.`}

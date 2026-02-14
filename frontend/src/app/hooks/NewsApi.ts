@@ -29,7 +29,7 @@ export interface NewsSections {
   entertainment?: NewsItem[];
   lifestyle?: NewsItem[];
   health?: NewsItem[];
-  tech?: NewsItem[];
+  technology?: NewsItem[];
   world?: NewsItem[];
   education?: NewsItem[];
   environment?: NewsItem[];
@@ -38,6 +38,7 @@ export interface NewsSections {
   auto?: NewsItem[];
   travel?: NewsItem[];
   awards?: NewsItem[];
+  state?: NewsItem[];
 }
 
 export interface NewsDocument extends NewsSections {

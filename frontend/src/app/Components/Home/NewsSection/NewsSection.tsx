@@ -184,7 +184,6 @@ const NewsSection: React.FC = () => {
                 <h3 className={styles.cardTitle}>{item.title}</h3>
                 <p className={styles.cardDescription}>{item.description}</p>
                 <div className={styles.cardMeta}>
-                  <span className={styles.timestamp}>Just now</span>
                   <span style={{ textTransform: 'uppercase', fontSize: '0.75rem', fontWeight: 600, color: '#8b5cf6' }}>
                     {item.category}
                   </span>

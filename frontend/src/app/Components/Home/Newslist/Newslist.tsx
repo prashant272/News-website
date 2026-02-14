@@ -5,6 +5,7 @@ import { useNewsContext } from '@/app/context/NewsContext';
 import { useActiveAds } from '@/app/hooks/useAds'; 
 import styles from './Newslist.module.scss';
 
+
 interface RawNewsItem {
   slug: string;
   title: string;
@@ -15,7 +16,9 @@ interface RawNewsItem {
   subCategory?: string;
   tags?: string[];
   isTrending?: boolean;
+  isLatest?: boolean;
 }
+
 
 interface NewsArticle {
   id: string;
@@ -28,6 +31,7 @@ interface NewsArticle {
   isVideo: boolean;
 }
 
+
 interface TrendingItem {
   id: string;
   title: string;
@@ -36,6 +40,7 @@ interface TrendingItem {
   category: string;
   subCategory?: string;
 }
+
 
 const NewsList: React.FC = () => {
   const { allNews, loading } = useNewsContext();
@@ -71,9 +76,11 @@ const NewsList: React.FC = () => {
   const newsArticles: NewsArticle[] = useMemo(() => {
     if (!allNews || allNews.length === 0) return [];
 
+    const filteredNews = allNews.filter((item) => item.isLatest !== true);
+
     const grouped = new Map<string, RawNewsItem[]>();
 
-    for (const item of allNews) {
+    for (const item of filteredNews) {
       const cat = item.category || 'Uncategorized';
       if (!grouped.has(cat)) {
         grouped.set(cat, []);
@@ -82,16 +89,16 @@ const NewsList: React.FC = () => {
     }
 
     const selected: RawNewsItem[] = [];
-    for (const items of grouped.values()) {
-      selected.push(...items.slice(0, 2));
-      if (selected.length >= 12) break;
+    const categories = Array.from(grouped.keys());
+
+    for (let i = 0; i < Math.min(categories.length, 6); i++) {
+      const categoryItems = grouped.get(categories[i])!;
+      if (categoryItems.length > 0) {
+        selected.push(categoryItems[0]);
+      }
     }
 
-    const sortedSelected = selected.sort((a, b) => {
-      return allNews.indexOf(a as any) - allNews.indexOf(b as any);
-    });
-
-    const articles: NewsArticle[] = sortedSelected.map((item, idx) => ({
+    const articles: NewsArticle[] = selected.map((item, idx) => ({
       id: `div-${item.slug}-${idx}`,
       category: item.category,
       subCategory: item.subCategory,
@@ -102,7 +109,7 @@ const NewsList: React.FC = () => {
       isVideo: item.tags?.includes('video') ?? false,
     }));
 
-    return articles.slice(0, 6);
+    return articles;
   }, [allNews]);
 
   const trendingItems: TrendingItem[] = useMemo(() => {
@@ -158,7 +165,6 @@ const NewsList: React.FC = () => {
             loading="lazy"
           />
         </a>
-
 
         {activeAds.length > 1 && (
           <div className={styles.adDots}>
