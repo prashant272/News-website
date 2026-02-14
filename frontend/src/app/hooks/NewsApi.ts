@@ -1,9 +1,5 @@
-'use client';
-
 import { baseURL } from "@/Utils/Utils";
-import { useCallback, useEffect, useState } from "react";
-
-const API_BASE = baseURL;
+import { useCallback, useEffect, useState, useMemo } from "react";
 
 export interface NewsItem {
   title: string;
@@ -14,21 +10,22 @@ export interface NewsItem {
   content: string;
   image?: string;
   tags: string[];
-  status?: "draft" | "published" | "archived";
+  status: "draft" | "published" | "archived";
   publishedAt?: string;
   isLatest?: boolean;
   isTrending?: boolean;
-  section?: string;
-  [key: string]: any;
+  isHidden?: boolean;
+  _id?:string
 }
 
 export interface NewsSections {
   india?: NewsItem[];
   sports?: NewsItem[];
   business?: NewsItem[];
-  entertainment?: NewsItem[];
   lifestyle?: NewsItem[];
+  entertainment?: NewsItem[];
   health?: NewsItem[];
+  awards?: NewsItem[];
   technology?: NewsItem[];
   world?: NewsItem[];
   education?: NewsItem[];
@@ -37,56 +34,34 @@ export interface NewsSections {
   opinion?: NewsItem[];
   auto?: NewsItem[];
   travel?: NewsItem[];
-  awards?: NewsItem[];
   state?: NewsItem[];
 }
 
 export interface NewsDocument extends NewsSections {
-  _id: string;
-  createdAt: string;
-  updatedAt: string;
+  _id?: string;
+  isActive?: boolean;
   lastUpdated?: string;
-  isActive: boolean;
-  isPublished: boolean;
-  publishedAt: string | null;
 }
 
 export interface ApiResponse<T = unknown> {
   success: boolean;
-  msg?: string;
   news?: T;
   data?: T;
+  msg: string;
   total?: number;
-  [key: string]: any;
 }
-
-type UseApiResult<T> = {
-  data: T | null;
-  loading: boolean;
-  error: string | null;
-  refetch: () => Promise<void>;
-};
-
-type UseApiMutationResult<T> = {
-  mutate: (data?: any) => Promise<T>;
-  loading: boolean;
-  error: string | null;
-};
 
 class NewsService {
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
-    const url = `${API_BASE}/news${endpoint}`;
+    const url = `${baseURL}/news${endpoint}`;
     const res = await fetch(url, {
       headers: { "Content-Type": "application/json" },
-      cache: "no-store",
       ...options,
     });
-
     if (!res.ok) {
       const errorData = await res.json().catch(() => ({}));
-      throw new Error(errorData.msg || `API Error: ${res.status} ${res.statusText}`);
+      throw new Error(errorData.msg || `API Error: ${res.status}`);
     }
-
     return res.json();
   }
 
@@ -107,19 +82,13 @@ class NewsService {
       body: JSON.stringify(params.data),
     });
 
-  updateNewsBySlug = (section: string, slug: string, news: Partial<NewsItem>): Promise<ApiResponse<NewsItem>> =>
-    this.request(`/updatenews/${section}/${slug}`, { method: "PUT", body: JSON.stringify(news) });
-
   deleteNews = (params: { section: string; slug: string }): Promise<ApiResponse<{ deleted: boolean }>> =>
     this.request(`/deletenews/${params.section}/${params.slug}`, { method: "DELETE" });
-
-  deleteNewsBySlug = (section: string, slug: string): Promise<ApiResponse<{ deleted: boolean }>> =>
-    this.request(`/deletenews/${section}/${slug}`, { method: "DELETE" });
 
   setNewsFlags = (params: {
     section: string;
     slug: string;
-    flags: Partial<Pick<NewsItem, "isLatest" | "isTrending">>;
+    flags: Partial<Pick<NewsItem, "isLatest" | "isTrending" | "isHidden">>;
   }): Promise<ApiResponse<NewsItem>> =>
     this.request(`/flags/${params.section}/${params.slug}`, {
       method: "PATCH",
@@ -129,27 +98,27 @@ class NewsService {
 
 export const newsService = new NewsService();
 
+type UseApiResult<T> = {
+  data: T | null;
+  loading: boolean;
+  error: string | null;
+  refetch: () => Promise<void>;
+};
+
 export const useApi = <T,>(fetchFn: () => Promise<ApiResponse<T>>): UseApiResult<T> => {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
-      setError(null);
-
       const res = await fetchFn();
-
-      if (!res.success) {
-        throw new Error(res.msg || "API returned success: false");
-      }
-
-      const payload = res.data ?? res.news ?? null;
-      setData(payload as T);
+      if (!res.success) throw new Error(res.msg || "API Error");
+      setData((res.news ?? res.data ?? null) as T);
+      setError(null);
     } catch (err: any) {
-      setError(err.message || "Failed to load data");
-      setData(null);
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -157,15 +126,21 @@ export const useApi = <T,>(fetchFn: () => Promise<ApiResponse<T>>): UseApiResult
 
   useEffect(() => {
     let mounted = true;
-    load().finally(() => {
+    fetchData().finally(() => {
       if (mounted) setLoading(false);
     });
     return () => {
       mounted = false;
     };
-  }, [load]);
+  }, [fetchData]);
 
-  return { data, loading, error, refetch: load };
+  return { data, loading, error, refetch: fetchData };
+};
+
+type UseApiMutationResult<T> = {
+  mutate: (data?: any) => Promise<T>;
+  loading: boolean;
+  error: string | null;
 };
 
 export const useApiMutation = <T,>(mutateFn: (data?: any) => Promise<T>): UseApiMutationResult<T> => {
@@ -192,46 +167,81 @@ export const useApiMutation = <T,>(mutateFn: (data?: any) => Promise<T>): UseApi
   return { mutate, loading, error };
 };
 
-export const useAllNews = (): UseApiResult<NewsDocument[]> =>
-  useApi<NewsDocument[]>(() => newsService.getAllNews());
-
 export const useNewsBySection = (section: string): UseApiResult<NewsItem[]> =>
   useApi<NewsItem[]>(() => newsService.getNewsBySection(section));
 
 export const useNewsBySlug = (section: string, slug: string): UseApiResult<NewsItem> =>
   useApi<NewsItem>(() => newsService.getNewsBySlug(section, slug));
 
+export const useAllNews = (): UseApiResult<NewsDocument[]> =>
+  useApi<NewsDocument[]>(() => newsService.getAllNews());
+
 export const useAddNews = (): UseApiMutationResult<ApiResponse<NewsItem>> =>
   useApiMutation<ApiResponse<NewsItem>>(newsService.addNews);
 
-export const useUpdateNews = (section: string, slug?: string): UseApiMutationResult<ApiResponse<NewsItem>> =>
-  useApiMutation<ApiResponse<NewsItem>>((payload: { slug?: string; news?: Partial<NewsItem>; data?: Partial<NewsItem> }) => {
-    const targetSlug = payload.slug || slug;
-    const newsData = payload.news || payload.data;
-    
-    if (!targetSlug) {
-      throw new Error("Slug is required for update");
-    }
-    
-    return newsService.updateNews({ section, slug: targetSlug, data: newsData || {} });
-  });
+export const useUpdateNews = (section: string): UseApiMutationResult<ApiResponse<NewsItem>> =>
+  useApiMutation<ApiResponse<NewsItem>>((payload: { slug: string; news: Partial<NewsItem> }) =>
+    newsService.updateNews({ section, slug: payload.slug, data: payload.news })
+  );
 
-export const useDeleteNews = (section: string, slug?: string): UseApiMutationResult<ApiResponse<{ deleted: boolean }>> =>
-  useApiMutation<ApiResponse<{ deleted: boolean }>>((payload?: { slug?: string }) => {
-    const targetSlug = payload?.slug || slug;
-    
-    if (!targetSlug) {
-      throw new Error("Slug is required for delete");
-    }
-    
-    return newsService.deleteNews({ section, slug: targetSlug });
-  });
+export const useDeleteNews = (section: string): UseApiMutationResult<ApiResponse<{ deleted: boolean }>> =>
+  useApiMutation<ApiResponse<{ deleted: boolean }>>((payload: { slug: string }) =>
+    newsService.deleteNews({ section, slug: payload.slug })
+  );
 
 export const useSetNewsFlags = (section: string): UseApiMutationResult<ApiResponse<NewsItem>> =>
-  useApiMutation<ApiResponse<NewsItem>>((payload: { slug: string; isLatest?: boolean; isTrending?: boolean }) =>
-    newsService.setNewsFlags({
-      section,
-      slug: payload.slug,
-      flags: { isLatest: payload.isLatest, isTrending: payload.isTrending },
-    })
+  useApiMutation<ApiResponse<NewsItem>>(
+    (payload: { slug: string; isLatest?: boolean; isTrending?: boolean; isHidden?: boolean }) =>
+      newsService.setNewsFlags({
+        section,
+        slug: payload.slug,
+        flags: {
+          isLatest: payload.isLatest,
+          isTrending: payload.isTrending,
+          isHidden: payload.isHidden,
+        },
+      })
   );
+
+export const filterNewsByVisibility = (
+  items: NewsItem[],
+  filter: "all" | "visible" | "hidden"
+): NewsItem[] => {
+  switch (filter) {
+    case "hidden":
+      return items.filter((item) => item.isHidden === true);
+    case "visible":
+      return items.filter((item) => !item.isHidden);
+    case "all":
+    default:
+      return items;
+  }
+};
+
+export const useNewsBySectionWithFilter = (
+  section: string,
+  visibilityFilter: "all" | "visible" | "hidden" = "all"
+): UseApiResult<NewsItem[]> => {
+  const { data, loading, error, refetch } = useNewsBySection(section);
+
+  const filteredData = data ? filterNewsByVisibility(data, visibilityFilter) : null;
+
+  return { data: filteredData, loading, error, refetch };
+};
+
+export const useNewsVisibilityStats = (items: NewsItem[] | null) => {
+  return useMemo(() => {
+    if (!items) {
+      return { total: 0, visible: 0, hidden: 0 };
+    }
+
+    const hidden = items.filter((item) => item.isHidden === true).length;
+    const visible = items.length - hidden;
+
+    return {
+      total: items.length,
+      visible,
+      hidden,
+    };
+  }, [items]);
+};

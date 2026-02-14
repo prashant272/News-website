@@ -304,18 +304,25 @@ exports.updateNewsBySlug = async (req, res) => {
 exports.setNewsFlags = async (req, res) => {
   try {
     const { section, slug } = req.params;
-    const { isLatest, isTrending } = req.body;
+    const { isLatest, isTrending, isHidden } = req.body;
 
-    if (typeof isLatest === "undefined" && typeof isTrending === "undefined") {
+    if (
+      typeof isLatest === "undefined" &&
+      typeof isTrending === "undefined" &&
+      typeof isHidden === "undefined"
+    ) {
       return res.status(400).json({
         success: false,
-        msg: "Provide at least one of: isLatest or isTrending",
+        msg: "Provide at least one of: isLatest, isTrending, or isHidden",
       });
     }
 
     const newsConfig = await NewsConfig.findOne({ isActive: true });
     if (!newsConfig || !newsConfig[section]) {
-      return res.status(404).json({ success: false, msg: "Section not found" });
+      return res.status(404).json({
+        success: false,
+        msg: "Section not found",
+      });
     }
 
     const itemIndex = newsConfig[section].findIndex(
@@ -323,7 +330,10 @@ exports.setNewsFlags = async (req, res) => {
     );
 
     if (itemIndex === -1) {
-      return res.status(404).json({ success: false, msg: "News item not found" });
+      return res.status(404).json({
+        success: false,
+        msg: "News item not found",
+      });
     }
 
     if (typeof isLatest !== "undefined") {
@@ -332,17 +342,25 @@ exports.setNewsFlags = async (req, res) => {
     if (typeof isTrending !== "undefined") {
       newsConfig[section][itemIndex].isTrending = !!isTrending;
     }
+    if (typeof isHidden !== "undefined") {
+      newsConfig[section][itemIndex].isHidden = !!isHidden;
+    }
 
     newsConfig.lastUpdated = new Date();
     await newsConfig.save();
 
     res.json({
       success: true,
-      msg: "Flags updated",
+      msg: "Flags updated successfully",
       news: newsConfig[section][itemIndex],
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ success: false, msg: "Server error", error: err.message });
+    res.status(500).json({
+      success: false,
+      msg: "Server error",
+      error: err.message,
+    });
   }
 };
+

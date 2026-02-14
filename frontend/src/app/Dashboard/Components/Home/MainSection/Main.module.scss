@@ -1328,3 +1328,48 @@ $duration-slow: 300ms;
     text-decoration: underline;
   }
 }
+
+.visibilityBtn {
+  padding: 0.5rem;
+  background: #6366f1;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 1rem;
+
+  &:hover {
+    background: #4f46e5;
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    background: #94a3b8;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+.hiddenCard {
+  opacity: 0.5;
+  position: relative;
+  filter: grayscale(50%);
+
+  &::after {
+    content: "🙈 Hidden from Users";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.85);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 10;
+  }
+}

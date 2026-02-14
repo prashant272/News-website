@@ -3,7 +3,6 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { useAllNews, NewsItem, NewsSections, NewsDocument } from "@/app/hooks/NewsApi";
 
-
 interface NewsContextType {
   allNews: NewsItem[] | null;
   indiaNews: NewsItem[] | null;
@@ -23,15 +22,19 @@ interface NewsContextType {
   autoNews: NewsItem[] | null;
   travelNews: NewsItem[] | null;
   stateNews: NewsItem[] | null;
-  sections: NewsSections | null;
+  sections: NewsDocument | null;
   loading: boolean;
   error: string | null;
   refetch: () => void;
 }
 
-
 const NewsContext = createContext<NewsContextType | undefined>(undefined);
 
+const filterVisibleNews = (newsArray: NewsItem[] | undefined): NewsItem[] | null => {
+  if (!newsArray || newsArray.length === 0) return null;
+  const filtered = newsArray.filter((item) => !item.isHidden);
+  return filtered.length > 0 ? filtered : null;
+};
 
 export const NewsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { data: rawData, loading, error, refetch } = useAllNews();
@@ -80,25 +83,25 @@ export const NewsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return;
     }
 
-    const technologyData = sections.technology ?? null;
-    
-    setIndiaNews(sections.india ?? null);
-    setSportsNews(sections.sports ?? null);
-    setBusinessNews(sections.business ?? null);
-    setLifestyleNews(sections.lifestyle ?? null);
-    setEntertainmentNews(sections.entertainment ?? null);
-    setHealthNews(sections.health ?? null);
-    setAwardsNews(sections.awards ?? null);
+    const technologyData = filterVisibleNews(sections.technology);
+
+    setIndiaNews(filterVisibleNews(sections.india));
+    setSportsNews(filterVisibleNews(sections.sports));
+    setBusinessNews(filterVisibleNews(sections.business));
+    setLifestyleNews(filterVisibleNews(sections.lifestyle));
+    setEntertainmentNews(filterVisibleNews(sections.entertainment));
+    setHealthNews(filterVisibleNews(sections.health));
+    setAwardsNews(filterVisibleNews(sections.awards));
     setTechNews(technologyData);
     setTechnologyNews(technologyData);
-    setWorldNews(sections.world ?? null);
-    setEducationNews(sections.education ?? null);
-    setEnvironmentNews(sections.environment ?? null);
-    setScienceNews(sections.science ?? null);
-    setOpinionNews(sections.opinion ?? null);
-    setAutoNews(sections.auto ?? null);
-    setTravelNews(sections.travel ?? null);
-    setStateNews(sections.state ?? null);
+    setWorldNews(filterVisibleNews(sections.world));
+    setEducationNews(filterVisibleNews(sections.education));
+    setEnvironmentNews(filterVisibleNews(sections.environment));
+    setScienceNews(filterVisibleNews(sections.science));
+    setOpinionNews(filterVisibleNews(sections.opinion));
+    setAutoNews(filterVisibleNews(sections.auto));
+    setTravelNews(filterVisibleNews(sections.travel));
+    setStateNews(filterVisibleNews(sections.state));
 
     const flattened: NewsItem[] = [];
     const keys: (keyof NewsSections)[] = [
@@ -117,12 +120,15 @@ export const NewsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       "opinion",
       "auto",
       "travel",
-      "state"
+      "state",
     ];
 
     keys.forEach((key) => {
       const arr = sections[key];
-      if (Array.isArray(arr)) flattened.push(...arr);
+      if (Array.isArray(arr)) {
+        const visibleItems = arr.filter((item) => !item.isHidden);
+        flattened.push(...visibleItems);
+      }
     });
 
     setAllNews(flattened.length > 0 ? flattened : null);
@@ -156,13 +162,12 @@ export const NewsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   return <NewsContext.Provider value={value}>{children}</NewsContext.Provider>;
 };
 
-
 export const useNewsContext = () => {
   const context = useContext(NewsContext);
-  
+
   if (context === undefined) {
     throw new Error("useNewsContext must be used within a NewsProvider");
   }
-  
+
   return context;
 };

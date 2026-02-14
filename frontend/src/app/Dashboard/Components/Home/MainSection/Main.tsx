@@ -2,7 +2,16 @@
 import React, { useState, useEffect, useCallback, ChangeEvent, FC, useContext, useMemo } from "react";
 import { UserContext } from "@/app/Dashboard/Context/ManageUserContext";
 import { baseURL } from "@/Utils/Utils";
-import { newsService, NewsItem, useNewsBySection, useAddNews, useUpdateNews, useDeleteNews, useSetNewsFlags } from "@/app/hooks/NewsApi";
+import {
+  newsService,
+  NewsItem,
+  useNewsBySection,
+  useAddNews,
+  useUpdateNews,
+  useDeleteNews,
+  useSetNewsFlags,
+  useNewsVisibilityStats,
+} from "@/app/hooks/NewsApi";
 import { Ad, useAllAds, useAddAd } from "@/app/hooks/useAds";
 import styles from "./Main.module.scss";
 
@@ -42,6 +51,7 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
   const [editingAdId, setEditingAdId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<"all" | "draft" | "published" | "archived">("all");
+  const [filterVisibility, setFilterVisibility] = useState<"all" | "visible" | "hidden">("all");
   const [sortBy, setSortBy] = useState<"newest" | "oldest" | "title">("newest");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [showToast, setShowToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
@@ -69,6 +79,8 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
   const processedNewsData = useMemo<NewsItem[]>(() => newsData ?? [], [newsData]);
   const processedAdsData = useMemo<Ad[]>(() => adsData ?? [], [adsData]);
 
+  const visibilityStats = useNewsVisibilityStats(processedNewsData);
+
   useEffect(() => {
     if (showToast) {
       const timer = setTimeout(() => setShowToast(null), 2800);
@@ -80,7 +92,7 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
     if (activeTab === "articles" && !editingSlug) {
       setFormState((prev) => ({
         ...prev,
-        category: section.charAt(0).toUpperCase() + section.slice(1)
+        category: section.charAt(0).toUpperCase() + section.slice(1),
       }));
     }
   }, [activeTab, section, editingSlug]);
@@ -152,29 +164,32 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
     []
   );
 
-  const handleAdImageChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const handleAdImageChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
-      showNotification("Please select an image file", "error");
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      showNotification("Image too large (max 5MB)", "error");
-      return;
-    }
+      if (!file.type.startsWith("image/")) {
+        showNotification("Please select an image file", "error");
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        showNotification("Image too large (max 5MB)", "error");
+        return;
+      }
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const dataUrl = event.target?.result as string;
-      setAdFormState((prev) => ({ ...prev, imageUrl: dataUrl }));
-      setAdImagePreview(dataUrl);
-    };
-    reader.readAsDataURL(file);
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const dataUrl = event.target?.result as string;
+        setAdFormState((prev) => ({ ...prev, imageUrl: dataUrl }));
+        setAdImagePreview(dataUrl);
+      };
+      reader.readAsDataURL(file);
 
-    e.target.value = "";
-  }, [showNotification]);
+      e.target.value = "";
+    },
+    [showNotification]
+  );
 
   const handleAddAd = useCallback(async () => {
     if (!canCreate) {
@@ -199,8 +214,8 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
     if (!canUpdate || !editingAdId) return;
     try {
       const response = await fetch(`${baseURL}/ads/update/${editingAdId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(adFormState),
       });
       const data = await response.json();
@@ -222,8 +237,8 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
       if (!confirm("Delete this ad permanently?")) return;
       try {
         const response = await fetch(`${baseURL}/ads/delete/${id}`, {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
         });
         const data = await response.json();
         if (!data.success) throw new Error(data.msg);
@@ -258,30 +273,33 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
     setFormState((prev) => ({ ...prev, tags }));
   }, []);
 
-  const handleImageChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const handleImageChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
-      showNotification("Please select an image file", "error");
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      showNotification("Image too large (max 5MB)", "error");
-      return;
-    }
+      if (!file.type.startsWith("image/")) {
+        showNotification("Please select an image file", "error");
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        showNotification("Image too large (max 5MB)", "error");
+        return;
+      }
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const dataUrl = event.target?.result as string;
-      setFormState((prev) => ({ ...prev, image: dataUrl }));
-      setImagePreview(dataUrl);
-      setShowImage(true);
-    };
-    reader.readAsDataURL(file);
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const dataUrl = event.target?.result as string;
+        setFormState((prev) => ({ ...prev, image: dataUrl }));
+        setImagePreview(dataUrl);
+        setShowImage(true);
+      };
+      reader.readAsDataURL(file);
 
-    e.target.value = "";
-  }, [showNotification]);
+      e.target.value = "";
+    },
+    [showNotification]
+  );
 
   const handleAdd = useCallback(async () => {
     if (!canCreate) {
@@ -355,12 +373,14 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
   );
 
   const handleToggleFlag = useCallback(
-    async (slug: string, field: "isLatest" | "isTrending", newValue: boolean) => {
+    async (slug: string, field: "isLatest" | "isTrending" | "isHidden", newValue: boolean) => {
       if (flagsLoading) return;
       try {
         await setFlags({ slug, [field]: newValue });
         showNotification(
-          `Article ${newValue ? "marked as" : "removed from"} ${field === "isLatest" ? "Latest" : "Trending"}`,
+          `Article ${newValue ? "marked as" : "removed from"} ${
+            field === "isLatest" ? "Latest" : field === "isTrending" ? "Trending" : "Hidden"
+          }`,
           "success"
         );
         refetch();
@@ -369,6 +389,13 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
       }
     },
     [setFlags, flagsLoading, showNotification, refetch]
+  );
+
+  const handleToggleVisibility = useCallback(
+    (slug: string, currentHiddenState: boolean) => {
+      handleToggleFlag(slug, "isHidden", !currentHiddenState);
+    },
+    [handleToggleFlag]
   );
 
   const handleDuplicate = useCallback(
@@ -393,6 +420,7 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
 
   const filteredAndSortedItems = useMemo<NewsItem[]>(() => {
     let result = [...processedNewsData];
+
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       result = result.filter(
@@ -402,9 +430,19 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
           item.tags.some((t) => t.toLowerCase().includes(q))
       );
     }
+
     if (filterStatus !== "all") {
       result = result.filter((item) => item.status === filterStatus);
     }
+
+    if (filterVisibility !== "all") {
+      if (filterVisibility === "hidden") {
+        result = result.filter((item) => item.isHidden === true);
+      } else if (filterVisibility === "visible") {
+        result = result.filter((item) => !item.isHidden);
+      }
+    }
+
     if (sortBy === "newest") {
       result.sort((a, b) => new Date(b.publishedAt || 0).getTime() - new Date(a.publishedAt || 0).getTime());
     } else if (sortBy === "oldest") {
@@ -412,8 +450,9 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
     } else if (sortBy === "title") {
       result.sort((a, b) => a.title.localeCompare(b.title));
     }
+
     return result;
-  }, [processedNewsData, searchQuery, filterStatus, sortBy]);
+  }, [processedNewsData, searchQuery, filterStatus, filterVisibility, sortBy]);
 
   if (fetchLoading) {
     return (
@@ -646,8 +685,8 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
                       placeholder="Write article content here..."
                     />
                     <div className={styles.charCount}>
-                      {(formState.content?.length || 0)} chars •{" "}
-                      {Math.ceil((formState.content?.length || 0) / 500)} min read
+                      {(formState.content?.length || 0)} chars • {Math.ceil((formState.content?.length || 0) / 500)}{" "}
+                      min read
                     </div>
                   </div>
                   <div className={`${styles.formGroup} ${styles.fullWidth}`}>
@@ -673,11 +712,7 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
                       </button>
                     </>
                   ) : (
-                    <button
-                      onClick={handleAdd}
-                      className={styles.primaryBtn}
-                      disabled={!canCreate || addLoading}
-                    >
+                    <button onClick={handleAdd} className={styles.primaryBtn} disabled={!canCreate || addLoading}>
                       {addLoading ? "Creating..." : "Create Article"}
                     </button>
                   )}
@@ -709,6 +744,15 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
                       <option value="published">Published</option>
                       <option value="draft">Draft</option>
                       <option value="archived">Archived</option>
+                    </select>
+                    <select
+                      className={styles.filterSelect}
+                      value={filterVisibility}
+                      onChange={(e) => setFilterVisibility(e.target.value as any)}
+                    >
+                      <option value="all">All Visibility ({visibilityStats.total})</option>
+                      <option value="visible">👁️ Visible ({visibilityStats.visible})</option>
+                      <option value="hidden">🙈 Hidden ({visibilityStats.hidden})</option>
                     </select>
                     <select
                       className={styles.filterSelect}
@@ -746,12 +790,17 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
               ) : (
                 <div className={`${styles.grid} ${viewMode === "list" ? styles.listView : ""}`}>
                   {filteredAndSortedItems.map((item) => (
-                    <article key={item.slug} className={styles.card}>
+                    <article key={item.slug} className={`${styles.card} ${item.isHidden ? styles.hiddenCard : ""}`}>
                       <div className={styles.cardImage}>
                         {item.image ? (
                           <img src={item.image} alt={item.title} loading="lazy" />
                         ) : (
-                          <div style={{ background: "linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1))", height: "100%" }} />
+                          <div
+                            style={{
+                              background: "linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1))",
+                              height: "100%",
+                            }}
+                          />
                         )}
                         <span className={`${styles.statusBadge} ${styles[item.status || "draft"]}`}>
                           {item.status || "draft"}
@@ -760,9 +809,7 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
                       <div className={styles.cardContent}>
                         <div className={styles.cardMeta}>
                           <span className={styles.categoryBadge}>{item.category}</span>
-                          {item.subCategory && (
-                            <span className={styles.subCategoryBadge}>{item.subCategory}</span>
-                          )}
+                          {item.subCategory && <span className={styles.subCategoryBadge}>{item.subCategory}</span>}
                         </div>
                         <h3 className={styles.cardTitle}>{item.title}</h3>
                         {item.summary && <p className={styles.cardSummary}>{item.summary}</p>}
@@ -782,9 +829,7 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
                           <div className={styles.cardInfo}>
                             <span className={styles.infoItem}>
                               <span className={styles.infoIcon}>📅</span>
-                              {item.publishedAt
-                                ? new Date(item.publishedAt).toLocaleDateString()
-                                : "No date"}
+                              {item.publishedAt ? new Date(item.publishedAt).toLocaleDateString() : "No date"}
                             </span>
                             <span className={styles.infoItem}>
                               <span className={styles.infoIcon}>🔗</span>
@@ -792,6 +837,14 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
                             </span>
                           </div>
                           <div className={styles.cardActions}>
+                            <button
+                              onClick={() => handleToggleVisibility(item.slug, item.isHidden || false)}
+                              className={styles.visibilityBtn}
+                              disabled={!canUpdate || flagsLoading}
+                              title={item.isHidden ? "Unhide" : "Hide"}
+                            >
+                              {item.isHidden ? "👁️" : "🙈"}
+                            </button>
                             <button
                               onClick={() => handleDuplicate(item)}
                               className={styles.duplicateBtn}
@@ -981,7 +1034,7 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
                 <div className={styles.emptyState}>
                   <div className={styles.emptyIcon}>📢</div>
                   <h3>No advertisements found</h3>
-                  <p>Create your first advertisement above</p>
+                  <p>Create your first advertisement to get started</p>
                 </div>
               ) : (
                 <div className={styles.grid}>
@@ -991,7 +1044,12 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
                         {ad.imageUrl ? (
                           <img src={ad.imageUrl} alt={ad.title} loading="lazy" />
                         ) : (
-                          <div style={{ background: "linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1))", height: "100%" }} />
+                          <div
+                            style={{
+                              background: "linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(251, 146, 60, 0.1))",
+                              height: "100%",
+                            }}
+                          />
                         )}
                         <span className={`${styles.statusBadge} ${ad.isActive ? styles.published : styles.draft}`}>
                           {ad.isActive ? "Active" : "Inactive"}

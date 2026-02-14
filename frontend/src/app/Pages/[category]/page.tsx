@@ -3,29 +3,13 @@
 import { useEffect, useState } from 'react';
 import { useParams, notFound } from 'next/navigation';
 import { useNewsContext } from '@/app/context/NewsContext';
+import { NewsItem } from '@/app/hooks/NewsApi';
 import LatestNewsSection from '@/app/Components/Common/LatestNewsSection/LatestNewsSection';
 import MoreFromSection from '@/app/Components/Common/MoreFromSection/MoreFromSection';
 import NewsSection from '@/app/Components/Common/NewsSection/NewsSection';
 import { PhotosSection } from '@/app/Components/Common/PhotosSection/Photos';
 import { VideosSection } from '@/app/Components/Common/VideosSection/VideosSection';
 import SocialShare from '@/app/Components/Common/SocialShare/SocialShare';
-
-
-interface NewsItem {
-  slug: string;
-  title: string;
-  summary?: string;
-  content?: string;
-  image?: string;
-  category?: string;
-  subCategory?: string;
-  section?: string;
-  tags?: string[];
-  isLatest?: boolean;
-  isTrending?: boolean;
-  _id?: string;
-}
-
 
 export default function CategoryPage() {
   const params = useParams();
@@ -63,12 +47,9 @@ export default function CategoryPage() {
 
     const filtered = context.allNews.filter((news) => {
       const newsCategory = news.category?.toLowerCase() || '';
-      const newsSection = news.section?.toLowerCase() || '';
       
       return newsCategory === urlCategory || 
-             newsCategory === mappedSection ||
-             newsSection === urlCategory || 
-             newsSection === mappedSection;
+             newsCategory === mappedSection;
     });
 
     setFilteredNews(filtered);
@@ -91,7 +72,7 @@ export default function CategoryPage() {
   ) as string[];
 
   const transformedNews = filteredNews.map((news, index) => ({
-    id: news._id || news.slug || `news-${index}`,
+    id: news.slug || `news-${index}`,
     image: news.image || '',
     title: news.title,
     slug: news.slug,
@@ -100,7 +81,7 @@ export default function CategoryPage() {
   }));
 
   const transformedTrendingNews = trendingNews.slice(0, 5).map((news, index) => ({
-    id: news._id || news.slug || `trending-${index}`,
+    id: news.slug || `trending-${index}`,
     title: news.title,
     image: news.image || '',
     slug: news.slug,
@@ -108,7 +89,7 @@ export default function CategoryPage() {
   }));
 
   const transformedLatestNews = (latestNews.length > 0 ? latestNews : filteredNews.slice(0, 6)).map((news, index) => ({
-    id: news._id || news.slug || `latest-${index}`,
+    id: news.slug || `latest-${index}`,
     category: news.category || category,
     title: news.title,
     image: news.image || '',
