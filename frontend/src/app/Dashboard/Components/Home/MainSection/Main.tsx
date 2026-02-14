@@ -85,6 +85,12 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
     }
   }, [activeTab, section, editingSlug]);
 
+  useEffect(() => {
+    if (fetchError) {
+      showNotification(fetchError, "error");
+    }
+  }, [fetchError]);
+
   const showNotification = useCallback((message: string, type: "success" | "error") => {
     setShowToast({ message, type });
   }, []);
@@ -414,16 +420,6 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
       <div className={styles.loading}>
         <div className={styles.spinner} />
         <p>Loading {section} news...</p>
-      </div>
-    );
-  }
-
-  if (fetchError) {
-    return (
-      <div className={styles.errorState}>
-        <h3>Failed to load articles</h3>
-        <p>{fetchError}</p>
-        <button onClick={() => refetch()}>Retry</button>
       </div>
     );
   }
