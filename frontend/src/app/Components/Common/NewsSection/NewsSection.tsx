@@ -134,7 +134,6 @@ const NewsSection: React.FC<NewsSectionProps> = ({
 
   const { data: ads, loading: adsLoading } = useActiveAds();
   const activeAds = (ads || []).filter(ad => ad.isActive);
-
   const [currentAdIndex, setCurrentAdIndex] = useState(0);
 
   useEffect(() => {
@@ -224,7 +223,6 @@ const NewsSection: React.FC<NewsSectionProps> = ({
                       />
                     </a>
 
-
                     {activeAds.length > 1 && (
                       <div className={styles.adDots}>
                         {activeAds.map((_, idx) => (
@@ -308,7 +306,9 @@ const NewsCard: React.FC<NewsCardProps> = ({ image, title, slug, category, curre
           </span>
         )}
       </div>
-      <p className={styles.newsTitle}>{title}</p>
+      <div className={styles.cardContent}>
+        <p className={styles.newsTitle}>{title}</p>
+      </div>
     </>
   );
 
