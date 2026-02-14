@@ -76,9 +76,8 @@ export default function SubCategoryPage() {
     const cleanSub = cleanDisplay(subCategory);
 
     const formattedCategory = toTitleCase(cleanCat);
-    const formattedSub = toTitleCase(cleanSub);
 
-    setPageTitle(`${formattedCategory} - ${formattedSub}`);
+    setPageTitle(`${formattedCategory}`);
 
     const normCategory = normalize(category);
     const normSubCategory = normalize(subCategory);
