@@ -53,7 +53,10 @@ const newsItemSchema = new mongoose.Schema({
   isLatest:   { type: Boolean, default: false },
   isTrending: { type: Boolean, default: false },
   isHidden: { type: Boolean, default: false },
-}, ); 
+  
+}, {
+    timestamps: true,
+  }); 
 
 const newsSchema = new mongoose.Schema(
   {

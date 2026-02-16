@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation';
 import { useNewsContext } from '@/app/context/NewsContext';
 import { getImageSrc } from '@/Utils/imageUtils';
 
-
 export type SectionKey =
   | 'india'
   | 'sports'
@@ -21,8 +20,8 @@ export type SectionKey =
   | 'opinion'
   | 'auto'
   | 'travel'
+  | 'awards'
   | 'all';
-
 
 export interface BaseNewsItem {
   id: string;
@@ -38,7 +37,6 @@ export interface BaseNewsItem {
   isLatest?: boolean;
 }
 
-
 export interface MoreFromItem extends BaseNewsItem {}
 export interface LatestItem extends BaseNewsItem {}
 export interface StoryItem extends BaseNewsItem {
@@ -49,14 +47,12 @@ export interface StoryItem extends BaseNewsItem {
 export interface GridItem extends BaseNewsItem {}
 export interface TopNewsItem extends BaseNewsItem {}
 
-
 type NewsItemVariant = MoreFromItem | LatestItem | StoryItem | GridItem | TopNewsItem;
-
 
 function getSectionKey(pathname: string, override?: string): SectionKey {
   if (override && [
     'india','sports','business','entertainment','lifestyle','health',
-    'technology','world','education','environment','science','opinion','auto','travel'
+    'technology','world','education','environment','science','opinion','auto','travel','awards'
   ].includes(override)) {
     return override as SectionKey;
   }
@@ -67,14 +63,13 @@ function getSectionKey(pathname: string, override?: string): SectionKey {
     const cand = parts[idx + 1];
     if ([
       'india','sports','business','entertainment','lifestyle','health',
-      'technology','world','education','environment','science','opinion','auto','travel'
+      'technology','world','education','environment','science','opinion','auto','travel','awards'
     ].includes(cand)) {
       return cand as SectionKey;
     }
   }
   return 'india';
 }
-
 
 function cleanDisplayText(text: string = ''): string {
   return decodeURIComponent(text)
@@ -83,7 +78,6 @@ function cleanDisplayText(text: string = ''): string {
     .replace(/%2B/g, '+')
     .trim();
 }
-
 
 function calculateTimeAgo(dateStr?: string): string {
   if (!dateStr) return '1 day ago';
@@ -102,7 +96,6 @@ function calculateTimeAgo(dateStr?: string): string {
   }
 }
 
-
 interface UseNewsSectionDataOptions<T extends NewsItemVariant = NewsItemVariant> {
   variant?: 'more-from' | 'latest' | 'stories' | 'grid' | 'top';
   overrideSection?: string;
@@ -112,7 +105,6 @@ interface UseNewsSectionDataOptions<T extends NewsItemVariant = NewsItemVariant>
   topLimit?: number;
   providedItems?: any[];
 }
-
 
 export function useNewsSectionData<T extends NewsItemVariant = NewsItemVariant>({
   variant = 'grid',
@@ -150,6 +142,7 @@ export function useNewsSectionData<T extends NewsItemVariant = NewsItemVariant>(
       case 'opinion':       return context.opinionNews ?? [];
       case 'auto':          return context.autoNews ?? [];
       case 'travel':        return context.travelNews ?? [];
+      case 'awards':        return context.awardsNews ?? [];
       default:              return context.allNews ?? [];
     }
   }, [context, section, providedItems]);
