@@ -18,7 +18,7 @@ const permissionsByRole = {
     read: true,
     update: false,
     delete: false,
-    hide: false
+    hide: true
   },
   VIEWER: {
     create: false,
