@@ -61,8 +61,9 @@ export default function ArticleDetailPage() {
   const [recommendedStories, setRecommendedStories] = useState<SidebarNewsItem[]>([]);
   const [isProcessing, setIsProcessing] = useState(true);
 
-  const category = params?.category as string;
-  const subCategory = params?.subCategory as string;
+  // Decode URL params and convert to display format
+  const category = decodeURIComponent(params?.category as string || '').replace(/-/g, ' ');
+  const subCategory = decodeURIComponent(params?.subCategory as string || '').replace(/-/g, ' ');
   const slug = params?.slug as string;
 
   useEffect(() => {

@@ -72,7 +72,7 @@ exports.AddNews = async (req, res) => {
       tags,
     };
 
-    newsConfig[section].push(newItem);
+    newsConfig[section].unshift(newItem);
     newsConfig.lastUpdated = new Date();
     const savedConfig = await newsConfig.save();
 

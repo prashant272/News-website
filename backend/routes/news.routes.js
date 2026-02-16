@@ -1,5 +1,5 @@
 const express = require('express')
-const { AddNews, getAllNews, getNewsBySlug, updateNewsBySlug, deleteNewsBySlug, getSectionNews, setNewsFlags } = require('../Controllers/news.controller')
+const { AddNews, getAllNews, getNewsBySlug, updateNewsBySlug, deleteNewsBySlug, getSectionNews, setNewsFlags, migrateTimestamps } = require('../Controllers/news.controller')
 
 const NewsRouter = express.Router()
 
