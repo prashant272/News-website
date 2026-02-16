@@ -11,7 +11,6 @@ interface BreadcrumbProps {
 export default function Breadcrumb({ section, category, title }: BreadcrumbProps) {
   const sectionSlug = section.toLowerCase().replace(/\s+/g, '-');
   const categorySlug = category.toLowerCase().replace(/\s+/g, '-');
-  console.log(categorySlug);
   
   return (
     <nav className={styles.breadcrumb}>
