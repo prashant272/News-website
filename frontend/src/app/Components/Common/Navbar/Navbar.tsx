@@ -156,12 +156,12 @@ const Navbar: React.FC = () => {
                 src={logo}
                 alt="PrimeTime Logo"
                 className={styles.logoImg}
-                width={120}
-                height={120}
+                width={160}
+                height={160}
                 priority
               />
               {/* prime time text */}
-              <span className={styles.brandName}></span>
+              <span className={styles.brandName}> Prime Time</span>
             </Link>
           </div>
 

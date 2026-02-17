@@ -156,20 +156,39 @@
       height: 160px;
       object-fit: contain;
       position: absolute;
-      top: -140px; // Move up to overlap ad banner
+      top: -120px; // Desktop overlap
       left: -20px;
       z-index: 1001;
-      filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.15));
+      filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.2));
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+      @media (max-width: 768px) {
+        width: 70px;
+        height: 70px;
+        top: -22px;
+        left: 50px;
+      }
     }
 
     .brandName {
-      margin-left: 130px; // Offset for absolutely positioned logo
-      font-size: 22px;
-      font-weight: 700;
-      background: linear-gradient(135deg, #dc2626, #991b1b);
+      margin-left: 140px; // Offset for desktop
+      font-size: 26px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #f87171 0%, #dc2626 50%, #7f1d1d 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      background-clip: text;
       white-space: nowrap;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.1));
+      transition: all 0.3s ease;
+
+      @media (max-width: 768px) {
+        margin-left: 85px; // Offset for mobile
+        font-size: 20px;
+        letter-spacing: 1px;
+      }
     }
   }
 }
