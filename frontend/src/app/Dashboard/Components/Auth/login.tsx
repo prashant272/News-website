@@ -8,7 +8,7 @@ import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight, Key } from "lucide-react"
 import { AuthChildProps } from "./types";
 import styles from "./SignIn.module.scss";
 
-type Role = "User" | "Admin" | "SUPER_ADMIN";
+type Role = "USER" | "ADMIN" | "SUPER_ADMIN";
 
 interface SignInProps {
   setMode: (mode: string) => void;
@@ -24,11 +24,11 @@ interface LoginResponse {
 }
 
 export const SignIn: React.FC<AuthChildProps> = ({ setMode }) => {
-  const [formData, setFormData] = useState({ 
-    role: "User" as Role, 
-    email: "", 
+  const [formData, setFormData] = useState({
+    role: "USER" as Role,
+    email: "",
     password: "",
-    secretKey: "" 
+    secretKey: ""
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showSecretKey, setShowSecretKey] = useState(false);
@@ -38,9 +38,9 @@ export const SignIn: React.FC<AuthChildProps> = ({ setMode }) => {
   const { Userdispatch, UserSignIn } = useContext(UserContext) as any;
 
   const isValidEmail = EMAIL_REGEX.test(formData.email);
-  const isFormValid = 
-    formData.email.trim() && 
-    formData.password.trim() && 
+  const isFormValid =
+    formData.email.trim() &&
+    formData.password.trim() &&
     isValidEmail &&
     (formData.role === "SUPER_ADMIN" ? formData.secretKey.trim() : true);
 
@@ -162,16 +162,16 @@ export const SignIn: React.FC<AuthChildProps> = ({ setMode }) => {
           <div className={styles.selectWrapper}>
             <select
               value={formData.role}
-              onChange={(e) => setFormData((prev) => ({ 
-                ...prev, 
+              onChange={(e) => setFormData((prev) => ({
+                ...prev,
                 role: e.target.value as Role,
-                secretKey: "" 
+                secretKey: ""
               }))}
               className={styles.select}
               disabled={loading}
             >
-              <option value="User">👤 User</option>
-              <option value="Admin">🛡️ Admin</option>
+              <option value="USER">👤 User</option>
+              <option value="ADMIN">🛡️ Admin</option>
               <option value="SUPER_ADMIN">👑 Super Admin</option>
             </select>
           </div>

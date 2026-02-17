@@ -10,34 +10,34 @@ const SIGNIN_SECRET_KEY = process.env.SIGNIN_SECRET_KEY;
 exports.UserSignUp = async (req, res) => {
   try {
     const { email, password, role, secretKey } = req.body;
-    
+
 
     if (!SIGNUP_SECRET_KEY) {
-      return res.status(500).json({ 
+      return res.status(500).json({
         success: false,
-        msg: "Server configuration error: Secret key not set" 
+        msg: "Server configuration error: Secret key not set"
       });
     }
 
     if (!secretKey || secretKey !== SIGNUP_SECRET_KEY) {
-      return res.status(401).json({ 
+      return res.status(401).json({
         success: false,
-        msg: "Invalid secret key" 
+        msg: "Invalid secret key"
       });
     }
 
     const checkUser = await User.findOne({ email: email });
     if (checkUser) {
-      return res.status(409).json({ 
+      return res.status(409).json({
         success: false,
-        msg: "User already exists" 
+        msg: "User already exists"
       });
     }
 
     if (!password || password.length < 6) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        msg: "Password must be at least 6 characters long" 
+        msg: "Password must be at least 6 characters long"
       });
     }
 
@@ -59,16 +59,16 @@ exports.UserSignUp = async (req, res) => {
     const userResponse = user.toObject();
     delete userResponse.password;
 
-    return res.status(201).json({ 
+    return res.status(201).json({
       success: true,
-      user: userResponse, 
-      msg: "Your Account is Created" 
+      user: userResponse,
+      msg: "Your Account is Created"
     });
 
   } catch (error) {
-    return res.status(500).json({ 
+    return res.status(500).json({
       success: false,
-      msg: "Server error during registration" 
+      msg: "Server error during registration"
     });
   }
 };
@@ -76,66 +76,69 @@ exports.UserSignUp = async (req, res) => {
 exports.UserSignIn = async (req, res) => {
   try {
     const { email, password, role, secretKey } = req.body;
-  
+
 
     if (!email || !password) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        msg: "Email and password are required" 
+        msg: "Email and password are required"
       });
     }
 
-    if (role === "SUPER_ADMIN") {
+    // Normalize role to uppercase to match database
+    const userRole = role ? role.toUpperCase() : null;
+
+    if (userRole === "SUPER_ADMIN") {
       if (!SIGNIN_SECRET_KEY) {
-        return res.status(500).json({ 
+        return res.status(500).json({
           success: false,
-          msg: "Server configuration error: Secret key not set" 
+          msg: "Server configuration error: Secret key not set"
         });
       }
-      
+
       if (!secretKey || secretKey !== SIGNIN_SECRET_KEY) {
-        return res.status(401).json({ 
+        return res.status(401).json({
           success: false,
-          msg: "Invalid secret key for Super Admin" 
+          msg: "Invalid secret key for Super Admin"
         });
       }
     }
 
     const query = { email: email };
-    if (role && role !== "SUPER_ADMIN") {
-      query.role = role;
+    if (userRole && userRole !== "SUPER_ADMIN") {
+      query.role = userRole;
     }
 
     const user = await User.findOne(query).select('+password');
-    
+
     if (!user) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         success: false,
-        msg: `User with role "${role || 'any'}" does not exist` 
+        msg: `User with role "${userRole || 'any'}" does not exist`
       });
     }
 
     if (!user.isActive) {
-      return res.status(403).json({ 
+      return res.status(403).json({
         success: false,
-        msg: "Account is deactivated" 
+        msg: "Account is deactivated"
       });
     }
 
     const verify = await bcrypt.compare(password, user.password);
 
     if (!verify) {
-      return res.status(401).json({ 
+      return res.status(401).json({
         success: false,
-        msg: "Wrong password" 
+        msg: "Wrong password"
       });
     }
 
     const token = jwt.sign(
-      { 
-        userId: user._id, 
+      {
+        userId: user._id,
         email: user.email,
-        role: user.role,  
+        role: user.role,
         permissions: user.permissions
       },
       process.env.SECRET,
@@ -155,15 +158,15 @@ exports.UserSignIn = async (req, res) => {
       userId: user._id,
       profilepic: user.ProfilePicture,
       name: user.name,
-      role: user.role,  
+      role: user.role,
       permissions: user.permissions,
       msg: "Welcome"
     });
 
   } catch (error) {
-    return res.status(500).json({ 
+    return res.status(500).json({
       success: false,
-      msg: "Server error during login" 
+      msg: "Server error during login"
     });
   }
 };
