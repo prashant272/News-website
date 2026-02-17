@@ -112,7 +112,7 @@ export default async function ArticleDetailPage({ params }: PageProps) {
       if (!foundArticle) notFound();
 
       // Use items from the article's actual category for related stories
-      relatedNews = allNews.filter(n => n.category === foundArticle.category);
+      relatedNews = allNews.filter(n => n.category === foundArticle!.category);
     }
 
     return renderArticle(foundArticle!, relatedNews, category, subCategory, slug);
