@@ -1,7 +1,8 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { useAllNews, NewsItem, NewsSections, NewsDocument } from "@/app/hooks/NewsApi";
+import React, { createContext, useContext, useEffect, useState, useMemo, ReactNode } from "react";
+import { NewsItem, NewsSections, NewsDocument } from "@/app/services/NewsService";
+import { useAllNews } from "@/app/hooks/NewsApi";
 
 interface NewsContextType {
   allNews: NewsItem[] | null;
@@ -60,6 +61,27 @@ export const NewsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [travelNews, setTravelNews] = useState<NewsItem[] | null>(null);
   const [stateNews, setStateNews] = useState<NewsItem[] | null>(null);
 
+  const technologyData = useMemo(() => filterVisibleNews(sections?.technology), [sections?.technology]);
+
+  const flattenedArr = useMemo(() => {
+    if (!sections) return null;
+    const items: NewsItem[] = [];
+    const keys: (keyof NewsSections)[] = [
+      "india", "sports", "business", "lifestyle", "entertainment",
+      "health", "awards", "technology", "world", "education",
+      "environment", "science", "opinion", "auto", "travel", "state",
+    ];
+
+    keys.forEach((key) => {
+      const arr = sections[key];
+      if (Array.isArray(arr)) {
+        const visibleItems = arr.filter((item) => !item.isHidden);
+        items.push(...visibleItems);
+      }
+    });
+    return items.length > 0 ? items : null;
+  }, [sections]);
+
   useEffect(() => {
     if (!sections) {
       setAllNews(null);
@@ -83,8 +105,7 @@ export const NewsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return;
     }
 
-    const technologyData = filterVisibleNews(sections.technology);
-
+    setAllNews(flattenedArr);
     setIndiaNews(filterVisibleNews(sections.india));
     setSportsNews(filterVisibleNews(sections.sports));
     setBusinessNews(filterVisibleNews(sections.business));
@@ -102,37 +123,7 @@ export const NewsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setAutoNews(filterVisibleNews(sections.auto));
     setTravelNews(filterVisibleNews(sections.travel));
     setStateNews(filterVisibleNews(sections.state));
-
-    const flattened: NewsItem[] = [];
-    const keys: (keyof NewsSections)[] = [
-      "india",
-      "sports",
-      "business",
-      "lifestyle",
-      "entertainment",
-      "health",
-      "awards",
-      "technology",
-      "world",
-      "education",
-      "environment",
-      "science",
-      "opinion",
-      "auto",
-      "travel",
-      "state",
-    ];
-
-    keys.forEach((key) => {
-      const arr = sections[key];
-      if (Array.isArray(arr)) {
-        const visibleItems = arr.filter((item) => !item.isHidden);
-        flattened.push(...visibleItems);
-      }
-    });
-
-    setAllNews(flattened.length > 0 ? flattened : null);
-  }, [sections]);
+  }, [sections, technologyData, flattenedArr]);
 
   const value: NewsContextType = {
     allNews,

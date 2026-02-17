@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, notFound } from 'next/navigation';
 import { useNewsContext } from '@/app/context/NewsContext';
-import { NewsItem } from '@/app/hooks/NewsApi';
+import { NewsItem } from '@/app/services/NewsService';
 import LatestNewsSection from '@/app/Components/Common/LatestNewsSection/LatestNewsSection';
 import MoreFromSection from '@/app/Components/Common/MoreFromSection/MoreFromSection';
 import NewsSection from '@/app/Components/Common/NewsSection/NewsSection';
@@ -139,7 +139,7 @@ export default function CategoryPage() {
       />
 
       <SocialShare
-        url={currentUrl || `https://yoursite.com/${category}`}
+        url={currentUrl || `https://www.primetimemedia.in/Pages/${category}`}
         title={`${categoryTitle} - Latest News & Updates`}
         description={`Stay updated with the latest ${categoryTitle} news, breaking stories, trending topics, and in-depth analysis.`}
         image={filteredNews[0]?.image || ''}
@@ -164,7 +164,7 @@ export default function CategoryPage() {
       />
 
       <SocialShare
-        url={currentUrl || `https://yoursite.com/${category}`}
+        url={currentUrl || `https://www.primetimemedia.in/Pages/${category}`}
         title={`${categoryTitle} - Latest News & Updates`}
         description={`Stay updated with the latest ${categoryTitle} news, breaking stories, trending topics, and in-depth analysis.`}
         image={filteredNews[0]?.image || ''}

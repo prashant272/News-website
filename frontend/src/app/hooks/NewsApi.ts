@@ -1,105 +1,8 @@
 'use client';
-import { baseURL } from "@/Utils/Utils";
 import { useCallback, useEffect, useState, useMemo } from "react";
-
-export interface NewsItem {
-  title: string;
-  slug: string;
-  category: string;
-  subCategory?: string;
-  summary?: string;
-  content: string;
-  image?: string;
-  tags: string[];
-  status: "draft" | "published" | "archived";
-  publishedAt?: string;
-  isLatest?: boolean;
-  isTrending?: boolean;
-  isHidden?: boolean;
-  targetLink?: string;
-  nominationLink?: string;
-  _id?: string
-}
-
-export interface NewsSections {
-  india?: NewsItem[];
-  sports?: NewsItem[];
-  business?: NewsItem[];
-  lifestyle?: NewsItem[];
-  entertainment?: NewsItem[];
-  health?: NewsItem[];
-  awards?: NewsItem[];
-  technology?: NewsItem[];
-  world?: NewsItem[];
-  education?: NewsItem[];
-  environment?: NewsItem[];
-  science?: NewsItem[];
-  opinion?: NewsItem[];
-  auto?: NewsItem[];
-  travel?: NewsItem[];
-  state?: NewsItem[];
-}
-
-export interface NewsDocument extends NewsSections {
-  _id?: string;
-  isActive?: boolean;
-  lastUpdated?: string;
-}
-
-export interface ApiResponse<T = unknown> {
-  success: boolean;
-  news?: T;
-  data?: T;
-  msg: string;
-  total?: number;
-}
-
-class NewsService {
-  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
-    const url = `${baseURL}/news${endpoint}`;
-    const res = await fetch(url, {
-      headers: { "Content-Type": "application/json" },
-      ...options,
-    });
-    if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
-      throw new Error(errorData.msg || `API Error: ${res.status}`);
-    }
-    return res.json();
-  }
-
-  addNews = (news: Omit<NewsItem, "id"> & { section: string }): Promise<ApiResponse<NewsItem>> =>
-    this.request("/addnews", { method: "POST", body: JSON.stringify(news) });
-
-  getAllNews = (): Promise<ApiResponse<NewsDocument[]>> => this.request("/getallnews");
-
-  getNewsBySection = (section: string): Promise<ApiResponse<NewsItem[]>> =>
-    this.request(`/getnewsbysection/${section}`);
-
-  getNewsBySlug = (section: string, slug: string): Promise<ApiResponse<NewsItem>> =>
-    this.request(`/getnewsbyslug/${section}/${slug}`);
-
-  updateNews = (params: { section: string; slug: string; data: Partial<NewsItem> }): Promise<ApiResponse<NewsItem>> =>
-    this.request(`/updatenews/${params.section}/${params.slug}`, {
-      method: "PUT",
-      body: JSON.stringify(params.data),
-    });
-
-  deleteNews = (params: { section: string; slug: string }): Promise<ApiResponse<{ deleted: boolean }>> =>
-    this.request(`/deletenews/${params.section}/${params.slug}`, { method: "DELETE" });
-
-  setNewsFlags = (params: {
-    section: string;
-    slug: string;
-    flags: Partial<Pick<NewsItem, "isLatest" | "isTrending" | "isHidden">>;
-  }): Promise<ApiResponse<NewsItem>> =>
-    this.request(`/flags/${params.section}/${params.slug}`, {
-      method: "PATCH",
-      body: JSON.stringify(params.flags),
-    });
-}
-
-export const newsService = new NewsService();
+import { newsService, NewsItem, NewsDocument, ApiResponse } from "../services/NewsService";
+export { newsService };
+export type { NewsItem, NewsDocument, ApiResponse };
 
 type UseApiResult<T> = {
   data: T | null;
@@ -108,15 +11,18 @@ type UseApiResult<T> = {
   refetch: () => Promise<void>;
 };
 
-export const useApi = <T,>(fetchFn: () => Promise<ApiResponse<T>>): UseApiResult<T> => {
+export const useApi = <T,>(fetchFn: () => Promise<ApiResponse<T>>, deps: any[] = []): UseApiResult<T> => {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Memoize the fetch function based on dependencies
+  const memoizedFetch = useCallback(fetchFn, deps);
+
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetchFn();
+      const res = await memoizedFetch();
       if (!res.success) throw new Error(res.msg || "API Error");
       setData((res.news ?? res.data ?? null) as T);
       setError(null);
@@ -125,13 +31,11 @@ export const useApi = <T,>(fetchFn: () => Promise<ApiResponse<T>>): UseApiResult
     } finally {
       setLoading(false);
     }
-  }, [fetchFn]);
+  }, [memoizedFetch]);
 
   useEffect(() => {
     let mounted = true;
-    fetchData().finally(() => {
-      if (mounted) setLoading(false);
-    });
+    fetchData();
     return () => {
       mounted = false;
     };
@@ -171,13 +75,13 @@ export const useApiMutation = <T,>(mutateFn: (data?: any) => Promise<T>): UseApi
 };
 
 export const useNewsBySection = (section: string): UseApiResult<NewsItem[]> =>
-  useApi<NewsItem[]>(() => newsService.getNewsBySection(section));
+  useApi<NewsItem[]>(() => newsService.getNewsBySection(section), [section]);
 
 export const useNewsBySlug = (section: string, slug: string): UseApiResult<NewsItem> =>
-  useApi<NewsItem>(() => newsService.getNewsBySlug(section, slug));
+  useApi<NewsItem>(() => newsService.getNewsBySlug(section, slug), [section, slug]);
 
 export const useAllNews = (): UseApiResult<NewsDocument[]> =>
-  useApi<NewsDocument[]>(() => newsService.getAllNews());
+  useApi<NewsDocument[]>(() => newsService.getAllNews(), []);
 
 export const useAddNews = (): UseApiMutationResult<ApiResponse<NewsItem>> =>
   useApiMutation<ApiResponse<NewsItem>>(newsService.addNews);
@@ -226,9 +130,7 @@ export const useNewsBySectionWithFilter = (
   visibilityFilter: "all" | "visible" | "hidden" = "all"
 ): UseApiResult<NewsItem[]> => {
   const { data, loading, error, refetch } = useNewsBySection(section);
-
-  const filteredData = data ? filterNewsByVisibility(data, visibilityFilter) : null;
-
+  const filteredData = useMemo(() => data ? filterNewsByVisibility(data, visibilityFilter) : null, [data, visibilityFilter]);
   return { data: filteredData, loading, error, refetch };
 };
 
