@@ -120,14 +120,14 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px 24px;
-  gap: 24px;
+  gap: 10px;
   border-bottom: 1px solid var(--nav-border);
 }
 
 .leftSection {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 8px;
   flex-shrink: 0;
   position: relative;
 
@@ -198,7 +198,7 @@
   list-style: none;
   margin: 0;
   padding: 0;
-  gap: 6px;
+  gap: px;
   flex-wrap: wrap;
   justify-content: center;
 
