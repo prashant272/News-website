@@ -1,5 +1,5 @@
 'use client';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useNewsContext } from '@/app/context/NewsContext';
 import { getImageSrc } from '@/Utils/imageUtils';
@@ -16,6 +16,8 @@ export interface NewsGridItem {
   subCategory: string;
   displaySubCategory?: string;
   isTrending?: boolean;
+  targetLink?: string;
+  nominationLink?: string;
 }
 
 export interface TopNewsItem {
@@ -114,10 +116,12 @@ const NewsSection: React.FC<NewsSectionProps> = ({
       category: item.category,
       subCategory: item.subCategory || '',
       displaySubCategory: cleanDisplayText(item.subCategory || ''),
-      isTrending: item.isTrending
+      isTrending: item.isTrending,
+      targetLink: item.targetLink,
+      nominationLink: item.nominationLink
     }));
   }, [providedMainNews, sectionNews, section]);
-  
+
   const topNews: TopNewsItem[] = useMemo(() => {
     if (providedTopNews) return providedTopNews;
     const trendingNews = sectionNews.filter(item => item.isTrending === true);
@@ -281,12 +285,19 @@ interface NewsCardProps extends NewsGridItem {
   currentSection: string;
 }
 
-const NewsCard: React.FC<NewsCardProps> = ({ image, title, slug, category, currentSection, subCategory, displaySubCategory, isTrending }) => {
+const NewsCard: React.FC<NewsCardProps> = ({ image, title, slug, category, currentSection, subCategory, displaySubCategory, isTrending, targetLink, nominationLink }) => {
   const pathname = usePathname();
+  const router = useRouter();
   const section = getSection(pathname, category, currentSection);
   const displayImage = getImageSrc(image);
 
   const href = slug ? `/Pages/${section}/${encodeURIComponent(subCategory)}/${encodeURIComponent(slug)}` : undefined;
+
+  const handleCardClick = () => {
+    if (href) {
+      router.push(href);
+    }
+  };
 
   const cardContent = (
     <>
@@ -300,7 +311,7 @@ const NewsCard: React.FC<NewsCardProps> = ({ image, title, slug, category, curre
         {isTrending && (
           <span className={styles.trendingBadge}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/>
+              <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z" />
             </svg>
             Trending
           </span>
@@ -308,6 +319,33 @@ const NewsCard: React.FC<NewsCardProps> = ({ image, title, slug, category, curre
       </div>
       <div className={styles.cardContent}>
         <p className={styles.newsTitle}>{title}</p>
+
+        {(currentSection?.toLowerCase() === "awards" || category?.toUpperCase() === "AWARDS") && (
+          <div className={styles.awardActions}>
+            {targetLink && (
+              <a
+                href={targetLink.startsWith('http') ? targetLink : `https://${targetLink}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.moreInfoBtn}
+                onClick={(e) => e.stopPropagation()}
+              >
+                More Info
+              </a>
+            )}
+            {nominationLink && (
+              <a
+                href={nominationLink.startsWith('http') ? nominationLink : `https://${nominationLink}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.nominationBtn}
+                onClick={(e) => e.stopPropagation()}
+              >
+                Nomination
+              </a>
+            )}
+          </div>
+        )}
       </div>
     </>
   );
@@ -317,9 +355,13 @@ const NewsCard: React.FC<NewsCardProps> = ({ image, title, slug, category, curre
   }
 
   return (
-    <Link href={href} className={styles.newsCard}>
+    <div
+      onClick={handleCardClick}
+      className={styles.newsCard}
+      style={{ cursor: 'pointer' }}
+    >
       {cardContent}
-    </Link>
+    </div>
   );
 };
 

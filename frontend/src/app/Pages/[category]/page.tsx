@@ -42,14 +42,14 @@ export default function CategoryPage() {
     const sectionMap: { [key: string]: string } = {
       'technology': 'tech'
     };
-    
+
     const mappedSection = sectionMap[urlCategory] || urlCategory;
 
     const filtered = context.allNews.filter((news) => {
       const newsCategory = news.category?.toLowerCase() || '';
-      
-      return newsCategory === urlCategory || 
-             newsCategory === mappedSection;
+
+      return newsCategory === urlCategory ||
+        newsCategory === mappedSection;
     });
 
     setFilteredNews(filtered);
@@ -77,7 +77,9 @@ export default function CategoryPage() {
     title: news.title,
     slug: news.slug,
     category: news.category,
-    subCategory: news.subCategory || ''
+    subCategory: news.subCategory || '',
+    targetLink: news.targetLink,
+    nominationLink: news.nominationLink
   }));
 
   const transformedTrendingNews = trendingNews.slice(0, 5).map((news, index) => ({
@@ -127,7 +129,7 @@ export default function CategoryPage() {
 
   return (
     <>
-      <NewsSection 
+      <NewsSection
         sectionTitle={categoryTitle}
         subCategories={subCategories}
         mainNews={transformedNews}
@@ -136,14 +138,14 @@ export default function CategoryPage() {
         gridColumns={3}
       />
 
-      <SocialShare 
+      <SocialShare
         url={currentUrl || `https://yoursite.com/${category}`}
         title={`${categoryTitle} - Latest News & Updates`}
         description={`Stay updated with the latest ${categoryTitle} news, breaking stories, trending topics, and in-depth analysis.`}
         image={filteredNews[0]?.image || ''}
         isArticle={false}
       />
-      
+
       <LatestNewsSection
         sectionTitle={`Latest ${categoryTitle} News`}
         overrideSection={category}
@@ -152,16 +154,16 @@ export default function CategoryPage() {
         columns={3}
       />
 
-      <VideosSection/>
-      
-      <MoreFromSection 
+      <VideosSection />
+
+      <MoreFromSection
         sectionTitle={`More From ${categoryTitle}`}
         overrideSection={category as any}
         columns={2}
         limit={8}
       />
 
-      <SocialShare 
+      <SocialShare
         url={currentUrl || `https://yoursite.com/${category}`}
         title={`${categoryTitle} - Latest News & Updates`}
         description={`Stay updated with the latest ${categoryTitle} news, breaking stories, trending topics, and in-depth analysis.`}

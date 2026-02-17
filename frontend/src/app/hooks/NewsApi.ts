@@ -15,7 +15,9 @@ export interface NewsItem {
   isLatest?: boolean;
   isTrending?: boolean;
   isHidden?: boolean;
-  _id?:string
+  targetLink?: string;
+  nominationLink?: string;
+  _id?: string
 }
 
 export interface NewsSections {

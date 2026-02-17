@@ -14,18 +14,19 @@ import {
 } from "@/app/hooks/NewsApi";
 import { Ad, useAllAds, useAddAd } from "@/app/hooks/useAds";
 import styles from "./Main.module.scss";
+import { FaFacebook, FaWhatsapp, FaShareAlt } from "react-icons/fa";
 
 interface MainSectionProps {
   section:
-    | "india"
-    | "sports"
-    | "business"
-    | "technology"
-    | "entertainment"
-    | "lifestyle"
-    | "world"
-    | "health"
-    | "awards";
+  | "india"
+  | "sports"
+  | "business"
+  | "technology"
+  | "entertainment"
+  | "lifestyle"
+  | "world"
+  | "health"
+  | "awards";
 }
 
 const MainSection: FC<MainSectionProps> = ({ section }) => {
@@ -71,6 +72,8 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
     content: "",
     tags: [],
     status: "draft",
+    targetLink: "",
+    nominationLink: "",
   });
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -115,6 +118,8 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
       content: "",
       tags: [],
       status: "draft",
+      targetLink: "",
+      nominationLink: "",
     });
     setImagePreview(null);
     setShowImage(false);
@@ -378,8 +383,7 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
       try {
         await setFlags({ slug, [field]: newValue });
         showNotification(
-          `Article ${newValue ? "marked as" : "removed from"} ${
-            field === "isLatest" ? "Latest" : field === "isTrending" ? "Trending" : "Hidden"
+          `Article ${newValue ? "marked as" : "removed from"} ${field === "isLatest" ? "Latest" : field === "isTrending" ? "Trending" : "Hidden"
           }`,
           "success"
         );
@@ -476,6 +480,25 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
 
   const isEditing = editingSlug !== null;
   const isEditingAd = editingAdId !== null;
+
+  const siteUrl = "https://www.primetimemedia.in";
+
+  const getShareLink = (item: Partial<NewsItem>, platform: 'facebook' | 'whatsapp') => {
+    if (!item.slug) return "#";
+
+    const sectionSlug = section.toLowerCase();
+    const categorySlug = (item.category || section).toLowerCase().replace(/\s+/g, '-');
+    const fullUrl = `${siteUrl}/Pages/${sectionSlug}/${categorySlug}/${item.slug}`;
+    const shareText = `${item.title} | View more news on Prime Time Media:`;
+
+    if (platform === 'facebook') {
+      return `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(fullUrl)}`;
+    }
+    if (platform === 'whatsapp') {
+      return `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText + " " + fullUrl)}`;
+    }
+    return "#";
+  };
 
   return (
     <div className={styles.wrapper}>
@@ -700,6 +723,26 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
                     />
                     <small className={styles.hint}>Separate with commas</small>
                   </div>
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>Target Link (More Info)</label>
+                    <input
+                      type="text"
+                      className={styles.input}
+                      value={formState.targetLink ?? ""}
+                      onChange={handleChange("targetLink")}
+                      placeholder="https://example.com/more-info"
+                    />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>Nomination Link</label>
+                    <input
+                      type="text"
+                      className={styles.input}
+                      value={formState.nominationLink ?? ""}
+                      onChange={handleChange("nominationLink")}
+                      placeholder="https://example.com/nominate"
+                    />
+                  </div>
                 </div>
                 <div className={styles.formActions}>
                   {isEditing ? (
@@ -717,6 +760,32 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
                     </button>
                   )}
                 </div>
+
+                {formState.slug && (
+                  <div className={styles.shareSection}>
+                    <div className={styles.shareLabel}>
+                      <FaShareAlt /> Share this article
+                    </div>
+                    <div className={styles.shareButtons}>
+                      <a
+                        href={getShareLink(formState, 'facebook')}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`${styles.shareBtn} ${styles.facebook}`}
+                      >
+                        <FaFacebook /> Facebook
+                      </a>
+                      <a
+                        href={getShareLink(formState, 'whatsapp')}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`${styles.shareBtn} ${styles.whatsapp}`}
+                      >
+                        <FaWhatsapp /> WhatsApp
+                      </a>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -869,6 +938,26 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
                             >
                               🗑️
                             </button>
+                            <div className={styles.cardShareActions}>
+                              <a
+                                href={getShareLink(item, 'facebook')}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={styles.miniShareBtn}
+                                title="Share on Facebook"
+                              >
+                                <FaFacebook size={14} />
+                              </a>
+                              <a
+                                href={getShareLink(item, 'whatsapp')}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={styles.miniShareBtn}
+                                title="Share on WhatsApp"
+                              >
+                                <FaWhatsapp size={14} />
+                              </a>
+                            </div>
                           </div>
                         </div>
                         <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.75rem" }}>

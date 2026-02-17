@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useNewsSectionData, MoreFromItem } from '@/app/hooks/useNewsSectionData';
 import styles from './MoreFromSection.module.scss';
 
@@ -26,6 +27,7 @@ export default function MoreFromSection({
     limit,
     excludeSlug,
   });
+  const router = useRouter();
 
   if (isLoading || items.length === 0) {
     return (
@@ -60,10 +62,15 @@ export default function MoreFromSection({
           const isImageLeft = index % 2 === 0;
 
           return (
-            <Link
+            <div
               key={item.id}
-              href={href}
               className={`${styles.newsItem} ${isImageLeft ? styles.imageLeft : styles.imageRight}`}
+              style={{ cursor: 'pointer' }}
+              onClick={() => {
+                if (href && href !== '#') {
+                  router.push(href);
+                }
+              }}
             >
               <div className={styles.imageContainer}>
                 <img
@@ -75,8 +82,35 @@ export default function MoreFromSection({
               </div>
               <div className={styles.contentContainer}>
                 <h3 className={styles.newsTitle}>{item.title}</h3>
+
+                {(overrideSection?.toLowerCase() === "awards" || item.category?.toUpperCase() === "AWARDS") && (
+                  <div className={styles.awardActions}>
+                    {(item as any).targetLink && (
+                      <a
+                        href={(item as any).targetLink.startsWith('http') ? (item as any).targetLink : `https://${(item as any).targetLink}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.moreInfoBtn}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Info
+                      </a>
+                    )}
+                    {(item as any).nominationLink && (
+                      <a
+                        href={(item as any).nominationLink.startsWith('http') ? (item as any).nominationLink : `https://${(item as any).nominationLink}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.nominationBtn}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Nominate
+                      </a>
+                    )}
+                  </div>
+                )}
               </div>
-            </Link>
+            </div>
           );
         })}
       </div>

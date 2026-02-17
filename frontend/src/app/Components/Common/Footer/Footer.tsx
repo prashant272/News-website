@@ -3,11 +3,12 @@
 import React from 'react'
 import Link from 'next/link'
 import styles from './Footer.module.scss'
-import { 
-  FaFacebookF, FaTwitter, FaInstagram, FaYoutube, 
+import {
+  FaFacebookF, FaInstagram, FaYoutube,
   FaLinkedinIn, FaWhatsapp, FaTelegram, FaRss,
-  FaEnvelope, FaPhone, FaMapMarkerAlt, FaChevronRight 
+  FaEnvelope, FaPhone, FaMapMarkerAlt, FaChevronRight
 } from 'react-icons/fa'
+import { FaXTwitter } from 'react-icons/fa6'
 import Image from 'next/image'
 import logo from "@/assets/Logo/primetimelogo.gif"
 
@@ -38,38 +39,28 @@ const Footer: React.FC = () => {
       { name: 'Fact Check', href: '/fact-check' },
       { name: 'Archives', href: '/archives' },
       { name: 'RSS Feed', href: '/rss' }
-    ],
-    services: [
-      { name: 'Market Research', href: 'https://primetimemedia.in/market-research/' },
-      { name: 'Digital Marketing', href: 'https://primetimemedia.in/digital-marketing/' },
-      { name: 'Brand Reputation', href: 'https://primetimemedia.in/brand-reputation-management/' },
-      { name: 'Business Consultancy', href: 'https://primetimemedia.in/business-consultancy-services/' },
-      { name: 'Public Relations', href: 'https://primetimemedia.in/public-relation-management/' },
-      { name: 'Social Media Mgmt', href: 'https://primetimemedia.in/social-media-management/' },
-      { name: 'Web Development', href: 'https://primetimemedia.in/web-development/' }
     ]
   }
 
   const socialLinks = [
-    { icon: FaFacebookF, href: 'https://facebook.com', label: 'Facebook' },
-    { icon: FaTwitter, href: 'https://twitter.com', label: 'Twitter' },
-    { icon: FaInstagram, href: 'https://instagram.com', label: 'Instagram' },
-    { icon: FaYoutube, href: 'https://youtube.com', label: 'YouTube' },
-    { icon: FaLinkedinIn, href: 'https://linkedin.com', label: 'LinkedIn' },
-    { icon: FaWhatsapp, href: 'https://wa.me/9810882769', label: 'WhatsApp' },
-    { icon: FaTelegram, href: 'https://t.me/primetimenews', label: 'Telegram' },
-    { icon: FaRss, href: '/rss', label: 'RSS' }
+    { icon: FaFacebookF, href: 'https://facebook.com', label: 'Facebook', platform: 'facebook' },
+    { icon: FaXTwitter, href: 'https://twitter.com', label: 'X (Twitter)', platform: 'x' },
+    { icon: FaInstagram, href: 'https://instagram.com', label: 'Instagram', platform: 'instagram' },
+    { icon: FaYoutube, href: 'https://youtube.com', label: 'YouTube', platform: 'youtube' },
+    { icon: FaLinkedinIn, href: 'https://linkedin.com', label: 'LinkedIn', platform: 'linkedin' },
+    { icon: FaWhatsapp, href: 'https://wa.me/9810882769', label: 'WhatsApp', platform: 'whatsapp' },
+    { icon: FaTelegram, href: 'https://t.me/primetimenews', label: 'Telegram', platform: 'telegram' },
+    { icon: FaRss, href: '/rss', label: 'RSS', platform: 'rss' }
   ]
 
   const contactInfo = {
     office: 'Prime Time Research Media Pvt. Ltd, C-31, Nawada Housing Complex, New Delhi-110059',
     phones: [
-      { number: '+91 9810 88 2769', label: 'Nominations' },
       { number: '+91 9971 00 2984', label: 'Sponsorship' },
       { number: '+91 9810 91 0686', label: 'Helpline' },
       { number: '+91 11-69268754', label: 'Office' }
     ],
-    email: 'contact@primetime.news'
+    email: 'contact@primetimemedia.in'
   }
 
   return (
@@ -78,9 +69,9 @@ const Footer: React.FC = () => {
         <div className={styles.grid}>
           <div className={styles.section}>
             <div className={styles.logoSection}>
-              <Image 
-                src={logo} 
-                alt="Prime Time News" 
+              <Image
+                src={logo}
+                alt="Prime Time News"
                 className={styles.logoImg}
                 width={64}
                 height={64}
@@ -90,7 +81,7 @@ const Footer: React.FC = () => {
               <p className={styles.tagline}>Truth in Every Story</p>
             </div>
             <p className={styles.description}>
-              Your trusted source for breaking news, analysis, and in-depth coverage 
+              Your trusted source for breaking news, analysis, and in-depth coverage
               of events shaping India and the world. Stay informed, stay ahead.
             </p>
             <div className={styles.contact}>
@@ -99,9 +90,9 @@ const Footer: React.FC = () => {
                 <span>{contactInfo.email}</span>
               </a>
               {contactInfo.phones.map((phone, index) => (
-                <a 
-                  key={index} 
-                  href={`tel:${phone.number.replace(/\s+/g, '')}`} 
+                <a
+                  key={index}
+                  href={`tel:${phone.number.replace(/\s+/g, '')}`}
                   className={styles.contactItem}
                 >
                   <FaPhone className={styles.contactIcon} />
@@ -150,20 +141,6 @@ const Footer: React.FC = () => {
               ))}
             </ul>
           </div>
-
-          <div className={styles.section}>
-            <h3 className={styles.sectionTitle}>Our Services</h3>
-            <ul className={styles.linkList}>
-              {footerLinks.services.map((link, index) => (
-                <li key={index} className={styles.linkItem}>
-                  <FaChevronRight className={styles.chevron} />
-                  <a href={link.href} target="_blank" rel="noopener noreferrer" className={styles.link}>
-                    {link.name}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
         </div>
 
         <div className={styles.socialSection}>
@@ -179,6 +156,7 @@ const Footer: React.FC = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={social.label}
+                  data-platform={social.platform}
                 >
                   <Icon />
                 </a>

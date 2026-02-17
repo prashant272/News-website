@@ -1,7 +1,8 @@
-'use client'
+'use client';
 import React, { useMemo } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useNewsContext } from '@/app/context/NewsContext';
 import styles from './NewsCard.module.scss';
 
@@ -16,6 +17,8 @@ export interface NewsItem {
   slug?: string;
   date?: string;
   relatedLinks?: string[];
+  targetLink?: string;
+  nominationLink?: string;
 }
 
 export interface CategorySection {
@@ -34,8 +37,8 @@ interface NewsCardsProps {
   overrideSection?: 'india' | 'sports' | 'business' | 'entertainment' | 'lifestyle' | 'all';
 }
 
-const NewsCards: React.FC<NewsCardsProps> = ({ 
-  data, 
+const NewsCards: React.FC<NewsCardsProps> = ({
+  data,
   columns = 3,
   showSubcategories = false,
   animationEnabled = true,
@@ -44,6 +47,7 @@ const NewsCards: React.FC<NewsCardsProps> = ({
   overrideSection
 }) => {
   const pathname = usePathname();
+  const router = useRouter();
   const { allNews, indiaNews, sportsNews, businessNews, entertainmentNews, lifestyleNews } = useNewsContext();
 
   const section = useMemo(() => {
@@ -64,12 +68,12 @@ const NewsCards: React.FC<NewsCardsProps> = ({
 
   const sectionData = useMemo(() => {
     switch (section) {
-      case 'india':        return indiaNews || [];
-      case 'sports':       return sportsNews || [];
-      case 'business':     return businessNews || [];
+      case 'india': return indiaNews || [];
+      case 'sports': return sportsNews || [];
+      case 'business': return businessNews || [];
       case 'entertainment': return entertainmentNews || [];
-      case 'lifestyle':    return lifestyleNews || [];
-      default:             return allNews || [];
+      case 'lifestyle': return lifestyleNews || [];
+      default: return allNews || [];
     }
   }, [section, allNews, indiaNews, sportsNews, businessNews, entertainmentNews, lifestyleNews]);
 
@@ -92,7 +96,9 @@ const NewsCards: React.FC<NewsCardsProps> = ({
         date: item.date,
         isLive: item.isLive,
         isVideo: item.isVideo,
-        isPhoto: item.isPhoto
+        isPhoto: item.isPhoto,
+        targetLink: item.targetLink,
+        nominationLink: item.nominationLink
       });
     });
 
@@ -103,7 +109,7 @@ const NewsCards: React.FC<NewsCardsProps> = ({
     }));
   }, [sectionData, section, maxHeadlines]);
 
-  const displayData =  contextData;
+  const displayData = contextData;
 
   const CATEGORY_TO_SECTION_MAP: Record<string, string> = {
     'Cricket': 'sports',
@@ -146,11 +152,11 @@ const NewsCards: React.FC<NewsCardsProps> = ({
 
     const itemCategory = item.category || categoryName;
     const itemSection = getSectionFromCategory(itemCategory);
-    const itemCategorySlug = itemCategory.toLowerCase().replace(/\\s+/g, '-');
+    const itemCategorySlug = itemCategory.toLowerCase().replace(/\s+/g, '-');
 
     const expectedPath = `/Pages/${itemSection}/${itemCategorySlug}`;
     const normalizedPathname = pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
-    
+
     if (normalizedPathname === expectedPath) {
       return `${expectedPath}/${item.slug}`;
     }
@@ -160,7 +166,7 @@ const NewsCards: React.FC<NewsCardsProps> = ({
 
   const getCategoryLink = (categoryName: string): string => {
     const categorySection = getSectionFromCategory(categoryName);
-    const categorySlug = categoryName.toLowerCase().replace(/\\s+/g, '-');
+    const categorySlug = categoryName.toLowerCase().replace(/\s+/g, '-');
     return `/Pages/${categorySection}/${categorySlug}`;
   };
 
@@ -199,12 +205,12 @@ const NewsCards: React.FC<NewsCardsProps> = ({
         {displayData.map((categorySection, index) => {
           const featuredItem = categorySection.items[0];
           const headlineItems = categorySection.items.slice(1, maxHeadlines + 1);
-          
+
           if (!featuredItem) return null;
-          
+
           return (
-            <div 
-              key={categorySection.categoryName} 
+            <div
+              key={categorySection.categoryName}
               className={styles.categoryCard}
               style={animationEnabled ? { animationDelay: `${index * 0.1}s` } : undefined}
             >
@@ -213,13 +219,13 @@ const NewsCards: React.FC<NewsCardsProps> = ({
                   <span className={styles.categoryIcon}></span>
                   {categorySection.categoryName}
                 </h2>
-                
+
                 {showSubcategories && categorySection.subcategories && categorySection.subcategories.length > 0 && (
                   <div className={styles.subcategoriesWrapper}>
                     {categorySection.subcategories.map((subcat, idx) => {
                       const subcatSection = getSectionFromCategory(categorySection.categoryName);
-                      const subcatSlug = subcat.toLowerCase().replace(/\\s+/g, '-');
-                      
+                      const subcatSlug = subcat.toLowerCase().replace(/\s+/g, '-');
+
                       return (
                         <Link
                           key={`${subcat}-${idx}`}
@@ -233,44 +239,48 @@ const NewsCards: React.FC<NewsCardsProps> = ({
                   </div>
                 )}
               </div>
-              
+
               <div className={styles.featuredSection}>
-                <Link 
-                  href={getItemLink(featuredItem, categorySection.categoryName)}
+                <div
                   className={styles.featuredArticle}
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => {
+                    const fLink = getItemLink(featuredItem, categorySection.categoryName);
+                    if (fLink) router.push(fLink);
+                  }}
                 >
                   <div className={styles.imageContainer}>
                     {featuredItem.image ? (
                       <>
-                        <img 
-                          src={featuredItem.image} 
-                          alt={featuredItem.title} 
+                        <img
+                          src={featuredItem.image}
+                          alt={featuredItem.title}
                           loading="lazy"
                           onError={(e) => {
                             (e.target as HTMLImageElement).src = '/images/placeholder-news.jpg';
                           }}
                         />
-                        
+
                         <div className={styles.imageOverlay}></div>
-                        
+
                         {featuredItem.isLive && (
                           <span className={styles.liveBadge}>
                             <span className={styles.liveIcon}>●</span> LIVE
                           </span>
                         )}
-                        
+
                         {featuredItem.isVideo && (
                           <span className={styles.mediaBadge}>
                             <svg className={styles.icon} viewBox="0 0 24 24" fill="currentColor">
-                              <path d="M8 5v14l11-7z"/>
+                              <path d="M8 5v14l11-7z" />
                             </svg>
                           </span>
                         )}
-                        
+
                         {featuredItem.isPhoto && (
                           <span className={styles.mediaBadge}>
                             <svg className={styles.icon} viewBox="0 0 24 24" fill="currentColor">
-                              <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                              <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
                             </svg>
                           </span>
                         )}
@@ -278,29 +288,62 @@ const NewsCards: React.FC<NewsCardsProps> = ({
                     ) : (
                       <div className={styles.imagePlaceholder}>
                         <svg className={styles.placeholderIcon} viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5-7l-3 3.72L9 13l-3 4h12l-4-5z"/>
+                          <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5-7l-3 3.72L9 13l-3 4h12l-4-5z" />
                         </svg>
                       </div>
                     )}
                   </div>
-                  
+
                   <h3 className={styles.featuredTitle}>{featuredItem.title}</h3>
-                  
+
                   <span className={styles.featuredDate}>
                     {featuredItem.date || 'Just now'}
                   </span>
-                </Link>
+                </div>
+
+                {(categorySection.categoryName === "AWARDS" || section === "awards") && (
+                  <div className={styles.awardActions}>
+                    {featuredItem.targetLink && (
+                      <a
+                        href={featuredItem.targetLink.startsWith('http') ? featuredItem.targetLink : `https://${featuredItem.targetLink}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.moreInfoBtn}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        More Info
+                      </a>
+                    )}
+                    {featuredItem.nominationLink && (
+                      <a
+                        href={featuredItem.nominationLink.startsWith('http') ? featuredItem.nominationLink : `https://${featuredItem.nominationLink}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.nominationBtn}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Nomination
+                      </a>
+                    )}
+                  </div>
+                )}
               </div>
-              
+
               <div className={styles.headlinesSection}>
                 {headlineItems.length > 0 ? (
                   <div className={styles.headlinesList}>
                     {headlineItems.map((item, idx) => (
-                      <Link
+                      <div
                         key={item.id}
-                        href={getItemLink(item, categorySection.categoryName)}
                         className={styles.headlineItem}
-                        style={animationEnabled ? { animationDelay: `${(index * 0.1) + (idx * 0.05)}s` } : undefined}
+                        style={{
+                          cursor: 'pointer',
+                          ...(animationEnabled ? { animationDelay: `${(index * 0.1) + (idx * 0.05)}s` } : {})
+                        }}
+                        onClick={() => {
+                          const hLink = getItemLink(item, categorySection.categoryName);
+                          if (hLink) router.push(hLink);
+                        }}
                       >
                         <span className={styles.headlineBorder}></span>
                         <div className={styles.headlineContent}>
@@ -309,7 +352,33 @@ const NewsCards: React.FC<NewsCardsProps> = ({
                             <span className={styles.headlineDate}>{item.date}</span>
                           )}
                         </div>
-                      </Link>
+                        {(categorySection.categoryName === "AWARDS" || section === "awards") && (
+                          <div className={styles.headlineAwardActions}>
+                            {item.targetLink && (
+                              <a
+                                href={item.targetLink.startsWith('http') ? item.targetLink : `https://${item.targetLink}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={styles.headlineMoreInfoBtn}
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                Info
+                              </a>
+                            )}
+                            {item.nominationLink && (
+                              <a
+                                href={item.nominationLink.startsWith('http') ? item.nominationLink : `https://${item.nominationLink}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={styles.headlineNominationBtn}
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                Nominate
+                              </a>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     ))}
                   </div>
                 ) : (
@@ -318,7 +387,7 @@ const NewsCards: React.FC<NewsCardsProps> = ({
                   </div>
                 )}
               </div>
-              
+
               {featuredItem.relatedLinks && featuredItem.relatedLinks.length > 0 && (
                 <div className={styles.relatedLinksSection}>
                   <h4 className={styles.relatedLinksTitle}>Related Stories</h4>
@@ -332,10 +401,10 @@ const NewsCards: React.FC<NewsCardsProps> = ({
                   </ul>
                 </div>
               )}
-              
+
               {showViewMore && (
                 <div className={styles.cardFooter}>
-                  <Link 
+                  <Link
                     href={getCategoryLink(categorySection.categoryName)}
                     className={styles.moreAboutButton}
                   >
@@ -349,8 +418,8 @@ const NewsCards: React.FC<NewsCardsProps> = ({
             </div>
           );
         })}
-      </div>
-    </div>
+      </div >
+    </div >
   );
 };
 

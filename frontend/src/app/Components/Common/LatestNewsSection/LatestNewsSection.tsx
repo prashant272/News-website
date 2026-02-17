@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useNewsSectionData, LatestItem } from '@/app/hooks/useNewsSectionData';
 import styles from './LatestNewsSection.module.scss';
 
@@ -31,6 +32,7 @@ export default function LatestNewsSection({
     overrideSection,
     limit,
   });
+  const router = useRouter();
 
   const items = allItems.filter((item: any) => item.isLatest === true);
 
@@ -95,10 +97,46 @@ export default function LatestNewsSection({
             const href = item.slug ? item.href : '#';
 
             return (
-              <Link key={item.id} href={href} className={styles.newsItem}>
+              <div
+                key={item.id}
+                className={styles.newsItem}
+                style={{ cursor: 'pointer' }}
+                onClick={() => {
+                  if (href && href !== '#') {
+                    router.push(href);
+                  }
+                }}
+              >
                 <div className={styles.content}>
                   <span className={styles.category}>{item.category}</span>
                   <h3 className={styles.newsTitle}>{item.title}</h3>
+
+                  {(overrideSection?.toLowerCase() === "awards" || item.category?.toUpperCase() === "AWARDS") && (
+                    <div className={styles.awardActions}>
+                      {(item as any).targetLink && (
+                        <a
+                          href={(item as any).targetLink.startsWith('http') ? (item as any).targetLink : `https://${(item as any).targetLink}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.moreInfoBtn}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          Info
+                        </a>
+                      )}
+                      {(item as any).nominationLink && (
+                        <a
+                          href={(item as any).nominationLink.startsWith('http') ? (item as any).nominationLink : `https://${(item as any).nominationLink}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.nominationBtn}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          Nominate
+                        </a>
+                      )}
+                    </div>
+                  )}
                 </div>
                 <div className={styles.imageWrapper}>
                   <img
@@ -108,7 +146,7 @@ export default function LatestNewsSection({
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   />
                 </div>
-              </Link>
+              </div>
             );
           })}
         </div>

@@ -105,7 +105,7 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background: rgba(0,0,0,0.65);
+  background: rgba(0, 0, 0, 0.65);
   color: white;
   padding: 10px 12px;
   font-size: 13px;
@@ -128,7 +128,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.5);
+  background: rgba(255, 255, 255, 0.5);
   border: none;
   cursor: pointer;
   transition: all 0.3s;
@@ -179,6 +179,77 @@
   border-bottom: 1px solid #e5e7eb;
 }
 
-.adSpace > div:not(.advertisement):hover img {
+.adSpace>div:not(.advertisement):hover img {
   transform: scale(1.03);
+}
+.articleAwardActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 32px 0;
+  padding: 24px;
+  background: #f9fafb;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+
+  .articleMoreInfoBtn, .articleNominationBtn {
+    flex: 1;
+    min-width: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px 24px;
+    border-radius: 8px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  .articleMoreInfoBtn {
+    background: white;
+    color: #1f2937;
+    border: 2px solid #e5e7eb;
+
+    &:hover {
+      background: #f3f4f6;
+      border-color: #d1d5db;
+      transform: translateY(-2px);
+    }
+  }
+
+  .articleNominationBtn {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.2), 0 2px 4px -1px rgba(220, 38, 38, 0.1);
+
+    &:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 15px -3px rgba(220, 38, 38, 0.3);
+      filter: brightness(1.05);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}
+
+@media (max-width: 640px) {
+  .articleAwardActions {
+    flex-direction: column;
+    padding: 16px;
+
+    .articleMoreInfoBtn, .articleNominationBtn {
+      width: 100%;
+    }
+  }
 }

@@ -50,13 +50,15 @@ const newsItemSchema = new mongoose.Schema({
       trim: true,
     },
   ],
-  isLatest:   { type: Boolean, default: false },
+  isLatest: { type: Boolean, default: false },
   isTrending: { type: Boolean, default: false },
   isHidden: { type: Boolean, default: false },
-  
+  targetLink: { type: String, trim: true, default: null },
+  nominationLink: { type: String, trim: true, default: null },
+
 }, {
-    timestamps: true,
-  }); 
+  timestamps: true,
+});
 
 const newsSchema = new mongoose.Schema(
   {

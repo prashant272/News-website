@@ -49,12 +49,26 @@
 
 .grid {
   display: grid;
-  grid-template-columns: 2fr repeat(4, 1fr);
+  grid-template-columns: 2fr repeat(3, 1fr);
   gap: 3.5rem 4.5rem;
   margin-bottom: 4.5rem;
   padding-bottom: 4.5rem;
   border-bottom: 1px solid var(--border);
   transition: border-color 0.4s ease;
+
+  @media (max-width: 1200px) {
+    grid-template-columns: 1.5fr repeat(3, 1fr);
+    gap: 3rem 2rem;
+  }
+
+  @media (max-width: 992px) {
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+  }
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .section {
@@ -72,12 +86,12 @@
   height: 64px;
   border-radius: 12px;
   object-fit: contain;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
   transition: transform 0.4s ease, box-shadow 0.4s ease;
 
   &:hover {
     transform: scale(1.06);
-    box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
   }
 }
 
@@ -254,13 +268,50 @@
   position: relative;
   overflow: hidden;
 
+  &[data-platform="facebook"] {
+    --brand-color: #1877F2;
+  }
+
+  &[data-platform="x"] {
+    --brand-color: #000000;
+  }
+
+  &[data-platform="instagram"] {
+    --brand-color: #E4405F;
+  }
+
+  &[data-platform="youtube"] {
+    --brand-color: #FF0000;
+  }
+
+  &[data-platform="linkedin"] {
+    --brand-color: #0A66C2;
+  }
+
+  &[data-platform="whatsapp"] {
+    --brand-color: #25D366;
+  }
+
+  &[data-platform="telegram"] {
+    --brand-color: #26A5E4;
+  }
+
+  &[data-platform="rss"] {
+    --brand-color: #F26522;
+  }
+
+  background: var(--brand-color);
+  border-color: var(--brand-color);
+  color: #ffffff;
+
+  svg {
+    color: #ffffff;
+  }
+
   &:hover {
     transform: translateY(-5px);
-    border-color: var(--primary);
-    box-shadow: 0 12px 32px rgba(0,0,0,0.25);
-    svg {
-      color: rgb(181, 28, 28);
-    }
+    filter: brightness(1.1);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
   }
 }
 

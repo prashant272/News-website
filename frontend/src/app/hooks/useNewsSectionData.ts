@@ -35,24 +35,26 @@ export interface BaseNewsItem {
   href: string;
   isTrending?: boolean;
   isLatest?: boolean;
+  targetLink?: string;
+  nominationLink?: string;
 }
 
-export interface MoreFromItem extends BaseNewsItem {}
-export interface LatestItem extends BaseNewsItem {}
+export interface MoreFromItem extends BaseNewsItem { }
+export interface LatestItem extends BaseNewsItem { }
 export interface StoryItem extends BaseNewsItem {
   timeAgo?: string;
   author?: string;
   date?: string;
 }
-export interface GridItem extends BaseNewsItem {}
-export interface TopNewsItem extends BaseNewsItem {}
+export interface GridItem extends BaseNewsItem { }
+export interface TopNewsItem extends BaseNewsItem { }
 
 type NewsItemVariant = MoreFromItem | LatestItem | StoryItem | GridItem | TopNewsItem;
 
 function getSectionKey(pathname: string, override?: string): SectionKey {
   if (override && [
-    'india','sports','business','entertainment','lifestyle','health',
-    'technology','world','education','environment','science','opinion','auto','travel','awards'
+    'india', 'sports', 'business', 'entertainment', 'lifestyle', 'health',
+    'technology', 'world', 'education', 'environment', 'science', 'opinion', 'auto', 'travel', 'awards'
   ].includes(override)) {
     return override as SectionKey;
   }
@@ -62,8 +64,8 @@ function getSectionKey(pathname: string, override?: string): SectionKey {
   if (idx !== -1 && parts[idx + 1]) {
     const cand = parts[idx + 1];
     if ([
-      'india','sports','business','entertainment','lifestyle','health',
-      'technology','world','education','environment','science','opinion','auto','travel','awards'
+      'india', 'sports', 'business', 'entertainment', 'lifestyle', 'health',
+      'technology', 'world', 'education', 'environment', 'science', 'opinion', 'auto', 'travel', 'awards'
     ].includes(cand)) {
       return cand as SectionKey;
     }
@@ -128,22 +130,22 @@ export function useNewsSectionData<T extends NewsItemVariant = NewsItemVariant>(
     if (!context) return [];
 
     switch (section) {
-      case 'india':         return context.indiaNews ?? [];
-      case 'sports':        return context.sportsNews ?? [];
-      case 'business':      return context.businessNews ?? [];
+      case 'india': return context.indiaNews ?? [];
+      case 'sports': return context.sportsNews ?? [];
+      case 'business': return context.businessNews ?? [];
       case 'entertainment': return context.entertainmentNews ?? [];
-      case 'lifestyle':     return context.lifestyleNews ?? [];
-      case 'health':        return context.healthNews ?? [];
-      case 'technology':    return context.technologyNews ?? context.techNews ?? [];
-      case 'world':         return context.worldNews ?? [];
-      case 'education':     return context.educationNews ?? [];
-      case 'environment':   return context.environmentNews ?? [];
-      case 'science':       return context.scienceNews ?? [];
-      case 'opinion':       return context.opinionNews ?? [];
-      case 'auto':          return context.autoNews ?? [];
-      case 'travel':        return context.travelNews ?? [];
-      case 'awards':        return context.awardsNews ?? [];
-      default:              return context.allNews ?? [];
+      case 'lifestyle': return context.lifestyleNews ?? [];
+      case 'health': return context.healthNews ?? [];
+      case 'technology': return context.technologyNews ?? context.techNews ?? [];
+      case 'world': return context.worldNews ?? [];
+      case 'education': return context.educationNews ?? [];
+      case 'environment': return context.environmentNews ?? [];
+      case 'science': return context.scienceNews ?? [];
+      case 'opinion': return context.opinionNews ?? [];
+      case 'auto': return context.autoNews ?? [];
+      case 'travel': return context.travelNews ?? [];
+      case 'awards': return context.awardsNews ?? [];
+      default: return context.allNews ?? [];
     }
   }, [context, section, providedItems]);
 
@@ -176,6 +178,8 @@ export function useNewsSectionData<T extends NewsItemVariant = NewsItemVariant>(
         href: raw.slug ? `/Pages/${section}/${catSlug}/${raw.slug}` : '#',
         isTrending: !!raw.isTrending,
         isLatest: !!raw.isLatest,
+        targetLink: raw.targetLink,
+        nominationLink: raw.nominationLink,
       };
 
       if (variant === 'stories') {
@@ -213,6 +217,8 @@ export function useNewsSectionData<T extends NewsItemVariant = NewsItemVariant>(
         href: raw.slug ? `/Pages/${section}/${catSlug}/${raw.slug}` : '#',
         isTrending: !!raw.isTrending,
         isLatest: !!raw.isLatest,
+        targetLink: raw.targetLink,
+        nominationLink: raw.nominationLink,
       } as T;
     });
   }, [filteredData, section, topLimit, preferTrendingForTop, variant]);

@@ -1,183 +1,163 @@
-"use client";
-
-import { useEffect, useState } from 'react';
-import { useParams, notFound } from 'next/navigation';
-import { useNewsContext } from '@/app/context/NewsContext';
+import { notFound } from 'next/navigation';
+import { newsService, NewsItem } from '@/app/hooks/NewsApi';
 import ArticlePageClient from '@/app/Components/ArticlePage/ArticlePageClient/ArticlePageClient';
+import { Metadata } from 'next';
 
-interface NewsItem {
-  slug: string;
-  title: string;
-  summary?: string;
-  content?: string;
-  image?: string;
-  category?: string;
-  subCategory?: string;
-  tags?: string[];
-  isLatest?: boolean;
-  isTrending?: boolean;
-  _id?: string;
+interface PageProps {
+  params: Promise<{
+    category: string;
+    subCategory: string;
+    slug: string;
+  }>;
 }
 
-export interface ArticleData {
-  id: string | number;
-  section: string;
-  category: string;
-  title: string;
-  subtitle: string;
-  image: string;
-  date: string;
-  author?: string;
-  readTime?: string;
-  content: string;
-  tags?: string[];
-  slug: string;
-}
+const siteUrl = "https://www.primetimemedia.in";
 
-export interface SidebarNewsItem {
-  id: string | number;
-  title: string;
-  image: string;
-  slug: string;
-  section: string;
-  category: string;
-}
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug, category } = await params;
 
-export interface RelatedArticle {
-  id: string | number;
-  title: string;
-  slug: string;
-  section?: string;
-  category?: string;
-  image?: string;
-}
+  try {
+    const decodedCategory = decodeURIComponent(category).replace(/-/g, ' ');
+    const res = await newsService.getNewsBySlug(decodedCategory, slug);
+    const news = res.news || res.data;
 
-export default function ArticleDetailPage() {
-  const params = useParams();
-  const context = useNewsContext();
-  const [article, setArticle] = useState<ArticleData | null>(null);
-  const [relatedArticles, setRelatedArticles] = useState<RelatedArticle[]>([]);
-  const [topNews, setTopNews] = useState<SidebarNewsItem[]>([]);
-  const [recommendedStories, setRecommendedStories] = useState<SidebarNewsItem[]>([]);
-  const [isProcessing, setIsProcessing] = useState(true);
+    if (news) {
+      let imageUrl = news.image || '/placeholder.jpg';
+      if (imageUrl && !imageUrl.startsWith('http')) {
+        imageUrl = `${siteUrl}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`;
+      }
 
-  // Decode URL params and convert to display format
-  const category = decodeURIComponent(params?.category as string || '').replace(/-/g, ' ');
-  const subCategory = decodeURIComponent(params?.subCategory as string || '').replace(/-/g, ' ');
-  const slug = params?.slug as string;
+      const descriptionSnippet = news.summary || news.content?.substring(0, 150) || "";
+      const fullDescription = `${descriptionSnippet.replace(/[#*]/g, '')}... | Click to read full news and view more updates on Prime Time Media`;
 
-  useEffect(() => {
-    if (!slug || !context?.allNews) {
-      setIsProcessing(true);
-      return;
-    }
-
-    const foundArticle = context.allNews.find((news) => news.slug === slug);
-
-    if (foundArticle) {
-      const articleData: ArticleData = {
-        id: foundArticle._id || foundArticle.slug,
-        section: foundArticle.category || category,
-        category: foundArticle.subCategory || subCategory,
-        title: foundArticle.title,
-        subtitle: foundArticle.summary || '',
-        image: foundArticle.image || '/placeholder.jpg',
-        date: new Date().toISOString(),
-        author: 'News Desk',
-        readTime: '5 min read',
-        content: foundArticle.content || 'Content not available',
-        tags: foundArticle.tags || [],
-        slug: foundArticle.slug
+      return {
+        metadataBase: new URL(siteUrl),
+        title: news.title,
+        description: fullDescription,
+        openGraph: {
+          title: news.title,
+          description: fullDescription,
+          url: `${siteUrl}/Pages/${category}/${(await params).subCategory}/${slug}`,
+          siteName: 'Prime Time News',
+          images: [
+            {
+              url: imageUrl,
+              width: 1200,
+              height: 630,
+              alt: news.title,
+            },
+          ],
+          type: 'article',
+        },
+        twitter: {
+          card: 'summary_large_image',
+          title: news.title,
+          description: fullDescription,
+          images: [imageUrl],
+        },
       };
+    }
+  } catch (error) {
+    console.error("Metadata generation error:", error);
+  }
 
-      setArticle(articleData);
+  return {
+    metadataBase: new URL(siteUrl),
+    title: "News | Prime Time News",
+    description: "Latest breaking news and updates on Prime Time Media."
+  };
+}
 
-      const related = context.allNews
-        .filter((news) => 
-          news.category === foundArticle.category && 
-          news.subCategory === foundArticle.subCategory &&
-          news.slug !== slug
-        )
-        .slice(0, 3)
-        .map((news) => ({
-          id: news._id || news.slug,
-          title: news.title,
-          slug: news.slug,
-          section: news.category,
-          category: news.subCategory,
-          image: news.image
-        }));
+export default async function ArticleDetailPage({ params }: PageProps) {
+  const { category: catParam, subCategory: subCatParam, slug } = await params;
 
-      setRelatedArticles(related);
+  const category = decodeURIComponent(catParam).replace(/-/g, ' ');
+  const subCategory = decodeURIComponent(subCatParam).replace(/-/g, ' ');
 
-      const categoryNews = context.allNews
-        .filter((news) => news.category === foundArticle.category);
+  try {
+    // Fetch all news to replicate the related/top news logic
+    const allNewsRes = await newsService.getAllNews();
+    const allNews: any[] = Array.isArray(allNewsRes.data) ? allNewsRes.data : [];
 
-      setTopNews(
-        categoryNews.slice(0, 2).map((news) => ({
-          id: news._id || news.slug,
-          title: news.title,
-          image: news.image || '/placeholder.jpg',
-          slug: news.slug,
-          section: news.category || '',
-          category: news.subCategory || ''
-        }))
-      );
+    // Find specific article
+    const foundArticle = allNews.find((news) => news.slug === slug);
 
-      setRecommendedStories(
-        categoryNews.slice(2, 7).map((news) => ({
-          id: news._id || news.slug,
-          title: news.title,
-          image: news.image || '/placeholder.jpg',
-          slug: news.slug,
-          section: news.category || '',
-          category: news.subCategory || ''
-        }))
-      );
-    } else {
-      setArticle(null);
+    if (!foundArticle) {
+      notFound();
     }
 
-    setIsProcessing(false);
-  }, [slug, category, subCategory, context?.allNews]);
+    const articleData = {
+      id: foundArticle._id || foundArticle.slug,
+      section: foundArticle.category || category,
+      category: foundArticle.subCategory || subCategory,
+      title: foundArticle.title,
+      subtitle: foundArticle.summary || '',
+      image: foundArticle.image || '/placeholder.jpg',
+      date: foundArticle.publishedAt || new Date().toISOString(),
+      author: 'News Desk',
+      readTime: '5 min read',
+      content: foundArticle.content || 'Content not available',
+      tags: foundArticle.tags || [],
+      slug: foundArticle.slug,
+      targetLink: foundArticle.targetLink,
+      nominationLink: foundArticle.nominationLink
+    };
 
-  if (!context) {
+    // Replicate sidebar and related logic
+    const related = allNews
+      .filter((news) =>
+        news.category === foundArticle.category &&
+        news.subCategory === foundArticle.subCategory &&
+        news.slug !== slug
+      )
+      .slice(0, 3)
+      .map((news) => ({
+        id: news._id || news.slug,
+        title: news.title,
+        slug: news.slug,
+        section: news.category,
+        category: news.subCategory,
+        image: news.image
+      }));
+
+    const categoryNews = allNews.filter((news) => news.category === foundArticle.category);
+
+    const topNews = categoryNews.slice(0, 2).map((news) => ({
+      id: news._id || news.slug,
+      title: news.title,
+      image: news.image || '/placeholder.jpg',
+      slug: news.slug,
+      section: news.category || '',
+      category: news.subCategory || ''
+    }));
+
+    const recommendedStories = categoryNews.slice(2, 7).map((news) => ({
+      id: news._id || news.slug,
+      title: news.title,
+      image: news.image || '/placeholder.jpg',
+      slug: news.slug,
+      section: news.category || '',
+      category: news.subCategory || ''
+    }));
+
+    return (
+      <ArticlePageClient
+        article={articleData}
+        relatedArticles={related}
+        topNews={topNews}
+        recommendedStories={recommendedStories}
+        section={category}
+        category={subCategory}
+      />
+    );
+
+  } catch (error) {
+    console.error("Article Detail server-side error:", error);
     return (
       <div style={{ padding: '4rem 2rem', textAlign: 'center' }}>
-        <h2>Context not available</h2>
+        <h2>Error loading article</h2>
+        <p>Please try again later.</p>
       </div>
     );
   }
-
-  if (context.loading || isProcessing) {
-    return (
-      <div style={{ padding: '4rem 2rem', textAlign: 'center' }}>
-        <h2>Loading...</h2>
-      </div>
-    );
-  }
-
-  if (context.error) {
-    return (
-      <div style={{ padding: '4rem 2rem', textAlign: 'center' }}>
-        <h2>Error: {context.error}</h2>
-        <button onClick={context.refetch}>Retry</button>
-      </div>
-    );
-  }
-
-  if (!article) {
-    notFound();
-  }
-
-  return (
-    <ArticlePageClient
-      article={article}
-      relatedArticles={relatedArticles}
-      topNews={topNews}
-      recommendedStories={recommendedStories}
-      section={category}
-      category={subCategory}
-    />
-  );
 }

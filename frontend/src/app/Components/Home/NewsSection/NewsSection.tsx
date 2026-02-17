@@ -28,6 +28,8 @@ interface DisplayNewsItem {
   subCategory?: string;
   slug: string;
   isVideo: boolean;
+  targetLink?: string;
+  nominationLink?: string;
 }
 
 const NewsSection: React.FC = () => {
@@ -51,7 +53,7 @@ const NewsSection: React.FC = () => {
     const category = item.category || 'news';
     const subCategory = item.subCategory || 'general';
     const slug = item.slug;
-    
+
     router.push(`/Pages/${category}/${subCategory}/${slug}`);
   };
 
@@ -69,6 +71,8 @@ const NewsSection: React.FC = () => {
         subCategory: item.subCategory || 'General',
         slug: item.slug,
         isVideo: item.tags?.includes('video') || false,
+        targetLink: (item as any).targetLink,
+        nominationLink: (item as any).nominationLink,
       }))
       .slice(0, 4);
   }, [allNews, loading]);
@@ -126,7 +130,7 @@ const NewsSection: React.FC = () => {
       <div className={styles.container}>
         <div className={styles.newsGrid}>
           {/* Featured Hero Article */}
-          <article 
+          <article
             className={styles.featuredArticle}
             onClick={() => handleCardClick(featuredArticle)}
             style={{ cursor: 'pointer' }}
@@ -140,7 +144,35 @@ const NewsSection: React.FC = () => {
             <div className={styles.featuredContent}>
               <h1 className={styles.featuredTitle}>{featuredArticle.title}</h1>
               <p className={styles.featuredDescription}>{featuredArticle.description}</p>
-              <button 
+
+              {(featuredArticle.category?.toUpperCase() === "AWARDS" || featuredArticle.category?.toLowerCase() === "awards") && (
+                <div className={styles.awardActions}>
+                  {featuredArticle.targetLink && (
+                    <a
+                      href={featuredArticle.targetLink.startsWith('http') ? featuredArticle.targetLink : `https://${featuredArticle.targetLink}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.moreInfoBtn}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      More Info
+                    </a>
+                  )}
+                  {featuredArticle.nominationLink && (
+                    <a
+                      href={featuredArticle.nominationLink.startsWith('http') ? featuredArticle.nominationLink : `https://${featuredArticle.nominationLink}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.nominationBtn}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      Nomination
+                    </a>
+                  )}
+                </div>
+              )}
+
+              <button
                 className={styles.readMore}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -157,8 +189,8 @@ const NewsSection: React.FC = () => {
 
           {/* Regular Article Cards */}
           {regularArticles.map((item) => (
-            <article 
-              key={item.id} 
+            <article
+              key={item.id}
               className={styles.articleCard}
               onClick={() => handleCardClick(item)}
               style={{ cursor: 'pointer' }}
@@ -183,6 +215,34 @@ const NewsSection: React.FC = () => {
               <div className={styles.cardContent}>
                 <h3 className={styles.cardTitle}>{item.title}</h3>
                 <p className={styles.cardDescription}>{item.description}</p>
+
+                {(item.category?.toUpperCase() === "AWARDS" || item.category?.toLowerCase() === "awards") && (
+                  <div className={styles.awardActions}>
+                    {item.targetLink && (
+                      <a
+                        href={item.targetLink.startsWith('http') ? item.targetLink : `https://${item.targetLink}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.moreInfoBtn}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Info
+                      </a>
+                    )}
+                    {item.nominationLink && (
+                      <a
+                        href={item.nominationLink.startsWith('http') ? item.nominationLink : `https://${item.nominationLink}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.nominationBtn}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Nominate
+                      </a>
+                    )}
+                  </div>
+                )}
+
                 <div className={styles.cardMeta}>
                   <span style={{ textTransform: 'uppercase', fontSize: '0.75rem', fontWeight: 600, color: '#8b5cf6' }}>
                     {item.category}

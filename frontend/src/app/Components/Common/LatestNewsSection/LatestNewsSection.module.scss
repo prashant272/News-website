@@ -417,3 +417,40 @@
     font-size: 0.875rem;
   }
 }
+
+.awardActions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+
+  .moreInfoBtn, .nominationBtn {
+    flex: 1;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .moreInfoBtn {
+    background: #f3f4f6;
+    color: #4b5563;
+    border: 1px solid #e5e7eb;
+
+    &:hover {
+      background: #e5e7eb;
+    }
+  }
+
+  .nominationBtn {
+    background: #ef4444;
+    color: white;
+
+    &:hover {
+      background: #dc2626;
+    }
+  }
+}

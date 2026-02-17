@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "./Components/Common/Navbar/Navbar";
 import Footer from "./Components/Common/Footer/Footer";
+import WhatsAppButton from "./Components/Common/WhatsAppButton/WhatsAppButton";
 import { NewsProvider } from "./context/NewsContext";
 import { UserProvider } from "./Dashboard/Context/ManageUserContext";
 import { ToastContainer } from "react-toastify";
@@ -81,6 +82,7 @@ export default function RootLayout({
                 {children}
               </main>
               <Footer />
+              <WhatsAppButton />
             </UserProvider>
           </NewsProvider>
         </ThemeProvider>

@@ -22,6 +22,8 @@ exports.AddNews = async (req, res) => {
       image,
       tags = [],
       section,
+      targetLink,
+      nominationLink,
     } = req.body;
 
     if (!title || !slug || !category || !content || !section) {
@@ -70,6 +72,8 @@ exports.AddNews = async (req, res) => {
       content,
       image: imageUrl || null,
       tags,
+      targetLink: targetLink || null,
+      nominationLink: nominationLink || null,
     };
 
     newsConfig[section].unshift(newItem);

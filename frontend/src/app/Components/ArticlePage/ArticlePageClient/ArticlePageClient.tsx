@@ -9,7 +9,7 @@ import TopNewsSidebar from '../TopNewsSidebar/TopNewsSidebar';
 import RelatedArticles from '../RelatedArticles/RelatedArticles';
 import ArticleTags from '../ArticleTags/ArticleTags';
 import MoreStoriesSection from '../../Common/MoreFromSection/MoreFromSection';
-import { useActiveAds } from '@/app/hooks/useAds'; 
+import { useActiveAds } from '@/app/hooks/useAds';
 import RecommendedStories from '../RecommendedStories/RecommendedStories';
 import SocialShare from '../../Common/SocialShare/SocialShare';
 
@@ -18,14 +18,16 @@ interface ArticleData {
   section: string;
   category: string;
   title: string;
-  subtitle: string;  
+  subtitle: string;
   image: string;
   date: string;
   author?: string;
   readTime?: string;
-  content: string;
   tags?: string[];
+  content: string;
   slug: string;
+  targetLink?: string;
+  nominationLink?: string;
 }
 
 interface SidebarNewsItem {
@@ -71,7 +73,7 @@ export default function ArticlePageClient({
   section,
   category
 }: ArticlePageClientProps) {
-  
+
   const { data: ads, loading: adsLoading } = useActiveAds();
   const activeAds = (ads || []).filter(ad => ad.isActive);
 
@@ -84,7 +86,7 @@ export default function ArticlePageClient({
     const interval = setInterval(() => {
       setTopAdIndex(prev => (prev + 1) % activeAds.length);
       setBottomAdIndex(prev => (prev + 1) % activeAds.length);
-    }, 6000); 
+    }, 6000);
 
     return () => clearInterval(interval);
   }, [activeAds.length]);
@@ -150,7 +152,7 @@ export default function ArticlePageClient({
   return (
     <div className={styles.articlePage}>
       <div className={styles.container}>
-        <Breadcrumb 
+        <Breadcrumb
           section={section}
           category={category}
           title={article.title}
@@ -164,9 +166,40 @@ export default function ArticlePageClient({
             {article.tags && article.tags.length > 0 && (
               <ArticleTags tags={article.tags} />
             )}
+
+            {(article.category?.toUpperCase() === "AWARDS" || section?.toUpperCase() === "AWARDS") && (
+              <div className={styles.articleAwardActions}>
+                {article.targetLink && (
+                  <a
+                    href={article.targetLink.startsWith('http') ? article.targetLink : `https://${article.targetLink}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.articleMoreInfoBtn}
+                  >
+                    <span>Visit More Info</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                    </svg>
+                  </a>
+                )}
+                {article.nominationLink && (
+                  <a
+                    href={article.nominationLink.startsWith('http') ? article.nominationLink : `https://${article.nominationLink}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.articleNominationBtn}
+                  >
+                    <span>Submit Nomination</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                    </svg>
+                  </a>
+                )}
+              </div>
+            )}
             <div className={styles.shareSection}>
-              <SocialShare 
-                url={typeof window !== 'undefined' ? window.location.href : `https://yoursite.com/${article.section}/${article.category}/${article.slug}`}
+              <SocialShare
+                url={typeof window !== 'undefined' ? window.location.href : `https://www.primetimemedia.in/Pages/${article.section}/${article.category}/${article.slug}`}
                 title={article.title}
                 description={article.subtitle}
                 image={article.image}
@@ -180,9 +213,9 @@ export default function ArticlePageClient({
               <div className={styles.advertisement}>ADVERTISEMENT</div>
               {renderAd(topAdIndex)}
             </div>
-            
+
             <TopNewsSidebar news={topNews} />
-            
+
             <div className={styles.adSpace}>
               <div className={styles.advertisement}>ADVERTISEMENT</div>
               {renderAd(bottomAdIndex)}
