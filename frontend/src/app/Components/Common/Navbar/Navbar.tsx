@@ -95,7 +95,7 @@ const Navbar: React.FC = () => {
     <nav className={`${styles.navbarWrapper} ${scrolled ? styles.scrolled : ''}`}>
       <div className={styles.container}>
 
-        <div 
+        <div
           className={styles.adBanner}
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
@@ -156,11 +156,12 @@ const Navbar: React.FC = () => {
                 src={logo}
                 alt="PrimeTime Logo"
                 className={styles.logoImg}
-                width={48}
-                height={48}
+                width={120}
+                height={120}
                 priority
               />
-              <span className={styles.brandName}>Prime Time</span>
+              {/* prime time text */}
+              <span className={styles.brandName}></span>
             </Link>
           </div>
 
