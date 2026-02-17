@@ -1,3 +1,4 @@
+'use client';
 import { baseURL } from "@/Utils/Utils";
 import { useCallback, useEffect, useState, useMemo } from "react";
 
