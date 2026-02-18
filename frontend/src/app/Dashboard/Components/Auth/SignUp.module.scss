@@ -1,3 +1,5 @@
+@use "sass:color";
+
 $page-bg: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
 
 $card-bg: rgba(255, 255, 255, 0.06);
@@ -129,9 +131,17 @@ $transition: all 0.2s ease;
   height: 1rem;
 }
 
-.USER { color: #60a5fa; }
-.ADMIN { color: #fb923c; }
-.SUPER_ADMIN { color: #c084fc; }
+.USER {
+  color: #60a5fa;
+}
+
+.ADMIN {
+  color: #fb923c;
+}
+
+.SUPER_ADMIN {
+  color: #c084fc;
+}
 
 .grid {
   display: grid;
@@ -276,7 +286,9 @@ $transition: all 0.2s ease;
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .infoBox {
@@ -370,7 +382,7 @@ $transition: all 0.2s ease;
   color: white;
 
   &:hover {
-    background: darken($warning, 8%);
+    background: color.adjust($warning, $lightness: -8%);
   }
 }
 
@@ -428,7 +440,7 @@ $transition: all 0.2s ease;
   text-decoration: underline;
 
   &:hover {
-    color: lighten($teal, 10%);
+    color: color.adjust($teal, $lightness: 10%);
   }
 
   &:disabled {

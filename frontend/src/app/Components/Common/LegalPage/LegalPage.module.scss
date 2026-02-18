@@ -2,158 +2,225 @@
 
 .legalWrapper {
     min-height: 100vh;
-    padding: 8rem 2rem 5rem;
+    padding: 10rem 2rem 6rem; // Increased top padding for breather
     background: var(--background);
     color: var(--text-color);
     font-family: 'Inter', sans-serif;
     transition: background-color 0.4s ease, color 0.4s ease;
+    background-image:
+        radial-gradient(circle at 0% 0%, rgba(var(--primary-rgb, 59, 130, 246), 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 100% 100%, rgba(var(--accent-rgb, 147, 51, 234), 0.03) 0%, transparent 50%);
 
     @media (max-width: 768px) {
-        padding: 6rem 1rem 4rem;
+        padding: 8rem 1rem 4rem;
     }
 }
 
 .container {
-    max-width: 900px;
+    max-width: 960px; // Slightly wider
     margin: 0 auto;
-    background: var(--card-bg, rgba(255, 255, 255, 0.05));
-    backdrop-filter: blur(12px);
+    background: var(--card-bg, rgba(255, 255, 255, 0.02));
+    backdrop-filter: blur(20px); // More blur for premium feel
     border: 1px solid var(--border);
-    border-radius: 24px;
-    padding: 4rem;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+    border-radius: 32px; // Larger radius
+    padding: 5rem 6rem; // More generous padding
+    box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 6px;
+        background: linear-gradient(90deg, var(--primary), var(--accent));
+        opacity: 0.8;
+    }
+
+    @media (max-width: 992px) {
+        padding: 4rem 3rem;
+    }
 
     @media (max-width: 768px) {
-        padding: 2.5rem 1.5rem;
-        border-radius: 16px;
+        padding: 3rem 1.75rem;
+        border-radius: 20px;
     }
 }
 
 .header {
-    margin-bottom: 4rem;
+    margin-bottom: 5rem;
     text-align: center;
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 3rem;
+    position: relative;
 
     h1 {
         font-family: 'Lora', serif;
-        font-size: 3rem;
+        font-size: 3.5rem;
         font-weight: 700;
         color: var(--heading-color);
-        margin-bottom: 1rem;
-        letter-spacing: -0.02em;
+        margin-bottom: 0;
+        letter-spacing: -0.03em;
+        line-height: 1.1;
 
         @media (max-width: 768px) {
-            font-size: 2.2rem;
+            font-size: 2.5rem;
         }
     }
 
-    .effectiveDate {
-        font-size: 1.1rem;
-        color: var(--primary);
-        font-weight: 500;
-        opacity: 0.9;
+    &::after {
+        content: '';
+        display: block;
+        width: 80px;
+        height: 4px;
+        background: var(--primary);
+        margin: 2.5rem auto 0;
+        border-radius: 2px;
+        opacity: 0.6;
     }
 }
 
 .content {
-    line-height: 1.8;
-    font-size: 1.1rem;
-    color: var(--text-secondary);
+    line-height: 1.9; // More airy Line height
+    font-size: 1.05rem;
+    color: var(--text-color);
+    opacity: 0.9;
 
     h2 {
         font-family: 'Lora', serif;
-        font-size: 1.8rem;
+        font-size: 2rem;
         font-weight: 700;
         color: var(--heading-color);
-        margin: 3rem 0 1.5rem;
+        margin: 4.5rem 0 1.8rem;
         display: flex;
         align-items: center;
-        gap: 1rem;
+        gap: 1.2rem;
+        letter-spacing: -0.01em;
 
         &::before {
             content: '';
             width: 4px;
-            height: 24px;
-            background: var(--primary);
-            border-radius: 2px;
+            height: 28px;
+            background: linear-gradient(180deg, var(--primary), var(--accent));
+            border-radius: 4px;
         }
 
         @media (max-width: 768px) {
-            font-size: 1.5rem;
+            font-size: 1.6rem;
+            margin: 3.5rem 0 1.5rem;
         }
     }
 
     h3 {
-        font-size: 1.3rem;
+        font-size: 1.4rem;
         font-weight: 600;
         color: var(--heading-color);
-        margin: 2rem 0 1rem;
+        margin: 2.5rem 0 1.2rem;
+        letter-spacing: -0.01em;
     }
 
     p {
-        margin-bottom: 1.5rem;
+        margin-bottom: 1.8rem;
     }
 
     ul {
         list-style: none;
-        padding-left: 0;
-        margin-bottom: 2rem;
+        padding-left: 0.5rem;
+        margin-bottom: 2.5rem;
 
         li {
             position: relative;
-            padding-left: 1.5rem;
-            margin-bottom: 0.8rem;
+            padding-left: 2rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: flex-start;
 
             &::before {
-                content: "•";
+                content: "→"; // More modern arrow
                 color: var(--primary);
                 font-weight: bold;
                 position: absolute;
                 left: 0;
+                transition: transform 0.3s ease;
+            }
+
+            &:hover::before {
+                transform: translateX(4px);
             }
         }
     }
 
     .intro {
-        font-size: 1.2rem;
+        font-size: 1.35rem;
         color: var(--heading-color);
-        margin-bottom: 3rem;
+        margin-bottom: 4rem;
         font-weight: 500;
+        line-height: 1.6;
+        font-family: 'Lora', serif;
+        font-style: italic;
+        opacity: 0.85;
+
+        @media (max-width: 768px) {
+            font-size: 1.15rem;
+        }
     }
 
     .companyName {
         color: var(--primary);
-        font-weight: 600;
+        font-weight: 700;
     }
 
     .contactBox {
-        margin-top: 4rem;
-        padding: 2.5rem;
-        background: rgba(var(--primary-rgb, 59, 130, 246), 0.05);
-        border-radius: 16px;
-        border: 1px dashed var(--primary);
+        margin-top: 6rem;
+        padding: 3.5rem;
+        background: rgba(var(--primary-rgb, 59, 130, 246), 0.03);
+        border-radius: 24px;
+        border: 1px solid var(--border);
+        box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.05);
 
-        h3 {
+        h2 {
             margin-top: 0;
-            color: var(--primary);
+            color: var(--heading-color);
+            margin-bottom: 2rem;
+
+            &::before {
+                display: none;
+            }
+        }
+
+        .contactDetails {
+            display: grid;
+            gap: 1.2rem;
         }
 
         .contactItem {
             display: block;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0;
+            font-size: 1.1rem;
 
             strong {
                 color: var(--heading-color);
+                width: 140px;
+                display: inline-block;
+
+                @media (max-width: 600px) {
+                    display: block;
+                    width: auto;
+                    margin-bottom: 0.2rem;
+                }
             }
         }
     }
 }
 
-// Light mode specific overrides if needed (assuming variables handle most)
 :global(.light-mode) {
     .container {
         background: #ffffff;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.08);
+    }
+
+    .content .contactBox {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
     }
 }

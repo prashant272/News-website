@@ -179,9 +179,49 @@
   border-bottom: 1px solid #e5e7eb;
 }
 
+.authorAttribution {
+  margin-top: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9375rem;
+  color: var(--muted-foreground);
+  padding: 0.75rem;
+  background: var(--muted);
+  border-radius: 10px;
+  border: 1px solid var(--border);
+
+  .authorPrefix {
+    font-weight: 500;
+    color: var(--text-color);
+    opacity: 0.8;
+  }
+
+  .authorName {
+    font-weight: 700;
+    color: var(--primary);
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background-color: var(--primary);
+      opacity: 0.3;
+    }
+  }
+}
+
+
 .adSpace>div:not(.advertisement):hover img {
   transform: scale(1.03);
 }
+
 .articleAwardActions {
   display: flex;
   flex-wrap: wrap;
@@ -192,7 +232,8 @@
   border-radius: 12px;
   border: 1px solid #e5e7eb;
 
-  .articleMoreInfoBtn, .articleNominationBtn {
+  .articleMoreInfoBtn,
+  .articleNominationBtn {
     flex: 1;
     min-width: 200px;
     display: flex;
@@ -248,7 +289,8 @@
     flex-direction: column;
     padding: 16px;
 
-    .articleMoreInfoBtn, .articleNominationBtn {
+    .articleMoreInfoBtn,
+    .articleNominationBtn {
       width: 100%;
     }
   }

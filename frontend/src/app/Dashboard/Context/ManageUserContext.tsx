@@ -1,14 +1,14 @@
 "use client";
 
 import { API, baseURL } from "@/Utils/Utils";
-import React, { 
-  createContext, 
-  useEffect, 
-  useReducer, 
-  useState, 
-  ReactNode, 
+import React, {
+  createContext,
+  useEffect,
+  useReducer,
+  useState,
+  ReactNode,
   Dispatch,
-  useCallback 
+  useCallback
 } from "react";
 import { useRouter } from "next/navigation";
 
@@ -16,12 +16,16 @@ interface UserState {
   token: string | null;
   userId: string | null;
   profilepic: string | null;
+  name: string | null;
+  role: string | null;
 }
 
 const defaultState: UserState = {
   token: null,
   userId: null,
   profilepic: null,
+  name: null,
+  role: null,
 };
 
 type ApiResponse = {
@@ -80,7 +84,7 @@ const reducer: React.Reducer<UserState, UserAction> = (state: UserState, action:
     }
 
     case "SIGN_OUT": {
-      const signoutState: UserState = { token: null, userId: null, profilepic: null };
+      const signoutState: UserState = { token: null, userId: null, profilepic: null, name: null, role: null };
       if (typeof window !== "undefined") {
         document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax";
         document.cookie = "userId=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax";
@@ -159,8 +163,8 @@ async function StoreSessionData(body: ApiBody): Promise<ApiResponse> {
 
 async function MemberActivitylog(body: ActivityBody): Promise<ApiResponse> {
   try {
-    const response = await API.get(`${baseURL}/activity/getActivityforMember`, { 
-      params: { companyId: body.companyId, userId: body.userId } 
+    const response = await API.get(`${baseURL}/activity/getActivityforMember`, {
+      params: { companyId: body.companyId, userId: body.userId }
     });
     return { status: response?.status, data: response?.data };
   } catch (error: any) {
@@ -170,8 +174,8 @@ async function MemberActivitylog(body: ActivityBody): Promise<ApiResponse> {
 
 async function GetSystemAnnouncement(body: { companyId: string }): Promise<ApiResponse> {
   try {
-    const response = await API.get(`${baseURL}/SystemAnnouncements/GetSystemAnnouncements`, { 
-      params: { companyId: body.companyId } 
+    const response = await API.get(`${baseURL}/SystemAnnouncements/GetSystemAnnouncements`, {
+      params: { companyId: body.companyId }
     });
     return { status: response?.status, data: response?.data };
   } catch (error: any) {
@@ -225,7 +229,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   }, [router]);
 
   if (!initialStateLoaded) {
-    return <div>Loading...</div>; 
+    return <div>Loading...</div>;
   }
 
   return (

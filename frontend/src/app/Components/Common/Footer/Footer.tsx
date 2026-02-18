@@ -33,24 +33,21 @@ const Footer: React.FC = () => {
       { name: 'Lifestyle', href: '/Pages/lifestyle' },
       { name: 'Health', href: '/Pages/health' }
     ],
-    resources: [
-      { name: 'Press Releases', href: '/press' },
-      { name: 'Editorial Policy', href: '/editorial' },
-      { name: 'Fact Check', href: '/fact-check' },
-      { name: 'Archives', href: '/archives' },
-      { name: 'RSS Feed', href: '/rss' }
+    policy: [
+      { name: 'Privacy Policy', href: '/privacy' },
+      { name: 'Terms of Service', href: '/terms' },
+      { name: 'Cookie Policy', href: '/cookies' },
+      { name: 'Disclaimer', href: '/disclaimer' }
     ]
   }
 
   const socialLinks = [
-    { icon: FaFacebookF, href: 'https://facebook.com', label: 'Facebook', platform: 'facebook' },
-    { icon: FaXTwitter, href: 'https://twitter.com', label: 'X (Twitter)', platform: 'x' },
-    { icon: FaInstagram, href: 'https://instagram.com', label: 'Instagram', platform: 'instagram' },
-    { icon: FaYoutube, href: 'https://youtube.com', label: 'YouTube', platform: 'youtube' },
+    { icon: FaFacebookF, href: 'https://www.facebook.com/primetimeresearch/', label: 'Facebook', platform: 'facebook' },
+    { icon: FaXTwitter, href: 'https://x.com/Prime_Time_Medi', label: 'X (Twitter)', platform: 'x' },
+    { icon: FaInstagram, href: 'https://www.instagram.com/primetimeresearchmedia/', label: 'Instagram', platform: 'instagram' },
+    { icon: FaYoutube, href: 'https://www.youtube.com/@primetimermedia', label: 'YouTube', platform: 'youtube' },
     { icon: FaLinkedinIn, href: 'https://linkedin.com', label: 'LinkedIn', platform: 'linkedin' },
-    { icon: FaWhatsapp, href: 'https://wa.me/9810882769', label: 'WhatsApp', platform: 'whatsapp' },
-    { icon: FaTelegram, href: 'https://t.me/primetimenews', label: 'Telegram', platform: 'telegram' },
-    { icon: FaRss, href: '/rss', label: 'RSS', platform: 'rss' }
+    { icon: FaWhatsapp, href: 'https://whatsapp.com/channel/0029Vb314OB05MUbS6xEvU3g', label: 'WhatsApp', platform: 'whatsapp' }
   ]
 
   const contactInfo = {
@@ -131,9 +128,9 @@ const Footer: React.FC = () => {
           </div>
 
           <div className={styles.section}>
-            <h3 className={styles.sectionTitle}>Resources</h3>
+            <h3 className={styles.sectionTitle}>Policy</h3>
             <ul className={styles.linkList}>
-              {footerLinks.resources.map((link, index) => (
+              {footerLinks.policy.map((link, index) => (
                 <li key={index} className={styles.linkItem}>
                   <FaChevronRight className={styles.chevron} />
                   <Link href={link.href} className={styles.link}>{link.name}</Link>
@@ -170,15 +167,6 @@ const Footer: React.FC = () => {
             <p className={styles.copyright}>
               © {year} Prime Time Research Media Pvt. Ltd. All rights reserved.
             </p>
-            <div className={styles.legalLinks}>
-              <Link href="/privacy" className={styles.legalLink}>Privacy Policy</Link>
-              <span className={styles.separator}>•</span>
-              <Link href="/terms" className={styles.legalLink}>Terms of Service</Link>
-              <span className={styles.separator}>•</span>
-              <Link href="/cookies" className={styles.legalLink}>Cookie Policy</Link>
-              <span className={styles.separator}>•</span>
-              <Link href="/disclaimer" className={styles.legalLink}>Disclaimer</Link>
-            </div>
           </div>
         </div>
       </div>

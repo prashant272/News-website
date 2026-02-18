@@ -40,6 +40,7 @@ const Navbar: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
   const [currentAdIndex, setCurrentAdIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [visibleItems, setVisibleItems] = useState(1);
 
   const { theme, toggleTheme } = useTheme();
   const newsContext = useNewsContext();
@@ -75,14 +76,29 @@ const Navbar: React.FC = () => {
   }, [isMobileMenuOpen]);
 
   useEffect(() => {
-    if (!ads || ads.length <= 1 || adsLoading || isPaused) return;
+    const updateVisibleItems = () => {
+      if (window.innerWidth >= 1200) setVisibleItems(3);
+      else if (window.innerWidth >= 768) setVisibleItems(2);
+      else setVisibleItems(1);
+    };
+
+    updateVisibleItems();
+    window.addEventListener('resize', updateVisibleItems);
+    return () => window.removeEventListener('resize', updateVisibleItems);
+  }, []);
+
+  useEffect(() => {
+    if (!ads || ads.length <= visibleItems || adsLoading || isPaused) return;
 
     const interval = setInterval(() => {
-      setCurrentAdIndex(prev => (prev + 1) % ads.length);
-    }, 6000);
+      setCurrentAdIndex(prev => {
+        const next = prev + 1;
+        return next > ads.length - visibleItems ? 0 : next;
+      });
+    }, 3000);
 
     return () => clearInterval(interval);
-  }, [ads, adsLoading, isPaused]);
+  }, [ads?.length, adsLoading, isPaused, visibleItems]);
 
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname.startsWith(href);
@@ -102,33 +118,47 @@ const Navbar: React.FC = () => {
         >
           {adsLoading ? (
             <div className={styles.adLoading}>Loading advertisements...</div>
-          ) : currentAd ? (
-            <a
-              href={currentAd.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.adLink}
-            >
-              <div className={styles.adImageWrapper}>
-                <Image
-                  src={currentAd.imageUrl}
-                  alt={currentAd.title || "Advertisement"}
-                  fill
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 970px"
-                  className={styles.adImage}
-                  priority={currentAdIndex === 0}
-                />
+          ) : ads && ads.length > 0 ? (
+            <div className={styles.adCarousel}>
+              <div
+                className={styles.adTrack}
+                style={{
+                  transform: `translateX(-${currentAdIndex * (100 / visibleItems)}%)`,
+                  transition: 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)'
+                }}
+              >
+                {ads.map((ad, index) => (
+                  <div key={ad._id || index} className={styles.adItem}>
+                    <a
+                      href={ad.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.adLink}
+                    >
+                      <div className={styles.adImageWrapper}>
+                        <Image
+                          src={ad.imageUrl}
+                          alt={ad.title || "Advertisement"}
+                          fill
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          className={styles.adImage}
+                          priority={index < 3}
+                        />
+                      </div>
+                    </a>
+                  </div>
+                ))}
               </div>
-            </a>
+            </div>
           ) : (
             <div className={styles.adPlaceholder}>
-              Advertisement Space – Recommended 970×250 / 728×90
+              Advertisement Space – Premium Placements
             </div>
           )}
 
-          {ads && ads.length > 1 && (
+          {ads && ads.length > visibleItems && (
             <div className={styles.adDots}>
-              {ads.map((_, index) => (
+              {Array.from({ length: Math.max(0, ads.length - visibleItems + 1) }).map((_, index) => (
                 <button
                   key={index}
                   className={`${styles.dot} ${index === currentAdIndex ? styles.active : ''}`}

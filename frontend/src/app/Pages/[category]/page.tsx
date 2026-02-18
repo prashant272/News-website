@@ -146,13 +146,15 @@ export default function CategoryPage() {
         isArticle={false}
       />
 
-      <LatestNewsSection
-        sectionTitle={`Latest ${categoryTitle} News`}
-        overrideSection={category}
-        showReadMore={true}
-        readMoreLink={`/Pages/${category}`}
-        columns={3}
-      />
+      {category?.toLowerCase() !== 'awards' && (
+        <LatestNewsSection
+          sectionTitle={`Latest ${categoryTitle} News`}
+          overrideSection={category}
+          showReadMore={true}
+          readMoreLink={`/Pages/${category}`}
+          columns={3}
+        />
+      )}
 
       <VideosSection />
 

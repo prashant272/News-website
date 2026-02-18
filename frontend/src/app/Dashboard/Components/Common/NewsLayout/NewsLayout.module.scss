@@ -1,3 +1,4 @@
+@use "sass:color";
 // Enhanced News Layout Styles
 
 // Color Palette
@@ -74,16 +75,19 @@ $transition-slow: 0.3s ease;
   width: 12px;
   height: 12px;
   border-radius: 999px;
-  background: radial-gradient(circle, $accent-primary, darken($accent-primary, 10%));
+  background: radial-gradient(circle, $accent-primary, color.adjust($accent-primary, $lightness: -10%));
   box-shadow: 0 0 12px rgba($accent-primary, 0.5);
   animation: pulse 2s ease-in-out infinite;
 }
 
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
     transform: scale(1);
   }
+
   50% {
     opacity: 0.8;
     transform: scale(1.1);
@@ -144,7 +148,7 @@ $transition-slow: 0.3s ease;
     background: linear-gradient(135deg, rgba($accent-primary, 0.2), rgba($accent-secondary, 0.1));
     color: $accent-primary;
     border: 1px solid rgba($accent-primary, 0.3);
-    
+
     &::after {
       content: '';
       position: absolute;
@@ -309,7 +313,7 @@ $transition-slow: 0.3s ease;
 
 .sidebar {
   border-right: 1px solid $border-color;
-  background: linear-gradient(180deg, $bg-primary 0%, darken($bg-primary, 2%) 100%);
+  background: linear-gradient(180deg, $bg-primary 0%, color.adjust($bg-primary, $lightness: -2%) 100%);
   padding: $spacing-lg;
   display: flex;
   flex-direction: column;
@@ -544,7 +548,7 @@ $transition-slow: 0.3s ease;
   flex-direction: column;
   min-width: 0;
   overflow: hidden;
-  background: radial-gradient(circle at top left, $bg-primary, darken($bg-primary, 3%) 60%);
+  background: radial-gradient(circle at top left, $bg-primary, color.adjust($bg-primary, $lightness: -3%) 60%);
 }
 
 .mainHeader {
@@ -610,7 +614,7 @@ $transition-slow: 0.3s ease;
   }
 
   &Primary {
-    background: linear-gradient(135deg, $accent-primary, darken($accent-primary, 8%));
+    background: linear-gradient(135deg, $accent-primary, color.adjust($accent-primary, $lightness: -8%));
     border-color: $accent-primary;
     color: white;
     box-shadow: 0 4px 12px rgba($accent-primary, 0.3);
@@ -666,9 +670,12 @@ $transition-slow: 0.3s ease;
 }
 
 @keyframes float {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-10px);
   }
@@ -763,6 +770,7 @@ $transition-slow: 0.3s ease;
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

@@ -38,12 +38,12 @@ export default function SubCategoryPage() {
   const normalize = (str: string | undefined) =>
     str
       ? decodeURIComponent(str)
-          .toLowerCase()
-          .replace(/&/g, 'and')
-          .replace(/[^a-z0-9]+/g, '-')
-          .replace(/-+/g, '-')
-          .replace(/^-|-$/g, '')
-          .trim()
+        .toLowerCase()
+        .replace(/&/g, 'and')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '')
+        .trim()
       : '';
 
   const cleanDisplay = (text: string | undefined): string => {
@@ -172,7 +172,7 @@ export default function SubCategoryPage() {
         gridColumns={3}
       />
 
-      <SocialShare 
+      <SocialShare
         url={currentUrl || `https://yoursite.com/${category}/${subCategory}`}
         title={`${pageTitle} - Latest News & Updates`}
         description={`Explore the latest ${pageTitle} news, trending stories, and in-depth coverage. Stay updated with breaking news and analysis.`}
@@ -180,13 +180,15 @@ export default function SubCategoryPage() {
         isArticle={false}
       />
 
-      <LatestNewsSection
-        sectionTitle={`Latest ${pageTitle} News`}
-        // newsData={transformedLatestNews}
-        showReadMore={true}
-        readMoreLink={`/Pages/${category}/${subCategory}`}
-        columns={3}
-      />
+      {category?.toLowerCase() !== 'awards' && (
+        <LatestNewsSection
+          sectionTitle={`Latest ${pageTitle} News`}
+          // newsData={transformedLatestNews}
+          showReadMore={true}
+          readMoreLink={`/Pages/${category}/${subCategory}`}
+          columns={3}
+        />
+      )}
 
       <VideosSection />
 

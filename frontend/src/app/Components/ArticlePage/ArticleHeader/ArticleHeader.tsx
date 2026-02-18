@@ -23,8 +23,22 @@ export default function ArticleHeader({ article }: ArticleHeaderProps) {
   return (
     <div className={styles.articleHeader}>
       <h1 className={styles.title}>{article.title}</h1>
-      
+
       <p className={styles.subtitle}>{article.subtitle}</p>
+
+      <div className={styles.meta}>
+        <span className={styles.author}>
+          {article.author || 'Prime Time News'}
+        </span>
+        <span className={styles.date}>
+          {formattedDate}
+        </span>
+        {article.readTime && (
+          <span className={styles.readTime}>
+            {article.readTime}
+          </span>
+        )}
+      </div>
 
       <div className={styles.featuredImage}>
         <Image

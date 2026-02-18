@@ -24,6 +24,8 @@ exports.AddNews = async (req, res) => {
       section,
       targetLink,
       nominationLink,
+      author,
+      status,
     } = req.body;
 
     if (!title || !slug || !category || !content || !section) {
@@ -74,6 +76,8 @@ exports.AddNews = async (req, res) => {
       tags,
       targetLink: targetLink || null,
       nominationLink: nominationLink || null,
+      author: author || "Prime Time News",
+      status: status || "draft",
     };
 
     newsConfig[section].unshift(newItem);
@@ -99,9 +103,22 @@ exports.AddNews = async (req, res) => {
 
 exports.getAllNews = async (req, res) => {
   try {
+    const { includeDrafts } = req.query;
     const news = await NewsConfig.find({ isActive: true })
       .sort({ createdAt: -1 })
-      .select("-permissions -__v");
+      .select("-permissions -__v").lean();
+
+    if (includeDrafts !== 'true' && news.length > 0) {
+      // Filter out drafts from each section array
+      const config = news[0]; // Assuming only one active config
+      const sections = ['india', 'sports', 'business', 'technology', 'entertainment', 'lifestyle', 'world', 'health', 'state', 'education', 'environment', 'science', 'opinion', 'auto', 'travel', 'awards'];
+
+      sections.forEach(sec => {
+        if (config[sec]) {
+          config[sec] = config[sec].filter(item => item.status === 'published');
+        }
+      });
+    }
 
     res.status(200).json({
       success: true,
@@ -122,6 +139,7 @@ exports.getAllNews = async (req, res) => {
 exports.getNewsBySlug = async (req, res) => {
   try {
     const { section, slug } = req.params;
+    const { includeDrafts } = req.query;
     const newsConfig = await NewsConfig.findOne({ isActive: true });
 
     if (!newsConfig) {
@@ -149,6 +167,13 @@ exports.getNewsBySlug = async (req, res) => {
       });
     }
 
+    if (includeDrafts !== 'true' && item.status !== 'published') {
+      return res.status(404).json({
+        success: false,
+        msg: `News with slug '${slug}' not found (Draft)`,
+      });
+    }
+
     res.status(200).json({
       success: true,
       news: item,
@@ -168,6 +193,7 @@ exports.getNewsBySlug = async (req, res) => {
 exports.getSectionNews = async (req, res) => {
   try {
     const { section } = req.params;
+    const { includeDrafts } = req.query;
 
     const newsConfig = await NewsConfig.findOne({ isActive: true });
 
@@ -179,10 +205,15 @@ exports.getSectionNews = async (req, res) => {
       });
     }
 
+    let sectionNews = newsConfig[section];
+    if (includeDrafts !== 'true') {
+      sectionNews = sectionNews.filter(item => item.status === 'published');
+    }
+
     res.status(200).json({
       success: true,
-      news: newsConfig[section],
-      total: newsConfig[section].length,
+      news: sectionNews,
+      total: sectionNews.length,
       msg: `${section.toUpperCase()} news fetched`,
     });
   } catch (error) {
@@ -365,6 +396,46 @@ exports.setNewsFlags = async (req, res) => {
       msg: "Server error",
       error: err.message,
     });
+  }
+};
+
+exports.GetAnalytics = async (req, res) => {
+  try {
+    const newsConfig = await NewsConfig.findOne({ isActive: true });
+    if (!newsConfig) {
+      return res.status(404).json({ success: false, msg: "No news config found" });
+    }
+
+    const sections = ['india', 'sports', 'business', 'technology', 'entertainment', 'lifestyle', 'world', 'health', 'state'];
+    let totalNews = 0;
+    const analyticsByAuthor = {};
+    const analyticsByCategory = {};
+
+    sections.forEach(section => {
+      if (newsConfig[section]) {
+        newsConfig[section].forEach(item => {
+          totalNews++;
+
+          // Analytics by Author
+          const author = item.author || 'Unknown';
+          analyticsByAuthor[author] = (analyticsByAuthor[author] || 0) + 1;
+
+          // Analytics by Category/Section
+          analyticsByCategory[section] = (analyticsByCategory[section] || 0) + 1;
+        });
+      }
+    });
+
+    res.status(200).json({
+      success: true,
+      data: {
+        totalNews,
+        analyticsByAuthor,
+        analyticsByCategory
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, msg: "Error fetching analytics" });
   }
 };
 

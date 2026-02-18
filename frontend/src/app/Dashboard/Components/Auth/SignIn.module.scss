@@ -1,3 +1,5 @@
+@use "sass:color";
+
 $page-bg: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
 
 $card-bg: rgba(255, 255, 255, 0.06);
@@ -232,7 +234,7 @@ $transition: all 0.2s ease;
   transition: $transition;
 
   &:hover {
-    color: lighten($teal, 12%);
+    color: color.adjust($teal, $lightness: 12%);
   }
 
   &:disabled {

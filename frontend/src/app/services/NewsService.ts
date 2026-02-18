@@ -16,6 +16,7 @@ export interface NewsItem {
     isHidden?: boolean;
     targetLink?: string;
     nominationLink?: string;
+    author?: string;
     _id?: string
 }
 
@@ -75,13 +76,20 @@ class NewsService {
     addNews = (news: Omit<NewsItem, "id"> & { section: string }): Promise<ApiResponse<NewsItem>> =>
         this.request("/addnews", { method: "POST", body: JSON.stringify(news) });
 
-    getAllNews = (): Promise<ApiResponse<NewsDocument[]>> => this.request("/getallnews");
+    getAllNews = (includeDrafts: boolean = false): Promise<ApiResponse<NewsDocument[]>> => {
+        const endpoint = `/getallnews${includeDrafts ? '?includeDrafts=true' : ''}`;
+        return this.request(endpoint);
+    };
 
-    getNewsBySection = (section: string): Promise<ApiResponse<NewsItem[]>> =>
-        this.request(`/getnewsbysection/${section}`);
+    getNewsBySection = (section: string, includeDrafts: boolean = false): Promise<ApiResponse<NewsItem[]>> => {
+        const endpoint = `/getnewsbysection/${section}${includeDrafts ? '?includeDrafts=true' : ''}`;
+        return this.request(endpoint);
+    };
 
-    getNewsBySlug = (section: string, slug: string): Promise<ApiResponse<NewsItem>> =>
-        this.request(`/getnewsbyslug/${section}/${slug}`);
+    getNewsBySlug = (section: string, slug: string, includeDrafts: boolean = false): Promise<ApiResponse<NewsItem>> => {
+        const endpoint = `/getnewsbyslug/${section}/${slug}${includeDrafts ? '?includeDrafts=true' : ''}`;
+        return this.request(endpoint);
+    };
 
     updateNews = (params: { section: string; slug: string; data: Partial<NewsItem> }): Promise<ApiResponse<NewsItem>> =>
         this.request(`/updatenews/${params.section}/${params.slug}`, {

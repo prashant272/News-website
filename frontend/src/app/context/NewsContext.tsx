@@ -39,27 +39,9 @@ const filterVisibleNews = (newsArray: NewsItem[] | undefined): NewsItem[] | null
 
 export const NewsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { data: rawData, loading, error, refetch } = useAllNews();
-
   const sections = rawData && rawData.length > 0 ? rawData[0] : null;
 
-  const [allNews, setAllNews] = useState<NewsItem[] | null>(null);
-  const [indiaNews, setIndiaNews] = useState<NewsItem[] | null>(null);
-  const [sportsNews, setSportsNews] = useState<NewsItem[] | null>(null);
-  const [businessNews, setBusinessNews] = useState<NewsItem[] | null>(null);
-  const [lifestyleNews, setLifestyleNews] = useState<NewsItem[] | null>(null);
-  const [entertainmentNews, setEntertainmentNews] = useState<NewsItem[] | null>(null);
-  const [healthNews, setHealthNews] = useState<NewsItem[] | null>(null);
-  const [awardsNews, setAwardsNews] = useState<NewsItem[] | null>(null);
-  const [techNews, setTechNews] = useState<NewsItem[] | null>(null);
-  const [technologyNews, setTechnologyNews] = useState<NewsItem[] | null>(null);
-  const [worldNews, setWorldNews] = useState<NewsItem[] | null>(null);
-  const [educationNews, setEducationNews] = useState<NewsItem[] | null>(null);
-  const [environmentNews, setEnvironmentNews] = useState<NewsItem[] | null>(null);
-  const [scienceNews, setScienceNews] = useState<NewsItem[] | null>(null);
-  const [opinionNews, setOpinionNews] = useState<NewsItem[] | null>(null);
-  const [autoNews, setAutoNews] = useState<NewsItem[] | null>(null);
-  const [travelNews, setTravelNews] = useState<NewsItem[] | null>(null);
-  const [stateNews, setStateNews] = useState<NewsItem[] | null>(null);
+  const [newsState, setNewsState] = useState<{ [key: string]: NewsItem[] | null }>({});
 
   const technologyData = useMemo(() => filterVisibleNews(sections?.technology), [sections?.technology]);
 
@@ -84,66 +66,51 @@ export const NewsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   useEffect(() => {
     if (!sections) {
-      setAllNews(null);
-      setIndiaNews(null);
-      setSportsNews(null);
-      setBusinessNews(null);
-      setLifestyleNews(null);
-      setEntertainmentNews(null);
-      setHealthNews(null);
-      setAwardsNews(null);
-      setTechNews(null);
-      setTechnologyNews(null);
-      setWorldNews(null);
-      setEducationNews(null);
-      setEnvironmentNews(null);
-      setScienceNews(null);
-      setOpinionNews(null);
-      setAutoNews(null);
-      setTravelNews(null);
-      setStateNews(null);
+      setNewsState({});
       return;
     }
 
-    setAllNews(flattenedArr);
-    setIndiaNews(filterVisibleNews(sections.india));
-    setSportsNews(filterVisibleNews(sections.sports));
-    setBusinessNews(filterVisibleNews(sections.business));
-    setLifestyleNews(filterVisibleNews(sections.lifestyle));
-    setEntertainmentNews(filterVisibleNews(sections.entertainment));
-    setHealthNews(filterVisibleNews(sections.health));
-    setAwardsNews(filterVisibleNews(sections.awards));
-    setTechNews(technologyData);
-    setTechnologyNews(technologyData);
-    setWorldNews(filterVisibleNews(sections.world));
-    setEducationNews(filterVisibleNews(sections.education));
-    setEnvironmentNews(filterVisibleNews(sections.environment));
-    setScienceNews(filterVisibleNews(sections.science));
-    setOpinionNews(filterVisibleNews(sections.opinion));
-    setAutoNews(filterVisibleNews(sections.auto));
-    setTravelNews(filterVisibleNews(sections.travel));
-    setStateNews(filterVisibleNews(sections.state));
+    setNewsState({
+      allNews: flattenedArr,
+      indiaNews: filterVisibleNews(sections.india),
+      sportsNews: filterVisibleNews(sections.sports),
+      businessNews: filterVisibleNews(sections.business),
+      lifestyleNews: filterVisibleNews(sections.lifestyle),
+      entertainmentNews: filterVisibleNews(sections.entertainment),
+      healthNews: filterVisibleNews(sections.health),
+      awardsNews: filterVisibleNews(sections.awards),
+      techNews: technologyData,
+      technologyNews: technologyData,
+      worldNews: filterVisibleNews(sections.world),
+      educationNews: filterVisibleNews(sections.education),
+      environmentNews: filterVisibleNews(sections.environment),
+      scienceNews: filterVisibleNews(sections.science),
+      opinionNews: filterVisibleNews(sections.opinion),
+      autoNews: filterVisibleNews(sections.auto),
+      travelNews: filterVisibleNews(sections.travel),
+      stateNews: filterVisibleNews(sections.state),
+    });
   }, [sections, technologyData, flattenedArr]);
 
   const value: NewsContextType = {
-    allNews,
-    indiaNews,
-    sportsNews,
-    businessNews,
-    lifestyleNews,
-    entertainmentNews,
-    healthNews,
-    awardsNews,
-    techNews,
-    technologyNews,
-    worldNews,
-    educationNews,
-    environmentNews,
-    scienceNews,
-    opinionNews,
-    autoNews,
-    travelNews,
-    stateNews,
+    allNews: newsState.allNews ?? null,
+    indiaNews: newsState.indiaNews ?? null,
+    sportsNews: newsState.sportsNews ?? null,
+    businessNews: newsState.businessNews ?? null,
+    lifestyleNews: newsState.lifestyleNews ?? null,
+    entertainmentNews: newsState.entertainmentNews ?? null,
+    healthNews: newsState.healthNews ?? null,
+    awardsNews: newsState.awardsNews ?? null,
+    techNews: newsState.techNews ?? null,
+    technologyNews: newsState.technologyNews ?? null,
+    worldNews: newsState.worldNews ?? null,
+    educationNews: newsState.educationNews ?? null,
+    environmentNews: newsState.environmentNews ?? null,
+    scienceNews: newsState.scienceNews ?? null,
+    opinionNews: newsState.opinionNews ?? null,
+    autoNews: newsState.autoNews ?? null,
+    travelNews: newsState.travelNews ?? null,
+    stateNews: newsState.stateNews ?? null,
     sections,
     loading,
     error,

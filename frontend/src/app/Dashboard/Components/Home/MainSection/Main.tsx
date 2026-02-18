@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useCallback, ChangeEvent, FC, useContext, useMemo } from "react";
 import { UserContext } from "@/app/Dashboard/Context/ManageUserContext";
-import { baseURL } from "@/Utils/Utils";
+import { API, baseURL } from "@/Utils/Utils";
 import {
   newsService,
   NewsItem,
@@ -17,37 +17,45 @@ import styles from "./Main.module.scss";
 import { FaFacebook, FaWhatsapp, FaShareAlt } from "react-icons/fa";
 
 interface MainSectionProps {
-  section:
-  | "india"
-  | "sports"
-  | "business"
-  | "technology"
-  | "entertainment"
-  | "lifestyle"
-  | "world"
-  | "health"
-  | "awards";
+  section: 'news_management' | 'ad_management' | 'previous_news' | 'analytics' | 'user_management';
 }
+
+const CATEGORIES = [
+  { id: 'india', label: 'India', icon: '🇮🇳' },
+  { id: 'sports', label: 'Sports', icon: '⚽' },
+  { id: 'business', label: 'Business', icon: '📈' },
+  { id: 'technology', label: 'Tech', icon: '💻' },
+  { id: 'entertainment', label: 'Entertainment', icon: '🎬' },
+  { id: 'lifestyle', label: 'Lifestyle', icon: '✨' },
+  { id: 'world', label: 'World', icon: '🌍' },
+  { id: 'health', label: 'Health', icon: '🏥' },
+  { id: 'awards', label: 'Awards', icon: '🏆' },
+] as const;
+
+type NewsCategory = typeof CATEGORIES[number]['id'];
 
 const MainSection: FC<MainSectionProps> = ({ section }) => {
   const { UserAuthData } = useContext(UserContext) as any;
   const userPermissions = UserAuthData?.permissions || {};
   const userRole = UserAuthData?.role || "USER";
+  const isSuperAdmin = userRole === 'SUPER_ADMIN';
   const canCreate = userPermissions.create !== false;
   const canRead = userPermissions.read !== false;
   const canUpdate = userPermissions.update !== false;
   const canDelete = userPermissions.delete !== false;
 
-  const { data: newsData, loading: fetchLoading, error: fetchError, refetch } = useNewsBySection(section);
+  const [selectedCategory, setSelectedCategory] = useState<NewsCategory>('india');
+
+  const { data: newsData, loading: fetchLoading, error: fetchError, refetch } = useNewsBySection(selectedCategory, true);
   const { mutate: addNews, loading: addLoading } = useAddNews();
-  const { mutate: updateNews } = useUpdateNews(section);
-  const { mutate: deleteNews } = useDeleteNews(section);
-  const { mutate: setFlags, loading: flagsLoading } = useSetNewsFlags(section);
+  const { mutate: updateNews } = useUpdateNews(selectedCategory);
+  const { mutate: deleteNews } = useDeleteNews(selectedCategory);
+  const { mutate: setFlags, loading: flagsLoading } = useSetNewsFlags(selectedCategory);
 
   const { data: adsData, loading: adsLoading, error: adsError, refetch: refetchAds } = useAllAds();
   const { mutate: addAd, loading: addAdLoading } = useAddAd();
 
-  const [activeTab, setActiveTab] = useState<"articles" | "ads">("articles");
+  const [activeTab, setActiveTab] = useState<string>(section);
   const [editingSlug, setEditingSlug] = useState<string | null>(null);
   const [editingAdId, setEditingAdId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -56,6 +64,89 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
   const [sortBy, setSortBy] = useState<"newest" | "oldest" | "title">("newest");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [showToast, setShowToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+
+  // User Management State
+  const [users, setUsers] = useState<any[]>([]);
+  const [usersLoading, setUsersLoading] = useState(false);
+  const [userForm, setUserForm] = useState({ name: '', email: '', password: '', role: 'ADMIN' });
+
+  // Analytics State
+  const [analyticsData, setAnalyticsData] = useState<any>(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(false);
+
+  const fetchUsers = useCallback(async () => {
+    if (!isSuperAdmin) return;
+    setUsersLoading(true);
+    try {
+      const res = await API.get(`/auth/all`);
+      if (res.data.success) setUsers(res.data.users);
+    } catch (err: any) {
+      console.error("Fetch users error:", err);
+    } finally {
+      setUsersLoading(false);
+    }
+  }, [isSuperAdmin]);
+
+  const fetchAnalytics = useCallback(async () => {
+    if (!isSuperAdmin) return;
+    setAnalyticsLoading(true);
+    try {
+      const res = await API.get(`/news/analytics`);
+      if (res.data.success) setAnalyticsData(res.data.data);
+    } catch (err: any) {
+      console.error("Fetch analytics error:", err);
+    } finally {
+      setAnalyticsLoading(false);
+    }
+  }, [isSuperAdmin]);
+
+  useEffect(() => {
+    if (section === 'user_management') fetchUsers();
+    if (section === 'analytics') fetchAnalytics();
+  }, [section, fetchUsers, fetchAnalytics]);
+
+  const handleCreateUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await API.post(`/auth/create`, userForm);
+      if (res.data.success) {
+        showNotification("User created successfully", "success");
+        setUserForm({ name: '', email: '', password: '', role: 'ADMIN' });
+        fetchUsers();
+      } else {
+        showNotification(res.data.msg, "error");
+      }
+    } catch (err: any) {
+      showNotification(err.response?.data?.msg || "Error creating user", "error");
+    }
+  };
+
+  const handleToggleUserStatus = async (id: string, currentStatus: boolean) => {
+    try {
+      const res = await API.put(`/auth/update/${id}`, { isActive: !currentStatus });
+      if (res.data.success) {
+        showNotification("User status updated", "success");
+        fetchUsers();
+      }
+    } catch (err: any) {
+      showNotification(err.response?.data?.msg || "Error updating user", "error");
+    }
+  };
+
+  const handleDeleteUser = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this user?")) return;
+    try {
+      const res = await API.delete(`/auth/${id}`);
+      if (res.data.success) {
+        showNotification("User deleted", "success");
+        fetchUsers();
+      }
+    } catch (err: any) {
+      showNotification(err.response?.data?.msg || "Error deleting user", "error");
+    }
+  };
+
+  // Rest of state and effects...
 
   const [adFormState, setAdFormState] = useState<Partial<Ad>>({
     title: "",
@@ -85,20 +176,17 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
   const visibilityStats = useNewsVisibilityStats(processedNewsData);
 
   useEffect(() => {
-    if (showToast) {
-      const timer = setTimeout(() => setShowToast(null), 2800);
-      return () => clearTimeout(timer);
-    }
-  }, [showToast]);
+    setActiveTab(section === 'ad_management' ? 'ads' : 'articles');
+  }, [section]);
 
   useEffect(() => {
     if (activeTab === "articles" && !editingSlug) {
       setFormState((prev) => ({
         ...prev,
-        category: section.charAt(0).toUpperCase() + section.slice(1),
+        category: selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1),
       }));
     }
-  }, [activeTab, section, editingSlug]);
+  }, [activeTab, selectedCategory, editingSlug]);
 
   useEffect(() => {
     if (fetchError) {
@@ -114,7 +202,7 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
     setFormState({
       title: "",
       slug: "",
-      category: section.charAt(0).toUpperCase() + section.slice(1),
+      category: selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1),
       content: "",
       tags: [],
       status: "draft",
@@ -124,7 +212,7 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
     setImagePreview(null);
     setShowImage(false);
     setEditingSlug(null);
-  }, [section]);
+  }, [selectedCategory]);
 
   const resetAdForm = useCallback(() => {
     setAdFormState({
@@ -316,18 +404,20 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
       return;
     }
     try {
+      const authorName = UserAuthData?.name || "Prime Time News";
       await addNews({
         ...formState,
-        section,
+        section: selectedCategory,
+        author: authorName,
         publishedAt: new Date().toISOString(),
       } as NewsItem & { section: string });
-      showNotification("Article created", "success");
+      showNotification(`Article created by ${authorName}`, "success");
       resetForm();
       refetch();
     } catch (err: any) {
       showNotification(err.message || "Failed to create article", "error");
     }
-  }, [canCreate, formState, addNews, section, resetForm, refetch, showNotification]);
+  }, [canCreate, formState, addNews, section, resetForm, refetch, showNotification, UserAuthData]);
 
   const startEdit = useCallback(
     (item: NewsItem) => {
@@ -486,8 +576,8 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
   const getShareLink = (item: Partial<NewsItem>, platform: 'facebook' | 'whatsapp') => {
     if (!item.slug) return "#";
 
-    const sectionSlug = section.toLowerCase();
-    const categorySlug = (item.category || section).toLowerCase().replace(/\s+/g, '-');
+    const sectionSlug = selectedCategory.toLowerCase();
+    const categorySlug = (item.category || selectedCategory).toLowerCase().replace(/\s+/g, '-');
     const fullUrl = `${siteUrl}/Pages/${sectionSlug}/${categorySlug}/${item.slug}`;
     const shareText = `${item.title} | View more news on Prime Time Media:`;
 
@@ -513,11 +603,16 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
           <div className={styles.headerContent}>
             <div className={styles.headerLeft}>
               <h1 className={styles.mainHeading}>
-                <span className={styles.icon}>📰</span>
-                {section.charAt(0).toUpperCase() + section.slice(1)} News
+                <span className={styles.icon}>
+                  {section === 'news_management' ? '📝' : section === 'ad_management' ? '📢' : '📁'}
+                </span>
+                {section === 'news_management' ? 'News Management' :
+                  section === 'ad_management' ? 'Ad Management' : 'Previous News'}
               </h1>
               <p className={styles.headerSubtitle}>
-                Manage {section} articles and advertisements
+                {section === 'news_management' ? 'Add new articles to any category' :
+                  section === 'ad_management' ? 'Manage advertisements across the platform' :
+                    'View and manage previously published news'}
                 {userRole !== "USER" && <span className={styles.roleBadge}> • {userRole}</span>}
               </p>
             </div>
@@ -540,7 +635,25 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
           </div>
         </div>
 
-        <div className={styles.tabContainer}>
+        {section === 'previous_news' && (
+          <div className={styles.categoryFilterContainer}>
+            <label className={styles.label}>Select Category to View News:</label>
+            <div className={styles.categoryPills}>
+              {CATEGORIES.map(cat => (
+                <button
+                  key={cat.id}
+                  className={`${styles.categoryPill} ${selectedCategory === cat.id ? styles.activePill : ''}`}
+                  onClick={() => setSelectedCategory(cat.id)}
+                >
+                  <span className={styles.pillIcon}>{cat.icon}</span>
+                  <span>{cat.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className={styles.tabContainer} style={{ display: 'none' }}>
           <div className={styles.tabs}>
             <button
               className={`${styles.tab} ${activeTab === "articles" ? styles.tabActive : ""}`}
@@ -561,8 +674,8 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
           </div>
         </div>
 
-        {activeTab === "articles" && (
-          <>
+        {section === 'news_management' && (
+          <div className={styles.articlesTabContent}>
             {(canCreate || canUpdate) && (
               <div className={styles.editor}>
                 <div className={styles.editorHeader}>
@@ -611,14 +724,25 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
                     />
                   </div>
                   <div className={styles.formGroup}>
-                    <label className={styles.label}>Category *</label>
-                    <input
-                      type="text"
-                      className={styles.input}
-                      value={formState.category ?? ""}
-                      onChange={handleChange("category")}
-                      placeholder="Politics, Cricket, ..."
-                    />
+                    <label className={styles.label}>Category <span className={styles.required}>*</span></label>
+                    <select
+                      className={styles.select}
+                      value={selectedCategory}
+                      onChange={(e) => {
+                        const newCat = e.target.value as NewsCategory;
+                        setSelectedCategory(newCat);
+                        setFormState(prev => ({
+                          ...prev,
+                          category: newCat.charAt(0).toUpperCase() + newCat.slice(1)
+                        }));
+                      }}
+                    >
+                      {CATEGORIES.map(cat => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.icon} {cat.label}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   <div className={styles.formGroup}>
                     <label className={styles.label}>Sub-category</label>
@@ -788,64 +912,227 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
                 )}
               </div>
             )}
+          </div>
+        )}
+
+        {section === 'previous_news' && (
+          <div className={styles.articlesTabContent}>
+            {isEditing && (canCreate || canUpdate) && (
+              <div className={styles.editor}>
+                <div className={styles.editorHeader}>
+                  <h2 className={styles.editorTitle}>
+                    <span className={styles.editorIcon}>✏️</span> Edit Article
+                  </h2>
+                  <button onClick={resetForm} className={styles.closeBtn}>
+                    ✕
+                  </button>
+                </div>
+                <div className={styles.formGrid}>
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>
+                      Title <span className={styles.required}>*</span>
+                    </label>
+                    <input
+                      type="text"
+                      className={styles.input}
+                      value={formState.title ?? ""}
+                      onChange={handleChange("title")}
+                      placeholder="Enter title..."
+                      disabled={!(canCreate || canUpdate)}
+                    />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>
+                      Slug <span className={styles.required}>*</span>
+                    </label>
+                    <input
+                      type="text"
+                      className={styles.input}
+                      value={formState.slug ?? ""}
+                      onChange={handleChange("slug")}
+                      placeholder="article-slug"
+                      disabled={!(canCreate || canUpdate)}
+                    />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>Category <span className={styles.required}>*</span></label>
+                    <select
+                      className={styles.select}
+                      value={selectedCategory}
+                      onChange={(e) => {
+                        const newCat = e.target.value as NewsCategory;
+                        setSelectedCategory(newCat);
+                        setFormState(prev => ({
+                          ...prev,
+                          category: newCat.charAt(0).toUpperCase() + newCat.slice(1)
+                        }));
+                      }}
+                    >
+                      {CATEGORIES.map(cat => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.icon} {cat.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>Sub-category</label>
+                    <input
+                      type="text"
+                      className={styles.input}
+                      value={formState.subCategory ?? ""}
+                      onChange={handleChange("subCategory")}
+                    />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>Status</label>
+                    <select
+                      value={formState.status ?? "draft"}
+                      onChange={handleChange("status")}
+                      className={styles.select}
+                    >
+                      <option value="draft">Draft</option>
+                      <option value="published">Published</option>
+                      <option value="archived">Archived</option>
+                    </select>
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>Featured Image</label>
+                    <input
+                      id="prev-file-upload"
+                      type="file"
+                      accept="image/*"
+                      className={styles.hidden}
+                      onChange={handleImageChange}
+                    />
+                    <div
+                      className={styles.imageUploadArea}
+                      onClick={() => document.getElementById("prev-file-upload")?.click()}
+                    >
+                      {showImage || imagePreview || formState.image ? (
+                        <div className={styles.previewContainer}>
+                          <img
+                            src={imagePreview || formState.image || ""}
+                            alt="Preview"
+                            className={styles.imagePreview}
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = "/fallback-image.jpg";
+                            }}
+                          />
+                          <button
+                            type="button"
+                            className={styles.removeImageBtn}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setFormState((prev) => ({ ...prev, image: "" }));
+                              setImagePreview(null);
+                              setShowImage(false);
+                            }}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ) : (
+                        <div className={styles.uploadPlaceholder}>
+                          <span className={styles.uploadIcon}>📸</span>
+                          <p>Click to upload image</p>
+                          <small>PNG, JPG, max 5MB</small>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+                    <label className={styles.label}>Summary</label>
+                    <textarea
+                      className={styles.textarea}
+                      value={formState.summary ?? ""}
+                      onChange={handleChange("summary")}
+                      rows={3}
+                      placeholder="Short summary..."
+                    />
+                  </div>
+                  <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+                    <label className={styles.label}>
+                      Content <span className={styles.required}>*</span>
+                    </label>
+                    <textarea
+                      className={styles.textarea}
+                      value={formState.content ?? ""}
+                      onChange={handleChange("content")}
+                      rows={12}
+                      placeholder="Write article content here..."
+                    />
+                    <div className={styles.charCount}>
+                      {(formState.content?.length || 0)} chars • {Math.ceil((formState.content?.length || 0) / 500)}{" "}
+                      min read
+                    </div>
+                  </div>
+                  <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+                    <label className={styles.label}>Tags</label>
+                    <input
+                      type="text"
+                      className={styles.input}
+                      value={formState.tags?.join(", ") ?? ""}
+                      onChange={handleTagsChange}
+                      placeholder="comma, separated, tags"
+                    />
+                    <small className={styles.hint}>Separate with commas</small>
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>Target Link (More Info)</label>
+                    <input
+                      type="text"
+                      className={styles.input}
+                      value={formState.targetLink ?? ""}
+                      onChange={handleChange("targetLink")}
+                      placeholder="https://example.com/more-info"
+                    />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>Nomination Link</label>
+                    <input
+                      type="text"
+                      className={styles.input}
+                      value={formState.nominationLink ?? ""}
+                      onChange={handleChange("nominationLink")}
+                      placeholder="https://example.com/nominate"
+                    />
+                  </div>
+                </div>
+                <div className={styles.formActions}>
+                  <button onClick={handleUpdate} className={styles.primaryBtn}>Update Article</button>
+                  <button onClick={resetForm} className={styles.secondaryBtn}>Cancel</button>
+                </div>
+              </div>
+            )}
 
             <div className={styles.articlesSection}>
               <div className={styles.articlesSectionHeader}>
-                <h2 className={styles.sectionTitle}>Articles ({filteredAndSortedItems.length})</h2>
+                <h2 className={styles.sectionTitle}>
+                  Previous News: {selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)} ({filteredAndSortedItems.length})
+                </h2>
                 <div className={styles.toolbar}>
+                  {/* Toolbar content ... */}
                   <div className={styles.searchBox}>
                     <span className={styles.searchIcon}>🔍</span>
                     <input
                       type="text"
                       className={styles.searchInput}
-                      placeholder="Search articles..."
+                      placeholder="Search archived articles..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                     />
                   </div>
                   <div className={styles.filters}>
-                    <select
-                      className={styles.filterSelect}
-                      value={filterStatus}
-                      onChange={(e) => setFilterStatus(e.target.value as any)}
-                    >
+                    <select className={styles.filterSelect} value={filterStatus} onChange={(e) => setFilterStatus(e.target.value as any)}>
                       <option value="all">All Status</option>
                       <option value="published">Published</option>
                       <option value="draft">Draft</option>
-                      <option value="archived">Archived</option>
                     </select>
-                    <select
-                      className={styles.filterSelect}
-                      value={filterVisibility}
-                      onChange={(e) => setFilterVisibility(e.target.value as any)}
-                    >
-                      <option value="all">All Visibility ({visibilityStats.total})</option>
-                      <option value="visible">👁️ Visible ({visibilityStats.visible})</option>
-                      <option value="hidden">🙈 Hidden ({visibilityStats.hidden})</option>
-                    </select>
-                    <select
-                      className={styles.filterSelect}
-                      value={sortBy}
-                      onChange={(e) => setSortBy(e.target.value as any)}
-                    >
+                    <select className={styles.filterSelect} value={sortBy} onChange={(e) => setSortBy(e.target.value as any)}>
                       <option value="newest">Newest First</option>
                       <option value="oldest">Oldest First</option>
-                      <option value="title">By Title</option>
                     </select>
-                  </div>
-                  <div className={styles.viewToggle}>
-                    <button
-                      className={`${styles.viewBtn} ${viewMode === "grid" ? styles.viewBtnActive : ""}`}
-                      onClick={() => setViewMode("grid")}
-                    >
-                      ▦
-                    </button>
-                    <button
-                      className={`${styles.viewBtn} ${viewMode === "list" ? styles.viewBtnActive : ""}`}
-                      onClick={() => setViewMode("list")}
-                    >
-                      ☰
-                    </button>
                   </div>
                 </div>
               </div>
@@ -853,8 +1140,8 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
               {filteredAndSortedItems.length === 0 ? (
                 <div className={styles.emptyState}>
                   <div className={styles.emptyIcon}>📄</div>
-                  <h3>No articles found</h3>
-                  <p>Try adjusting your search or filters</p>
+                  <h3>No archived news found</h3>
+                  <p>Select a different category or adjust search</p>
                 </div>
               ) : (
                 <div className={`${styles.grid} ${viewMode === "list" ? styles.listView : ""}`}>
@@ -864,12 +1151,7 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
                         {item.image ? (
                           <img src={item.image} alt={item.title} loading="lazy" />
                         ) : (
-                          <div
-                            style={{
-                              background: "linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1))",
-                              height: "100%",
-                            }}
-                          />
+                          <div style={{ background: "linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1))", height: "100%" }} />
                         )}
                         <span className={`${styles.statusBadge} ${styles[item.status || "draft"]}`}>
                           {item.status || "draft"}
@@ -878,33 +1160,9 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
                       <div className={styles.cardContent}>
                         <div className={styles.cardMeta}>
                           <span className={styles.categoryBadge}>{item.category}</span>
-                          {item.subCategory && <span className={styles.subCategoryBadge}>{item.subCategory}</span>}
                         </div>
                         <h3 className={styles.cardTitle}>{item.title}</h3>
-                        {item.summary && <p className={styles.cardSummary}>{item.summary}</p>}
-                        {item.tags && item.tags.length > 0 && (
-                          <div className={styles.tags}>
-                            {item.tags.slice(0, 3).map((tag, idx) => (
-                              <span key={idx} className={styles.tag}>
-                                {tag}
-                              </span>
-                            ))}
-                            {item.tags.length > 3 && (
-                              <span className={styles.tagMore}>+{item.tags.length - 3}</span>
-                            )}
-                          </div>
-                        )}
                         <div className={styles.cardFooter}>
-                          <div className={styles.cardInfo}>
-                            <span className={styles.infoItem}>
-                              <span className={styles.infoIcon}>📅</span>
-                              {item.publishedAt ? new Date(item.publishedAt).toLocaleDateString() : "No date"}
-                            </span>
-                            <span className={styles.infoItem}>
-                              <span className={styles.infoIcon}>🔗</span>
-                              {item.slug}
-                            </span>
-                          </div>
                           <div className={styles.cardActions}>
                             <button
                               onClick={() => handleToggleVisibility(item.slug, item.isHidden || false)}
@@ -914,50 +1172,8 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
                             >
                               {item.isHidden ? "👁️" : "🙈"}
                             </button>
-                            <button
-                              onClick={() => handleDuplicate(item)}
-                              className={styles.duplicateBtn}
-                              disabled={!canCreate}
-                              title="Duplicate"
-                            >
-                              📋
-                            </button>
-                            <button
-                              onClick={() => startEdit(item)}
-                              className={styles.editBtn}
-                              disabled={!canUpdate}
-                              title="Edit"
-                            >
-                              ✏️
-                            </button>
-                            <button
-                              onClick={() => handleDelete(item.slug)}
-                              className={styles.deleteBtn}
-                              disabled={!canDelete}
-                              title="Delete"
-                            >
-                              🗑️
-                            </button>
-                            <div className={styles.cardShareActions}>
-                              <a
-                                href={getShareLink(item, 'facebook')}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className={styles.miniShareBtn}
-                                title="Share on Facebook"
-                              >
-                                <FaFacebook size={14} />
-                              </a>
-                              <a
-                                href={getShareLink(item, 'whatsapp')}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className={styles.miniShareBtn}
-                                title="Share on WhatsApp"
-                              >
-                                <FaWhatsapp size={14} />
-                              </a>
-                            </div>
+                            <button onClick={() => startEdit(item)} className={styles.editBtn} disabled={!canUpdate} title="Edit">✏️</button>
+                            <button onClick={() => handleDelete(item.slug)} className={styles.deleteBtn} disabled={!canDelete} title="Delete">🗑️</button>
                           </div>
                         </div>
                         <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.75rem" }}>
@@ -982,11 +1198,11 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
                 </div>
               )}
             </div>
-          </>
+          </div>
         )}
 
-        {activeTab === "ads" && (
-          <>
+        {section === 'ad_management' && (
+          <div className={styles.adsTabContent}>
             {(canCreate || canUpdate) && (
               <div className={styles.editor}>
                 <div className={styles.editorHeader}>
@@ -1177,7 +1393,157 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
                 </div>
               )}
             </div>
-          </>
+          </div>
+        )}
+
+        {section === 'analytics' && isSuperAdmin && (
+          <div className={styles.analyticsSection}>
+            <div className={styles.statsGrid}>
+              <div className={styles.statCard}>
+                <span className={styles.statIcon}>📈</span>
+                <div className={styles.statInfo}>
+                  <span className={styles.statLabel}>Total Articles</span>
+                  <span className={styles.statValue}>{analyticsData?.totalNews || 0}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.analyticsGrid}>
+              <div className={styles.analyticsCard}>
+                <h3 className={styles.cardTitle}>Articles by Category</h3>
+                <div className={styles.chartList}>
+                  {Object.entries(analyticsData?.analyticsByCategory || {}).map(([cat, count]: any) => (
+                    <div key={cat} className={styles.chartItem}>
+                      <span className={styles.chartLabel}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</span>
+                      <div className={styles.chartBarContainer}>
+                        <div
+                          className={styles.chartBar}
+                          style={{ width: `${((count as number) / (analyticsData?.totalNews || 1)) * 100}%` }}
+                        />
+                      </div>
+                      <span className={styles.chartCount}>{count}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className={styles.analyticsCard}>
+                <h3 className={styles.cardTitle}>Contributor Performance</h3>
+                <div className={styles.chartList}>
+                  {Object.entries(analyticsData?.analyticsByAuthor || {}).map(([author, count]: any) => (
+                    <div key={author} className={styles.chartItem}>
+                      <span className={styles.chartLabel}>{author}</span>
+                      <div className={styles.chartBarContainer}>
+                        <div
+                          className={styles.chartBar}
+                          style={{ width: `${((count as number) / (analyticsData?.totalNews || 1)) * 100}%`, backgroundColor: '#4f46e5' }}
+                        />
+                      </div>
+                      <span className={styles.chartCount}>{count}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {section === 'user_management' && isSuperAdmin && (
+          <div className={styles.userManagementSection}>
+            <div className={styles.editor}>
+              <h2 className={styles.editorTitle}>Create New Admin/Sub-Admin</h2>
+              <form onSubmit={handleCreateUser} className={styles.formGrid}>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Name</label>
+                  <input
+                    type="text"
+                    className={styles.input}
+                    value={userForm.name}
+                    onChange={e => setUserForm({ ...userForm, name: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Email</label>
+                  <input
+                    type="email"
+                    className={styles.input}
+                    value={userForm.email}
+                    onChange={e => setUserForm({ ...userForm, email: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Password</label>
+                  <input
+                    type="password"
+                    className={styles.input}
+                    value={userForm.password}
+                    onChange={e => setUserForm({ ...userForm, password: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Role</label>
+                  <select
+                    className={styles.select}
+                    value={userForm.role}
+                    onChange={e => setUserForm({ ...userForm, role: e.target.value })}
+                  >
+                    <option value="ADMIN">Admin</option>
+                    <option value="USER">User (Editor)</option>
+                    <option value="VIEWER">Viewer</option>
+                  </select>
+                </div>
+                <div className={styles.formActions} style={{ gridColumn: 'span 2' }}>
+                  <button type="submit" className={styles.primaryBtn}>Create User</button>
+                </div>
+              </form>
+            </div>
+
+            <div className={styles.userListCard}>
+              <h3 className={styles.sectionTitle}>Manage Users</h3>
+              <div className={styles.tableWrapper}>
+                <table className={styles.userTable}>
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Role</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {users.map(u => (
+                      <tr key={u._id}>
+                        <td>{u.name}</td>
+                        <td>{u.email}</td>
+                        <td><span className={styles.roleBadge}>{u.role}</span></td>
+                        <td>
+                          <button
+                            onClick={() => handleToggleUserStatus(u._id, u.isActive)}
+                            className={`${styles.statusToggle} ${u.isActive ? styles.active : styles.inactive}`}
+                          >
+                            {u.isActive ? "Active" : "Disabled"}
+                          </button>
+                        </td>
+                        <td>
+                          <button
+                            onClick={() => handleDeleteUser(u._id)}
+                            className={styles.deleteUserBtn}
+                            disabled={u.role === 'SUPER_ADMIN'}
+                          >
+                            🗑️
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </div>

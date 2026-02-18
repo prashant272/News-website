@@ -74,14 +74,14 @@ export const useApiMutation = <T,>(mutateFn: (data?: any) => Promise<T>): UseApi
   return { mutate, loading, error };
 };
 
-export const useNewsBySection = (section: string): UseApiResult<NewsItem[]> =>
-  useApi<NewsItem[]>(() => newsService.getNewsBySection(section), [section]);
+export const useNewsBySection = (section: string, includeDrafts: boolean = false): UseApiResult<NewsItem[]> =>
+  useApi<NewsItem[]>(() => newsService.getNewsBySection(section, includeDrafts), [section, includeDrafts]);
 
-export const useNewsBySlug = (section: string, slug: string): UseApiResult<NewsItem> =>
-  useApi<NewsItem>(() => newsService.getNewsBySlug(section, slug), [section, slug]);
+export const useNewsBySlug = (section: string, slug: string, includeDrafts: boolean = false): UseApiResult<NewsItem> =>
+  useApi<NewsItem>(() => newsService.getNewsBySlug(section, slug, includeDrafts), [section, slug, includeDrafts]);
 
-export const useAllNews = (): UseApiResult<NewsDocument[]> =>
-  useApi<NewsDocument[]>(() => newsService.getAllNews(), []);
+export const useAllNews = (includeDrafts: boolean = false): UseApiResult<NewsDocument[]> =>
+  useApi<NewsDocument[]>(() => newsService.getAllNews(includeDrafts), [includeDrafts]);
 
 export const useAddNews = (): UseApiMutationResult<ApiResponse<NewsItem>> =>
   useApiMutation<ApiResponse<NewsItem>>(newsService.addNews);

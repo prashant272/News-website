@@ -2,21 +2,21 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 $breakpoints: (
-  mobile:  500px,
-  tablet:  768px,
+  mobile: 500px,
+  tablet: 768px,
   desktop: 992px,
 );
 
-$mq-tablet:  '(min-width: #{map.get($breakpoints, tablet)})';
+$mq-tablet: '(min-width: #{map.get($breakpoints, tablet)})';
 $mq-desktop: '(min-width: #{map.get($breakpoints, desktop)})';
 
-$radius-sm:  0.5rem;
-$radius-md:  0.75rem;
-$radius-lg:  1rem;
+$radius-sm: 0.5rem;
+$radius-md: 0.75rem;
+$radius-lg: 1rem;
 
-$shadow-sm:  0 4px 12px rgba(0,0,0,0.18);
-$shadow-md:  0 10px 30px rgba(0,0,0,0.28);
-$shadow-lg:  0 20px 50px rgba(0,0,0,0.38);
+$shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.18);
+$shadow-md: 0 10px 30px rgba(0, 0, 0, 0.28);
+$shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.38);
 
 $blur-md: blur(16px);
 $blur-lg: blur(20px);
@@ -24,14 +24,14 @@ $blur-lg: blur(20px);
 $bg-dark-1: #0a0a0f;
 $bg-dark-2: #111827;
 $bg-dark-3: #020617;
-$bg-glass:  rgba(30,41,59,0.55);
-$bg-glass-dark: rgba(15,23,42,0.7);
+$bg-glass: rgba(30, 41, 59, 0.55);
+$bg-glass-dark: rgba(15, 23, 42, 0.7);
 
-$border-subtle: rgba(51,65,85,0.55);
-$border-active: rgba(59,130,246,0.45);
+$border-subtle: rgba(51, 65, 85, 0.55);
+$border-active: rgba(59, 130, 246, 0.45);
 
-$text-muted:   #94a3b8;
-$text-light:   #e2e8f0;
+$text-muted: #94a3b8;
+$text-light: #e2e8f0;
 $text-lighter: #f1f5f9;
 
 :global(.no-nav-footer) {
@@ -46,10 +46,15 @@ $text-lighter: #f1f5f9;
   color: #f8fafc;
   padding: 0.75rem 0.75rem 2.5rem;
   position: relative;
-  overflow-x: hidden;
+  /* Removed overflow-x: hidden as it breaks position: sticky */
 
-  @media #{$mq-tablet}  { padding: 1rem 1.25rem 3rem; }
-  @media #{$mq-desktop} { padding: 1.5rem 1.5rem 0; }
+  @media #{$mq-tablet} {
+    padding: 1rem 1.25rem 3rem;
+  }
+
+  @media #{$mq-desktop} {
+    padding: 0; // Removed padding to allow full height sidebar
+  }
 }
 
 .contentWrapper {
@@ -62,17 +67,22 @@ $text-lighter: #f1f5f9;
   @media #{$mq-desktop} {
     gap: 1.75rem;
     flex-direction: row;
-    align-items: start;
+    align-items: flex-start;
+    padding: 1.5rem;
   }
 }
 
 .mobileTabs {
   display: block;
-  @media #{$mq-desktop} { display: none; }
+
+  @media #{$mq-desktop} {
+    display: none;
+  }
 }
 
 .desktopSidebar {
   display: none;
+
   @media #{$mq-desktop} {
     display: block;
     width: 17.5rem;
@@ -103,7 +113,9 @@ $text-lighter: #f1f5f9;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
 
-  &::-webkit-scrollbar { display: none; }
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .tabButton {
@@ -115,10 +127,10 @@ $text-lighter: #f1f5f9;
   font-size: 0.875rem;
   font-weight: 600;
   white-space: nowrap;
-  transition: all 0.22s cubic-bezier(0.4,0,0.2,1);
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
   scroll-snap-align: center;
   border: 1px solid $border-subtle;
-  background: rgba(30,41,59,0.5);
+  background: rgba(30, 41, 59, 0.5);
   backdrop-filter: $blur-md;
   box-shadow: $shadow-sm;
 
@@ -127,15 +139,17 @@ $text-lighter: #f1f5f9;
   }
 
   &.active {
-    background: linear-gradient(90deg, rgba(37,99,235,0.38) 0%, rgba(99,102,241,0.38) 100%);
+    background: linear-gradient(90deg, rgba(37, 99, 235, 0.38) 0%, rgba(99, 102, 241, 0.38) 100%);
     color: white;
     border-color: $border-active;
-    box-shadow: 0 8px 24px rgba(59,130,246,0.28);
+    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.28);
     transform: scale(1.04);
   }
 }
 
-.tabIcon { font-size: 1.125rem; }
+.tabIcon {
+  font-size: 1.125rem;
+}
 
 .desktopSidebar {
   background: $bg-glass;
@@ -146,8 +160,85 @@ $text-lighter: #f1f5f9;
   box-shadow: $shadow-lg;
   position: sticky;
   top: 1.5rem;
-  height: fit-content;
-  max-height: calc(100vh - 3rem);
+  height: calc(100vh - 3rem);
+  width: 17.5rem;
+  flex-shrink: 0;
+  overflow-y: auto;
+
+  /* Custom Scrollbar for Sidebar */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+  }
+
+  display: flex;
+  flex-direction: column;
+
+  .sidebarUserInfo {
+    margin-top: auto;
+    padding: 1.25rem 0.5rem 0.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+  }
+
+  .userAvatar {
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    overflow: hidden;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .avatarPlaceholder {
+      color: white;
+      font-weight: 700;
+      font-size: 1.125rem;
+      text-transform: uppercase;
+    }
+  }
+
+  .userDetails {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    overflow: hidden;
+
+    .userName {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: #f1f5f9;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .userRole {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.025em;
+    }
+  }
 }
 
 .sidebarTitle {
@@ -177,10 +268,10 @@ $text-lighter: #f1f5f9;
   transition: all 0.2s ease;
 
   &.active {
-    background: linear-gradient(90deg, rgba(37,99,235,0.28) 0%, rgba(99,102,241,0.28) 100%);
+    background: linear-gradient(90deg, rgba(37, 99, 235, 0.28) 0%, rgba(99, 102, 241, 0.28) 100%);
     color: white;
     border: 1px solid $border-active;
-    box-shadow: 0 6px 20px rgba(59,130,246,0.18);
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.18);
     transform: translateX(2px);
   }
 
@@ -189,14 +280,16 @@ $text-lighter: #f1f5f9;
 
     &:hover,
     &:focus-visible {
-      background: rgba(51,65,85,0.45);
+      background: rgba(51, 65, 85, 0.45);
       color: white;
       transform: translateX(3px);
     }
   }
 }
 
-.sidebarIcon { font-size: 1.375rem; }
+.sidebarIcon {
+  font-size: 1.375rem;
+}
 
 .activeIndicator {
   width: 0.5rem;
@@ -208,8 +301,17 @@ $text-lighter: #f1f5f9;
 }
 
 @keyframes pulse {
-  0%, 100% { transform: scale(1);   opacity: 0.9; }
-  50%      { transform: scale(1.3); opacity: 0.6; }
+
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+
+  50% {
+    transform: scale(1.3);
+    opacity: 0.6;
+  }
 }
 
 .mainContent {
@@ -227,7 +329,7 @@ $text-lighter: #f1f5f9;
 .headerCard {
   background: $bg-glass;
   backdrop-filter: $blur-lg;
-  border: 1px solid rgba(51,65,85,0.48);
+  border: 1px solid rgba(51, 65, 85, 0.48);
   border-radius: $radius-lg;
   padding: 1.25rem 1.375rem;
   box-shadow: $shadow-md;
@@ -254,9 +356,9 @@ $text-lighter: #f1f5f9;
 .headerIcon {
   font-size: 2.25rem;
   padding: 0.75rem;
-  background: rgba(15,23,42,0.65);
+  background: rgba(15, 23, 42, 0.65);
   border-radius: $radius-md;
-  box-shadow: inset 0 2px 5px rgba(0,0,0,0.25);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.25);
 }
 
 .pageTitle {
@@ -277,8 +379,8 @@ $text-lighter: #f1f5f9;
 
 .activeBadge {
   padding: 0.5rem 1.25rem;
-  background: rgba(37,99,235,0.18);
-  border: 1px solid rgba(59,130,246,0.38);
+  background: rgba(37, 99, 235, 0.18);
+  border: 1px solid rgba(59, 130, 246, 0.38);
   border-radius: $radius-md;
   color: #bfdbfe;
   font-weight: 500;
@@ -286,7 +388,7 @@ $text-lighter: #f1f5f9;
 }
 
 .contentCard {
-  background: rgba(30,41,59,0.38);
+  background: rgba(30, 41, 59, 0.38);
   backdrop-filter: $blur-lg;
   border: 1px solid $border-subtle;
   border-radius: $radius-lg;
@@ -299,23 +401,28 @@ $text-lighter: #f1f5f9;
   grid-template-columns: 1fr;
   gap: 1rem;
 
-  @media #{$mq-tablet}  { grid-template-columns: repeat(2, 1fr); }
-  @media #{$mq-desktop} { grid-template-columns: repeat(4, 1fr); }
+  @media #{$mq-tablet} {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media #{$mq-desktop} {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
 .statCard {
-  background: rgba(30,41,59,0.48);
+  background: rgba(30, 41, 59, 0.48);
   border: 1px solid $border-subtle;
   border-radius: $radius-lg;
   padding: 1.25rem;
   text-align: center;
   box-shadow: $shadow-sm;
-  transition: all 0.28s cubic-bezier(0.4,0,0.2,1);
+  transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:hover {
-    border-color: rgba(59,130,246,0.4);
+    border-color: rgba(59, 130, 246, 0.4);
     transform: translateY(-5px);
-    box-shadow: 0 16px 40px rgba(0,0,0,0.35);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
   }
 }
 

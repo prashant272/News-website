@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useNewsSectionData, LatestItem } from '@/app/hooks/useNewsSectionData';
 import styles from './LatestNewsSection.module.scss';
@@ -139,11 +140,12 @@ export default function LatestNewsSection({
                   )}
                 </div>
                 <div className={styles.imageWrapper}>
-                  <img
+                  <Image
                     src={item.image}
                     alt={item.title}
-                    loading="lazy"
+                    fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    style={{ objectFit: 'cover' }}
                   />
                 </div>
               </div>

@@ -7,22 +7,29 @@ import styles from './Page.module.scss';
 import { UserContext } from "@/app/Dashboard/Context/ManageUserContext";
 
 const sections = [
-  { id: 'india' as const, label: 'India', icon: '🇮🇳' },
-  { id: 'sports' as const, label: 'Sports', icon: '⚽' },
-  { id: 'business' as const, label: 'Business', icon: '📈' },
-  { id: 'technology' as const, label: 'Tech', icon: '💻' },
-  { id: 'entertainment' as const, label: 'Entertainment', icon: '🎬' },
-  { id: 'lifestyle' as const, label: 'Lifestyle', icon: '✨' },
-  { id: 'world' as const, label: 'World', icon: '🌍' },
-  { id: 'health' as const, label: 'Health', icon: '🏥' },
-  { id: 'awards' as const, label: 'Awards', icon: '🏆' },
+  { id: 'news_management' as const, label: 'News Management', icon: '📝' },
+  { id: 'ad_management' as const, label: 'Ad Management', icon: '📢' },
+  { id: 'previous_news' as const, label: 'Previous News', icon: '📁' },
+  { id: 'analytics' as const, label: 'Analytics', icon: '📊' },
+  { id: 'user_management' as const, label: 'User Management', icon: '👥' },
 ] as const;
 
 type SectionId = typeof sections[number]['id'];
 
 export default function NewsAdminPage() {
-  const [activeSection, setActiveSection] = useState<SectionId>('india');
   const userCtx = useContext(UserContext);
+  const userRole = userCtx?.UserAuthData?.role;
+  const isSuperAdmin = userRole === 'SUPER_ADMIN';
+
+  // Filter sections based on role
+  const availableSections = sections.filter(s => {
+    if (s.id === 'analytics' || s.id === 'user_management') {
+      return isSuperAdmin;
+    }
+    return true;
+  });
+
+  const [activeSection, setActiveSection] = useState<SectionId>('news_management');
   const activeSectionData = sections.find(s => s.id === activeSection);
 
   const handleLogout = () => {
@@ -36,7 +43,7 @@ export default function NewsAdminPage() {
           <div className={styles.mobileTabs}>
             <div className={styles.mobileTabsContainer}>
               <div className={styles.tabsList}>
-                {sections.map(section => (
+                {availableSections.map(section => (
                   <button
                     key={section.id}
                     onClick={() => setActiveSection(section.id)}
@@ -53,7 +60,7 @@ export default function NewsAdminPage() {
           <aside className={styles.desktopSidebar}>
             <h1 className={styles.sidebarTitle}>Sections</h1>
             <nav className={styles.sidebarNav}>
-              {sections.map(section => (
+              {availableSections.map(section => (
                 <button
                   key={section.id}
                   onClick={() => setActiveSection(section.id)}
@@ -67,6 +74,26 @@ export default function NewsAdminPage() {
                 </button>
               ))}
             </nav>
+
+            <div className={styles.sidebarUserInfo}>
+              <div className={styles.userAvatar}>
+                {userCtx?.UserAuthData?.profilepic ? (
+                  <img src={userCtx?.UserAuthData?.profilepic} alt="Profile" />
+                ) : (
+                  <span className={styles.avatarPlaceholder}>
+                    {userCtx?.UserAuthData?.name?.[0] || 'U'}
+                  </span>
+                )}
+              </div>
+              <div className={styles.userDetails}>
+                <span className={styles.userName}>
+                  {userCtx?.UserAuthData?.name || 'Logged User'}
+                </span>
+                <span className={styles.userRole}>
+                  {userCtx?.UserAuthData?.role?.replace('_', ' ') || 'User'}
+                </span>
+              </div>
+            </div>
           </aside>
 
           <main className={styles.mainContent}>

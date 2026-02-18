@@ -1,5 +1,5 @@
-'use client';
 import React, { useMemo } from 'react';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -252,12 +252,14 @@ const NewsCards: React.FC<NewsCardsProps> = ({
                   <div className={styles.imageContainer}>
                     {featuredItem.image ? (
                       <>
-                        <img
+                        <Image
                           src={featuredItem.image}
                           alt={featuredItem.title}
-                          loading="lazy"
+                          fill
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          style={{ objectFit: 'cover' }}
                           onError={(e) => {
-                            (e.target as HTMLImageElement).src = '/images/placeholder-news.jpg';
+                            (e.currentTarget as any).src = '/images/placeholder-news.jpg';
                           }}
                         />
 

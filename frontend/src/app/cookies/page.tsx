@@ -9,7 +9,6 @@ const CookiePolicy = () => {
             <div className={styles.container}>
                 <header className={styles.header}>
                     <h1>Cookie Policy</h1>
-                    <p className={styles.effectiveDate}>Effective Date: February 17, 2026</p>
                 </header>
 
                 <div className={styles.content}>

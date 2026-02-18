@@ -186,7 +186,7 @@ export function useNewsSectionData<T extends NewsItemVariant = NewsItemVariant>(
         return {
           ...base,
           timeAgo: calculateTimeAgo(raw.date),
-          author: raw.author || 'News Desk',
+          author: raw.author || 'Prime Time News',
           date: raw.date,
         } as T;
       }

@@ -9,6 +9,8 @@ import { UserProvider } from "./Dashboard/Context/ManageUserContext";
 import { ToastContainer } from "react-toastify";
 import { ThemeProvider } from "./context/ThemeContext";
 
+import ConditionalLayout from "./Components/Common/ConditionalLayout";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -76,13 +78,12 @@ export default function RootLayout({
         <ThemeProvider>
           <NewsProvider>
             <UserProvider>
-              <Navbar />
               <ToastContainer />
-              <main>
-                {children}
-              </main>
-              <Footer />
-              <WhatsAppButton />
+              <ConditionalLayout>
+                <main>
+                  {children}
+                </main>
+              </ConditionalLayout>
             </UserProvider>
           </NewsProvider>
         </ThemeProvider>

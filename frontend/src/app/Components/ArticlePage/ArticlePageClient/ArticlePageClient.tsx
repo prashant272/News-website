@@ -205,6 +205,10 @@ export default function ArticlePageClient({
                 image={article.image}
                 isArticle={true}
               />
+              <div className={styles.authorAttribution}>
+                <span className={styles.authorPrefix}>Published by:</span>
+                <span className={styles.authorName}>{article.author || 'Prime Time News'}</span>
+              </div>
             </div>
           </div>
 
