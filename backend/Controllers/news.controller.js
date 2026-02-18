@@ -106,7 +106,8 @@ exports.getAllNews = async (req, res) => {
     const { includeDrafts } = req.query;
     const news = await NewsConfig.find({ isActive: true })
       .sort({ createdAt: -1 })
-      .select("-permissions -__v").lean();
+      .sort({ createdAt: -1 })
+      .select("-permissions -__v -india.content -sports.content -business.content -technology.content -entertainment.content -lifestyle.content -world.content -health.content -state.content -education.content -environment.content -science.content -opinion.content -auto.content -travel.content -awards.content").lean();
 
     if (includeDrafts !== 'true' && news.length > 0) {
       // Filter out drafts from each section array

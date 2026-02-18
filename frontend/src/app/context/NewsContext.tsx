@@ -57,7 +57,9 @@ export const NewsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     keys.forEach((key) => {
       const arr = sections[key];
       if (Array.isArray(arr)) {
-        const visibleItems = arr.filter((item) => !item.isHidden);
+        const visibleItems = arr
+          .filter((item) => !item.isHidden)
+          .map((item) => ({ ...item, section: key }));
         items.push(...visibleItems);
       }
     });

@@ -111,6 +111,11 @@ export default async function ArticleDetailPage({ params }: PageProps) {
       foundArticle = allNews.find(n => n.slug === slug);
       if (!foundArticle) notFound();
 
+      // Since getAllNews excludes content, we must fetch the full article details
+      // using the section we just discovered.
+      const fullArticleRes = await newsService.getNewsBySlug(foundArticle.category || 'india', slug);
+      foundArticle = fullArticleRes.news || fullArticleRes.data || foundArticle;
+
       // Use items from the article's actual category for related stories
       relatedNews = allNews.filter(n => n.category === foundArticle!.category);
     }

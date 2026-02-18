@@ -76,15 +76,7 @@ const Navbar: React.FC = () => {
   }, [isMobileMenuOpen]);
 
   useEffect(() => {
-    const updateVisibleItems = () => {
-      if (window.innerWidth >= 1200) setVisibleItems(3);
-      else if (window.innerWidth >= 768) setVisibleItems(2);
-      else setVisibleItems(1);
-    };
-
-    updateVisibleItems();
-    window.addEventListener('resize', updateVisibleItems);
-    return () => window.removeEventListener('resize', updateVisibleItems);
+    setVisibleItems(1);
   }, []);
 
   useEffect(() => {

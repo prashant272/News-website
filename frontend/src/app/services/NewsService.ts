@@ -17,7 +17,8 @@ export interface NewsItem {
     targetLink?: string;
     nominationLink?: string;
     author?: string;
-    _id?: string
+    _id?: string;
+    section?: string;
 }
 
 export interface NewsSections {
