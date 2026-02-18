@@ -259,7 +259,7 @@ const NewsSection: React.FC<NewsSectionProps> = ({
                     {topNews.map((news) => (
                       <Link
                         key={news.id}
-                        href={news.slug ? `/Pages/${section}/${encodeURIComponent(news.subCategory || '')}/${encodeURIComponent(news.slug || '')}` : '#'}
+                        href={news.slug ? `/Pages/${section}/${encodeURIComponent(news.subCategory || 'general')}/${encodeURIComponent(news.slug || '')}` : '#'}
                         className={styles.topNewsItem}
                       >
                         <p>{news.title}</p>
@@ -291,7 +291,7 @@ const NewsCard: React.FC<NewsCardProps> = ({ image, title, slug, category, curre
   const section = getSection(pathname, category, currentSection);
   const displayImage = getImageSrc(image);
 
-  const href = slug ? `/Pages/${section}/${encodeURIComponent(subCategory)}/${encodeURIComponent(slug)}` : undefined;
+  const href = slug ? `/Pages/${section}/${encodeURIComponent(subCategory || 'general')}/${encodeURIComponent(slug)}` : undefined;
 
   const handleCardClick = () => {
     if (href) {

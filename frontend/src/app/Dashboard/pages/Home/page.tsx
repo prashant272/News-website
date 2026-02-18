@@ -3,11 +3,13 @@
 import React, { useState, useContext } from 'react';
 import ProtectedRoute from "../../ProtectedRoute/ProtectedRoute";
 import MainSection from '@/app/Dashboard/Components/Home/MainSection/Main';
+import AINewsManagement from "@/app/Dashboard/Components/Home/AINewsManagement/AINewsManagement";
 import styles from './Page.module.scss';
 import { UserContext } from "@/app/Dashboard/Context/ManageUserContext";
 
 const sections = [
   { id: 'news_management' as const, label: 'News Management', icon: '📝' },
+  { id: 'ai_news' as const, label: 'AI News', icon: '🤖' },
   { id: 'ad_management' as const, label: 'Ad Management', icon: '📢' },
   { id: 'previous_news' as const, label: 'Previous News', icon: '📁' },
   { id: 'analytics' as const, label: 'Analytics', icon: '📊' },
@@ -31,9 +33,15 @@ export default function NewsAdminPage() {
 
   const [activeSection, setActiveSection] = useState<SectionId>('news_management');
   const activeSectionData = sections.find(s => s.id === activeSection);
+  const [draftToEdit, setDraftToEdit] = useState<any>(null); // Using any for now to avoid strict type refactoring hell
 
   const handleLogout = () => {
     userCtx?.logout();
+  };
+
+  const handleEditDraft = (draft: any) => {
+    setDraftToEdit(draft);
+    setActiveSection('news_management');
   };
 
   return (
@@ -126,7 +134,11 @@ export default function NewsAdminPage() {
             </div>
 
             <div className={styles.contentCard}>
-              <MainSection section={activeSection} />
+              {activeSection === 'ai_news' ? (
+                <AINewsManagement onEdit={handleEditDraft} />
+              ) : (
+                <MainSection section={activeSection as any} initialDraft={activeSection === 'news_management' ? draftToEdit : null} />
+              )}
             </div>
           </main>
         </div>

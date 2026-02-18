@@ -18,6 +18,7 @@ import { FaFacebook, FaWhatsapp, FaShareAlt } from "react-icons/fa";
 
 interface MainSectionProps {
   section: 'news_management' | 'ad_management' | 'previous_news' | 'analytics' | 'user_management';
+  initialDraft?: NewsItem | null;
 }
 
 const CATEGORIES = [
@@ -34,7 +35,7 @@ const CATEGORIES = [
 
 type NewsCategory = typeof CATEGORIES[number]['id'];
 
-const MainSection: FC<MainSectionProps> = ({ section }) => {
+const MainSection: FC<MainSectionProps> = ({ section, initialDraft }) => {
   const { UserAuthData } = useContext(UserContext) as any;
   const userPermissions = UserAuthData?.permissions || {};
   const userRole = UserAuthData?.role || "USER";
@@ -178,6 +179,25 @@ const MainSection: FC<MainSectionProps> = ({ section }) => {
   useEffect(() => {
     setActiveTab(section === 'ad_management' ? 'ads' : 'articles');
   }, [section]);
+
+  // Handle Initial Draft from AI News
+  useEffect(() => {
+    if (initialDraft) {
+      // Find matching category ID
+      const matchedCat = CATEGORIES.find(c => c.id === initialDraft.category.toLowerCase())?.id || 'india';
+      setSelectedCategory(matchedCat);
+
+      setFormState({
+        ...initialDraft,
+        status: 'draft', // Ensure it stays draft until published
+        category: matchedCat.charAt(0).toUpperCase() + matchedCat.slice(1) // Capitalize for display/saving if needed
+      });
+
+      setEditingSlug(initialDraft.slug); // Treat as edit to update the existing draft
+      setActiveTab('articles');
+      window.scrollTo({ top: 120, behavior: "smooth" });
+    }
+  }, [initialDraft]);
 
   useEffect(() => {
     if (activeTab === "articles" && !editingSlug) {

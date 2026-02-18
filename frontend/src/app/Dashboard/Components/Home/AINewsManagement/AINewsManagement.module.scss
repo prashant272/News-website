@@ -1,0 +1,186 @@
+.container {
+    padding: 20px;
+}
+
+.loading {
+    padding: 40px;
+    text-align: center;
+    font-size: 1.2rem;
+    color: #666;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+
+    h2 {
+        font-size: 1.5rem;
+        color: #333;
+    }
+
+    .refreshBtn {
+        padding: 8px 16px;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+
+        &:hover {
+            background: #0056b3;
+        }
+    }
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.card {
+    background: white;
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    .cardHeader {
+        display: flex;
+        gap: 8px;
+        font-size: 0.8rem;
+    }
+
+    .badge {
+        background: #e3f2fd;
+        color: #1976d2;
+        padding: 4px 8px;
+        border-radius: 12px;
+        text-transform: capitalize;
+    }
+
+    .badgeSource {
+        background: #f3e5f5;
+        color: #7b1fa2;
+        padding: 4px 8px;
+        border-radius: 12px;
+    }
+
+    h3 {
+        margin: 0;
+        font-size: 1.1rem;
+        line-height: 1.4;
+    }
+
+    p {
+        color: #666;
+        font-size: 0.9rem;
+        margin: 0;
+    }
+
+    .cardActions {
+        margin-top: auto;
+        display: flex;
+        gap: 10px;
+
+        button {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+
+            &:hover {
+                background: #f5f5f5;
+            }
+
+            &.publishBtn {
+                background: #4caf50;
+                color: white;
+                border-color: #4caf50;
+
+                &:hover {
+                    background: #388e3c;
+                }
+            }
+        }
+    }
+}
+
+.editorOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.editorModal {
+    background: white;
+    padding: 24px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    h2 {
+        margin-top: 0;
+    }
+
+    .formGroup {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        label {
+            font-weight: 500;
+        }
+
+        input,
+        textarea {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+    }
+
+    .actions {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        margin-top: 16px;
+
+        button {
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            background: white;
+
+            &.publishBtn {
+                background: #4caf50;
+                color: white;
+                border: none;
+            }
+        }
+    }
+}
