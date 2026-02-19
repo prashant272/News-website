@@ -19,7 +19,7 @@ export default function AINewsManagement({ onEdit }: AINewsManagementProps) {
     const fetchDrafts = useCallback(async () => {
         setLoading(true);
         try {
-            const res = await API.get("/auto-news/drafts");
+            const res = await API.get("/api/auto-news/drafts");
             if (res.data.success) {
                 setDrafts(res.data.drafts);
             }

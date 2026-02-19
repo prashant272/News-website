@@ -22,9 +22,9 @@ export default function RecommendedStories({ stories }: RecommendedStoriesProps)
       <h2 className={styles.heading}>RECOMMENDED STORIES</h2>
       <div className={styles.storiesList}>
         {stories.map((story, index) => (
-          <Link 
+          <Link
             key={story.id}
-            href={`/${story.section}/${story.category}/${story.slug}`}
+            href={`/Pages/${story.section || 'india'}/${story.category || 'general'}/${story.slug}`}
             className={styles.storyItem}
           >
             <div className={styles.imageWrapper}>

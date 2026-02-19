@@ -24,7 +24,7 @@ export default function TopNewsSidebar({ news }: TopNewsSidebarProps) {
         {news.map((item) => {
           const sectionSlug = item.section.toLowerCase();
 
-          const categoryValue = item.category || item.section;
+          const categoryValue = item.category || 'general';
           const categorySlug = categoryValue
             .toLowerCase()
             .replace(/\s+/g, '-')

@@ -22,9 +22,9 @@ export default function RelatedArticles({ articles }: RelatedArticlesProps) {
       <h2 className={styles.heading}>Also Read</h2>
       <div className={styles.articlesList}>
         {articles.map((article) => (
-          <Link 
+          <Link
             key={article.id}
-            href={`/${article.section || 'sports'}/${article.category || 'cricket'}/${article.slug}`}
+            href={`/Pages/${article.section || 'india'}/${article.category || 'general'}/${article.slug}`}
             className={styles.articleItem}
           >
             {article.title}

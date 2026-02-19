@@ -163,7 +163,7 @@ export function useNewsSectionData<T extends NewsItemVariant = NewsItemVariant>(
       : filteredData;
 
     return dataToUse.slice(0, limit).map((raw: any, idx: number) => {
-      const sub = raw.subCategory || section;
+      const sub = raw.subCategory || 'general';
       const catSlug = sub.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
 
       const base: BaseNewsItem = {
@@ -202,7 +202,7 @@ export function useNewsSectionData<T extends NewsItemVariant = NewsItemVariant>(
     const source = preferTrendingForTop && trending.length >= topLimit ? trending : filteredData;
 
     return source.slice(0, topLimit).map((raw: any, idx: number) => {
-      const sub = raw.subCategory || section;
+      const sub = raw.subCategory || 'general';
       const catSlug = sub.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
 
       return {

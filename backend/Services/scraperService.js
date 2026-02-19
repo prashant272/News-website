@@ -41,6 +41,18 @@ const scrapeNews = async (url) => {
         // Get substantial content
         const content = paragraphs.slice(0, 15).join(" ");
 
+        // Extract Featured Image (og:image or first img)
+        let image = $('meta[property="og:image"]').attr('content');
+        if (!image) {
+            image = $('meta[name="twitter:image"]').attr('content');
+        }
+        if (!image) {
+            const firstImg = $('article img, .story-body img, .content img').first();
+            if (firstImg.length > 0) {
+                image = firstImg.attr('src');
+            }
+        }
+
         if (!title || content.length < 200) {
             throw new Error(`Insufficient content found at ${url}`);
         }
@@ -49,6 +61,7 @@ const scrapeNews = async (url) => {
             title,
             facts: content,
             source: url,
+            image: image || ''
         };
     } catch (error) {
         console.error(`Scraping Error (${url}):`, error.message);
@@ -60,11 +73,12 @@ const scrapeNews = async (url) => {
 const getLatestLinks = async (rssUrl) => {
     try {
         const feed = await parser.parseURL(rssUrl);
-        // Return top 2 items to avoid overwhelming processing
-        return feed.items.slice(0, 2).map(item => ({
+        // Return top 10 items to find unprocessed news even if latest 2 are done
+        return feed.items.slice(0, 10).map(item => ({
             title: item.title,
             link: item.link,
-            pubDate: item.pubDate
+            pubDate: item.pubDate,
+            source: feed.title // Capture feed title as source name if available
         }));
     } catch (error) {
         console.error(`RSS Error (${rssUrl}):`, error.message);

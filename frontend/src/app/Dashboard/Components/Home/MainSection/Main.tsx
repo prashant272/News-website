@@ -59,6 +59,7 @@ const MainSection: FC<MainSectionProps> = ({ section, initialDraft }) => {
   const [activeTab, setActiveTab] = useState<string>(section);
   const [editingSlug, setEditingSlug] = useState<string | null>(null);
   const [editingAdId, setEditingAdId] = useState<string | null>(null);
+  const [tagsInput, setTagsInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<"all" | "draft" | "published" | "archived">("all");
   const [filterVisibility, setFilterVisibility] = useState<"all" | "visible" | "hidden">("all");
@@ -194,6 +195,7 @@ const MainSection: FC<MainSectionProps> = ({ section, initialDraft }) => {
       });
 
       setEditingSlug(initialDraft.slug); // Treat as edit to update the existing draft
+      setTagsInput(initialDraft.tags?.join(", ") || "");
       setActiveTab('articles');
       window.scrollTo({ top: 120, behavior: "smooth" });
     }
@@ -232,6 +234,7 @@ const MainSection: FC<MainSectionProps> = ({ section, initialDraft }) => {
     setImagePreview(null);
     setShowImage(false);
     setEditingSlug(null);
+    setTagsInput("");
   }, [selectedCategory]);
 
   const resetAdForm = useCallback(() => {
@@ -379,10 +382,9 @@ const MainSection: FC<MainSectionProps> = ({ section, initialDraft }) => {
   );
 
   const handleTagsChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    const tags = e.target.value
-      .split(",")
-      .map((t) => t.trim())
-      .filter(Boolean);
+    const val = e.target.value;
+    setTagsInput(val);
+    const tags = val.split(",").map((t) => t.trim()).filter(Boolean);
     setFormState((prev) => ({ ...prev, tags }));
   }, []);
 
@@ -429,6 +431,7 @@ const MainSection: FC<MainSectionProps> = ({ section, initialDraft }) => {
         ...formState,
         section: selectedCategory,
         author: authorName,
+        tags: tagsInput.split(",").map(t => t.trim()).filter(Boolean),
         publishedAt: new Date().toISOString(),
       } as NewsItem & { section: string });
       showNotification(`Article created by ${authorName}`, "success");
@@ -447,6 +450,7 @@ const MainSection: FC<MainSectionProps> = ({ section, initialDraft }) => {
       }
       setEditingSlug(item.slug);
       setFormState({ ...item });
+      setTagsInput(item.tags?.join(", ") || "");
       setImagePreview(item.image || null);
       setShowImage(!!item.image);
       window.scrollTo({ top: 120, behavior: "smooth" });
@@ -457,9 +461,14 @@ const MainSection: FC<MainSectionProps> = ({ section, initialDraft }) => {
   const handleUpdate = useCallback(async () => {
     if (!canUpdate || !editingSlug) return;
     try {
+      const authorName = UserAuthData?.name || "Prime Time News";
       await updateNews({
         slug: editingSlug,
-        news: formState,
+        news: {
+          ...formState,
+          author: authorName,
+          tags: tagsInput.split(",").map(t => t.trim()).filter(Boolean)
+        },
       });
       showNotification("Article updated", "success");
       resetForm();
@@ -861,7 +870,7 @@ const MainSection: FC<MainSectionProps> = ({ section, initialDraft }) => {
                     <input
                       type="text"
                       className={styles.input}
-                      value={formState.tags?.join(", ") ?? ""}
+                      value={tagsInput}
                       onChange={handleTagsChange}
                       placeholder="comma, separated, tags"
                     />
@@ -1092,7 +1101,7 @@ const MainSection: FC<MainSectionProps> = ({ section, initialDraft }) => {
                     <input
                       type="text"
                       className={styles.input}
-                      value={formState.tags?.join(", ") ?? ""}
+                      value={tagsInput}
                       onChange={handleTagsChange}
                       placeholder="comma, separated, tags"
                     />

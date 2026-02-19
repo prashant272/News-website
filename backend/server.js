@@ -41,7 +41,7 @@ app.use("/auth", AuthRouter)
 app.use("/news", NewsRouter)
 app.use("/otp", OTPRouter)
 app.use("/ads", AdsRouter)
-app.use(AutoNewsRouter)
+app.use("/api", AutoNewsRouter)
 
 app.listen(process.env.PORT, () => {
     console.log(`Server is running on port ${process.env.PORT}`);
