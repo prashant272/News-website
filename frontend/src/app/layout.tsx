@@ -22,6 +22,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.primetimemedia.in"),
   title: "Prime Time News - Latest Breaking News & Updates",
   description: "Your trusted source for breaking news, analysis, and in-depth coverage of events shaping India and the world.",
   keywords: [
@@ -44,7 +45,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Prime Time News - Latest Breaking News & Updates",
     description: "Your trusted source for breaking news, analysis, and in-depth coverage of events shaping India and the world.",
-    url: "https://primetime-media-news.vercel.app/",
+    url: "https://www.primetimemedia.in/",
     siteName: "Prime Time News",
     images: [
       {
