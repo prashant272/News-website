@@ -149,8 +149,36 @@ export default function ArticlePageClient({
     );
   };
 
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    "headline": article.title,
+    "image": [
+      normalizeUrl(article.image)
+    ],
+    "datePublished": article.date,
+    "dateModified": article.date,
+    "author": [{
+      "@type": "Person",
+      "name": article.author || "Prime Time News"
+    }],
+    "publisher": {
+      "@type": "Organization",
+      "name": "Prime Time Media",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://www.primetimemedia.in/logo.png" // Replace with actual logo URL if available
+      }
+    },
+    "description": article.subtitle || article.content.substring(0, 150)
+  };
+
   return (
     <div className={styles.articlePage}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
       <div className={styles.container}>
         <Breadcrumb
           section={section}

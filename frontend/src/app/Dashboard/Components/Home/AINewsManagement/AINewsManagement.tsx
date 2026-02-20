@@ -60,8 +60,8 @@ export default function AINewsManagement({ onEdit }: AINewsManagementProps) {
             </div>
 
             <div className={styles.grid}>
-                {drafts.map((draft) => (
-                    <div key={draft.slug} className={styles.card}>
+                {drafts.map((draft, index) => (
+                    <div key={`${draft.slug}-${index}`} className={styles.card}>
                         <div className={styles.cardHeader}>
                             <span className={styles.badge}>{draft.category}</span>
                             <span className={styles.badgeSource}>{draft.source || "AI"}</span>

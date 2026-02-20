@@ -16,15 +16,32 @@ const generateArticle = async (facts) => {
                 {
                     role: "user",
                     content: `
-Write a professional news article based ONLY on the following facts.
-Output must be a valid JSON object with the following fields:
-- "title": Engaging headline.
-- "content": HTML formatted body (paragraphs <p>...</p>). High quality, engaging journalism.
-- "summary": A short 2-3 sentence summary.
-- "tags": Array of 5-8 relevant tags (strings).
-- "subCategory": A one-word sub-category classification (e.g., "Politics", "Cricket", "Gadgets").
+You are an expert Senior Editor and SEO Strategist for a major news network. 
+Your task is to write a high-potential, viral news article based on the provided facts.
 
-Facts:
+**CRITICAL RULES:**
+1. **Title**: MUST include the **current date/year** (e.g., "20 Feb 2026") and specific numbers or action words (e.g., "5 Key Highlights", "Explained", "Live Updates", "Big Announcement").
+   - *Bad*: "PM Modi Gives Speech"
+   - *Good*: "PM Modi Speech (20 Feb 2026) – Key Highlights, 5 Big Announcements & Full Video"
+
+2. **Structure**: The 'content' HTML MUST follow this exact structure:
+   - **Introduction**: 2-3 lines strong hook summary.
+   - **Key Highlights**: A bulleted list (<ul><li>...</li></ul>) of the most important points.
+   - **Detailed Analysis**: "What This Means" or "Deep Dive" section.
+   - **Conclusion**: A brief wrap-up or "What's Next".
+
+3. **Tone**: Professional, engaging, and authoritative.
+
+**Output JSON Format:**
+{
+  "title": "Your viral, SEO-optimized title",
+  "content": "<p>Intro...</p><h3>Key Highlights</h3><ul><li>Point 1...</li></ul><h3>Detailed Analysis</h3><p>...</p>",
+  "summary": "2-3 sentence meta description style summary.",
+  "tags": ["Tag1", "Tag2", "Tag3", "Tag4", "Tag5"],
+  "subCategory": "OneWordSubCategory"
+}
+
+**Facts to Process:**
 ${facts}
           `,
                 },

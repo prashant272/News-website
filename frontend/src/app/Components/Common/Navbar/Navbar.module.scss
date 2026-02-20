@@ -254,7 +254,7 @@
 .navListMobile {
   list-style: none;
   margin: 0;
-  padding: 12px 0;
+  padding: 12px 0 100px 0; // Huge padding at bottom to ensure scroll works
   background: var(--nav-bg);
   border-top: 1px solid var(--nav-border);
 
@@ -297,10 +297,14 @@
     transition: max-height 0.4s ease;
 
     &.open {
-      max-height: 600px;
+      max-height: calc(100dvh - 70px);
+      overflow-y: auto !important;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      padding-bottom: 120px;
     }
   }
 }
+
 
 @media (max-width: 768px) {
   .adBanner {

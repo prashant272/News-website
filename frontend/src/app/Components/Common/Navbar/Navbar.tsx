@@ -49,20 +49,21 @@ const Navbar: React.FC = () => {
   const { data: ads, loading: adsLoading } = useActiveAds();
 
   const navItems = useMemo<NavItem[]>(() => {
-    const items: NavItem[] = [{ label: "Home", href: "/", key: "home" }];
-    if (sections) {
-      Object.entries(sections).forEach(([key, value]) => {
-        if (Array.isArray(value) && value.length > 0) {
-          items.push({
-            label: formatSectionName(key),
-            href: `/Pages/${key}`,
-            key,
-          });
-        }
-      });
-    }
-    return items;
-  }, [sections]);
+    // Explicit list as requested by user
+    const staticItems = [
+      { label: "Home", href: "/", key: "home" },
+      { label: "India", href: "/Pages/india", key: "india" },
+      { label: "Sports", href: "/Pages/sports", key: "sports" },
+      { label: "Business", href: "/Pages/business", key: "business" },
+      { label: "Technology", href: "/Pages/technology", key: "technology" },
+      { label: "Entertainment", href: "/Pages/entertainment", key: "entertainment" },
+      { label: "Lifestyle", href: "/Pages/lifestyle", key: "lifestyle" },
+      { label: "World", href: "/Pages/world", key: "world" },
+      { label: "Health", href: "/Pages/health", key: "health" },
+      { label: "Awards", href: "/Pages/awards", key: "awards" },
+    ];
+    return staticItems;
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);

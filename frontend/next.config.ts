@@ -138,6 +138,18 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'english.cdn.zeenews.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'zeenews.india.com',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };
