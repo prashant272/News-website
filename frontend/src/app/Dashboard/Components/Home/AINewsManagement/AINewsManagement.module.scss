@@ -108,6 +108,16 @@
                     background: #388e3c;
                 }
             }
+
+            &.deleteBtn {
+                background: #f44336;
+                color: white;
+                border-color: #f44336;
+
+                &:hover {
+                    background: #d32f2f;
+                }
+            }
         }
     }
 }

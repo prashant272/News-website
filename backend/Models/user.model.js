@@ -29,6 +29,12 @@ const userSchema = new mongoose.Schema(
       default: null,
     },
 
+    designation: {
+      type: String,
+      default: "Senior Editor",
+      trim: true,
+    },
+
     role: {
       type: String,
       enum: ["USER", "ADMIN", "SUPER_ADMIN", "VIEWER"],

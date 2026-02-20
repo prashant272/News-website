@@ -17,8 +17,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug, category } = await params;
 
   try {
-    const sectionKey = decodeURIComponent(category).toLowerCase().replace(/\s+/g, '').replace(/-/g, '');
-    const res = await newsService.getNewsBySlug(sectionKey, slug);
+    const sectionKey = category.toLowerCase();
+    const res = await newsService.getNewsBySlug(sectionKey, slug).catch(() => null);
+    if (!res) return { title: "News | Prime Time Media" };
     const news = res.news || res.data;
 
     if (news) {
@@ -77,48 +78,26 @@ export default async function ArticleDetailPage({ params }: PageProps) {
 
   const category = decodeURIComponent(catParam).toLowerCase().replace(/-/g, ' ');
   const subCategory = decodeURIComponent(subCatParam).toLowerCase().replace(/-/g, ' ');
-  const sectionKey = category.replace(/\s+/g, '');
+  const sectionKey = catParam.toLowerCase(); // Use raw param for API
 
   try {
-    // 1. Try fetching specifically by slug and section first (Fastest)
-    const newsRes = await newsService.getNewsBySlug(sectionKey, slug);
-    let foundArticle = newsRes.news || newsRes.data;
+    // Fetch specifically by slug. The backend now finds by slug regardless of section mismatch.
+    const newsRes = await newsService.getNewsBySlug(sectionKey, slug).catch(err => {
+      console.warn(`Initial fetch failed for ${slug} in ${sectionKey}, trying fallback...`, err.message);
+      return null;
+    });
 
-    let relatedNews: NewsItem[] = [];
+    let foundArticle = newsRes?.news || newsRes?.data;
 
-    if (foundArticle) {
-      // Fetch only the relevant section for sidebar
-      const sectionRes = await newsService.getNewsBySection(sectionKey);
-      relatedNews = (sectionRes.news || sectionRes.data || []) as NewsItem[];
-    } else {
-      // 2. Fallback: search in all news if not found in primary section
-      const allNewsRes = await newsService.getAllNews();
-      const allDocs: any[] = (allNewsRes as any).news || allNewsRes.data || [];
-
-      const allNews: NewsItem[] = [];
-      const sections = ['india', 'sports', 'business', 'lifestyle', 'entertainment', 'health', 'awards', 'technology', 'world'];
-
-      allDocs.forEach(doc => {
-        sections.forEach(sec => {
-          if (doc[sec] && Array.isArray(doc[sec])) {
-            doc[sec].forEach((item: any) => {
-              allNews.push({ ...item, category: sec });
-            });
-          }
-        });
-      });
-
-      foundArticle = allNews.find(n => n.slug === slug);
-      if (!foundArticle) notFound();
-
-      // Since getAllNews excludes content, we must fetch the full article details
-      // using the section we just discovered.
-      const fullArticleRes = await newsService.getNewsBySlug(foundArticle.category || 'india', slug);
-      foundArticle = fullArticleRes.news || fullArticleRes.data || foundArticle;
-
-      // Use items from the article's actual category for related stories
-      relatedNews = allNews.filter(n => n.category === foundArticle!.category);
+    // If still not found, it might be a truly missing article or a draft
+    if (!foundArticle) {
+      notFound();
     }
+
+    // Fetch related news from the same category
+    const articleCategory = foundArticle.category || sectionKey;
+    const sectionRes = await newsService.getNewsBySection(articleCategory).catch(() => ({ news: [], data: [] }));
+    const relatedNews = ((sectionRes as any).news || (sectionRes as any).data || []) as NewsItem[];
 
     return renderArticle(foundArticle!, relatedNews, category, subCategory, slug);
 
@@ -129,6 +108,8 @@ export default async function ArticleDetailPage({ params }: PageProps) {
 }
 
 function renderArticle(foundArticle: any, categoryNews: any[], category: string, subCategory: string, slug: string) {
+  console.log(`[DEBUG] Article ${slug} authorId:`, foundArticle.authorId);
+
   const articleData = {
     id: foundArticle._id || foundArticle.slug,
     section: foundArticle.category || category,
@@ -138,6 +119,7 @@ function renderArticle(foundArticle: any, categoryNews: any[], category: string,
     image: foundArticle.image || '/placeholder.jpg',
     date: foundArticle.publishedAt || foundArticle.createdAt || new Date().toISOString(),
     author: foundArticle.author || 'Prime Time News',
+    authorId: foundArticle.authorId,
     readTime: '5 min read',
     content: foundArticle.content || 'Content not available',
     tags: foundArticle.tags || [],

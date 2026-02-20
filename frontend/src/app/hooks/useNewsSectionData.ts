@@ -185,9 +185,9 @@ export function useNewsSectionData<T extends NewsItemVariant = NewsItemVariant>(
       if (variant === 'stories') {
         return {
           ...base,
-          timeAgo: calculateTimeAgo(raw.date),
+          timeAgo: calculateTimeAgo(raw.createdAt || raw.date), // Use createdAt from new model
           author: raw.author || 'Prime Time News',
-          date: raw.date,
+          date: raw.date || raw.createdAt,
         } as T;
       }
 

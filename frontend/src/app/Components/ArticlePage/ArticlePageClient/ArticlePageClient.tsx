@@ -22,6 +22,12 @@ interface ArticleData {
   image: string;
   date: string;
   author?: string;
+  authorId?: {
+    _id: string;
+    name: string;
+    ProfilePicture: string;
+    designation: string;
+  };
   readTime?: string;
   tags?: string[];
   content: string;
@@ -73,6 +79,12 @@ export default function ArticlePageClient({
   section,
   category
 }: ArticlePageClientProps) {
+
+  console.log("[DEBUG] ArticlePageClient data:", {
+    id: article.id,
+    author: article.author,
+    authorId: article.authorId
+  });
 
   const { data: ads, loading: adsLoading } = useActiveAds();
   const activeAds = (ads || []).filter(ad => ad.isActive);
@@ -233,9 +245,28 @@ export default function ArticlePageClient({
                 image={article.image}
                 isArticle={true}
               />
-              <div className={styles.authorAttribution}>
-                <span className={styles.authorPrefix}>Published by:</span>
-                <span className={styles.authorName}>{article.author || 'Prime Time News'}</span>
+              <div className={styles.authorProfileSection}>
+                {article.authorId ? (
+                  <div className={styles.premiumAuthorCard}>
+                    <div className={styles.authorImageContainer}>
+                      <img
+                        src={article.authorId.ProfilePicture || '/default-avatar.png'}
+                        alt={article.authorId.name}
+                        className={styles.authorProfilePic}
+                      />
+                    </div>
+                    <div className={styles.authorInfo}>
+                      <span className={styles.authorLabel}>Published By</span>
+                      <h4 className={styles.authorNamePrimary}>{article.authorId.name}</h4>
+                      <p className={styles.authorDistinction}>{article.authorId.designation || 'Senior Editor'}</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className={styles.authorAttribution}>
+                    <span className={styles.authorPrefix}>Published by:</span>
+                    <span className={styles.authorName}>{article.author || 'Prime Time News'}</span>
+                  </div>
+                )}
               </div>
             </div>
           </div>

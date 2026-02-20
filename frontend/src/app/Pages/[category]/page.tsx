@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useParams, notFound } from 'next/navigation';
 import { useNewsContext } from '@/app/context/NewsContext';
 import { NewsItem } from '@/app/services/NewsService';
@@ -14,47 +14,39 @@ import SocialShare from '@/app/Components/Common/SocialShare/SocialShare';
 export default function CategoryPage() {
   const params = useParams();
   const context = useNewsContext();
-  const [filteredNews, setFilteredNews] = useState<NewsItem[]>([]);
-  const [categoryTitle, setCategoryTitle] = useState<string>('');
-  const [isFiltering, setIsFiltering] = useState(true);
   const [currentUrl, setCurrentUrl] = useState<string>('');
-
   const category = params?.category as string;
+  const urlCategory = category?.toLowerCase();
+
+  const categoryTitle = useMemo(() => {
+    if (!category) return '';
+    return category
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  }, [category]);
+
+  const filteredNews = useMemo(() => {
+    if (!urlCategory || !context?.allNews) return [];
+
+    const sectionMap: { [key: string]: string } = {
+      'technology': 'tech'
+    };
+    const mappedSection = sectionMap[urlCategory] || urlCategory;
+
+    return context.allNews.filter((news) => {
+      const newsCategory = news.category?.toLowerCase() || '';
+      return newsCategory === urlCategory || newsCategory === mappedSection;
+    });
+  }, [urlCategory, context?.allNews]);
+
+  const isFiltering = !context?.allNews || context.loading;
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setCurrentUrl(window.location.href);
     }
-
-    if (!category || !context?.allNews) {
-      setIsFiltering(true);
-      return;
-    }
-
-    const formattedCategory = category
-      .split('-')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
-
-    setCategoryTitle(formattedCategory);
-
-    const urlCategory = category.toLowerCase();
-    const sectionMap: { [key: string]: string } = {
-      'technology': 'tech'
-    };
-
-    const mappedSection = sectionMap[urlCategory] || urlCategory;
-
-    const filtered = context.allNews.filter((news) => {
-      const newsCategory = news.category?.toLowerCase() || '';
-
-      return newsCategory === urlCategory ||
-        newsCategory === mappedSection;
-    });
-
-    setFilteredNews(filtered);
-    setIsFiltering(false);
-  }, [category, context?.allNews]);
+  }, []);
 
   const latestNews = filteredNews.filter(news => news.isLatest === true);
   const trendingNews = filteredNews.filter(news => news.isTrending === true);

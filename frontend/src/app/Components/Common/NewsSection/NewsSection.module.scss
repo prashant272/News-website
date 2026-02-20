@@ -92,20 +92,38 @@
 
   &.cols2 {
     grid-template-columns: 1fr;
-    @media (min-width: 640px) { grid-template-columns: repeat(2, 1fr); }
+
+    @media (min-width: 640px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
   }
 
   &.cols3 {
     grid-template-columns: 1fr;
-    @media (min-width: 640px)  { grid-template-columns: repeat(2, 1fr); }
-    @media (min-width: 1024px) { grid-template-columns: repeat(3, 1fr); }
+
+    @media (min-width: 640px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (min-width: 1024px) {
+      grid-template-columns: repeat(3, 1fr);
+    }
   }
 
   &.cols4 {
     grid-template-columns: 1fr;
-    @media (min-width: 640px)  { grid-template-columns: repeat(2, 1fr); }
-    @media (min-width: 1024px) { grid-template-columns: repeat(3, 1fr); }
-    @media (min-width: 1280px) { grid-template-columns: repeat(4, 1fr); }
+
+    @media (min-width: 640px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (min-width: 1024px) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    @media (min-width: 1280px) {
+      grid-template-columns: repeat(4, 1fr);
+    }
   }
 }
 
@@ -181,14 +199,14 @@
   background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
   backdrop-filter: blur(12px);
   border-radius: 100px;
-  border: 1px solid rgba(255,255,255,0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   font-family: 'Inter', sans-serif;
   font-weight: 600;
   font-size: 0.7rem;
   color: white;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  box-shadow: 0 2px 8px rgba(239,68,68,0.4);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
   z-index: 1;
   display: flex;
   align-items: center;
@@ -275,7 +293,7 @@
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.5);
+  background: rgba(255, 255, 255, 0.5);
   border: none;
   cursor: pointer;
   transition: all 0.3s;
@@ -435,7 +453,8 @@
   margin-top: 12px;
   padding: 0 4px;
 
-  .moreInfoBtn, .nominationBtn {
+  .moreInfoBtn,
+  .nominationBtn {
     flex: 1;
     padding: 8px 12px;
     border-radius: 6px;

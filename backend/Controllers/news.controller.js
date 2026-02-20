@@ -1,220 +1,210 @@
-const NewsConfig = require("../Models/news.model");
+const NewsArticle = require("../Models/NewsArticle");
 const dotenv = require("dotenv");
 dotenv.config({ path: "./Config/config.env" });
-
 const cloudinary = require("cloudinary").v2;
+
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
   api_key: process.env.API_KEY,
   api_secret: process.env.API_SECRET,
 });
 
-
 exports.AddNews = async (req, res) => {
   try {
     const {
-      title,
-      slug,
-      category,
-      subCategory,
-      summary,
-      content,
-      image,
-      tags = [],
-      section,
-      targetLink,
-      nominationLink,
-      author,
-      status,
+      title, slug, category, subCategory, summary, content,
+      image, tags = [], section, targetLink, nominationLink,
+      author, status, authorId
     } = req.body;
 
-    if (!title || !slug || !category || !content || !section) {
+    const finalCategory = (category || section)?.toLowerCase();
+
+    if (!title || !slug || !finalCategory || !content) {
       return res.status(400).json({
         success: false,
-        msg: "Missing required fields: title, slug, category, content, section",
+        msg: "Missing required fields: title, slug, category, content",
       });
     }
 
-    let newsConfig = await NewsConfig.findOne({ isActive: true });
-
-    if (!newsConfig) {
-      newsConfig = new NewsConfig({
-        india: [],
-        sports: [],
-        business: [],
-        technology: [],
-        entertainment: [],
-        lifestyle: [],
-        world: [],
-        health: [],
-        state: [],
-        isActive: true,
-      });
-    }
-
-    if (newsConfig[section].some((item) => item.slug.toLowerCase() === slug.toLowerCase())) {
+    const existing = await NewsArticle.findOne({ slug });
+    if (existing) {
       return res.status(409).json({
         success: false,
-        msg: `Slug '${slug}' already exists in ${section} section`,
+        msg: `Slug '${slug}' already exists.`,
       });
     }
 
-    let imageUrl;
+    let imageUrl = null;
     if (image) {
-      const uploadResponse = await cloudinary.uploader.upload(image);
-      imageUrl = uploadResponse.secure_url;
+      if (image.startsWith("http")) {
+        imageUrl = image;
+      } else {
+        try {
+          const uploadResponse = await cloudinary.uploader.upload(image, {
+            folder: "primetime_news"
+          });
+          imageUrl = uploadResponse.secure_url;
+        } catch (uploadError) {
+          console.error("Cloudinary Upload Error:", uploadError);
+        }
+      }
     }
 
-    const newItem = {
-      title,
-      slug,
-      category,
-      subCategory: subCategory || null,
-      summary: summary || null,
-      content,
-      image: imageUrl || null,
-      tags,
-      targetLink: targetLink || null,
-      nominationLink: nominationLink || null,
+    const newItem = new NewsArticle({
+      title, slug, category: finalCategory, subCategory: subCategory || null,
+      summary: summary || null, content, image: imageUrl, tags,
+      targetLink: targetLink || null, nominationLink: nominationLink || null,
       author: author || "Prime Time News",
+      authorId: authorId || null,
       status: status || "draft",
-    };
+      publishedAt: status === "published" ? new Date() : null
+    });
 
-    newsConfig[section].unshift(newItem);
-    newsConfig.lastUpdated = new Date();
-    const savedConfig = await newsConfig.save();
+    await newItem.save();
 
     return res.status(201).json({
       success: true,
       news: newItem,
-      section,
-      msg: `News added to ${section} section successfully`,
-      totalInSection: savedConfig[section].length,
+      section: finalCategory,
+      msg: `News added to ${finalCategory} successfully`,
     });
   } catch (error) {
     console.error("Add News Error:", error);
-    res.status(500).json({
-      success: false,
-      msg: "Server error adding news",
-      error: error.message,
-    });
+    res.status(500).json({ success: false, msg: "Server error adding news", error: error.message });
   }
 };
 
 exports.getAllNews = async (req, res) => {
   try {
-    const { includeDrafts } = req.query;
-    const news = await NewsConfig.find({ isActive: true })
-      .sort({ createdAt: -1 })
-      .sort({ createdAt: -1 })
-      .select("-permissions -__v -india.content -sports.content -business.content -technology.content -entertainment.content -lifestyle.content -world.content -health.content -state.content -education.content -environment.content -science.content -opinion.content -auto.content -travel.content -awards.content").lean();
+    const { includeDrafts, page = 1, limit = 10 } = req.query;
+    const query = {};
 
-    if (includeDrafts !== 'true' && news.length > 0) {
-      // Filter out drafts from each section array
-      const config = news[0]; // Assuming only one active config
-      const sections = ['india', 'sports', 'business', 'technology', 'entertainment', 'lifestyle', 'world', 'health', 'state', 'education', 'environment', 'science', 'opinion', 'auto', 'travel', 'awards'];
-
-      sections.forEach(sec => {
-        if (config[sec]) {
-          config[sec] = config[sec].filter(item => item.status === 'published');
-        }
-      });
+    if (includeDrafts !== 'true') {
+      query.status = 'published';
     }
+
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    const skip = (pageNum - 1) * limitNum;
+
+    const news = await NewsArticle.find(query)
+      .sort({ publishedAt: -1, createdAt: -1 })
+      .skip(skip)
+      .limit(limitNum)
+      .lean();
+
+    const total = await NewsArticle.countDocuments(query);
 
     res.status(200).json({
       success: true,
       news,
+      pagination: {
+        total,
+        page: pageNum,
+        limit: limitNum,
+        totalPages: Math.ceil(total / limitNum)
+      },
+      count: news.length,
       msg: "All news fetched successfully",
     });
   } catch (error) {
     console.error("Get All News Error:", error);
-    res.status(500).json({
-      success: false,
-      msg: "Error fetching news",
-      error: error.message,
-    });
+    res.status(500).json({ success: false, msg: "Error fetching news", error: error.message });
   }
 };
 
+/**
+ * Streams news articles as NDJSON for progressive loading.
+ */
+exports.streamNews = async (req, res) => {
+  try {
+    const { includeDrafts, section, limit = 500 } = req.query;
+    const query = {};
+
+    if (includeDrafts !== 'true') query.status = 'published';
+    if (section) query.category = section;
+
+    res.setHeader('Content-Type', 'application/x-ndjson');
+    res.setHeader('Transfer-Encoding', 'chunked');
+
+    const cursor = NewsArticle.find(query)
+      .sort({ publishedAt: -1, createdAt: -1 })
+      .limit(parseInt(limit))
+      .cursor();
+
+    cursor.on('data', (doc) => {
+      res.write(JSON.stringify(doc) + '\n');
+    });
+
+    cursor.on('end', () => {
+      res.end();
+    });
+
+    cursor.on('error', (err) => {
+      console.error("Stream Error:", err);
+      res.status(500).end();
+    });
+
+  } catch (error) {
+    console.error("Stream News Init Error:", error);
+    res.status(500).json({ success: false, msg: "Error starting stream" });
+  }
+};
 
 exports.getNewsBySlug = async (req, res) => {
   try {
     const { section, slug } = req.params;
     const { includeDrafts } = req.query;
-    const newsConfig = await NewsConfig.findOne({ isActive: true });
 
-    if (!newsConfig) {
-      return res.status(404).json({
-        success: false,
-        msg: "No news configuration found",
-      });
-    }
-
-    if (!newsConfig[section]) {
-      return res.status(404).json({
-        success: false,
-        msg: `Section '${section}' not found`,
-      });
-    }
-
-    const item = newsConfig[section].find((newsItem) =>
-      newsItem.slug.toLowerCase().includes(slug.toLowerCase())
-    );
+    // Search by slug first (since slugs are unique)
+    let item = await NewsArticle.findOne({ slug }).populate("authorId", "name ProfilePicture designation");
 
     if (!item) {
-      return res.status(404).json({
-        success: false,
-        msg: `News with slug '${slug}' not found in ${section} section`,
-      });
+      return res.status(404).json({ success: false, msg: `News not found` });
+    }
+
+    // Check if it belongs to the section if provided, but don't strictly fail if it's the right slug
+    // This handles cases where URLs might have slightly different category names
+    if (section && item.category !== section && !["all", "news", "Pages"].includes(section)) {
+      console.log(`Note: Article found by slug '${slug}' but category mismatch: expected '${section}', found '${item.category}'`);
     }
 
     if (includeDrafts !== 'true' && item.status !== 'published') {
-      return res.status(404).json({
-        success: false,
-        msg: `News with slug '${slug}' not found (Draft)`,
-      });
+      return res.status(404).json({ success: false, msg: `News is in Draft` });
     }
 
-    res.status(200).json({
-      success: true,
-      news: item,
-      section,
-      msg: "News fetched successfully",
-    });
+    res.status(200).json({ success: true, news: item, section: item.category, msg: "News fetched" });
   } catch (error) {
-    console.error("Get News by Slug Error:", error);
-    res.status(500).json({
-      success: false,
-      msg: "Error fetching news",
-      error: error.message,
-    });
+    res.status(500).json({ success: false, msg: "Error fetching news" });
   }
 };
 
 exports.getSectionNews = async (req, res) => {
   try {
     const { section } = req.params;
-    const { includeDrafts } = req.query;
+    const { includeDrafts, page = 1, limit = 10 } = req.query;
 
-    const newsConfig = await NewsConfig.findOne({ isActive: true });
+    const query = { category: section };
+    if (includeDrafts !== 'true') query.status = 'published';
 
-    if (!newsConfig || !newsConfig[section]) {
-      return res.status(404).json({
-        success: false,
-        news: [],
-        msg: `No ${section} news found`,
-      });
-    }
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    const skip = (pageNum - 1) * limitNum;
 
-    let sectionNews = newsConfig[section];
-    if (includeDrafts !== 'true') {
-      sectionNews = sectionNews.filter(item => item.status === 'published');
-    }
+    const sectionNews = await NewsArticle.find(query)
+      .sort({ publishedAt: -1, createdAt: -1 })
+      .skip(skip)
+      .limit(limitNum)
+      .lean();
+
+    const total = await NewsArticle.countDocuments(query);
 
     res.status(200).json({
       success: true,
       news: sectionNews,
-      total: sectionNews.length,
+      pagination: { total, page: pageNum, limit: limitNum, totalPages: Math.ceil(total / limitNum) },
+      count: sectionNews.length,
+      totalNews: total,
       msg: `${section.toUpperCase()} news fetched`,
     });
   } catch (error) {
@@ -225,53 +215,11 @@ exports.getSectionNews = async (req, res) => {
 exports.deleteNewsBySlug = async (req, res) => {
   try {
     const { section, slug } = req.params;
-
-    const newsConfig = await NewsConfig.findOne({ isActive: true });
-
-    if (!newsConfig) {
-      return res.status(404).json({
-        success: false,
-        msg: "No news configuration found",
-      });
-    }
-
-    if (!newsConfig[section]) {
-      return res.status(404).json({
-        success: false,
-        msg: `Section '${section}' not found`,
-      });
-    }
-
-    const initialLength = newsConfig[section].length;
-    newsConfig[section] = newsConfig[section].filter(
-      (item) => !item.slug.toLowerCase().includes(slug.toLowerCase())
-    );
-
-    const deletedCount = initialLength - newsConfig[section].length;
-
-    if (deletedCount === 0) {
-      return res.status(404).json({
-        success: false,
-        msg: `No news found with slug '${slug}' in ${section}`,
-      });
-    }
-
-    newsConfig.lastUpdated = new Date();
-    await newsConfig.save();
-
-    res.status(200).json({
-      success: true,
-      deletedCount,
-      section,
-      msg: `${deletedCount} item(s) deleted from ${section} section`,
-    });
+    const result = await NewsArticle.findOneAndDelete({ slug });
+    if (!result) return res.status(404).json({ success: false, msg: `No news found` });
+    res.status(200).json({ success: true, deletedCount: 1, section, msg: `Deleted successfully` });
   } catch (error) {
-    console.error("Delete News Error:", error);
-    res.status(500).json({
-      success: false,
-      msg: "Error deleting news",
-      error: error.message,
-    });
+    res.status(500).json({ success: false, msg: "Error deleting news" });
   }
 };
 
@@ -279,61 +227,38 @@ exports.updateNewsBySlug = async (req, res) => {
   try {
     const { section, slug } = req.params;
     const updateData = req.body;
-    const newsConfig = await NewsConfig.findOne({ isActive: true });
+    const item = await NewsArticle.findOne({ slug });
+    if (!item) return res.status(404).json({ success: false, msg: `News not found` });
 
-    if (!newsConfig) {
-      return res.status(404).json({
-        success: false,
-        msg: "No news configuration found",
-      });
-    }
-
-    if (!newsConfig[section]) {
-      return res.status(404).json({
-        success: false,
-        msg: `Section '${section}' not found`,
-      });
-    }
-
-    const itemIndex = newsConfig[section].findIndex((item) =>
-      item.slug.toLowerCase().includes(slug.toLowerCase())
-    );
-
-    if (itemIndex === -1) {
-      return res.status(404).json({
-        success: false,
-        msg: `News with slug '${slug}' not found in ${section}`,
-      });
-    }
-
-    let imageUrl = newsConfig[section][itemIndex].image;
+    let imageUrl = item.image;
     if (updateData.image && updateData.image !== imageUrl) {
-      const uploadResponse = await cloudinary.uploader.upload(updateData.image);
-      imageUrl = uploadResponse.secure_url;
+      if (!updateData.image.startsWith("http")) {
+        const uploadResponse = await cloudinary.uploader.upload(updateData.image, { folder: "primetime_news" });
+        imageUrl = uploadResponse.secure_url;
+      }
       updateData.image = imageUrl;
     }
 
-    newsConfig[section][itemIndex] = {
-      ...newsConfig[section][itemIndex],
-      ...updateData,
-    };
+    // Set publishedAt if status is changing to published and it wasn't published before
+    if (updateData.status === "published" && item.status !== "published" && !item.publishedAt) {
+      updateData.publishedAt = new Date();
+    }
 
-    newsConfig.lastUpdated = new Date();
-    await newsConfig.save();
+    // Automatically show news when published
+    if (updateData.status === "published") {
+      updateData.isHidden = false;
+    }
 
-    res.status(200).json({
-      success: true,
-      news: newsConfig[section][itemIndex],
-      section,
-      msg: "News updated successfully",
-    });
+    // Normalize category if provided
+    if (updateData.category) {
+      updateData.category = updateData.category.toLowerCase();
+    }
+
+    const updatedItem = await NewsArticle.findOneAndUpdate({ slug }, { ...updateData }, { new: true });
+    res.status(200).json({ success: true, news: updatedItem, section: updatedItem.category, msg: "Updated successfully" });
   } catch (error) {
     console.error("Update News Error:", error);
-    res.status(500).json({
-      success: false,
-      msg: "Error updating news",
-      error: error.message,
-    });
+    res.status(500).json({ success: false, msg: "Error updating news" });
   }
 };
 
@@ -341,102 +266,29 @@ exports.setNewsFlags = async (req, res) => {
   try {
     const { section, slug } = req.params;
     const { isLatest, isTrending, isHidden } = req.body;
+    const updateFields = {};
+    if (typeof isLatest !== "undefined") updateFields.isLatest = !!isLatest;
+    if (typeof isTrending !== "undefined") updateFields.isTrending = !!isTrending;
+    if (typeof isHidden !== "undefined") updateFields.isHidden = !!isHidden;
 
-    if (
-      typeof isLatest === "undefined" &&
-      typeof isTrending === "undefined" &&
-      typeof isHidden === "undefined"
-    ) {
-      return res.status(400).json({
-        success: false,
-        msg: "Provide at least one of: isLatest, isTrending, or isHidden",
-      });
-    }
-
-    const newsConfig = await NewsConfig.findOne({ isActive: true });
-    if (!newsConfig || !newsConfig[section]) {
-      return res.status(404).json({
-        success: false,
-        msg: "Section not found",
-      });
-    }
-
-    const itemIndex = newsConfig[section].findIndex(
-      (item) => item.slug.toLowerCase() === slug.toLowerCase()
-    );
-
-    if (itemIndex === -1) {
-      return res.status(404).json({
-        success: false,
-        msg: "News item not found",
-      });
-    }
-
-    if (typeof isLatest !== "undefined") {
-      newsConfig[section][itemIndex].isLatest = !!isLatest;
-    }
-    if (typeof isTrending !== "undefined") {
-      newsConfig[section][itemIndex].isTrending = !!isTrending;
-    }
-    if (typeof isHidden !== "undefined") {
-      newsConfig[section][itemIndex].isHidden = !!isHidden;
-    }
-
-    newsConfig.lastUpdated = new Date();
-    await newsConfig.save();
-
-    res.json({
-      success: true,
-      msg: "Flags updated successfully",
-      news: newsConfig[section][itemIndex],
-    });
+    const updatedItem = await NewsArticle.findOneAndUpdate({ slug }, { $set: updateFields }, { new: true });
+    if (!updatedItem) return res.status(404).json({ success: false, msg: "Not found" });
+    res.json({ success: true, msg: "Flags updated", news: updatedItem });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({
-      success: false,
-      msg: "Server error",
-      error: err.message,
-    });
+    res.status(500).json({ success: false, msg: "Server error" });
   }
 };
 
 exports.GetAnalytics = async (req, res) => {
   try {
-    const newsConfig = await NewsConfig.findOne({ isActive: true });
-    if (!newsConfig) {
-      return res.status(404).json({ success: false, msg: "No news config found" });
-    }
+    const stats = await NewsArticle.aggregate([{ $group: { _id: null, totalNews: { $sum: 1 }, authors: { $push: "$author" }, categories: { $push: "$category" } } }]);
+    if (!stats.length) return res.status(200).json({ success: true, data: { totalNews: 0, analyticsByAuthor: {}, analyticsByCategory: {} } });
 
-    const sections = ['india', 'sports', 'business', 'technology', 'entertainment', 'lifestyle', 'world', 'health', 'state'];
-    let totalNews = 0;
-    const analyticsByAuthor = {};
-    const analyticsByCategory = {};
+    const analyticsByAuthor = stats[0].authors.reduce((acc, curr) => { acc[curr || 'Unknown'] = (acc[curr || 'Unknown'] || 0) + 1; return acc; }, {});
+    const analyticsByCategory = stats[0].categories.reduce((acc, curr) => { acc[curr] = (acc[curr] || 0) + 1; return acc; }, {});
 
-    sections.forEach(section => {
-      if (newsConfig[section]) {
-        newsConfig[section].forEach(item => {
-          totalNews++;
-
-          // Analytics by Author
-          const author = item.author || 'Unknown';
-          analyticsByAuthor[author] = (analyticsByAuthor[author] || 0) + 1;
-
-          // Analytics by Category/Section
-          analyticsByCategory[section] = (analyticsByCategory[section] || 0) + 1;
-        });
-      }
-    });
-
-    res.status(200).json({
-      success: true,
-      data: {
-        totalNews,
-        analyticsByAuthor,
-        analyticsByCategory
-      }
-    });
+    res.status(200).json({ success: true, data: { totalNews: stats[0].totalNews, analyticsByAuthor, analyticsByCategory } });
   } catch (error) {
-    res.status(500).json({ success: false, msg: "Error fetching analytics" });
+    res.status(500).json({ success: false, msg: "Error" });
   }
 };
-

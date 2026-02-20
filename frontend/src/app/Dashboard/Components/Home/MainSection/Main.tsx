@@ -70,7 +70,8 @@ const MainSection: FC<MainSectionProps> = ({ section, initialDraft }) => {
   // User Management State
   const [users, setUsers] = useState<any[]>([]);
   const [usersLoading, setUsersLoading] = useState(false);
-  const [userForm, setUserForm] = useState({ name: '', email: '', password: '', role: 'ADMIN' });
+  const [userForm, setUserForm] = useState({ name: '', email: '', password: '', role: 'ADMIN', designation: '', ProfilePicture: '' });
+  const [userProfilePreview, setUserProfilePreview] = useState<string | null>(null);
 
   // Analytics State
   const [analyticsData, setAnalyticsData] = useState<any>(null);
@@ -113,7 +114,8 @@ const MainSection: FC<MainSectionProps> = ({ section, initialDraft }) => {
       const res = await API.post(`/auth/create`, userForm);
       if (res.data.success) {
         showNotification("User created successfully", "success");
-        setUserForm({ name: '', email: '', password: '', role: 'ADMIN' });
+        setUserForm({ name: '', email: '', password: '', role: 'ADMIN', designation: '', ProfilePicture: '' });
+        setUserProfilePreview(null);
         fetchUsers();
       } else {
         showNotification(res.data.msg, "error");
@@ -146,6 +148,29 @@ const MainSection: FC<MainSectionProps> = ({ section, initialDraft }) => {
     } catch (err: any) {
       showNotification(err.response?.data?.msg || "Error deleting user", "error");
     }
+  };
+
+  const handleUserProfilePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      showNotification("Please select an image file", "error");
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      showNotification("Image too large (max 2MB)", "error");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const dataUrl = event.target?.result as string;
+      setUserForm(prev => ({ ...prev, ProfilePicture: dataUrl }));
+      setUserProfilePreview(dataUrl);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
   };
 
   // Rest of state and effects...
@@ -427,10 +452,15 @@ const MainSection: FC<MainSectionProps> = ({ section, initialDraft }) => {
     }
     try {
       const authorName = UserAuthData?.name || "Prime Time News";
+      const currentUserId = UserAuthData?.userId || UserAuthData?._id || UserAuthData?.id;
+
+      console.log("Creating article with authorId:", currentUserId);
+
       await addNews({
         ...formState,
         section: selectedCategory,
         author: authorName,
+        authorId: currentUserId || null,
         tags: tagsInput.split(",").map(t => t.trim()).filter(Boolean),
         publishedAt: new Date().toISOString(),
       } as NewsItem & { section: string });
@@ -462,11 +492,16 @@ const MainSection: FC<MainSectionProps> = ({ section, initialDraft }) => {
     if (!canUpdate || !editingSlug) return;
     try {
       const authorName = UserAuthData?.name || "Prime Time News";
+      const currentUserId = UserAuthData?.userId || UserAuthData?._id || UserAuthData?.id;
+
+      console.log("Updating article with authorId:", currentUserId);
+
       await updateNews({
         slug: editingSlug,
         news: {
           ...formState,
           author: authorName,
+          authorId: currentUserId || null,
           tags: tagsInput.split(",").map(t => t.trim()).filter(Boolean)
         },
       });
@@ -1524,6 +1559,58 @@ const MainSection: FC<MainSectionProps> = ({ section, initialDraft }) => {
                     <option value="VIEWER">Viewer</option>
                   </select>
                 </div>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Distinction / Designation</label>
+                  <input
+                    type="text"
+                    className={styles.input}
+                    value={userForm.designation}
+                    onChange={e => setUserForm({ ...userForm, designation: e.target.value })}
+                    placeholder="e.g. Senior Editor"
+                  />
+                </div>
+                <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+                  <label className={styles.label}>Profile Picture (Photo)</label>
+                  <input
+                    id="user-profile-upload"
+                    type="file"
+                    accept="image/*"
+                    className={styles.hidden}
+                    onChange={handleUserProfilePicChange}
+                  />
+                  <div
+                    className={styles.imageUploadArea}
+                    onClick={() => document.getElementById("user-profile-upload")?.click()}
+                    style={{ minHeight: '100px', padding: '1rem' }}
+                  >
+                    {userProfilePreview ? (
+                      <div className={styles.previewContainer} style={{ width: '80px', height: '80px', borderRadius: '50%', margin: '0 auto' }}>
+                        <img
+                          src={userProfilePreview}
+                          alt="Profile Preview"
+                          className={styles.imagePreview}
+                          style={{ borderRadius: '50%' }}
+                        />
+                        <button
+                          type="button"
+                          className={styles.removeImageBtn}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setUserForm(prev => ({ ...prev, ProfilePicture: '' }));
+                            setUserProfilePreview(null);
+                          }}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ) : (
+                      <div className={styles.uploadPlaceholder}>
+                        <span className={styles.uploadIcon}>👤</span>
+                        <p>Upload User Photo</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
                 <div className={styles.formActions} style={{ gridColumn: 'span 2' }}>
                   <button type="submit" className={styles.primaryBtn}>Create User</button>
                 </div>
@@ -1538,6 +1625,7 @@ const MainSection: FC<MainSectionProps> = ({ section, initialDraft }) => {
                     <tr>
                       <th>Name</th>
                       <th>Email</th>
+                      <th>Designation</th>
                       <th>Role</th>
                       <th>Status</th>
                       <th>Actions</th>
@@ -1546,8 +1634,20 @@ const MainSection: FC<MainSectionProps> = ({ section, initialDraft }) => {
                   <tbody>
                     {users.map(u => (
                       <tr key={u._id}>
-                        <td>{u.name}</td>
+                        <td>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                            <div className={styles.userTableAvatar}>
+                              {u.ProfilePicture ? (
+                                <img src={u.ProfilePicture} alt={u.name} />
+                              ) : (
+                                <div className={styles.avatarPlaceholder}>{u.name.charAt(0)}</div>
+                              )}
+                            </div>
+                            <span>{u.name}</span>
+                          </div>
+                        </td>
                         <td>{u.email}</td>
+                        <td>{u.designation || "Editor"}</td>
                         <td><span className={styles.roleBadge}>{u.role}</span></td>
                         <td>
                           <button

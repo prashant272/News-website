@@ -7,7 +7,7 @@ interface ArticleContentProps {
 
 export default function ArticleContent({ content }: ArticleContentProps) {
   return (
-    <div 
+    <div
       className={styles.articleContent}
       dangerouslySetInnerHTML={{ __html: content }}
     />

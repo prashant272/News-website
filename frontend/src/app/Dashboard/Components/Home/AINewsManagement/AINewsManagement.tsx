@@ -38,7 +38,7 @@ export default function AINewsManagement({ onEdit }: AINewsManagementProps) {
         if (!confirm(`Are you sure you want to publish "${item.title}"?`)) return;
         try {
             // Update status to published
-            await API.put(`/news/${item.category}/${item.slug}`, {
+            await API.put(`/news/updatenews/${item.category}/${item.slug}`, {
                 status: "published",
                 isHidden: false,
             });
@@ -46,6 +46,18 @@ export default function AINewsManagement({ onEdit }: AINewsManagementProps) {
             fetchDrafts();
         } catch (err) {
             alert("Failed to publish news.");
+            console.error(err);
+        }
+    };
+
+    const handleDelete = async (item: AIDraft) => {
+        if (!confirm(`Are you sure you want to delete "${item.title}"?`)) return;
+        try {
+            await API.delete(`/news/deletenews/${item.category}/${item.slug}`);
+            alert("Draft deleted successfully!");
+            fetchDrafts();
+        } catch (err) {
+            alert("Failed to delete draft.");
             console.error(err);
         }
     };
@@ -69,8 +81,9 @@ export default function AINewsManagement({ onEdit }: AINewsManagementProps) {
                         <h3>{draft.title}</h3>
                         <p>{draft.content.substring(0, 100)}...</p>
                         <div className={styles.cardActions}>
-                            <button onClick={() => onEdit(draft)}>Edit In Form</button>
+                            <button onClick={() => onEdit(draft)}>Edit</button>
                             <button className={styles.publishBtn} onClick={() => handlePublish(draft)}>Publish</button>
+                            <button className={styles.deleteBtn} onClick={() => handleDelete(draft)}>Delete</button>
                         </div>
                     </div>
                 ))}

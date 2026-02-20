@@ -2,6 +2,13 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../Models/user.model');
 const permissionsByRole = require('../Config/permissions.js');
+const cloudinary = require("cloudinary").v2;
+
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.API_KEY,
+  api_secret: process.env.API_SECRET,
+});
 
 const SIGNUP_SECRET_KEY = process.env.SIGNUP_SECRET_KEY;
 const SIGNIN_SECRET_KEY = process.env.SIGNIN_SECRET_KEY;
@@ -189,7 +196,7 @@ exports.GetAllUsers = async (req, res) => {
 
 exports.CreateUserByAdmin = async (req, res) => {
   try {
-    const { email, password, role, name } = req.body;
+    const { email, password, role, name, designation, ProfilePicture } = req.body;
 
     const checkUser = await User.findOne({ email });
     if (checkUser) {
@@ -202,11 +209,29 @@ exports.CreateUserByAdmin = async (req, res) => {
     const userRole = role || 'USER';
     const permissions = permissionsByRole[userRole] || permissionsByRole['USER'];
 
+    let profilePicUrl = null;
+    if (ProfilePicture) {
+      if (ProfilePicture.startsWith("http")) {
+        profilePicUrl = ProfilePicture;
+      } else {
+        try {
+          const uploadResponse = await cloudinary.uploader.upload(ProfilePicture, {
+            folder: "profile_pictures"
+          });
+          profilePicUrl = uploadResponse.secure_url;
+        } catch (uploadError) {
+          console.error("Cloudinary Profile Pic Upload Error:", uploadError);
+        }
+      }
+    }
+
     const NewUser = new User({
       name,
       email,
       password: hashpassword,
       role: userRole,
+      designation: designation || "Senior Editor",
+      ProfilePicture: profilePicUrl,
       permissions: permissions
     });
 
@@ -220,7 +245,7 @@ exports.CreateUserByAdmin = async (req, res) => {
 exports.UpdateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const { role, isActive } = req.body;
+    const { role, isActive, ProfilePicture, designation, name } = req.body;
 
     const updateData = {};
     if (role) {
@@ -228,6 +253,23 @@ exports.UpdateUser = async (req, res) => {
       updateData.permissions = permissionsByRole[role] || permissionsByRole['USER'];
     }
     if (typeof isActive !== 'undefined') updateData.isActive = isActive;
+    if (designation) updateData.designation = designation;
+    if (name) updateData.name = name;
+
+    if (ProfilePicture) {
+      if (ProfilePicture.startsWith("http")) {
+        updateData.ProfilePicture = ProfilePicture;
+      } else {
+        try {
+          const uploadResponse = await cloudinary.uploader.upload(ProfilePicture, {
+            folder: "profile_pictures"
+          });
+          updateData.ProfilePicture = uploadResponse.secure_url;
+        } catch (uploadError) {
+          console.error("Cloudinary Update Profile Pic Error:", uploadError);
+        }
+      }
+    }
 
     const user = await User.findByIdAndUpdate(id, updateData, { new: true }).select('-password');
     if (!user) return res.status(404).json({ success: false, msg: "User not found" });

@@ -1482,3 +1482,27 @@ $duration-slow: 300ms;
 .deleteUserBtn { background: transparent; border: none; font-size: 1.1rem; cursor: pointer; padding: 0.5rem; border-radius: 0.5rem; transition: all 0.2s ease; &:hover:not(:disabled) { background: rgba(239, 68, 68, 0.1); transform: scale(1.1); } &:disabled { opacity: 0.3; cursor: not-allowed; } }
 .userListCard { background: var(--bg-card); border-radius: 1.5rem; padding: 2rem; border: 1px solid var(--border-subtle); box-shadow: var(--shadow-md); }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+.userTableAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid var(--border-medium);
+  background: var(--bg-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.avatarPlaceholder {
+  font-weight: 700;
+  color: var(--text-dim);
+  font-size: 1.2rem;
+}

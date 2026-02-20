@@ -1,6 +1,7 @@
 'use client';
-import { useCallback, useEffect, useState, useMemo } from "react";
+import { useCallback, useEffect, useState, useMemo, useRef } from "react";
 import { newsService, NewsItem, NewsDocument, ApiResponse } from "../services/NewsService";
+import { baseURL } from "@/Utils/Utils";
 export { newsService };
 export type { NewsItem, NewsDocument, ApiResponse };
 
@@ -16,7 +17,6 @@ export const useApi = <T,>(fetchFn: () => Promise<ApiResponse<T>>, deps: any[] =
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Memoize the fetch function based on dependencies
   const memoizedFetch = useCallback(fetchFn, deps);
 
   const fetchData = useCallback(async () => {
@@ -34,11 +34,7 @@ export const useApi = <T,>(fetchFn: () => Promise<ApiResponse<T>>, deps: any[] =
   }, [memoizedFetch]);
 
   useEffect(() => {
-    let mounted = true;
     fetchData();
-    return () => {
-      mounted = false;
-    };
   }, [fetchData]);
 
   return { data, loading, error, refetch: fetchData };
@@ -74,14 +70,120 @@ export const useApiMutation = <T,>(mutateFn: (data?: any) => Promise<T>): UseApi
   return { mutate, loading, error };
 };
 
-export const useNewsBySection = (section: string, includeDrafts: boolean = false): UseApiResult<NewsItem[]> =>
-  useApi<NewsItem[]>(() => newsService.getNewsBySection(section, includeDrafts), [section, includeDrafts]);
+/**
+ * Hook for progressive streaming of news items via NDJSON.
+ */
+export const useStreamingNews = (section?: string, limit: number = 200) => {
+  const [news, setNews] = useState<NewsItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const streamingRef = useRef<boolean>(false);
+
+  const startStream = useCallback(async () => {
+    if (streamingRef.current) {
+      console.log("Stream already active, ignoring start request");
+      return;
+    }
+
+    streamingRef.current = true;
+    setLoading(true);
+    setNews([]);
+    setError(null);
+
+    const abortController = new AbortController();
+
+    try {
+      const url = `${baseURL}/news/stream?limit=${limit}${section ? `&section=${section}` : ''}`;
+      const response = await fetch(url, { signal: abortController.signal });
+
+      if (!response.body) throw new Error("ReadableStream not supported");
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let newItems: NewsItem[] = [];
+      let lastUpdate = Date.now();
+
+      while (true) {
+        if (!streamingRef.current) {
+          abortController.abort();
+          break;
+        }
+
+        const { value, done } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (line.trim()) {
+            try {
+              const item = JSON.parse(line);
+              newItems.push(item);
+            } catch (e) {
+              console.error("Failed to parse stream item:", e);
+            }
+          }
+        }
+
+        // Batch updates every 200ms or if we have a significant amount of items
+        if (newItems.length > 0 && (Date.now() - lastUpdate > 200 || newItems.length > 50)) {
+          const itemsToAdd = [...newItems];
+          newItems = [];
+
+          setNews(prev => {
+            const existingIds = new Set(prev.map(i => i._id || i.slug));
+            const filtered = itemsToAdd.filter(item => !existingIds.has(item._id || item.slug));
+            if (filtered.length === 0) return prev;
+            return [...prev, ...filtered];
+          });
+
+          lastUpdate = Date.now();
+        }
+      }
+
+      // Final update for any remaining items
+      if (newItems.length > 0) {
+        setNews(prev => {
+          const existingIds = new Set(prev.map(i => i._id || i.slug));
+          const filtered = newItems.filter(item => !existingIds.has(item._id || item.slug));
+          if (filtered.length === 0) return prev;
+          return [...prev, ...filtered];
+        });
+      }
+
+    } catch (err: any) {
+      if (err.name !== 'AbortError') {
+        setError(err.message);
+      }
+    } finally {
+      setLoading(false);
+      streamingRef.current = false;
+    }
+  }, [section, limit]);
+
+  useEffect(() => {
+    startStream();
+    return () => {
+      // Set to false to break the while loop above
+      streamingRef.current = false;
+    };
+  }, [startStream]);
+
+  return { news, loading, error, refetch: startStream };
+};
+
+
+export const useNewsBySection = (section: string, includeDrafts: boolean = false, page: number = 1, limit: number = 100): UseApiResult<NewsItem[]> =>
+  useApi<NewsItem[]>(() => newsService.getNewsBySection(section, includeDrafts, page, limit), [section, includeDrafts, page, limit]);
 
 export const useNewsBySlug = (section: string, slug: string, includeDrafts: boolean = false): UseApiResult<NewsItem> =>
   useApi<NewsItem>(() => newsService.getNewsBySlug(section, slug, includeDrafts), [section, slug, includeDrafts]);
 
-export const useAllNews = (includeDrafts: boolean = false): UseApiResult<NewsDocument[]> =>
-  useApi<NewsDocument[]>(() => newsService.getAllNews(includeDrafts), [includeDrafts]);
+export const useAllNews = (includeDrafts: boolean = false, page: number = 1, limit: number = 1000): UseApiResult<NewsItem[]> =>
+  useApi<NewsItem[]>(() => newsService.getAllNews(includeDrafts, page, limit), [includeDrafts, page, limit]);
 
 export const useAddNews = (): UseApiMutationResult<ApiResponse<NewsItem>> =>
   useApiMutation<ApiResponse<NewsItem>>(newsService.addNews);

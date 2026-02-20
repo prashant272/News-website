@@ -21,7 +21,7 @@ interface NewsItem {
   tags?: string[];
   isLatest?: boolean;
   isTrending?: boolean;
-  id?: string;
+  _id?: string;
 }
 
 export default function SubCategoryPage() {
@@ -82,7 +82,7 @@ export default function SubCategoryPage() {
     const normCategory = normalize(category);
     const normSubCategory = normalize(subCategory);
 
-    const filtered = context.allNews.filter((news) => {
+    const filtered = (context.allNews || []).filter((news) => {
       return (
         normalize(news.category) === normCategory &&
         normalize(news.subCategory) === normSubCategory
@@ -98,7 +98,7 @@ export default function SubCategoryPage() {
 
   const subCategories = Array.from(
     new Set(
-      context?.allNews
+      (context?.allNews || [])
         ?.filter(news => normalize(news.category) === normalize(category))
         .map(news => cleanDisplay(news.subCategory))
         .filter((sub): sub is string =>
@@ -110,7 +110,7 @@ export default function SubCategoryPage() {
   );
 
   const transformedNews = filteredNews.map((news, index) => ({
-    id: news.id || news.slug || `news-${index}`,
+    id: news._id || news.slug || `news-${index}`,
     image: news.image || '',
     title: news.title,
     slug: news.slug,
@@ -119,7 +119,7 @@ export default function SubCategoryPage() {
   }));
 
   const transformedLatestNews = (latestNews.length > 0 ? latestNews : filteredNews.slice(0, 6)).map((news, index) => ({
-    id: news.id || news.slug || `latest-${index}`,
+    id: news._id || news.slug || `latest-${index}`,
     category: news.category || category,
     title: news.title,
     image: news.image || '',
@@ -134,7 +134,7 @@ export default function SubCategoryPage() {
     );
   }
 
-  if (context.loading || isFiltering) {
+  if (context.loading && (!context.allNews || context.allNews.length === 0)) {
     return (
       <div style={{ padding: '4rem 2rem', textAlign: 'center' }}>
         <h2>Loading...</h2>
@@ -151,7 +151,7 @@ export default function SubCategoryPage() {
     );
   }
 
-  if (filteredNews.length === 0) {
+  if (filteredNews.length === 0 && !context.loading) {
     notFound();
   }
 
@@ -162,7 +162,7 @@ export default function SubCategoryPage() {
         subCategories={subCategories}
         mainNews={transformedNews}
         topNews={trendingNews.slice(0, 5).map((news, index) => ({
-          id: news.id || news.slug || `trending-${index}`,
+          id: news._id || news.slug || `trending-${index}`,
           title: news.title,
           image: news.image || '',
           slug: news.slug,

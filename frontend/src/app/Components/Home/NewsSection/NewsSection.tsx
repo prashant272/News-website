@@ -60,10 +60,24 @@ const NewsSection: React.FC = () => {
   const liveNews = useMemo(() => {
     if (!allNews || loading) return [];
 
-    return allNews
-      .filter((item) => item.isLatest === true)
+    // Filter and map with unique IDs
+    const trendingOrLatest = allNews.filter((item) => item.isLatest === true || item.isTrending === true);
+
+    // Use a Set to avoid duplicates if context has them
+    const seen = new Set();
+    const unique = [];
+
+    for (const item of trendingOrLatest) {
+      const uniqueId = item._id || item.slug;
+      if (!seen.has(uniqueId)) {
+        seen.add(uniqueId);
+        unique.push(item);
+      }
+    }
+
+    return unique
       .map((item) => ({
-        id: item.slug || item._id || `item-${Math.random().toString(36).slice(2, 9)}`,
+        id: item._id || item.slug || `item-${Math.random().toString(36).slice(2, 9)}`,
         title: item.title,
         description: item.summary || (item.content ? item.content.substring(0, 150) + '...' : ''),
         image: getImageSrc(item.image),
@@ -77,12 +91,11 @@ const NewsSection: React.FC = () => {
       .slice(0, 4);
   }, [allNews, loading]);
 
-  if (loading) {
+  if (loading && (!allNews || allNews.length === 0)) {
     return (
       <section className={styles.newsSection}>
         <div className={styles.container}>
           <div className={styles.newsGrid}>
-            {/* Featured skeleton */}
             <div className={`${styles.loadingCard} ${styles.featuredArticle}`}>
               <div className={`${styles.loadingSkeleton}`} style={{ height: '400px' }}></div>
               <div style={{ padding: '2.5rem' }}>
@@ -90,9 +103,7 @@ const NewsSection: React.FC = () => {
                 <div className={`${styles.loadingSkeleton}`} style={{ height: '20px', width: '60%', borderRadius: '8px' }}></div>
               </div>
             </div>
-
-            {/* Card skeletons */}
-            {Array(6).fill(0).map((_, i) => (
+            {Array(3).fill(0).map((_, i) => (
               <div key={i} className={styles.loadingCard}>
                 <div className={`${styles.loadingSkeleton}`} style={{ height: '240px' }}></div>
                 <div style={{ padding: '1.75rem' }}>
@@ -108,18 +119,7 @@ const NewsSection: React.FC = () => {
   }
 
   if (liveNews.length === 0) {
-    return (
-      <section className={styles.newsSection}>
-        <div className={styles.container}>
-          <div className={styles.newsGrid}>
-            <div className={styles.noLive}>
-              <h3>No live updates right now</h3>
-              <p>Check back later for breaking news and live coverage.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-    );
+    return null; // Don't show anything if no live news
   }
 
   const featuredArticle = liveNews[0];

@@ -109,7 +109,7 @@ const NewsSection: React.FC<NewsSectionProps> = ({
   const mainNews: NewsGridItem[] = useMemo(() => {
     if (providedMainNews) return providedMainNews;
     return sectionNews.slice(0, 12).map((item, index) => ({
-      id: `${section}-${item.slug || 'no-slug'}-${index}`,
+      id: item._id || `${section}-${item.slug || 'no-slug'}-${index}`,
       image: getImageSrc(item.image),
       title: item.title,
       slug: item.slug,
@@ -127,7 +127,7 @@ const NewsSection: React.FC<NewsSectionProps> = ({
     const trendingNews = sectionNews.filter(item => item.isTrending === true);
     const newsToShow = trendingNews.length >= 5 ? trendingNews : sectionNews;
     return newsToShow.slice(0, 5).map((item, index) => ({
-      id: `${section}-top-${index}`,
+      id: item._id || `${section}-top-${index}`,
       title: item.title,
       image: getImageSrc(item.image),
       slug: item.slug,

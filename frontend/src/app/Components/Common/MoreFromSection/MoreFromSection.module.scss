@@ -6,7 +6,7 @@
   position: relative;
   overflow: hidden;
   transition: background-color 0.3s ease;
-  
+
   &::before {
     content: '';
     position: absolute;
@@ -24,7 +24,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-image: 
+    background-image:
       repeating-linear-gradient(0deg, transparent, transparent 2px, var(--border) 2px, var(--border) 4px);
     opacity: 0.3;
     pointer-events: none;
@@ -49,7 +49,7 @@
   position: relative;
   display: inline-block;
   transition: color 0.3s ease;
-  
+
   &::before {
     content: '';
     position: absolute;
@@ -62,7 +62,7 @@
     box-shadow: 0 0 20px var(--primary);
     animation: pulse 2s ease-in-out infinite;
   }
-  
+
   &::after {
     content: '';
     position: absolute;
@@ -78,11 +78,14 @@
 }
 
 @keyframes pulse {
-  0%, 100% { 
+
+  0%,
+  100% {
     opacity: 1;
     transform: scale(1);
   }
-  50% { 
+
+  50% {
     opacity: 0.6;
     transform: scale(0.9);
   }
@@ -141,7 +144,7 @@
   overflow: hidden;
   position: relative;
   box-shadow: 0 2px 8px var(--shadow-color);
-  
+
   &::before {
     content: '';
     position: absolute;
@@ -154,25 +157,25 @@
     box-shadow: 0 0 10px var(--primary);
     border-radius: 12px 0 0 12px;
   }
-  
+
   &:hover {
     transform: translateX(8px);
     box-shadow: 0 8px 24px var(--shadow-color), 0 0 12px var(--accent);
     border-color: var(--accent);
     background: var(--nav-hover-bg);
-    
+
     &::before {
       height: 100%;
     }
-    
+
     .imageContainer img {
       transform: scale(1.1);
     }
-    
+
     .imageOverlay {
       opacity: 0.4;
     }
-    
+
     .newsTitle {
       color: var(--accent);
     }
@@ -181,15 +184,15 @@
 
 .imageRight {
   grid-template-columns: 1fr 200px;
-  
+
   .imageContainer {
     order: 2;
   }
-  
+
   .contentContainer {
     order: 1;
   }
-  
+
   &:hover {
     transform: translateX(-8px);
   }
@@ -203,7 +206,7 @@
   overflow: hidden;
   background: var(--muted);
   flex-shrink: 0;
-  
+
   img {
     width: 100%;
     height: 100%;
@@ -244,35 +247,37 @@
   .moreFromWrapper {
     padding: 3rem 1.5rem;
   }
-  
+
   .sectionTitle {
     font-size: clamp(1.5rem, 4vw, 2.25rem);
   }
-  
+
   .itemsGrid {
     gap: 1.25rem;
   }
 }
 
 @media (max-width: 992px) {
-  .cols2, .cols3 {
+
+  .cols2,
+  .cols3 {
     grid-template-columns: 1fr;
   }
-  
+
   .newsItem {
     grid-template-columns: 180px 1fr;
     gap: 1rem;
   }
-  
+
   .imageRight {
     grid-template-columns: 1fr 180px;
   }
-  
+
   .imageContainer {
     width: 180px;
     height: 120px;
   }
-  
+
   .newsTitle {
     font-size: 0.9375rem;
   }
@@ -282,12 +287,13 @@
   .moreFromWrapper {
     padding: 2.5rem 1rem;
   }
-  
+
   .sectionHeader {
     margin-bottom: 2rem;
   }
-  
+
   .sectionTitle {
+
     &::before,
     &::after {
       width: 8px;
@@ -300,22 +306,22 @@
     width: 80px;
     height: 3px;
   }
-  
+
   .newsItem {
     grid-template-columns: 150px 1fr;
     gap: 0.875rem;
     padding: 0.75rem;
   }
-  
+
   .imageRight {
     grid-template-columns: 1fr 150px;
   }
-  
+
   .imageContainer {
     width: 150px;
     height: 100px;
   }
-  
+
   .newsTitle {
     font-size: 0.875rem;
     -webkit-line-clamp: 2;
@@ -323,21 +329,22 @@
 }
 
 @media (max-width: 600px) {
+
   .newsItem,
   .imageRight {
     grid-template-columns: 1fr;
     gap: 0.75rem;
   }
-  
+
   .imageRight {
     .imageContainer {
       order: 1;
     }
-    
+
     .contentContainer {
       order: 2;
     }
-    
+
     &:hover {
       transform: translateY(-4px);
     }
@@ -348,16 +355,16 @@
       transform: translateY(-4px);
     }
   }
-  
+
   .imageContainer {
     width: 100%;
     height: 200px;
   }
-  
+
   .contentContainer {
     padding: 0.25rem;
   }
-  
+
   .newsTitle {
     font-size: 0.9375rem;
     -webkit-line-clamp: 3;
@@ -368,20 +375,20 @@
   .moreFromWrapper {
     padding: 2rem 0.75rem;
   }
-  
+
   .itemsGrid {
     gap: 1rem;
   }
-  
+
   .newsItem {
     padding: 0.625rem;
   }
-  
+
   .imageContainer {
     height: 180px;
     border-radius: 6px;
   }
-  
+
   .newsTitle {
     font-size: 0.875rem;
   }
@@ -391,17 +398,19 @@
   .newsTitle {
     font-size: 0.8125rem;
   }
-  
+
   .imageContainer {
     height: 160px;
   }
 }
+
 .awardActions {
   display: flex;
   gap: 8px;
   margin-top: 10px;
 
-  .moreInfoBtn, .nominationBtn {
+  .moreInfoBtn,
+  .nominationBtn {
     flex: 1;
     padding: 6px 10px;
     border-radius: 4px;

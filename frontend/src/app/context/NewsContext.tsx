@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState, useMemo, ReactNode } from "react";
 import { NewsItem, NewsSections, NewsDocument } from "@/app/services/NewsService";
-import { useAllNews } from "@/app/hooks/NewsApi";
+import { useStreamingNews } from "@/app/hooks/NewsApi";
 
 interface NewsContextType {
   allNews: NewsItem[] | null;
@@ -32,102 +32,78 @@ interface NewsContextType {
 const NewsContext = createContext<NewsContextType | undefined>(undefined);
 
 const filterVisibleNews = (newsArray: NewsItem[] | undefined): NewsItem[] | null => {
-  if (!newsArray || newsArray.length === 0) return null;
+  if (!newsArray || !Array.isArray(newsArray) || newsArray.length === 0) return null;
   const filtered = newsArray.filter((item) => !item.isHidden);
   return filtered.length > 0 ? filtered : null;
 };
 
 export const NewsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const { data: rawData, loading, error, refetch } = useAllNews();
-  const sections = rawData && rawData.length > 0 ? rawData[0] : null;
+  // Use Streaming for the fastest perceived initial loading experience
+  const { news: rawData, loading, error, refetch } = useStreamingNews(undefined, 500);
 
-  const [newsState, setNewsState] = useState<{ [key: string]: NewsItem[] | null }>({});
+  const sections = useMemo(() => {
+    if (!rawData || rawData.length === 0) return null;
 
-  const technologyData = useMemo(() => filterVisibleNews(sections?.technology), [sections?.technology]);
+    const grouped: any = {
+      india: [], sports: [], business: [], lifestyle: [], entertainment: [],
+      health: [], awards: [], technology: [], world: [], education: [],
+      environment: [], science: [], opinion: [], auto: [], travel: [], state: []
+    };
 
-  const flattenedArr = useMemo(() => {
-    if (!sections) return null;
-    const items: NewsItem[] = [];
-    const keys: (keyof NewsSections)[] = [
-      "india", "sports", "business", "lifestyle", "entertainment",
-      "health", "awards", "technology", "world", "education",
-      "environment", "science", "opinion", "auto", "travel", "state",
-    ];
-
-    keys.forEach((key) => {
-      const arr = sections[key];
-      if (Array.isArray(arr)) {
-        const visibleItems = arr
-          .filter((item) => !item.isHidden)
-          .map((item) => ({ ...item, section: key }));
-        items.push(...visibleItems);
+    rawData.forEach((item: any) => {
+      if (!item.category) return;
+      const cat = item.category.toLowerCase().trim();
+      if (grouped[cat]) {
+        grouped[cat].push(item);
+      } else if (cat === 'tech') {
+        grouped.technology.push(item);
       }
     });
-    return items.length > 0 ? items : null;
-  }, [sections]);
 
-  useEffect(() => {
-    if (!sections) {
-      setNewsState({});
-      return;
-    }
+    return grouped as NewsDocument;
+  }, [rawData]);
 
-    setNewsState({
-      allNews: flattenedArr,
-      indiaNews: filterVisibleNews(sections.india),
-      sportsNews: filterVisibleNews(sections.sports),
-      businessNews: filterVisibleNews(sections.business),
-      lifestyleNews: filterVisibleNews(sections.lifestyle),
-      entertainmentNews: filterVisibleNews(sections.entertainment),
-      healthNews: filterVisibleNews(sections.health),
-      awardsNews: filterVisibleNews(sections.awards),
-      techNews: technologyData,
-      technologyNews: technologyData,
-      worldNews: filterVisibleNews(sections.world),
-      educationNews: filterVisibleNews(sections.education),
-      environmentNews: filterVisibleNews(sections.environment),
-      scienceNews: filterVisibleNews(sections.science),
-      opinionNews: filterVisibleNews(sections.opinion),
-      autoNews: filterVisibleNews(sections.auto),
-      travelNews: filterVisibleNews(sections.travel),
-      stateNews: filterVisibleNews(sections.state),
-    });
-  }, [sections, technologyData, flattenedArr]);
+  // Derive everything from rawData and sections using useMemo
+  // This avoids the infinite state update loop
+  const newsState = useMemo(() => {
+    const safeSections = sections || {};
+    return {
+      allNews: rawData.length > 0 ? rawData : null,
+      indiaNews: filterVisibleNews(safeSections.india) || [],
+      sportsNews: filterVisibleNews(safeSections.sports) || [],
+      businessNews: filterVisibleNews(safeSections.business) || [],
+      lifestyleNews: filterVisibleNews(safeSections.lifestyle) || [],
+      entertainmentNews: filterVisibleNews(safeSections.entertainment) || [],
+      healthNews: filterVisibleNews(safeSections.health) || [],
+      awardsNews: filterVisibleNews(safeSections.awards) || [],
+      techNews: filterVisibleNews(safeSections.technology) || [], // Unified field
+      technologyNews: filterVisibleNews(safeSections.technology) || [],
+      worldNews: filterVisibleNews(safeSections.world) || [],
+      educationNews: filterVisibleNews(safeSections.education) || [],
+      environmentNews: filterVisibleNews(safeSections.environment) || [],
+      scienceNews: filterVisibleNews(safeSections.science) || [],
+      opinionNews: filterVisibleNews(safeSections.opinion) || [],
+      autoNews: filterVisibleNews(safeSections.auto) || [],
+      travelNews: filterVisibleNews(safeSections.travel) || [],
+      stateNews: filterVisibleNews(safeSections.state) || [],
+    };
+  }, [sections, rawData]);
 
-  const value: NewsContextType = {
-    allNews: newsState.allNews ?? null,
-    indiaNews: newsState.indiaNews ?? null,
-    sportsNews: newsState.sportsNews ?? null,
-    businessNews: newsState.businessNews ?? null,
-    lifestyleNews: newsState.lifestyleNews ?? null,
-    entertainmentNews: newsState.entertainmentNews ?? null,
-    healthNews: newsState.healthNews ?? null,
-    awardsNews: newsState.awardsNews ?? null,
-    techNews: newsState.techNews ?? null,
-    technologyNews: newsState.technologyNews ?? null,
-    worldNews: newsState.worldNews ?? null,
-    educationNews: newsState.educationNews ?? null,
-    environmentNews: newsState.environmentNews ?? null,
-    scienceNews: newsState.scienceNews ?? null,
-    opinionNews: newsState.opinionNews ?? null,
-    autoNews: newsState.autoNews ?? null,
-    travelNews: newsState.travelNews ?? null,
-    stateNews: newsState.stateNews ?? null,
+  const value: NewsContextType = useMemo(() => ({
+    ...newsState,
     sections,
     loading,
     error,
     refetch,
-  };
+  }), [newsState, sections, loading, error, refetch]);
 
   return <NewsContext.Provider value={value}>{children}</NewsContext.Provider>;
 };
 
 export const useNewsContext = () => {
   const context = useContext(NewsContext);
-
   if (context === undefined) {
     throw new Error("useNewsContext must be used within a NewsProvider");
   }
-
   return context;
 };

@@ -20,6 +20,7 @@
     font-family: 'Lora', serif;
     font-size: 18px;
     line-height: 1.8;
+    text-align: justify;
     color: var(--text-color);
     transition: color 0.3s ease;
 
@@ -66,7 +67,8 @@
     }
   }
 
-  ul, ol {
+  ul,
+  ol {
     margin: 24px 0;
     padding-left: 28px;
     font-family: 'Lora', serif;
@@ -121,7 +123,8 @@
       margin: 24px 0 12px 0;
     }
 
-    ul, ol {
+    ul,
+    ol {
       font-size: 17px;
       line-height: 1.75;
     }
@@ -144,7 +147,8 @@
       font-size: 16px;
     }
 
-    ul, ol {
+    ul,
+    ol {
       font-size: 16px;
       padding-left: 24px;
     }
