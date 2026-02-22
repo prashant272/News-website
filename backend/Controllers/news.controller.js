@@ -1,5 +1,5 @@
-const NewsArticle = require("../models/NewsArticle");
-const User = require("../models/user.model");
+const NewsArticle = require("../Models/NewsArticle");
+const User = require("../Models/user.model");
 const AppConfig = require("../Models/AppConfig");
 const facebookService = require("../Services/facebookService");
 const dotenv = require("dotenv");

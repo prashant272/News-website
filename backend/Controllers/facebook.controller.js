@@ -1,5 +1,5 @@
 const axios = require("axios");
-const User = require("../models/user.model");
+const User = require("../Models/user.model");
 const AppConfig = require("../Models/AppConfig");
 
 const FB_APP_ID = process.env.FB_APP_ID;
