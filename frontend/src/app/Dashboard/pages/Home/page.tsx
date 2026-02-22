@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import ProtectedRoute from "../../ProtectedRoute/ProtectedRoute";
 import MainSection from '@/app/Dashboard/Components/Home/MainSection/Main';
 import AINewsManagement from "@/app/Dashboard/Components/Home/AINewsManagement/AINewsManagement";
@@ -23,6 +24,7 @@ export default function NewsAdminPage() {
   const userCtx = useContext(UserContext);
   const userRole = userCtx?.UserAuthData?.role;
   const isSuperAdmin = userRole === 'SUPER_ADMIN';
+  const searchParams = useSearchParams();
 
   // Filter sections based on role
   const availableSections = sections.filter(s => {
@@ -32,9 +34,21 @@ export default function NewsAdminPage() {
     return true;
   });
 
-  const [activeSection, setActiveSection] = useState<SectionId>('news_management');
+  // Read initial section from URL params (used by Facebook OAuth callback redirect)
+  const urlSection = searchParams.get('section') as SectionId | null;
+  const validSection = urlSection && sections.find(s => s.id === urlSection) ? urlSection : null;
+
+  const [activeSection, setActiveSection] = useState<SectionId>(validSection || 'news_management');
   const activeSectionData = sections.find(s => s.id === activeSection);
-  const [draftToEdit, setDraftToEdit] = useState<any>(null); // Using any for now to avoid strict type refactoring hell
+  const [draftToEdit, setDraftToEdit] = useState<any>(null);
+
+  // Update section if URL param changes (e.g. FB OAuth redirect arrives)
+  useEffect(() => {
+    if (validSection) {
+      setActiveSection(validSection);
+    }
+  }, [validSection]);
+
 
   const handleLogout = () => {
     userCtx?.logout();
