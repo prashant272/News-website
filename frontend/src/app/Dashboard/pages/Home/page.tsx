@@ -13,6 +13,7 @@ const sections = [
   { id: 'ad_management' as const, label: 'Ad Management', icon: '📢' },
   { id: 'previous_news' as const, label: 'Previous News', icon: '📁' },
   { id: 'analytics' as const, label: 'Analytics', icon: '📊' },
+  { id: 'facebook_settings' as const, label: 'Facebook Post', icon: '📱' },
   { id: 'user_management' as const, label: 'User Management', icon: '👥' },
 ] as const;
 

@@ -21,4 +21,4 @@ const adSchema = new mongoose.Schema({
   timestamps: true
 });
 
-module.exports = mongoose.model('Ad', adSchema);
+module.exports = mongoose.models.Ad || mongoose.model('Ad', adSchema);

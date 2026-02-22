@@ -86,6 +86,6 @@ const newsArticleSchema = new mongoose.Schema(
 // Compound index for efficient querying
 newsArticleSchema.index({ category: 1, status: 1, createdAt: -1 });
 
-const NewsArticle = mongoose.model("NewsArticle", newsArticleSchema);
+const NewsArticle = mongoose.models.NewsArticle || mongoose.model("NewsArticle", newsArticleSchema);
 
 module.exports = NewsArticle;

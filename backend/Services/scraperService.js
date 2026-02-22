@@ -69,12 +69,25 @@ const scrapeNews = async (url) => {
     }
 };
 
-// 2. Fetch Latest Links from RSS Feed
+// 2. Fetch Latest Links from RSS Feed (only last 24 hours)
 const getLatestLinks = async (rssUrl) => {
     try {
         const feed = await parser.parseURL(rssUrl);
-        // Return top 10 items to find unprocessed news even if latest 2 are done
-        return feed.items.slice(0, 10).map(item => ({
+
+        // --- DATE FILTER: only accept news published in the last 24 hours ---
+        const now = new Date();
+        const cutoff = new Date(now.getTime() - 24 * 60 * 60 * 1000); // 24 hours ago
+
+        const recentItems = feed.items.filter(item => {
+            if (!item.pubDate) return false; // skip if no date
+            const pubDate = new Date(item.pubDate);
+            return pubDate >= cutoff; // only items from last 24 hours
+        });
+
+        console.log(`[${feed.title}] Found ${feed.items.length} items, ${recentItems.length} are within last 24 hours.`);
+
+        // Return top 10 recent items
+        return recentItems.slice(0, 10).map(item => ({
             title: item.title,
             link: item.link,
             pubDate: item.pubDate,

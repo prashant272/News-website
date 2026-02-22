@@ -148,7 +148,7 @@ const newsSources = [
     // --- HEALTH ---
     {
         name: "NDTV - Health",
-        url: "https://feeds.feedburner.com/ndtvcooks-latest", // NDTV includes health/food here often, or try generic
+        url: "https://feeds.feedburner.com/ndtvcooks-latest",
         category: "health",
     },
     {
@@ -160,6 +160,141 @@ const newsSources = [
         name: "News18 - Health",
         url: "https://www.news18.com/commonfeeds/v1/en/health-and-fitness.xml",
         category: "health",
+    },
+
+    // ============================================================
+    // --- REGIONAL: UTTAR PRADESH ---
+    // ============================================================
+    {
+        name: "News18 UP Uttarakhand",
+        url: "https://hindi.news18.com/commonfeeds/v1/hin/rss/uttar-pradesh.xml",
+        category: "regional",
+    },
+    {
+        name: "Zee News - UP Uttarakhand",
+        url: "https://zeenews.india.com/hindi/india/up-uttarakhand/feed",
+        category: "regional",
+    },
+    {
+        name: "Amar Ujala - UP",
+        url: "https://www.amarujala.com/rss/uttar-pradesh.xml",
+        category: "regional",
+    },
+    {
+        name: "Dainik Jagran - UP",
+        url: "https://www.jagran.com/rss/uttar-pradesh.xml",
+        category: "regional",
+    },
+    {
+        name: "Bharat Samachar",
+        url: "https://www.bharatsamachar.com/rssFeed/top-stories",
+        category: "regional",
+    },
+    {
+        name: "India News UP (TV9 Bharatvarsh)",
+        url: "https://tv9hindi.com/feed",
+        category: "regional",
+    },
+
+    // ============================================================
+    // --- REGIONAL: MUMBAI / MAHARASHTRA ---
+    // ============================================================
+    {
+        name: "ABP Majha (ABP Live Marathi)",
+        url: "https://marathi.abplive.com/feed",
+        category: "regional",
+    },
+    {
+        name: "TV9 Marathi",
+        url: "https://tv9marathi.com/feed",
+        category: "regional",
+    },
+    {
+        name: "Zee 24 Taas",
+        url: "https://zeenews.india.com/marathi/feed",
+        category: "regional",
+    },
+    {
+        name: "Mumbai Tak",
+        url: "https://www.indiatv.in/hindi/rss/feed",
+        category: "regional",
+    },
+    {
+        name: "Maharashtra Times",
+        url: "https://maharashtratimes.com/rssfeedstopstories.cms",
+        category: "regional",
+    },
+
+    // ============================================================
+    // --- REGIONAL: BANGALORE / KARNATAKA ---
+    // ============================================================
+    {
+        name: "TV9 Kannada",
+        url: "https://tv9kannada.com/feed",
+        category: "regional",
+    },
+    {
+        name: "Suvarna News (TV9 Network)",
+        url: "https://kannada.tv9.com/feed",
+        category: "regional",
+    },
+    {
+        name: "Vijaya Karnataka",
+        url: "https://vijaykarnataka.com/rssfeedstopstories.cms",
+        category: "regional",
+    },
+    {
+        name: "Udayavani - Karnataka",
+        url: "https://www.udayavani.com/rss-feed",
+        category: "regional",
+    },
+
+    // ============================================================
+    // --- REGIONAL: BIHAR / JHARKHAND ---
+    // ============================================================
+    {
+        name: "News18 Bihar Jharkhand",
+        url: "https://hindi.news18.com/commonfeeds/v1/hin/rss/bihar.xml",
+        category: "regional",
+    },
+    {
+        name: "Zee Bihar Jharkhand",
+        url: "https://zeenews.india.com/hindi/india/bihar-and-jharkhand/feed",
+        category: "regional",
+    },
+    {
+        name: "Dainik Bhaskar - Bihar",
+        url: "https://www.bhaskar.com/rss-feed/796/",
+        category: "regional",
+    },
+    {
+        name: "Prabhat Khabar - Bihar",
+        url: "https://www.prabhatkhabar.com/feed",
+        category: "regional",
+    },
+
+    // ============================================================
+    // --- REGIONAL: DELHI / NCR ---
+    // ============================================================
+    {
+        name: "NDTV 24x7 - Delhi",
+        url: "https://feeds.feedburner.com/ndtvnews-delhi-news",
+        category: "regional",
+    },
+    {
+        name: "TV9 Bharatvarsh - National",
+        url: "https://tv9hindi.com/feed",
+        category: "regional",
+    },
+    {
+        name: "Hindustan - Delhi",
+        url: "https://www.livehindustan.com/rss/delhi.xml",
+        category: "regional",
+    },
+    {
+        name: "Navbharat Times - Delhi",
+        url: "https://navbharattimes.indiatimes.com/rssfeedstopstories.cms",
+        category: "regional",
     },
 ];
 

@@ -112,5 +112,5 @@ const newsSchema = new mongoose.Schema(
 );
 
 
-const NewsConfig = mongoose.model("NewsConfig", newsSchema);
+const NewsConfig = mongoose.models.NewsConfig || mongoose.model("NewsConfig", newsSchema);
 module.exports = NewsConfig;

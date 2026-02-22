@@ -53,6 +53,13 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+
+    facebook: {
+      pageId: { type: String, default: null },
+      pageName: { type: String, default: null },
+      pageAccessToken: { type: String, default: null },
+      connectedAt: { type: Date, default: null }
+    },
   },
   {
     timestamps: true,
@@ -60,5 +67,5 @@ const userSchema = new mongoose.Schema(
 );
 
 
-const User = mongoose.model("User", userSchema);
+const User = mongoose.models.User || mongoose.model("User", userSchema);
 module.exports = User;

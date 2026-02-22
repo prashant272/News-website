@@ -1,4 +1,7 @@
-const NewsArticle = require("../Models/NewsArticle");
+const NewsArticle = require("../models/NewsArticle");
+const User = require("../models/user.model");
+const AppConfig = require("../Models/AppConfig");
+const facebookService = require("../Services/facebookService");
 const dotenv = require("dotenv");
 dotenv.config({ path: "./Config/config.env" });
 const cloudinary = require("cloudinary").v2;
@@ -8,6 +11,53 @@ cloudinary.config({
   api_key: process.env.API_KEY,
   api_secret: process.env.API_SECRET,
 });
+
+/**
+ * Trigger Facebook auto-post when an article is published.
+ * Priority: 1) Global AppConfig  2) Per-user facebook config
+ */
+async function triggerFacebookPost(newsItem) {
+  if (newsItem.status !== "published") return;
+
+  try {
+    let pageId, pageAccessToken;
+
+    // 1. Try global system-level config first (works for ALL articles including AI Bot)
+    const globalConfig = await AppConfig.findOne({ key: "facebook" });
+    if (globalConfig?.facebook?.pageId && globalConfig?.facebook?.autoPostEnabled) {
+      pageId = globalConfig.facebook.pageId;
+      pageAccessToken = globalConfig.facebook.pageAccessToken;
+      console.log(`[Facebook] Using global config for auto-post: ${globalConfig.facebook.pageName}`);
+    }
+    // 2. Fallback: per-user credentials (manual articles with authorId)
+    else if (newsItem.authorId) {
+      const user = await User.findById(newsItem.authorId);
+      if (user?.facebook?.pageId) {
+        pageId = user.facebook.pageId;
+        pageAccessToken = user.facebook.pageAccessToken;
+        console.log(`[Facebook] Using per-user config for auto-post: user ${newsItem.authorId}`);
+      }
+    }
+
+    if (!pageId || !pageAccessToken) {
+      console.log("[Facebook] Auto-post skipped: No Facebook Page connected.");
+      return;
+    }
+
+    const articleUrl = `https://www.primetimemedia.in/Pages/${newsItem.category}/${newsItem.subCategory || newsItem.category}/${newsItem.slug}`;
+    const message = `📰 ${newsItem.title}\n\n${newsItem.summary || ""}\n\nRead more 👇`;
+
+    const result = await facebookService.postToPage(pageId, pageAccessToken, message, articleUrl);
+    if (result.success) {
+      console.log(`[Facebook] ✅ Auto-posted: "${newsItem.title}" → Post ID: ${result.postId}`);
+    } else {
+      console.error(`[Facebook] ❌ Auto-post failed: ${result.error}`);
+    }
+  } catch (error) {
+    console.error("[Facebook] triggerFacebookPost Error:", error);
+  }
+}
+
 
 exports.AddNews = async (req, res) => {
   try {
@@ -61,6 +111,11 @@ exports.AddNews = async (req, res) => {
     });
 
     await newItem.save();
+
+    // Trigger Facebook auto-post
+    if (status === "published") {
+      triggerFacebookPost(newItem);
+    }
 
     return res.status(201).json({
       success: true,
@@ -255,7 +310,13 @@ exports.updateNewsBySlug = async (req, res) => {
     }
 
     const updatedItem = await NewsArticle.findOneAndUpdate({ slug }, { ...updateData }, { new: true });
-    res.status(200).json({ success: true, news: updatedItem, section: updatedItem.category, msg: "Updated successfully" });
+
+    // Trigger Facebook auto-post if status just changed to published
+    if (updateData.status === "published" && item.status !== "published") {
+      triggerFacebookPost(updatedItem);
+    }
+
+    return res.status(200).json({ success: true, news: updatedItem, section: updatedItem.category, msg: "Updated successfully" });
   } catch (error) {
     console.error("Update News Error:", error);
     res.status(500).json({ success: false, msg: "Error updating news" });

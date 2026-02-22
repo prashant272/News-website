@@ -12,6 +12,7 @@ const NewsRouter = require("./routes/news.routes")
 const OTPRouter = require("./routes/otp.route")
 const AdsRouter = require("./routes/advertisement.route")
 const AutoNewsRouter = require("./routes/autoNewsRoute")
+const FacebookRouter = require("./routes/facebook.routes")
 
 
 const app = express()
@@ -42,6 +43,7 @@ app.use("/news", NewsRouter)
 app.use("/otp", OTPRouter)
 app.use("/ads", AdsRouter)
 app.use("/api", AutoNewsRouter)
+app.use("/fb", FacebookRouter)
 
 app.listen(process.env.PORT, () => {
     console.log(`Server is running on port ${process.env.PORT}`);
