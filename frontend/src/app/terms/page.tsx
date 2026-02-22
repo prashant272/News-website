@@ -1,7 +1,12 @@
-'use client';
-
+import type { Metadata } from 'next';
 import React from 'react';
 import styles from '../Components/Common/LegalPage/LegalPage.module.scss';
+
+export const metadata: Metadata = {
+    title: 'Terms & Services',
+    description: 'Terms and Services of Prime Time News — India\'s trusted news portal. Read our usage terms and conditions.',
+    robots: { index: false, follow: false },
+};
 
 const TermsAndServices = () => {
     return (

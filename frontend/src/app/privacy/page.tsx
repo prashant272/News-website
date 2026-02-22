@@ -1,7 +1,12 @@
-'use client';
-
+import type { Metadata } from 'next';
 import React from 'react';
 import styles from '../Components/Common/LegalPage/LegalPage.module.scss';
+
+export const metadata: Metadata = {
+    title: 'Privacy Policy',
+    description: 'Read the Privacy Policy of Prime Time News — India\'s leading news portal. Learn how we collect, use, and protect your personal information.',
+    robots: { index: false, follow: false },
+};
 
 const PrivacyPolicy = () => {
     return (

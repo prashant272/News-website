@@ -1,7 +1,12 @@
-'use client';
-
+import type { Metadata } from 'next';
 import React from 'react';
 import styles from '../Components/Common/LegalPage/LegalPage.module.scss';
+
+export const metadata: Metadata = {
+    title: 'Cookie Policy',
+    description: 'Cookie Policy of Prime Time News — India\'s trusted news portal. Learn how we use cookies.',
+    robots: { index: false, follow: false },
+};
 
 const CookiePolicy = () => {
     return (

@@ -1,7 +1,12 @@
-'use client';
-
+import type { Metadata } from 'next';
 import React from 'react';
 import styles from '../Components/Common/LegalPage/LegalPage.module.scss';
+
+export const metadata: Metadata = {
+    title: 'Disclaimer',
+    description: 'Disclaimer of Prime Time News — India\'s trusted news portal.',
+    robots: { index: false, follow: false },
+};
 
 const Disclaimer = () => {
     return (
