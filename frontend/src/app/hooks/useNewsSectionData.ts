@@ -1,8 +1,9 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { useNewsContext } from '@/app/context/NewsContext';
+import { newsService } from '@/app/services/NewsService';
 import { getImageSrc } from '@/Utils/imageUtils';
 
 export type SectionKey =
@@ -125,10 +126,12 @@ export function useNewsSectionData<T extends NewsItemVariant = NewsItemVariant>(
     [pathname, overrideSection]
   );
 
-  const rawData = useMemo(() => {
-    if (providedItems) return providedItems;
-    if (!context) return [];
+  const [localItems, setLocalItems] = useState<any[]>([]);
+  const [localLoading, setLocalLoading] = useState(false);
 
+  // Derive the context data for the current section
+  const contextData = useMemo(() => {
+    if (!context) return [];
     switch (section) {
       case 'india': return context.indiaNews ?? [];
       case 'sports': return context.sportsNews ?? [];
@@ -147,7 +150,31 @@ export function useNewsSectionData<T extends NewsItemVariant = NewsItemVariant>(
       case 'awards': return context.awardsNews ?? [];
       default: return context.allNews ?? [];
     }
-  }, [context, section, providedItems]);
+  }, [context, section]);
+
+  // Fallback fetch if context is empty for this section
+  useEffect(() => {
+    if (providedItems || !section || section === 'all' || section === 'india') return;
+
+    // If context news is empty and context is NOT loading, fetch specifically
+    if (contextData.length === 0 && context && !context.loading && localItems.length === 0 && !localLoading) {
+      console.log(`[useNewsSectionData] Context empty for ${section}, fetching fallback...`);
+      setLocalLoading(true);
+      newsService.getNewsBySection(section, false, 1, limit)
+        .then(res => {
+          if (res.success && res.news) {
+            setLocalItems(res.news);
+          }
+        })
+        .catch(err => console.warn(`[useNewsSectionData] Fallback fetch failed for ${section}:`, err))
+        .finally(() => setLocalLoading(false));
+    }
+  }, [section, contextData.length, context?.loading, limit, providedItems, localItems.length, localLoading]);
+
+  const rawData = useMemo(() => {
+    if (providedItems) return providedItems;
+    return contextData.length > 0 ? contextData : localItems;
+  }, [providedItems, contextData, localItems]);
 
   const filteredData = useMemo(() => {
     let data = [...rawData];
@@ -227,7 +254,7 @@ export function useNewsSectionData<T extends NewsItemVariant = NewsItemVariant>(
     section,
     items,
     topItems,
-    isLoading: context?.loading ?? false,
+    isLoading: (context?.loading ?? false) || localLoading,
     hasData: items.length > 0 || topItems.length > 0,
   };
 }

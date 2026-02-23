@@ -309,3 +309,98 @@ export const useNewsVisibilityStats = (items: NewsItem[] | null) => {
     };
   }, [items]);
 };
+
+/**
+ * Hook for infinite scrolling news within a section.
+ */
+export const useInfiniteNews = (section: string, initialData: NewsItem[] = [], limit: number = 20) => {
+  const [items, setItems] = useState<NewsItem[]>([]);
+  const [page, setPage] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const sectionRef = useRef(section);
+  const hasInitializedRef = useRef(false);
+
+  // One-time sync with initialData if it arrives later (streaming)
+  useEffect(() => {
+    if (!hasInitializedRef.current && initialData.length > 0 && section === sectionRef.current) {
+      setItems(initialData);
+      setPage(1);
+      hasInitializedRef.current = true;
+    }
+  }, [initialData, section]);
+
+  const fetchNextPage = useCallback(async () => {
+    if (loading || !hasMore || !section) return;
+
+    setLoading(true);
+    const nextPage = page + 1;
+
+    try {
+      const res = await newsService.getNewsBySection(section, false, nextPage, limit);
+
+      if (res.success && res.news) {
+        setItems(prev => {
+          if (page === 0) return res.news!;
+          const existingIds = new Set(prev.map(i => i._id || i.slug));
+          const newItems = res.news!.filter(i => !existingIds.has(i._id || i.slug));
+          return [...prev, ...newItems];
+        });
+        console.log(`[NewsApi] Successfully fetched ${res.news.length} items for ${section}`);
+        setPage(nextPage);
+
+        if (res.pagination) {
+          setHasMore(nextPage < res.pagination.totalPages);
+        } else {
+          setHasMore(res.news.length === limit);
+        }
+        hasInitializedRef.current = true;
+      } else {
+        setHasMore(false);
+      }
+    } catch (err: any) {
+      setError(err.message);
+      setHasMore(false);
+    } finally {
+      setLoading(false);
+    }
+  }, [section, page, loading, hasMore, limit]);
+
+  // Initialize or reset when section changes
+  useEffect(() => {
+    console.log(`[NewsApi] Section changed to: ${section}`);
+    sectionRef.current = section;
+    if (initialData.length > 0) {
+      setItems(initialData);
+      setPage(1);
+      setHasMore(true);
+      hasInitializedRef.current = true;
+    } else {
+      setItems([]);
+      setPage(0);
+      setHasMore(true);
+      hasInitializedRef.current = false;
+    }
+    setError(null);
+  }, [section]);
+
+
+  // Auto-fetch page 1 if initialData is empty and we haven't tried yet
+  useEffect(() => {
+    if (page === 0 && !loading && hasMore && section) {
+      fetchNextPage();
+    }
+  }, [page, loading, hasMore, section, fetchNextPage]);
+
+  return {
+    items,
+    loading,
+    hasMore,
+    fetchNextPage,
+    error,
+    isInitialLoading: (loading && page === 0),
+    hasDataChecked: (page > 0 || (!loading && !hasMore))
+  };
+};

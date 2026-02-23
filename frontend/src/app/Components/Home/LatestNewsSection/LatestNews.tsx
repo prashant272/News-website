@@ -24,11 +24,20 @@ const LatestNews: React.FC = () => {
       return [];
     }
 
-    const latestItems = allNews
+    // Deduplicate by _id then slug to prevent duplicate React keys
+    const seen = new Set<string>();
+    const uniqueNews = allNews.filter((item: any) => {
+      const key = item._id || item.slug;
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+
+    const latestItems = uniqueNews
       .filter((item: any) => item.isLatest === true)
       .slice(0, 6);
 
-    const itemsToMap = latestItems.length > 0 ? latestItems : allNews.slice(0, 6);
+    const itemsToMap = latestItems.length > 0 ? latestItems : uniqueNews.slice(0, 6);
 
     return itemsToMap.map((item: any, idx: number) => {
       const section = item.section || 'news';
@@ -36,7 +45,7 @@ const LatestNews: React.FC = () => {
       const catSlug = sub.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
 
       return {
-        id: `latest-${item.slug || idx}`,
+        id: `latest-${item._id || item.slug || idx}`,
         title: item.title || 'Untitled',
         image: item.image || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80',
         category: item.category || section.charAt(0).toUpperCase() + section.slice(1),

@@ -357,3 +357,98 @@ exports.GetAnalytics = async (req, res) => {
     res.status(500).json({ success: false, msg: "Error" });
   }
 };
+
+/**
+ * Employee daily report: how many news each employee published today (or given date), by category.
+ */
+exports.getEmployeeReport = async (req, res) => {
+  try {
+    const { date } = req.query;
+
+    // IST offset = UTC + 5:30 = 330 minutes
+    const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000;
+
+    // Parse the date string (e.g. "2026-02-23") as IST midnight
+    let targetDateStr;
+    if (date) {
+      targetDateStr = date; // e.g. "2026-02-23"
+    } else {
+      // Get today in IST
+      const nowIST = new Date(Date.now() + IST_OFFSET_MS);
+      targetDateStr = nowIST.toISOString().split('T')[0];
+    }
+
+    // Build UTC boundaries for the IST day
+    // IST 00:00:00 = UTC targetDate - 5:30
+    // IST 23:59:59 = UTC targetDate + 1 day - 5:30 - 1ms
+    const startOfDayUTC = new Date(`${targetDateStr}T00:00:00.000+05:30`);
+    const endOfDayUTC = new Date(`${targetDateStr}T23:59:59.999+05:30`);
+
+    const results = await NewsArticle.aggregate([
+      {
+        $match: {
+          status: 'published',
+          $or: [
+            { publishedAt: { $gte: startOfDayUTC, $lte: endOfDayUTC } },
+            {
+              publishedAt: { $exists: false },
+              createdAt: { $gte: startOfDayUTC, $lte: endOfDayUTC }
+            },
+            {
+              publishedAt: null,
+              createdAt: { $gte: startOfDayUTC, $lte: endOfDayUTC }
+            }
+          ]
+        }
+      },
+      {
+        $group: {
+          _id: {
+            authorId: "$authorId",
+            author: "$author",
+            category: "$category"
+          },
+          count: { $sum: 1 },
+          titles: { $push: "$title" }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            authorId: "$_id.authorId",
+            author: "$_id.author"
+          },
+          totalCount: { $sum: "$count" },
+          categories: {
+            $push: {
+              category: "$_id.category",
+              count: "$count",
+              titles: "$titles"
+            }
+          }
+        }
+      },
+      {
+        $sort: { totalCount: -1 }
+      }
+    ]);
+
+    // Format
+    const report = results.map(emp => ({
+      authorId: emp._id.authorId,
+      author: emp._id.author || 'Unknown',
+      total: emp.totalCount,
+      categories: emp.categories.sort((a, b) => b.count - a.count)
+    }));
+
+    res.status(200).json({
+      success: true,
+      date: targetDateStr,
+      report
+    });
+  } catch (error) {
+    console.error("Employee Report Error:", error);
+    res.status(500).json({ success: false, msg: "Error fetching employee report" });
+  }
+};
+

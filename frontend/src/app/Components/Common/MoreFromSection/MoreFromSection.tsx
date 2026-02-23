@@ -29,7 +29,7 @@ export default function MoreFromSection({
   });
   const router = useRouter();
 
-  if (isLoading || items.length === 0) {
+  if (isLoading) {
     return (
       <div className={styles.moreFromWrapper}>
         <div className={`${styles.itemsGrid} ${styles[`cols${columns}`]} animate-pulse`}>
@@ -42,6 +42,10 @@ export default function MoreFromSection({
         </div>
       </div>
     );
+  }
+
+  if (items.length === 0) {
+    return null;
   }
 
   return (

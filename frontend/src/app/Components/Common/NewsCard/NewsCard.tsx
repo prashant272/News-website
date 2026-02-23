@@ -333,7 +333,7 @@ const NewsCards: React.FC<NewsCardsProps> = ({
                   <div className="flex flex-col gap-0 px-6 py-2 pb-3 sm:px-5">
                     {headlineItems.map((item, idx) => (
                       <div
-                        key={item.id}
+                        key={`${categorySection.categoryName}-${idx}-${item.id}`}
                         className={`group/headline relative flex items-start gap-4 border-b border-[var(--border)] py-4 text-inherit no-underline transition-all duration-300 opacity-0 last:border-none hover:pl-2 before:absolute before:-left-6 before:-right-6 before:top-0 before:bottom-0 before:bg-[var(--nav-hover-bg)] before:opacity-0 before:transition-opacity before:duration-300 hover:before:opacity-100 ${animationEnabled ? 'animate-fade-in-up' : 'opacity-100'}`}
                         style={{
                           cursor: 'pointer',
@@ -351,7 +351,7 @@ const NewsCards: React.FC<NewsCardsProps> = ({
                             <span className="font-['Inter'] text-[0.625rem] font-semibold uppercase tracking-wider text-[var(--muted-foreground)] sm:text-[0.5625rem]">{item.date}</span>
                           )}
                         </div>
-                        
+
                         {(categorySection.categoryName === "AWARDS" || section === "awards") && (
                           <div className="z-[1] flex gap-1.5 shrink-0 ml-auto">
                             {item.targetLink && (

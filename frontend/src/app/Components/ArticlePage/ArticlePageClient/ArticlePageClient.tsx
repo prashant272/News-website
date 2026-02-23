@@ -286,7 +286,10 @@ export default function ArticlePageClient({
           </aside>
         </div>
 
-        <MoreStoriesSection sectionTitle={`MORE FROM ${section.toUpperCase()}`} />
+        <MoreStoriesSection
+          sectionTitle={`MORE FROM ${section.toUpperCase()}`}
+          overrideSection={section}
+        />
       </div>
     </div>
   );

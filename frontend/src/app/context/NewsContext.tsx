@@ -50,8 +50,15 @@ export const NewsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       environment: [], science: [], opinion: [], auto: [], travel: [], state: []
     };
 
+    // Deduplicate by slug within each group to avoid React duplicate key warnings
+    const seenSlugs = new Set<string>();
+
     rawData.forEach((item: any) => {
       if (!item.category) return;
+      const uniqueKey = item._id || item.slug;
+      if (!uniqueKey || seenSlugs.has(uniqueKey)) return;
+      seenSlugs.add(uniqueKey);
+
       const cat = item.category.toLowerCase().trim();
       if (grouped[cat]) {
         grouped[cat].push(item);
@@ -67,8 +74,18 @@ export const NewsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // This avoids the infinite state update loop
   const newsState = useMemo(() => {
     const safeSections = sections || {};
+
+    // Deduplicate rawData so allNews never has duplicate slugs
+    const seen = new Set<string>();
+    const uniqueRaw = rawData.filter((item: any) => {
+      const key = item._id || item.slug;
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+
     return {
-      allNews: rawData.length > 0 ? rawData : null,
+      allNews: uniqueRaw.length > 0 ? uniqueRaw : null,
       indiaNews: filterVisibleNews(safeSections.india) || [],
       sportsNews: filterVisibleNews(safeSections.sports) || [],
       businessNews: filterVisibleNews(safeSections.business) || [],

@@ -227,6 +227,10 @@
 .contentContainer {
   flex: 1;
   padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 130px;
 }
 
 .newsTitle {
@@ -363,6 +367,7 @@
 
   .contentContainer {
     padding: 0.25rem;
+    min-height: auto;
   }
 
   .newsTitle {
@@ -407,37 +412,51 @@
 .awardActions {
   display: flex;
   gap: 8px;
-  margin-top: 10px;
+  margin-top: 12px;
+  width: 100%;
 
   .moreInfoBtn,
   .nominationBtn {
     flex: 1;
-    padding: 6px 10px;
-    border-radius: 4px;
-    font-size: 0.75rem;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    font-size: 0.7rem;
     font-weight: 700;
     text-align: center;
     text-decoration: none;
-    transition: all 0.2s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    cursor: pointer;
   }
 
   .moreInfoBtn {
-    background: #f3f4f6;
-    color: #4b5563;
-    border: 1px solid #e5e7eb;
+    background: var(--background);
+    color: var(--heading-color);
+    border: 1px solid var(--border);
 
     &:hover {
-      background: #e5e7eb;
+      background: var(--nav-hover-bg);
+      border-color: var(--primary);
+      color: var(--primary);
+      transform: translateY(-2px);
     }
   }
 
   .nominationBtn {
-    background: #ef4444;
+    background: linear-gradient(135deg, #ef4444, #dc2626);
     color: white;
+    border: none;
+    box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
 
     &:hover {
-      background: #dc2626;
+      background: linear-gradient(135deg, #dc2626, #b91c1c);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
     }
   }
 }

@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import ProtectedRoute from "../../ProtectedRoute/ProtectedRoute";
 import MainSection from '@/app/Dashboard/Components/Home/MainSection/Main';
 import AINewsManagement from "@/app/Dashboard/Components/Home/AINewsManagement/AINewsManagement";
+import EmployeeReports from "@/app/Dashboard/Components/Home/EmployeeReports/EmployeeReports";
 import styles from './Page.module.scss';
 import { UserContext } from "@/app/Dashboard/Context/ManageUserContext";
 
@@ -16,6 +17,7 @@ const sections = [
   { id: 'analytics' as const, label: 'Analytics', icon: '📊' },
   { id: 'facebook_settings' as const, label: 'Facebook Post', icon: '📱' },
   { id: 'user_management' as const, label: 'User Management', icon: '👥' },
+  { id: 'employee_reports' as const, label: 'Employee Reports', icon: '📋' },
 ] as const;
 
 type SectionId = typeof sections[number]['id'];
@@ -28,7 +30,7 @@ export default function NewsAdminPage() {
 
   // Filter sections based on role
   const availableSections = sections.filter(s => {
-    if (s.id === 'analytics' || s.id === 'user_management') {
+    if (s.id === 'analytics' || s.id === 'user_management' || s.id === 'employee_reports') {
       return isSuperAdmin;
     }
     return true;
@@ -151,6 +153,8 @@ export default function NewsAdminPage() {
             <div className={styles.contentCard}>
               {activeSection === 'ai_news' ? (
                 <AINewsManagement onEdit={handleEditDraft} />
+              ) : activeSection === 'employee_reports' ? (
+                <EmployeeReports />
               ) : (
                 <MainSection section={activeSection as any} initialDraft={activeSection === 'news_management' ? draftToEdit : null} />
               )}

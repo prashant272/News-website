@@ -1,5 +1,5 @@
 const express = require('express')
-const { AddNews, getAllNews, getNewsBySlug, updateNewsBySlug, deleteNewsBySlug, getSectionNews, setNewsFlags, GetAnalytics, streamNews } = require('../Controllers/news.controller')
+const { AddNews, getAllNews, getNewsBySlug, updateNewsBySlug, deleteNewsBySlug, getSectionNews, setNewsFlags, GetAnalytics, streamNews, getEmployeeReport } = require('../Controllers/news.controller')
 
 const NewsRouter = express.Router()
 
@@ -12,5 +12,6 @@ NewsRouter.delete("/deletenews/:section/:slug", deleteNewsBySlug);
 NewsRouter.patch('/flags/:section/:slug', setNewsFlags);
 NewsRouter.get("/analytics", GetAnalytics);
 NewsRouter.get("/stream", streamNews);
+NewsRouter.get("/employee-report", getEmployeeReport);
 
 module.exports = NewsRouter
