@@ -173,7 +173,7 @@ exports.getAllNews = async (req, res) => {
  */
 exports.streamNews = async (req, res) => {
   try {
-    const { includeDrafts, section, limit = 500 } = req.query;
+    const { includeDrafts, section, limit = 150 } = req.query;
     const query = {};
 
     if (includeDrafts !== 'true') query.status = 'published';
@@ -181,10 +181,14 @@ exports.streamNews = async (req, res) => {
 
     res.setHeader('Content-Type', 'application/x-ndjson');
     res.setHeader('Transfer-Encoding', 'chunked');
+    res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
 
     const cursor = NewsArticle.find(query)
+      .select('title slug category subCategory summary image tags isLatest isTrending isHidden targetLink nominationLink author publishedAt _id')
       .sort({ publishedAt: -1, createdAt: -1 })
       .limit(parseInt(limit))
+      .lean()
       .cursor();
 
     cursor.on('data', (doc) => {

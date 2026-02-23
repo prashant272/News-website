@@ -70,25 +70,62 @@ export const useApiMutation = <T,>(mutateFn: (data?: any) => Promise<T>): UseApi
   return { mutate, loading, error };
 };
 
+const NEWS_CACHE_KEY = 'ptm_news_cache';
+const NEWS_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+interface NewsCache {
+  data: NewsItem[];
+  timestamp: number;
+}
+
+function getCachedNews(): NewsItem[] | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem(NEWS_CACHE_KEY);
+    if (!raw) return null;
+    const cache: NewsCache = JSON.parse(raw);
+    if (Date.now() - cache.timestamp > NEWS_CACHE_TTL) {
+      localStorage.removeItem(NEWS_CACHE_KEY);
+      return null;
+    }
+    return cache.data;
+  } catch {
+    return null;
+  }
+}
+
+function setCachedNews(data: NewsItem[]) {
+  if (typeof window === 'undefined') return;
+  try {
+    const cache: NewsCache = { data, timestamp: Date.now() };
+    localStorage.setItem(NEWS_CACHE_KEY, JSON.stringify(cache));
+  } catch {
+    // ignore storage quota errors
+  }
+}
+
 /**
  * Hook for progressive streaming of news items via NDJSON.
+ * Uses localStorage cache for instant first paint, then refreshes in background.
  */
-export const useStreamingNews = (section?: string, limit: number = 200) => {
-  const [news, setNews] = useState<NewsItem[]>([]);
-  const [loading, setLoading] = useState(true);
+export const useStreamingNews = (section?: string, limit: number = 150) => {
+  const cached = typeof window !== 'undefined' ? getCachedNews() : null;
+  const [news, setNews] = useState<NewsItem[]>(cached || []);
+  const [loading, setLoading] = useState(!cached); // if cache hit, don't show loading
   const [error, setError] = useState<string | null>(null);
   const streamingRef = useRef<boolean>(false);
 
-  const startStream = useCallback(async () => {
+  const startStream = useCallback(async (isBackground = false) => {
     if (streamingRef.current) {
       console.log("Stream already active, ignoring start request");
       return;
     }
 
     streamingRef.current = true;
-    setLoading(true);
-    setNews([]);
-    setError(null);
+    if (!isBackground) {
+      setLoading(true);
+      setError(null);
+    }
 
     const abortController = new AbortController();
 
@@ -103,6 +140,7 @@ export const useStreamingNews = (section?: string, limit: number = 200) => {
       let buffer = "";
       let newItems: NewsItem[] = [];
       let lastUpdate = Date.now();
+      const freshItems: NewsItem[] = [];
 
       while (true) {
         if (!streamingRef.current) {
@@ -122,6 +160,7 @@ export const useStreamingNews = (section?: string, limit: number = 200) => {
             try {
               const item = JSON.parse(line);
               newItems.push(item);
+              freshItems.push(item);
             } catch (e) {
               console.error("Failed to parse stream item:", e);
             }
@@ -152,6 +191,12 @@ export const useStreamingNews = (section?: string, limit: number = 200) => {
           if (filtered.length === 0) return prev;
           return [...prev, ...filtered];
         });
+        freshItems.push(...newItems);
+      }
+
+      // Save fresh data to cache
+      if (freshItems.length > 0) {
+        setCachedNews(freshItems);
       }
 
     } catch (err: any) {
@@ -165,11 +210,23 @@ export const useStreamingNews = (section?: string, limit: number = 200) => {
   }, [section, limit]);
 
   useEffect(() => {
-    startStream();
-    return () => {
-      // Set to false to break the while loop above
-      streamingRef.current = false;
-    };
+    const cached = getCachedNews();
+    if (cached && cached.length > 0) {
+      // Cache hit: show instantly, refresh silently in background after 1s
+      setNews(cached);
+      setLoading(false);
+      const timer = setTimeout(() => startStream(true), 1000);
+      return () => {
+        clearTimeout(timer);
+        streamingRef.current = false;
+      };
+    } else {
+      // No cache: stream immediately
+      startStream(false);
+      return () => {
+        streamingRef.current = false;
+      };
+    }
   }, [startStream]);
 
   return { news, loading, error, refetch: startStream };

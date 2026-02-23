@@ -39,7 +39,7 @@ const filterVisibleNews = (newsArray: NewsItem[] | undefined): NewsItem[] | null
 
 export const NewsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   // Use Streaming for the fastest perceived initial loading experience
-  const { news: rawData, loading, error, refetch } = useStreamingNews(undefined, 500);
+  const { news: rawData, loading, error, refetch } = useStreamingNews(undefined, 150);
 
   const sections = useMemo(() => {
     if (!rawData || rawData.length === 0) return null;
