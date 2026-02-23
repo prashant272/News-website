@@ -11,6 +11,7 @@ import NewsSection from '@/app/Components/Common/NewsSection/NewsSection';
 import { PhotosSection } from '@/app/Components/Common/PhotosSection/Photos';
 import { VideosSection } from '@/app/Components/Common/VideosSection/VideosSection';
 import SocialShare from '@/app/Components/Common/SocialShare/SocialShare';
+import BreadcrumbSchema from '@/app/Components/Common/JSONLD/BreadcrumbSchema';
 
 export default function CategoryPage() {
   const params = useParams();
@@ -168,6 +169,12 @@ export default function CategoryPage() {
 
   return (
     <>
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", item: "/" },
+          { name: categoryTitle, item: `/Pages/${category}` }
+        ]}
+      />
       <NewsSection
         sectionTitle={categoryTitle}
         subCategories={topTags}

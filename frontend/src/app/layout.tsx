@@ -104,27 +104,81 @@ export default function RootLayout({
 }>) {
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "NewsMediaOrganization",
-    "name": "Prime Time News",
-    "alternateName": "Prime Time Media",
-    "url": "https://www.primetimemedia.in",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "https://www.primetimemedia.in/primetimelogo.gif"
-    },
-    "sameAs": [
-      "https://www.facebook.com/primetimemedia",
-      "https://twitter.com/PrimeTimeNews"
-    ],
-    "description": "India's trusted source for breaking news, politics, sports, entertainment, technology, business and world news.",
-    "foundingDate": "2020",
-    "address": {
-      "@type": "PostalAddress",
-      "streetAddress": "C-31, Nawada Housing Complex",
-      "addressLocality": "New Delhi",
-      "postalCode": "110059",
-      "addressCountry": "IN"
-    }
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://www.primetimemedia.in/#website",
+        "url": "https://www.primetimemedia.in",
+        "name": "Prime Time News",
+        "description": "India's trusted source for breaking news, politics, sports, entertainment, technology, business and world news.",
+        "publisher": {
+          "@id": "https://www.primetimemedia.in/#organization"
+        },
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://www.primetimemedia.in/search?q={search_term_string}"
+          },
+          "query-input": "required name=search_term_string"
+        },
+        "inLanguage": "en-IN"
+      },
+      {
+        "@type": "NewsMediaOrganization",
+        "@id": "https://www.primetimemedia.in/#organization",
+        "name": "Prime Time News",
+        "alternateName": "Prime Time Media",
+        "url": "https://www.primetimemedia.in",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://www.primetimemedia.in/primetimelogo.gif",
+          "width": 192,
+          "height": 192
+        },
+        "sameAs": [
+          "https://www.facebook.com/primetimemedia",
+          "https://twitter.com/PrimeTimeNews"
+        ],
+        "description": "India's trusted source for breaking news, politics, sports, entertainment, technology, business and world news.",
+        "foundingDate": "2020",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "C-31, Nawada Housing Complex",
+          "addressLocality": "New Delhi",
+          "postalCode": "110059",
+          "addressCountry": "IN"
+        },
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "contactType": "editorial",
+          "email": "editor@primetimemedia.in",
+          "url": "https://www.primetimemedia.in/Contact"
+        }
+      },
+      {
+        "@type": "WebPage",
+        "@id": "https://www.primetimemedia.in/#webpage",
+        "url": "https://www.primetimemedia.in",
+        "name": "Prime Time News - Latest Breaking News & Updates",
+        "isPartOf": {
+          "@id": "https://www.primetimemedia.in/#website"
+        },
+        "description": "Prime Time News — India's trusted source for breaking news, politics, sports, entertainment, technology, business and world news. Get live updates 24/7.",
+        "breadcrumb": {
+          "@id": "https://www.primetimemedia.in/#breadcrumb"
+        },
+        "inLanguage": "en-IN",
+        "potentialAction": [
+          {
+            "@type": "ReadAction",
+            "target": [
+              "https://www.primetimemedia.in"
+            ]
+          }
+        ]
+      }
+    ]
   };
 
   return (

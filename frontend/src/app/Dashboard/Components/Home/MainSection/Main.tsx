@@ -47,7 +47,7 @@ const MainSection: FC<MainSectionProps> = ({ section, initialDraft }) => {
 
   const [selectedCategory, setSelectedCategory] = useState<NewsCategory>('india');
 
-  const { data: newsData, loading: fetchLoading, error: fetchError, refetch } = useNewsBySection(selectedCategory, true);
+  const { data: newsData, loading: fetchLoading, error: fetchError, refetch } = useNewsBySection(selectedCategory, true, 1, 500);
   const { mutate: addNews, loading: addLoading } = useAddNews();
   const { mutate: updateNews } = useUpdateNews(selectedCategory);
   const { mutate: deleteNews } = useDeleteNews(selectedCategory);

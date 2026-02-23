@@ -12,6 +12,7 @@ import MoreStoriesSection from '../../Common/MoreFromSection/MoreFromSection';
 import { useActiveAds } from '@/app/hooks/useAds';
 import RecommendedStories from '../RecommendedStories/RecommendedStories';
 import SocialShare from '../../Common/SocialShare/SocialShare';
+import BreadcrumbSchema from '../../Common/JSONLD/BreadcrumbSchema';
 
 interface ArticleData {
   id: string | number;
@@ -190,6 +191,13 @@ export default function ArticlePageClient({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", item: "/" },
+          { name: section.charAt(0).toUpperCase() + section.slice(1), item: `/Pages/${section}` },
+          { name: article.title, item: `/Pages/${section}/${category}/${article.slug}` }
+        ]}
       />
       <div className={styles.container}>
         <Breadcrumb
