@@ -74,12 +74,22 @@ export default function AINewsManagement({ onEdit }: AINewsManagementProps) {
             <div className={styles.grid}>
                 {drafts.map((draft, index) => (
                     <div key={`${draft.slug}-${index}`} className={styles.card}>
+                        {/* Article Image */}
+                        <div className={styles.cardImage}>
+                            {draft.image ? (
+                                <img src={draft.image} alt={draft.title} />
+                            ) : (
+                                <div className={styles.noImage}>
+                                    <span>{draft.category?.toUpperCase() || 'AI'}</span>
+                                </div>
+                            )}
+                        </div>
                         <div className={styles.cardHeader}>
                             <span className={styles.badge}>{draft.category}</span>
                             <span className={styles.badgeSource}>{draft.source || "AI"}</span>
                         </div>
                         <h3>{draft.title}</h3>
-                        <p>{draft.content.substring(0, 100)}...</p>
+                        <p>{draft.summary ? draft.summary.substring(0, 100) + '...' : draft.content.replace(/<[^>]*>/g, '').substring(0, 100) + '...'}</p>
                         <div className={styles.cardActions}>
                             <button onClick={() => onEdit(draft)}>Edit</button>
                             <button className={styles.publishBtn} onClick={() => handlePublish(draft)}>Publish</button>

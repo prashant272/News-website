@@ -95,6 +95,7 @@ ${facts}
                 },
             ],
             response_format: { type: "json_object" },
+            max_tokens: 4096,
         });
 
         const content = response.choices[0].message.content;
