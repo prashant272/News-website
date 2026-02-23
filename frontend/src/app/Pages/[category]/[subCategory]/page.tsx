@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useParams, notFound } from 'next/navigation';
 import { useNewsContext } from '@/app/context/NewsContext';
 import LatestNewsSection from '@/app/Components/Common/LatestNewsSection/LatestNewsSection';
@@ -96,18 +96,25 @@ export default function SubCategoryPage() {
   const latestNews = filteredNews.filter(news => news.isLatest === true);
   const trendingNews = filteredNews.filter(news => news.isTrending === true);
 
-  const subCategories = Array.from(
-    new Set(
-      (context?.allNews || [])
-        ?.filter(news => normalize(news.category) === normalize(category))
-        .map(news => cleanDisplay(news.subCategory))
-        .filter((sub): sub is string =>
-          !!sub &&
-          sub.toLowerCase() !== 'india' &&
-          sub.toLowerCase() !== cleanDisplay(category).toLowerCase()
-        )
-    )
-  );
+  // Top 10 most-used tags from filtered news
+  const topTags = useMemo(() => {
+    const tagCount: Record<string, number> = {};
+    filteredNews.forEach((news) => {
+      const tags = (news as any).tags as string[] | undefined;
+      if (Array.isArray(tags)) {
+        tags.forEach((tag) => {
+          if (tag && tag.trim()) {
+            const t = tag.trim();
+            tagCount[t] = (tagCount[t] || 0) + 1;
+          }
+        });
+      }
+    });
+    return Object.entries(tagCount)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10)
+      .map(([tag]) => tag);
+  }, [filteredNews]);
 
   const transformedNews = filteredNews.map((news, index) => ({
     id: news._id || news.slug || `news-${index}`,
@@ -159,7 +166,7 @@ export default function SubCategoryPage() {
     <>
       <NewsSection
         sectionTitle={pageTitle}
-        subCategories={subCategories}
+        subCategories={topTags}
         mainNews={transformedNews}
         topNews={trendingNews.slice(0, 5).map((news, index) => ({
           id: news._id || news.slug || `trending-${index}`,

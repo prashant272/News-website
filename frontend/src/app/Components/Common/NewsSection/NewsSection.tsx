@@ -176,13 +176,13 @@ const NewsSection: React.FC<NewsSectionProps> = ({
             <nav className={styles.subCategoryNav}>
               {subCategories.map((cat) => {
                 const cleanCat = cleanDisplayText(cat);
-                const categorySlug = encodeURIComponent(
+                const tagSlug = encodeURIComponent(
                   cleanCat.toLowerCase().replace(/\s+/g, '-')
                 );
                 return (
                   <Link
                     key={cat}
-                    href={`/Pages/${section}/${categorySlug}`}
+                    href={`/tag/${tagSlug}`}
                     className={styles.subCategoryLink}
                   >
                     {cleanCat}

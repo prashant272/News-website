@@ -51,17 +51,25 @@ export default function CategoryPage() {
   const latestNews = filteredNews.filter(news => news.isLatest === true);
   const trendingNews = filteredNews.filter(news => news.isTrending === true);
 
-  const subCategories = Array.from(
-    new Set(
-      filteredNews
-        .map(news => news.subCategory)
-        .filter(sub => {
-          if (!sub) return false;
-          const subLower = sub.toLowerCase();
-          return subLower !== 'india' && subLower !== category.toLowerCase();
-        })
-    )
-  ) as string[];
+  // Top 10 most-used tags from all filtered news
+  const topTags = useMemo(() => {
+    const tagCount: Record<string, number> = {};
+    filteredNews.forEach((news) => {
+      const tags = (news as any).tags as string[] | undefined;
+      if (Array.isArray(tags)) {
+        tags.forEach((tag) => {
+          if (tag && tag.trim()) {
+            const t = tag.trim();
+            tagCount[t] = (tagCount[t] || 0) + 1;
+          }
+        });
+      }
+    });
+    return Object.entries(tagCount)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10)
+      .map(([tag]) => tag);
+  }, [filteredNews]);
 
   const transformedNews = filteredNews.map((news, index) => ({
     id: news.slug || `news-${index}`,
@@ -123,7 +131,7 @@ export default function CategoryPage() {
     <>
       <NewsSection
         sectionTitle={categoryTitle}
-        subCategories={subCategories}
+        subCategories={topTags}
         mainNews={transformedNews}
         topNews={transformedTrendingNews}
         showSidebar={true}
