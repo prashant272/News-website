@@ -221,18 +221,82 @@
   flex-wrap: wrap;
   justify-content: center;
 
-  .navItem a {
-    padding: 12px 18px;
+  .navItem {
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    a,
+    .navLink {
+      padding: 12px 18px;
+      color: var(--nav-text-secondary);
+      text-decoration: none;
+      font-weight: 500;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: inherit;
+
+      &:hover,
+      &.active {
+        background: var(--nav-hover-bg);
+        color: var(--nav-hover-text);
+      }
+    }
+
+    .chevron {
+      transition: transform 0.3s ease;
+
+      &.rotate {
+        transform: rotate(180deg);
+      }
+    }
+  }
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 220px;
+  background: var(--nav-bg);
+  backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--nav-border);
+  border-radius: 12px;
+  padding: 8px;
+  margin-top: 8px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1010;
+
+  &.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .dropdownItem {
+    display: block;
+    padding: 10px 16px;
     color: var(--nav-text-secondary);
     text-decoration: none;
+    font-size: 14px;
     font-weight: 500;
     border-radius: 8px;
     transition: all 0.2s ease;
 
-    &:hover,
-    &.active {
+    &:hover {
       background: var(--nav-hover-bg);
       color: var(--nav-hover-text);
+      transform: translateX(4px);
     }
   }
 }
@@ -254,24 +318,68 @@
 .navListMobile {
   list-style: none;
   margin: 0;
-  padding: 12px 0 100px 0; // Huge padding at bottom to ensure scroll works
+  padding: 12px 0 100px 0;
   background: var(--nav-bg);
   border-top: 1px solid var(--nav-border);
 
-  li a {
-    display: block;
-    padding: 16px 24px;
-    color: var(--nav-text);
-    text-decoration: none;
-    font-size: 16px;
+  li {
     border-bottom: 1px solid var(--nav-border);
 
     &:last-child {
       border-bottom: none;
     }
 
-    &.active {
-      font-weight: 600;
+    a,
+    .mobileNavLink {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 16px 24px;
+      color: var(--nav-text);
+      text-decoration: none;
+      font-size: 16px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-align: left;
+
+      &.active {
+        font-weight: 600;
+        background: var(--nav-hover-bg);
+      }
+    }
+
+    .chevron {
+      transition: transform 0.3s ease;
+
+      &.rotate {
+        transform: rotate(180deg);
+      }
+    }
+  }
+}
+
+.mobileSubmenu {
+  max-height: 0;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  background: rgba(0, 0, 0, 0.03);
+
+  &.open {
+    max-height: 400px;
+    padding-bottom: 8px;
+  }
+
+  .mobileSubItem {
+    display: block;
+    padding: 12px 40px;
+    color: var(--nav-text-secondary);
+    text-decoration: none;
+    font-size: 15px;
+    transition: all 0.2s ease;
+
+    &:active {
       background: var(--nav-hover-bg);
     }
   }

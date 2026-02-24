@@ -52,6 +52,7 @@ const newsArticleSchema = new mongoose.Schema(
         isTrending: { type: Boolean, default: false },
         isHidden: { type: Boolean, default: false },
         targetLink: { type: String, trim: true, default: null },
+        urlHash: { type: String, trim: true, index: true, unique: true, sparse: true },
         nominationLink: { type: String, trim: true, default: null },
         author: { type: String, trim: true, default: "Prime Time News" },
         authorId: {

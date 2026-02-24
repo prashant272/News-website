@@ -3,17 +3,23 @@ import React, { useState, useEffect, useMemo } from 'react';
 import styles from './Navbar.module.scss';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, Moon, Sun } from 'lucide-react';
+import { Menu, X, Moon, Sun, ChevronDown } from 'lucide-react';
 import { useNewsContext } from '@/app/context/NewsContext';
 import { useTheme } from '@/app/context/ThemeContext';
 import Image from 'next/image';
 import logo from "@/assets/Logo/primetimelogo.gif"
 import { useActiveAds } from '@/app/hooks/useAds';
 
+interface SubMenuItem {
+  label: string;
+  href: string;
+}
+
 interface NavItem {
   label: string;
   href: string;
   key: string;
+  submenu?: SubMenuItem[];
 }
 
 const SECTION_LABELS: Record<string, string> = {
@@ -41,6 +47,7 @@ const Navbar: React.FC = () => {
   const [currentAdIndex, setCurrentAdIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [visibleItems, setVisibleItems] = useState(1);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
   const { theme, toggleTheme } = useTheme();
   const newsContext = useNewsContext();
@@ -60,7 +67,17 @@ const Navbar: React.FC = () => {
       { label: "Lifestyle", href: "/Pages/lifestyle", key: "lifestyle" },
       { label: "World", href: "/Pages/world", key: "world" },
       { label: "Health", href: "/Pages/health", key: "health" },
-      { label: "Awards", href: "/Pages/awards", key: "awards" },
+      {
+        label: "Awards",
+        href: "/Pages/awards",
+        key: "awards",
+        submenu: [
+          { label: "Healthcare Awards", href: "https://healthcareawards.primetimemedia.in/" },
+          { label: "Education Awards", href: "https://education-awards.primetimemedia.in/" },
+          { label: "Business Awards", href: "https://business-leadership.primetimemedia.in/" },
+          { label: "Awards News", href: "/Pages/awards" },
+        ]
+      },
     ];
     return staticItems;
   }, []);
@@ -80,6 +97,17 @@ const Navbar: React.FC = () => {
     setVisibleItems(1);
   }, []);
 
+  // Handle click outside to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (activeDropdown && !(event.target as Element).closest(`.${styles.navItem}`)) {
+        setActiveDropdown(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [activeDropdown]);
+
   useEffect(() => {
     if (!ads || ads.length <= visibleItems || adsLoading || isPaused) return;
 
@@ -96,7 +124,15 @@ const Navbar: React.FC = () => {
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname.startsWith(href);
 
-  const closeMobileMenu = () => setIsMobileMenuOpen(false);
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+    setActiveDropdown(null);
+  };
+
+  const toggleDropdown = (key: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    setActiveDropdown(activeDropdown === key ? null : key);
+  };
 
   const currentAd = ads && ads.length > 0 ? ads[currentAdIndex] : null;
 
@@ -190,13 +226,44 @@ const Navbar: React.FC = () => {
 
           <ul className={styles.navListDesktop}>
             {navItems.map(item => (
-              <li key={item.key} className={styles.navItem}>
-                <Link
-                  href={item.href}
-                  className={isActive(item.href) ? styles.active : ''}
-                >
-                  {item.label}
-                </Link>
+              <li
+                key={item.key}
+                className={`${styles.navItem} ${item.submenu ? styles.hasDropdown : ''}`}
+                onMouseEnter={() => item.submenu && setActiveDropdown(item.key)}
+                onMouseLeave={() => item.submenu && setActiveDropdown(null)}
+              >
+                {item.submenu ? (
+                  <>
+                    <button
+                      className={`${styles.navLink} ${isActive(item.href) ? styles.active : ''} ${activeDropdown === item.key ? styles.active : ''}`}
+                      onClick={(e) => toggleDropdown(item.key, e)}
+                    >
+                      {item.label}
+                      <ChevronDown size={16} className={`${styles.chevron} ${activeDropdown === item.key ? styles.rotate : ''}`} />
+                    </button>
+                    <div className={`${styles.dropdownMenu} ${activeDropdown === item.key ? styles.show : ''}`}>
+                      {item.submenu.map((sub, idx) => (
+                        <Link
+                          key={idx}
+                          href={sub.href}
+                          className={styles.dropdownItem}
+                          onClick={() => setActiveDropdown(null)}
+                          target={sub.href.startsWith('http') ? '_blank' : undefined}
+                          rel={sub.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                        >
+                          {sub.label}
+                        </Link>
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  <Link
+                    href={item.href}
+                    className={isActive(item.href) ? styles.active : ''}
+                  >
+                    {item.label}
+                  </Link>
+                )}
               </li>
             ))}
           </ul>
@@ -215,14 +282,40 @@ const Navbar: React.FC = () => {
         <div className={`${styles.mobileMenu} ${isMobileMenuOpen ? styles.open : ''}`}>
           <ul className={styles.navListMobile}>
             {navItems.map(item => (
-              <li key={item.key}>
-                <Link
-                  href={item.href}
-                  className={isActive(item.href) ? styles.active : ''}
-                  onClick={closeMobileMenu}
-                >
-                  {item.label}
-                </Link>
+              <li key={item.key} className={item.submenu ? styles.hasMobileSubmenu : ''}>
+                {item.submenu ? (
+                  <>
+                    <button
+                      className={`${styles.mobileNavLink} ${isActive(item.href) ? styles.active : ''}`}
+                      onClick={(e) => toggleDropdown(item.key, e)}
+                    >
+                      {item.label}
+                      <ChevronDown size={20} className={`${styles.chevron} ${activeDropdown === item.key ? styles.rotate : ''}`} />
+                    </button>
+                    <div className={`${styles.mobileSubmenu} ${activeDropdown === item.key ? styles.open : ''}`}>
+                      {item.submenu.map((sub, idx) => (
+                        <Link
+                          key={idx}
+                          href={sub.href}
+                          className={styles.mobileSubItem}
+                          onClick={closeMobileMenu}
+                          target={sub.href.startsWith('http') ? '_blank' : undefined}
+                          rel={sub.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                        >
+                          {sub.label}
+                        </Link>
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  <Link
+                    href={item.href}
+                    className={isActive(item.href) ? styles.active : ''}
+                    onClick={closeMobileMenu}
+                  >
+                    {item.label}
+                  </Link>
+                )}
               </li>
             ))}
           </ul>

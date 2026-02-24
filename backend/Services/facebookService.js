@@ -17,6 +17,7 @@ exports.postToPage = async (pageId, pageAccessToken, message, link) => {
         const response = await axios.post(`https://graph.facebook.com/v19.0/${pageId}/feed`, {
             message,
             link,
+            published: true,
             access_token: pageAccessToken
         });
 
