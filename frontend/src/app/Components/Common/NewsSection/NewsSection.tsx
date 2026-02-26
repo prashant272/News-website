@@ -7,6 +7,7 @@ import styles from './NewsSection.module.scss';
 import { useActiveAds } from '@/app/hooks/useAds';
 import { useState, useEffect, useMemo } from 'react';
 import SidebarAds from '../SidebarAds/SidebarAds';
+import NewsCard from '../NewsCard/NewsCard';
 
 export interface NewsGridItem {
   id: string | number;
@@ -59,21 +60,6 @@ const getSectionFromUrl = (pathname: string): string => {
     return parts[pagesIndex + 1];
   }
   return 'india';
-};
-
-const getSection = (
-  pathname: string,
-  category?: string,
-  fallback: string = 'india'
-): string => {
-  const fromUrl = getSectionFromUrl(pathname);
-  if (['india', 'sports', 'business', 'entertainment', 'lifestyle', 'tech'].includes(fromUrl)) {
-    return fromUrl;
-  }
-  if (category && CATEGORY_TO_SECTION_MAP[category]) {
-    return CATEGORY_TO_SECTION_MAP[category];
-  }
-  return fallback;
 };
 
 const cleanDisplayText = (text: string): string => {
@@ -137,17 +123,15 @@ const NewsSection: React.FC<NewsSectionProps> = ({
     }));
   }, [providedTopNews, sectionNews, section]);
 
-
-
   if (!sectionNews.length && !providedMainNews) {
     return (
       <div className={styles.pageWrapper}>
         <section className={styles.sectionContainer}>
           <div className={`${styles.mainGrid} ${styles[`cols${gridColumns}`]} animate-pulse`}>
             {Array(gridColumns * 4).fill(0).map((_, i) => (
-              <div key={i} className={styles.newsCard}>
-                <div className="bg-gray-200 h-48 rounded-lg"></div>
-                <div className="mt-3 h-6 bg-gray-200 rounded w-3/4"></div>
+              <div key={i} className={styles.loadingCardSkeleton}>
+                <div className="bg-gray-200 h-48 rounded-lg mb-3"></div>
+                <div className="h-6 bg-gray-200 rounded w-3/4"></div>
               </div>
             ))}
           </div>
@@ -226,90 +210,6 @@ const NewsSection: React.FC<NewsSectionProps> = ({
           )}
         </div>
       </section>
-    </div>
-  );
-};
-
-interface NewsCardProps extends NewsGridItem {
-  currentSection: string;
-}
-
-const NewsCard: React.FC<NewsCardProps> = ({ image, title, slug, category, currentSection, subCategory, displaySubCategory, isTrending, targetLink, nominationLink }) => {
-  const pathname = usePathname();
-  const router = useRouter();
-  const section = getSection(pathname, category, currentSection);
-  const displayImage = getImageSrc(image);
-
-  const href = slug ? `/Pages/${section}/${encodeURIComponent(subCategory || 'general')}/${encodeURIComponent(slug)}` : undefined;
-
-  const handleCardClick = () => {
-    if (href) {
-      router.push(href);
-    }
-  };
-
-  const cardContent = (
-    <>
-      <div className={styles.imageWrapper}>
-        <img
-          src={displayImage}
-          alt={title}
-          loading="lazy"
-        />
-        {category && <span className={styles.categoryBadge}>{category}</span>}
-        {isTrending && (
-          <span className={styles.trendingBadge}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z" />
-            </svg>
-            Trending
-          </span>
-        )}
-      </div>
-      <div className={styles.cardContent}>
-        <p className={styles.newsTitle}>{title}</p>
-
-        {(currentSection?.toLowerCase() === "awards" || category?.toUpperCase() === "AWARDS") && (
-          <div className={styles.awardActions}>
-            {targetLink && (
-              <a
-                href={targetLink.startsWith('http') ? targetLink : `https://${targetLink}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.moreInfoBtn}
-                onClick={(e) => e.stopPropagation()}
-              >
-                More Info
-              </a>
-            )}
-            {nominationLink && (
-              <a
-                href={nominationLink.startsWith('http') ? nominationLink : `https://${nominationLink}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.nominationBtn}
-                onClick={(e) => e.stopPropagation()}
-              >
-                Nomination
-              </a>
-            )}
-          </div>
-        )}
-      </div>
-    </>
-  );
-
-  if (!href) {
-    return <div className={styles.newsCard}>{cardContent}</div>;
-  }
-
-  return (
-    <div
-      onClick={handleCardClick}
-      className={styles.newsCard}
-      style={{ cursor: 'pointer' }}
-    >
-      {cardContent}
     </div>
   );
 };
