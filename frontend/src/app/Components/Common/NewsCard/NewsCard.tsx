@@ -4,6 +4,155 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useNewsContext } from '@/app/context/NewsContext';
+import { getImageSrc } from '@/Utils/imageUtils';
+import styles from './NewsCard.module.scss';
+import { NewsItem as SharedNewsItem } from '@/app/services/NewsService';
+
+// --- SINGULAR NEWS CARD COMPONENT (Used in Search, NewsSection, etc.) ---
+
+export interface NewsCardProps {
+  id?: string | number;
+  image?: string;
+  title?: string;
+  slug?: string;
+  category?: string;
+  subCategory?: string;
+  displaySubCategory?: string;
+  isTrending?: boolean;
+  date?: string;
+  targetLink?: string;
+  nominationLink?: string;
+  currentSection?: string;
+  item?: SharedNewsItem; // Option 1: Support passing the whole item
+}
+
+export const NewsCard: React.FC<NewsCardProps> = (props) => {
+  const pathname = usePathname();
+  const router = useRouter();
+
+  // Extract data from either individual props or the 'item' prop
+  const { item } = props;
+
+  const title = item?.title || props.title || '';
+  const image = item?.image || props.image || '';
+  const slug = item?.slug || props.slug;
+  const category = item?.category || props.category;
+  const subCategory = item?.subCategory || props.subCategory || '';
+  const isTrending = item?.isTrending || props.isTrending;
+  const date = item?.date || props.date;
+  const targetLink = item?.targetLink || props.targetLink;
+  const nominationLink = item?.nominationLink || props.nominationLink;
+
+  // currentSection logic (simplified from your NewsSection version)
+  const getSectionFromUrl = (path: string): string => {
+    const parts = path.split('/').filter(Boolean);
+    const pagesIndex = parts.indexOf('Pages');
+    if (pagesIndex !== -1 && parts[pagesIndex + 1]) {
+      return parts[pagesIndex + 1];
+    }
+    return 'india';
+  };
+
+  const section = props.currentSection || getSectionFromUrl(pathname);
+  const displayImage = getImageSrc(image);
+
+  const cleanSubCategory = (text: string): string => {
+    return decodeURIComponent(text)
+      .replace(/%26/g, '&')
+      .replace(/%20/g, ' ')
+      .replace(/%2B/g, '+')
+      .trim();
+  };
+
+  const displaySubCategory = props.displaySubCategory || (subCategory ? cleanSubCategory(subCategory) : '');
+
+  const href = slug ? `/Pages/${section}/${encodeURIComponent(subCategory || 'general')}/${encodeURIComponent(slug)}` : undefined;
+
+  const handleCardClick = () => {
+    if (href) {
+      router.push(href);
+    }
+  };
+
+  const cardContent = (
+    <>
+      <div className={styles.imageWrapper}>
+        <img
+          src={displayImage}
+          alt={title}
+          loading="lazy"
+        />
+        <div className={styles.imageOverlay}></div>
+        {category && <span className={styles.categoryBadge}>{category}</span>}
+        {isTrending && (
+          <span className={styles.trendingBadge}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z" />
+            </svg>
+            Trending
+          </span>
+        )}
+      </div>
+      <div className={styles.cardContent}>
+        <div className={styles.cardMeta}>
+          {displaySubCategory && <span className={styles.subCategoryName}>{displaySubCategory}</span>}
+          {date && <span className={styles.newsDate}>{date}</span>}
+        </div>
+        <p className={styles.newsTitle}>{title}</p>
+
+        {(section?.toLowerCase() === "awards" || category?.toUpperCase() === "AWARDS") && (
+          <div className={styles.awardActions}>
+            {targetLink && (
+              <a
+                href={targetLink.startsWith('http') ? targetLink : `https://${targetLink}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.moreInfoBtn}
+                onClick={(e) => e.stopPropagation()}
+              >
+                More Info
+              </a>
+            )}
+            {nominationLink && (
+              <a
+                href={nominationLink.startsWith('http') ? nominationLink : `https://${nominationLink}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.nominationBtn}
+                onClick={(e) => e.stopPropagation()}
+              >
+                Nomination
+              </a>
+            )}
+          </div>
+        )}
+
+        <div className={styles.readMore}>
+          <span>Read More</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 18l6-6-6-6" />
+          </svg>
+        </div>
+      </div>
+    </>
+  );
+
+  if (!href) {
+    return <div className={styles.newsCard}>{cardContent}</div>;
+  }
+
+  return (
+    <div
+      onClick={handleCardClick}
+      className={styles.newsCard}
+      style={{ cursor: 'pointer' }}
+    >
+      {cardContent}
+    </div>
+  );
+};
+
+// --- PLURAL NEWS CARDS COMPONENT (For category sections) ---
 
 export interface NewsItem {
   id: string | number;

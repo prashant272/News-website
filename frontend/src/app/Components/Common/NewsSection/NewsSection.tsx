@@ -7,6 +7,7 @@ import styles from './NewsSection.module.scss';
 import { useActiveAds } from '@/app/hooks/useAds';
 import { useState, useEffect, useMemo } from 'react';
 import SidebarAds from '../SidebarAds/SidebarAds';
+import { NewsCard } from '../NewsCard/NewsCard';
 
 export interface NewsGridItem {
   id: string | number;
@@ -241,102 +242,6 @@ const NewsSection: React.FC<NewsSectionProps> = ({
           )}
         </div>
       </section>
-    </div>
-  );
-};
-
-interface NewsCardProps extends NewsGridItem {
-  currentSection: string;
-}
-
-const NewsCard: React.FC<NewsCardProps> = ({ image, title, slug, category, currentSection, subCategory, displaySubCategory, isTrending, targetLink, nominationLink, date }) => {
-  const pathname = usePathname();
-  const router = useRouter();
-  const section = getSection(pathname, category, currentSection);
-  const displayImage = getImageSrc(image);
-
-  const href = slug ? `/Pages/${section}/${encodeURIComponent(subCategory || 'general')}/${encodeURIComponent(slug)}` : undefined;
-
-  const handleCardClick = () => {
-    if (href) {
-      router.push(href);
-    }
-  };
-
-  const cardContent = (
-    <>
-      <div className={styles.imageWrapper}>
-        <img
-          src={displayImage}
-          alt={title}
-          loading="lazy"
-        />
-        <div className={styles.imageOverlay}></div>
-        {category && <span className={styles.categoryBadge}>{category}</span>}
-        {isTrending && (
-          <span className={styles.trendingBadge}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z" />
-            </svg>
-            Trending
-          </span>
-        )}
-      </div>
-      <div className={styles.cardContent}>
-        <div className={styles.cardMeta}>
-          {displaySubCategory && <span className={styles.subCategoryName}>{displaySubCategory}</span>}
-          {date && <span className={styles.newsDate}>{date}</span>}
-        </div>
-        <p className={styles.newsTitle}>{title}</p>
-
-        {(currentSection?.toLowerCase() === "awards" || category?.toUpperCase() === "AWARDS") && (
-          <div className={styles.awardActions}>
-            {targetLink && (
-              <a
-                href={targetLink.startsWith('http') ? targetLink : `https://${targetLink}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.moreInfoBtn}
-                onClick={(e) => e.stopPropagation()}
-              >
-                More Info
-              </a>
-            )}
-            {nominationLink && (
-              <a
-                href={nominationLink.startsWith('http') ? nominationLink : `https://${nominationLink}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.nominationBtn}
-                onClick={(e) => e.stopPropagation()}
-              >
-                Nomination
-              </a>
-            )}
-          </div>
-        )}
-
-        <div className={styles.readMore}>
-          <span>Read More</span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M9 18l6-6-6-6" />
-          </svg>
-        </div>
-      </div>
-    </>
-  );
-
-  if (!href) {
-    return <div className={styles.newsCard}>{cardContent}</div>;
-  }
-
-  return (
-    <div
-      onClick={handleCardClick}
-      className={styles.newsCard}
-      style={{ cursor: 'pointer' }}
-    >
-      {cardContent}
     </div>
   );
 };

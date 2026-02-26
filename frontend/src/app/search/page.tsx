@@ -3,14 +3,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { newsService, NewsItem } from '@/app/services/NewsService';
-import NewsCard from '@/app/Components/Common/NewsCard/NewsCard';
+import { NewsCard } from '@/app/Components/Common/NewsCard/NewsCard';
 import styles from './search.module.scss';
 
 export default function SearchResults() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const query = searchParams.get('q') || '';
-    
+
     const [results, setResults] = useState<NewsItem[]>([]);
     const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(1);
@@ -72,10 +72,10 @@ export default function SearchResults() {
                             <NewsCard key={item.slug} item={item} />
                         ))}
                     </div>
-                    
+
                     {totalPages > 1 && (
                         <div className={styles.pagination}>
-                            <button 
+                            <button
                                 onClick={() => handlePageChange(page - 1)}
                                 disabled={page === 1}
                                 className={styles.pageBtn}
@@ -83,7 +83,7 @@ export default function SearchResults() {
                                 Previous
                             </button>
                             <span>Page {page} of {totalPages}</span>
-                            <button 
+                            <button
                                 onClick={() => handlePageChange(page + 1)}
                                 disabled={page === totalPages}
                                 className={styles.pageBtn}
