@@ -26,15 +26,27 @@ const allowedOrigins = [
     "http://localhost:8086"
 ];
 
-app.use(cors({
-    origin: allowedOrigins,
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin']
-}));
+// Manual CORS and Logging Middleware
+app.use((req, res, next) => {
+    const origin = req.headers.origin;
+    console.log(`[API REQUEST] ${req.method} ${req.url} - Origin: ${origin}`);
 
+    if (allowedOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+    } else if (!origin) {
+        res.setHeader('Access-Control-Allow-Origin', '*');
+    }
 
-// Pre-flight requests are already handled by the global app.use(cors()) above
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+
+    // Handle Pre-flight
+    if (req.method === 'OPTIONS') {
+        return res.sendStatus(200);
+    }
+    next();
+});
 
 app.use((req, res, next) => {
     res.setHeader("Cache-Control", "no-store")
@@ -56,7 +68,7 @@ app.get("/", (req, res) => {
 app.use("/auth", AuthRouter)
 app.use("/news", NewsRouter)
 app.use("/otp", OTPRouter)
-app.use("/ads", AdsRouter)
+app.use("/promotions", AdsRouter)
 app.use("/api", AutoNewsRouter)
 app.use("/fb", FacebookRouter)
 

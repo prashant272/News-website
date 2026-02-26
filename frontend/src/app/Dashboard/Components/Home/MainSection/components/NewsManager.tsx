@@ -9,6 +9,7 @@ import {
     useDeleteNews,
     useSetNewsFlags
 } from "@/app/hooks/NewsApi";
+import { compressImage } from "@/Utils/Utils";
 import styles from "../Main.module.scss";
 
 const CATEGORIES = [
@@ -153,16 +154,20 @@ const NewsManager: FC<NewsManagerProps> = ({
                 showNotification("Please select an image file", "error");
                 return;
             }
-            if (file.size > 5 * 1024 * 1024) {
-                showNotification("Image too large (max 5MB)", "error");
+            if (file.size > 10 * 1024 * 1024) { // Increased limit as we compress
+                showNotification("Image too large (max 10MB)", "error");
                 return;
             }
 
             const reader = new FileReader();
-            reader.onload = (event) => {
+            reader.onload = async (event) => {
                 const dataUrl = event.target?.result as string;
-                setFormState((prev) => ({ ...prev, image: dataUrl }));
-                setImagePreview(dataUrl);
+
+                // Compress image before setting to state
+                const optimizedDataUrl = await compressImage(dataUrl, 1200, 0.6) as string;
+
+                setFormState((prev) => ({ ...prev, image: optimizedDataUrl }));
+                setImagePreview(optimizedDataUrl);
                 setShowImage(true);
             };
             reader.readAsDataURL(file);

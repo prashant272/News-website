@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useCallback, ChangeEvent, FC } from "react";
 import Image from "next/image";
-import { baseURL } from "@/Utils/Utils";
+import { baseURL, compressImage } from "@/Utils/Utils";
 import { Ad, useAllAds, useAddAd } from "@/app/hooks/useAds";
 import styles from "../Main.module.scss";
 
@@ -66,20 +66,24 @@ const AdManager: FC<AdManagerProps> = ({
                 showNotification("Please select an image file", "error");
                 return;
             }
-            if (file.size > 5 * 1024 * 1024) {
-                showNotification("Image too large (max 5MB)", "error");
+            if (file.size > 10 * 1024 * 1024) { // 10MB limit (we compress it)
+                showNotification("Image too large (max 10MB)", "error");
                 return;
             }
 
             const reader = new FileReader();
-            reader.onload = (event) => {
+            reader.onload = async (event) => {
                 const dataUrl = event.target?.result as string;
+
+                // Compress image to ~1200px width with 0.6 quality
+                const optimizedDataUrl = await compressImage(dataUrl, 1200, 0.6) as string;
+
                 if (type === 'header') {
-                    setAdFormState((prev) => ({ ...prev, headerImageUrl: dataUrl }));
-                    setAdHeaderPreview(dataUrl);
+                    setAdFormState((prev) => ({ ...prev, headerImageUrl: optimizedDataUrl }));
+                    setAdHeaderPreview(optimizedDataUrl);
                 } else {
-                    setAdFormState((prev) => ({ ...prev, sidebarImageUrl: dataUrl }));
-                    setAdSidebarPreview(dataUrl);
+                    setAdFormState((prev) => ({ ...prev, sidebarImageUrl: optimizedDataUrl }));
+                    setAdSidebarPreview(optimizedDataUrl);
                 }
             };
             reader.readAsDataURL(file);
@@ -110,7 +114,7 @@ const AdManager: FC<AdManagerProps> = ({
     const handleUpdateAd = useCallback(async () => {
         if (!canUpdate || !editingAdId) return;
         try {
-            const response = await fetch(`${baseURL}/ads/update/${editingAdId}`, {
+            const response = await fetch(`${baseURL}/promotions/update/${editingAdId}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(adFormState),
@@ -133,7 +137,7 @@ const AdManager: FC<AdManagerProps> = ({
             }
             if (!confirm("Delete this ad permanently?")) return;
             try {
-                const response = await fetch(`${baseURL}/ads/delete/${id}`, {
+                const response = await fetch(`${baseURL}/promotions/delete/${id}`, {
                     method: "DELETE",
                     headers: { "Content-Type": "application/json" },
                 });

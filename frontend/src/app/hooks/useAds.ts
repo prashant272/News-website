@@ -43,7 +43,7 @@ type UseApiMutationResult<T> = {
 
 class AdService {
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
-    const url = `${API_BASE}/ads${endpoint}`;
+    const url = `${API_BASE}/promotions${endpoint}`;
     const res = await fetch(url, {
       headers: { "Content-Type": "application/json" },
       cache: "no-store",

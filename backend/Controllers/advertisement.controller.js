@@ -18,37 +18,32 @@ exports.AddAd = async (req, res) => {
       });
     }
 
-    let uploadedHeaderUrl;
+    let uploadedHeaderUrl = (headerImageUrl && !headerImageUrl.startsWith('data:image')) ? headerImageUrl : null;
+    let uploadedSidebarUrl = (sidebarImageUrl && !sidebarImageUrl.startsWith('data:image')) ? sidebarImageUrl : null;
+
+    const uploadPromises = [];
+
     if (headerImageUrl && headerImageUrl.startsWith('data:image')) {
-      try {
-        const uploadResponse = await cloudinary.uploader.upload(headerImageUrl, {
-          folder: 'ads',
-          resource_type: 'auto',
-        });
-        uploadedHeaderUrl = uploadResponse.secure_url;
-      } catch (uploadError) {
-        console.error("Header Ad Cloudinary Upload Error:", uploadError);
-      }
-    } else if (headerImageUrl) {
-      uploadedHeaderUrl = headerImageUrl;
+      uploadPromises.push((async () => {
+        try {
+          const res = await cloudinary.uploader.upload(headerImageUrl, { folder: 'ads', resource_type: 'auto' });
+          uploadedHeaderUrl = res.secure_url;
+        } catch (err) { console.error("Header Ad Upload Error:", err); }
+      })());
     }
 
-    let uploadedSidebarUrl;
     if (sidebarImageUrl && sidebarImageUrl.startsWith('data:image')) {
-      try {
-        const uploadResponse = await cloudinary.uploader.upload(sidebarImageUrl, {
-          folder: 'ads',
-          resource_type: 'auto',
-        });
-        uploadedSidebarUrl = uploadResponse.secure_url;
-      } catch (uploadError) {
-        console.error("Sidebar Ad Cloudinary Upload Error:", uploadError);
-      }
-    } else if (sidebarImageUrl) {
-      uploadedSidebarUrl = sidebarImageUrl;
+      uploadPromises.push((async () => {
+        try {
+          const res = await cloudinary.uploader.upload(sidebarImageUrl, { folder: 'ads', resource_type: 'auto' });
+          uploadedSidebarUrl = res.secure_url;
+        } catch (err) { console.error("Sidebar Ad Upload Error:", err); }
+      })());
     }
 
-    // Fallback logic for old imageUrl/placement if provided
+    await Promise.all(uploadPromises);
+
+    // Fallback logic for legacy imageUrl
     let finalHeaderUrl = uploadedHeaderUrl;
     let finalSidebarUrl = uploadedSidebarUrl;
 
@@ -68,12 +63,8 @@ exports.AddAd = async (req, res) => {
           console.error("Legacy Ad Cloudinary Upload Error:", uploadError);
         }
       } else {
-        // Already a URL
-        if (placement === 'sidebar') {
-          finalSidebarUrl = imageUrl;
-        } else {
-          finalHeaderUrl = imageUrl;
-        }
+        if (placement === 'sidebar') finalSidebarUrl = imageUrl;
+        else finalHeaderUrl = imageUrl;
       }
     }
 
@@ -82,7 +73,7 @@ exports.AddAd = async (req, res) => {
       link,
       headerImageUrl: finalHeaderUrl,
       sidebarImageUrl: finalSidebarUrl,
-      imageUrl: finalHeaderUrl || finalSidebarUrl, // back compat
+      imageUrl: finalHeaderUrl || finalSidebarUrl,
       isActive: isActive !== undefined ? isActive : true,
       placement: placement || (finalSidebarUrl && !finalHeaderUrl ? 'sidebar' : 'header'),
     });
@@ -96,11 +87,7 @@ exports.AddAd = async (req, res) => {
     });
   } catch (error) {
     console.error("Add Ad Error:", error);
-    res.status(500).json({
-      success: false,
-      msg: "Server error adding ad",
-      error: error.message,
-    });
+    res.status(500).json({ success: false, msg: "Server error adding ad", error: error.message });
   }
 };
 
@@ -109,44 +96,32 @@ exports.UpdateAd = async (req, res) => {
     const { id } = req.params;
     const { title, link, headerImageUrl, sidebarImageUrl, imageUrl, isActive, placement } = req.body;
 
-    if (!id) {
-      return res.status(400).json({
-        success: false,
-        msg: "Ad ID is required",
-      });
-    }
+    if (!id) return res.status(400).json({ success: false, msg: "Ad ID is required" });
 
     const existingAd = await Ad.findById(id);
-
-    if (!existingAd) {
-      return res.status(404).json({
-        success: false,
-        msg: "Ad not found",
-      });
-    }
+    if (!existingAd) return res.status(404).json({ success: false, msg: "Ad not found" });
 
     if (title !== undefined) existingAd.title = title;
     if (link !== undefined) existingAd.link = link;
     if (isActive !== undefined) existingAd.isActive = isActive;
     if (placement !== undefined) existingAd.placement = placement;
 
+    const tasks = [];
+
     // Handle Header Image
     if (headerImageUrl && headerImageUrl.startsWith('data:image')) {
-      if (existingAd.headerImageUrl) {
+      tasks.push((async () => {
+        if (existingAd.headerImageUrl) {
+          try {
+            const publicId = existingAd.headerImageUrl.split('/').pop().split('.')[0];
+            await cloudinary.uploader.destroy(`ads/${publicId}`);
+          } catch (err) { }
+        }
         try {
-          const publicId = existingAd.headerImageUrl.split('/').pop().split('.')[0];
-          await cloudinary.uploader.destroy(`ads/${publicId}`);
-        } catch (err) { }
-      }
-      try {
-        const uploadResponse = await cloudinary.uploader.upload(headerImageUrl, {
-          folder: 'ads',
-          resource_type: 'auto',
-        });
-        existingAd.headerImageUrl = uploadResponse.secure_url;
-      } catch (uploadError) {
-        console.error("Update Header Ad Cloudinary Upload Error:", uploadError);
-      }
+          const res = await cloudinary.uploader.upload(headerImageUrl, { folder: 'ads', resource_type: 'auto' });
+          existingAd.headerImageUrl = res.secure_url;
+        } catch (err) { console.error("Update Header Ad Upload Error:", err); }
+      })());
     } else if (headerImageUrl === "") {
       existingAd.headerImageUrl = "";
     } else if (headerImageUrl && !headerImageUrl.startsWith('data:image')) {
@@ -155,131 +130,74 @@ exports.UpdateAd = async (req, res) => {
 
     // Handle Sidebar Image
     if (sidebarImageUrl && sidebarImageUrl.startsWith('data:image')) {
-      if (existingAd.sidebarImageUrl) {
+      tasks.push((async () => {
+        if (existingAd.sidebarImageUrl) {
+          try {
+            const publicId = existingAd.sidebarImageUrl.split('/').pop().split('.')[0];
+            await cloudinary.uploader.destroy(`ads/${publicId}`);
+          } catch (err) { }
+        }
         try {
-          const publicId = existingAd.sidebarImageUrl.split('/').pop().split('.')[0];
-          await cloudinary.uploader.destroy(`ads/${publicId}`);
-        } catch (err) { }
-      }
-      try {
-        const uploadResponse = await cloudinary.uploader.upload(sidebarImageUrl, {
-          folder: 'ads',
-          resource_type: 'auto',
-        });
-        existingAd.sidebarImageUrl = uploadResponse.secure_url;
-      } catch (uploadError) {
-        console.error("Update Sidebar Ad Cloudinary Upload Error:", uploadError);
-      }
+          const res = await cloudinary.uploader.upload(sidebarImageUrl, { folder: 'ads', resource_type: 'auto' });
+          existingAd.sidebarImageUrl = res.secure_url;
+        } catch (err) { console.error("Update Sidebar Ad Upload Error:", err); }
+      })());
     } else if (sidebarImageUrl === "") {
       existingAd.sidebarImageUrl = "";
     } else if (sidebarImageUrl && !sidebarImageUrl.startsWith('data:image')) {
       existingAd.sidebarImageUrl = sidebarImageUrl;
     }
 
-    // Backwards compatibility sync
-    existingAd.imageUrl = existingAd.headerImageUrl || existingAd.sidebarImageUrl;
+    await Promise.all(tasks);
 
+    existingAd.imageUrl = existingAd.headerImageUrl || existingAd.sidebarImageUrl;
     const updatedAd = await existingAd.save();
 
-    return res.status(200).json({
-      success: true,
-      ad: updatedAd,
-      msg: "Ad updated successfully",
-    });
+    return res.status(200).json({ success: true, ad: updatedAd, msg: "Ad updated successfully" });
   } catch (error) {
     console.error("Update Ad Error:", error);
-    res.status(500).json({
-      success: false,
-      msg: "Server error updating ad",
-      error: error.message,
-    });
+    res.status(500).json({ success: false, msg: "Server error updating ad", error: error.message });
   }
 };
 
 exports.DeleteAd = async (req, res) => {
   try {
     const { id } = req.params;
-
-    if (!id) {
-      return res.status(400).json({
-        success: false,
-        msg: "Ad ID is required",
-      });
-    }
+    if (!id) return res.status(400).json({ success: false, msg: "Ad ID is required" });
 
     const ad = await Ad.findById(id);
-
-    if (!ad) {
-      return res.status(404).json({
-        success: false,
-        msg: "Ad not found",
-      });
-    }
+    if (!ad) return res.status(404).json({ success: false, msg: "Ad not found" });
 
     if (ad.imageUrl) {
-      try {
-        const urlParts = ad.imageUrl.split('/');
-        const publicIdWithExtension = urlParts[urlParts.length - 1];
-        const publicId = publicIdWithExtension.split('.')[0];
-        await cloudinary.uploader.destroy(`ads/${publicId}`);
-      } catch (cloudinaryError) {
-        console.error("Cloudinary deletion error:", cloudinaryError);
-      }
+      const urlParts = ad.imageUrl.split('/');
+      const publicId = urlParts[urlParts.length - 1].split('.')[0];
+      // Do not await, let it happen in background for faster response if desired, 
+      // but here we wait for consistency unless it's a bottleneck.
+      try { await cloudinary.uploader.destroy(`ads/${publicId}`); } catch (err) { }
     }
 
     await Ad.findByIdAndDelete(id);
-
-    return res.status(200).json({
-      success: true,
-      deleted: true,
-      msg: "Ad deleted successfully",
-    });
+    return res.status(200).json({ success: true, deleted: true, msg: "Ad deleted successfully" });
   } catch (error) {
     console.error("Delete Ad Error:", error);
-    res.status(500).json({
-      success: false,
-      msg: "Server error deleting ad",
-      error: error.message,
-    });
+    res.status(500).json({ success: false, msg: "Server error deleting ad", error: error.message });
   }
 };
 
 exports.GetAllAds = async (req, res) => {
   try {
     const ads = await Ad.find().sort({ createdAt: -1 });
-
-    return res.status(200).json({
-      success: true,
-      ads,
-      data: ads,
-      total: ads.length,
-    });
+    return res.status(200).json({ success: true, ads, data: ads, total: ads.length });
   } catch (error) {
-    console.error("Get Ads Error:", error);
-    res.status(500).json({
-      success: false,
-      msg: "Server error fetching ads",
-      error: error.message,
-    });
+    res.status(500).json({ success: false, msg: "Server error fetching ads", error: error.message });
   }
 };
 
 exports.GetActiveAds = async (req, res) => {
   try {
     const ads = await Ad.find({ isActive: true }).sort({ createdAt: -1 });
-
-    return res.status(200).json({
-      success: true,
-      ads,
-      data: ads,
-      total: ads.length,
-    });
+    return res.status(200).json({ success: true, ads, data: ads, total: ads.length });
   } catch (error) {
-    console.error("Get Active Ads Error:", error);
-    res.status(500).json({
-      success: false,
-      msg: "Server error fetching active ads",
-      error: error.message,
-    });
+    res.status(500).json({ success: false, msg: "Server error fetching active ads", error: error.message });
   }
 };
