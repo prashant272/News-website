@@ -2,6 +2,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useNewsContext } from '@/app/context/NewsContext';
+import { formatDateTime } from '@/Utils/Utils';
 import styles from './Newslist.module.scss';
 import SidebarAds from '../../Common/SidebarAds/SidebarAds';
 
@@ -29,6 +30,7 @@ interface NewsArticle {
   slug: string;
   isOpinion: boolean;
   isVideo: boolean;
+  date?: string;
 }
 
 
@@ -39,6 +41,7 @@ interface TrendingItem {
   slug: string;
   category: string;
   subCategory?: string;
+  date?: string;
 }
 
 
@@ -84,6 +87,7 @@ const NewsList: React.FC = () => {
       slug: item.slug,
       isOpinion: item.tags?.includes('opinion') ?? false,
       isVideo: item.tags?.includes('video') ?? false,
+      date: item.publishedAt || item.date || item.createdAt,
     }));
 
     return articles;
@@ -106,6 +110,7 @@ const NewsList: React.FC = () => {
         slug: item.slug,
         category: item.category,
         subCategory: item.subCategory,
+        date: item.publishedAt || item.date || item.createdAt,
       }));
   }, [allNews]);
 
@@ -187,6 +192,9 @@ const NewsList: React.FC = () => {
                       )}
                     </div>
                     <h3 className={styles.cardTitle}>{article.title}</h3>
+                    {article.date && (
+                      <span className={styles.publishDate}>{formatDateTime(article.date)}</span>
+                    )}
                   </div>
                 </article>
               ))
@@ -219,6 +227,9 @@ const NewsList: React.FC = () => {
                     />
                   </div>
                   <h4 className={styles.trendingText}>{item.title}</h4>
+                  {item.date && (
+                    <span className={styles.trendingDate}>{formatDateTime(item.date)}</span>
+                  )}
                 </article>
               ))}
             </div>

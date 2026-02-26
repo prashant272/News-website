@@ -4,8 +4,10 @@ import React, { useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useNewsSectionData, LatestItem } from '@/app/hooks/useNewsSectionData';
 import styles from './LatestNewsSection.module.scss';
+import { formatDateTime } from '@/Utils/Utils';
+import { useNewsContext } from '@/app/context/NewsContext';
+import { useNewsSectionData, LatestItem } from '@/app/hooks/useNewsSectionData';
 
 
 interface LatestNewsSectionProps {
@@ -115,6 +117,13 @@ export default function LatestNewsSection({
                 <div className={styles.content}>
                   <span className={styles.category}>{item.category}</span>
                   <h3 className={styles.newsTitle}>{item.title}</h3>
+                  {item.date && (
+                    <div className={styles.newsMeta}>
+                      <span className={styles.newsDate}>
+                        {formatDateTime(item.date)}
+                      </span>
+                    </div>
+                  )}
 
                   {(overrideSection?.toLowerCase() === "awards" || item.category?.toUpperCase() === "AWARDS") && (
                     <div className={styles.awardActions}>

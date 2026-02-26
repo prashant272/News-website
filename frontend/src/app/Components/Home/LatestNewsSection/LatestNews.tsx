@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { useNewsContext } from '@/app/context/NewsContext';
+import { formatDateTime } from '@/Utils/Utils';
 import styles from './LatestNews.module.scss';
 
 interface DisplayItem {
@@ -14,6 +15,7 @@ interface DisplayItem {
   subCategory?: string;
   slug: string;
   href: string;
+  date?: string;
 }
 
 const LatestNews: React.FC = () => {
@@ -53,6 +55,7 @@ const LatestNews: React.FC = () => {
         subCategory: item.subCategory,
         slug: item.slug || '',
         href: item.slug ? `/Pages/${section}/${catSlug}/${item.slug}` : '#',
+        date: item.publishedAt || item.date || item.createdAt,
       };
     });
   })();
@@ -113,6 +116,9 @@ const LatestNews: React.FC = () => {
                       {item.title}
                     </Link>
                   </h3>
+                  {item.date && (
+                    <span className={styles.publishDate}>{formatDateTime(item.date)}</span>
+                  )}
                 </div>
                 <div className={styles.imageWrapper}>
                   <img

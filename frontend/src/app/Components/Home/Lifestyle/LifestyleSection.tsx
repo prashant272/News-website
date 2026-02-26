@@ -3,6 +3,7 @@ import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useNewsContext } from '@/app/context/NewsContext';
 import { useActiveAds } from '@/app/hooks/useAds'; 
+import { formatDateTime } from '@/Utils/Utils';
 import styles from './LifestyleSection.module.scss';
 
 interface RawLifestyleItem {
@@ -12,6 +13,9 @@ interface RawLifestyleItem {
   category: string;
   tags?: string[];
   subCategory?: string;
+  publishedAt?: string;
+  date?: string;
+  createdAt?: string;
 }
 
 interface LifestyleArticle {
@@ -20,6 +24,7 @@ interface LifestyleArticle {
   category: string;
   title: string;
   image: string;
+  date?: string;
 }
 
 interface ArticleCardProps {
@@ -60,6 +65,13 @@ const ArticleCard: React.FC<ArticleCardProps> = React.memo(({ article, onImageEr
     <div className={styles.cardContent}>
       <span className={styles.categoryLabel}>{article.category}</span>
       <h3 className={styles.articleTitle}>{article.title}</h3>
+      {article.date && (
+        <div className={styles.articleMeta}>
+          <span className={styles.timestamp}>
+            {formatDateTime(article.date)}
+          </span>
+        </div>
+      )}
     </div>
   </article>
 ));
@@ -172,6 +184,7 @@ const LifestyleSection: React.FC = () => {
       category: item.subCategory || item.category || 'Lifestyle',
       title: item.title,
       image: getImageSrc(item.image),
+      date: item.publishedAt || item.date || item.createdAt,
     })),
     [filteredArticles, activeTab]
   );

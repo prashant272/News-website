@@ -32,7 +32,31 @@ const compressImage = (dataUrl, maxWidth = 1200, quality = 0.6) => {
     });
 };
 
-export { axios, API, baseURL, compressImage }
+/**
+ * Formats a date string into a user-friendly format with time.
+ * @param {string} dateString - The ISO date string or similar.
+ * @returns {string} - Formatted date/time: e.g. "October 24, 2023 at 10:30 AM"
+ */
+const formatDateTime = (dateString) => {
+    if (!dateString) return "";
+    try {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return "";
+
+        return date.toLocaleString('en-US', {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: true
+        });
+    } catch (error) {
+        return "";
+    }
+};
+
+export { axios, API, baseURL, compressImage, formatDateTime }
 
 
 

@@ -236,6 +236,31 @@
   }
 }
 
+.newsMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.newsDate {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+
+  &::before {
+    content: '';
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--primary);
+  }
+}
+
 .imageWrapper {
   width: 140px;
   height: 90px;

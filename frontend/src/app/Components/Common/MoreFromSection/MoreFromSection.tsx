@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useNewsSectionData, MoreFromItem } from '@/app/hooks/useNewsSectionData';
+import { formatDateTime } from '@/Utils/Utils';
 import styles from './MoreFromSection.module.scss';
 
 interface MoreFromSectionProps {
@@ -86,6 +87,9 @@ export default function MoreFromSection({
               </div>
               <div className={styles.contentContainer}>
                 <h3 className={styles.newsTitle}>{item.title}</h3>
+                {item.date && (
+                  <span className={styles.publishDate}>{formatDateTime(item.date)}</span>
+                )}
 
                 {(overrideSection?.toLowerCase() === "awards" || item.category?.toUpperCase() === "AWARDS") && (
                   <div className={styles.awardActions}>

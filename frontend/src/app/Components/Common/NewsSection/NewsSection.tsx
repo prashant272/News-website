@@ -5,6 +5,7 @@ import { useNewsContext } from '@/app/context/NewsContext';
 import { getImageSrc } from '@/Utils/imageUtils';
 import styles from './NewsSection.module.scss';
 import { useActiveAds } from '@/app/hooks/useAds';
+import { formatDateTime } from '@/Utils/Utils';
 import { useState, useEffect, useMemo } from 'react';
 import SidebarAds from '../SidebarAds/SidebarAds';
 import { NewsCard } from '../NewsCard/NewsCard';
@@ -30,7 +31,9 @@ export interface TopNewsItem {
   slug?: string;
   subCategory?: string;
   displaySubCategory?: string;
+  publishedAt?: string;
   date?: string;
+  createdAt?: string;
 }
 
 interface NewsSectionProps {
@@ -138,7 +141,7 @@ const NewsSection: React.FC<NewsSectionProps> = ({
       slug: item.slug,
       subCategory: item.subCategory,
       displaySubCategory: cleanDisplayText(item.subCategory || ''),
-      date: item.date
+      date: item.publishedAt || item.date || item.createdAt
     }));
   }, [providedTopNews, sectionNews, section]);
 
@@ -227,7 +230,14 @@ const NewsSection: React.FC<NewsSectionProps> = ({
                         href={news.slug ? `/Pages/${section}/${encodeURIComponent(news.subCategory || 'general')}/${encodeURIComponent(news.slug || '')}` : '#'}
                         className={styles.topNewsItem}
                       >
-                        <p>{news.title}</p>
+                        <div style={{ flex: 1 }}>
+                          <p>{news.title}</p>
+                          {news.date && (
+                            <span style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', display: 'block', marginTop: '4px' }}>
+                              {formatDateTime(news.date)}
+                            </span>
+                          )}
+                        </div>
                         <img
                           src={news.image}
                           alt={news.title}

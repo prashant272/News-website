@@ -247,6 +247,18 @@
   overflow: hidden;
 }
 
+.publishDate {
+  display: block;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  margin-top: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.9;
+}
+
 @media (max-width: 1200px) {
   .moreFromWrapper {
     padding: 3rem 1.5rem;

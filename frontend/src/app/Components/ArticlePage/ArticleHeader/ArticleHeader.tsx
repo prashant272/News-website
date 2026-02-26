@@ -1,5 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
+import { formatDateTime } from '@/Utils/Utils';
 import styles from './ArticleHeader.module.scss';
 
 interface ArticleHeaderProps {
@@ -14,11 +15,7 @@ interface ArticleHeaderProps {
 }
 
 export default function ArticleHeader({ article }: ArticleHeaderProps) {
-  const formattedDate = new Date(article.date).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
+  const formattedDate = formatDateTime(article.date);
 
   return (
     <div className={styles.articleHeader}>

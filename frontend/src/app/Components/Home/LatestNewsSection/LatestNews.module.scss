@@ -180,6 +180,17 @@
   }
 }
 
+.publishDate {
+  display: block;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  margin-top: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
 .imageWrapper {
   width: 140px;
   height: 90px;

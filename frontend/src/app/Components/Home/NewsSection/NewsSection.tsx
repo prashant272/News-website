@@ -3,6 +3,7 @@
 import React, { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useNewsContext } from '@/app/context/NewsContext';
+import { formatDateTime } from '@/Utils/Utils';
 import styles from './NewsSection.module.scss';
 
 interface NewsItem {
@@ -16,6 +17,9 @@ interface NewsItem {
   tags?: string[];
   isLatest?: boolean;
   isTrending?: boolean;
+  publishedAt?: string;
+  date?: string;
+  createdAt?: string;
   _id?: string;
 }
 
@@ -28,6 +32,7 @@ interface DisplayNewsItem {
   subCategory?: string;
   slug: string;
   isVideo: boolean;
+  date?: string;
   targetLink?: string;
   nominationLink?: string;
 }
@@ -85,6 +90,7 @@ const NewsSection: React.FC = () => {
         subCategory: item.subCategory || 'General',
         slug: item.slug,
         isVideo: item.tags?.includes('video') || false,
+        date: item.publishedAt || item.date || item.createdAt,
         targetLink: (item as any).targetLink,
         nominationLink: (item as any).nominationLink,
       }))
@@ -142,6 +148,13 @@ const NewsSection: React.FC = () => {
               </div>
             </div>
             <div className={styles.featuredContent}>
+              <div className={styles.cardMeta} style={{ borderTop: 'none', paddingTop: 0, marginBottom: '1rem', marginTop: 0 }}>
+                {featuredArticle.date && (
+                  <span className={styles.timestamp}>
+                    {formatDateTime(featuredArticle.date)}
+                  </span>
+                )}
+              </div>
               <h1 className={styles.featuredTitle}>{featuredArticle.title}</h1>
               <p className={styles.featuredDescription}>{featuredArticle.description}</p>
 
@@ -247,6 +260,11 @@ const NewsSection: React.FC = () => {
                   <span style={{ textTransform: 'uppercase', fontSize: '0.75rem', fontWeight: 600, color: '#8b5cf6' }}>
                     {item.category}
                   </span>
+                  {item.date && (
+                    <span className={styles.timestamp}>
+                      {formatDateTime(item.date)}
+                    </span>
+                  )}
                 </div>
               </div>
             </article>

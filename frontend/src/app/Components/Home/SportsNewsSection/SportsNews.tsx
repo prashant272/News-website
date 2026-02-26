@@ -2,6 +2,7 @@
 import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useNewsContext } from '@/app/context/NewsContext';
+import { formatDateTime } from '@/Utils/Utils';
 import styles from './SportsNews.module.scss';
 
 interface RawSportsItem {
@@ -11,6 +12,9 @@ interface RawSportsItem {
   category: string;
   tags?: string[];
   subCategory?: string;
+  publishedAt?: string;
+  date?: string;
+  createdAt?: string;
 }
 
 interface SportsArticle {
@@ -20,6 +24,7 @@ interface SportsArticle {
   image: string;
   isFeatured: boolean;
   subCategory: string;
+  date?: string;
 }
 
 const Sports: React.FC = () => {
@@ -87,6 +92,7 @@ const Sports: React.FC = () => {
       image: getImageSrc(item.image),
       isFeatured: index === 0,
       subCategory: item.subCategory || activeCategory,
+      date: item.publishedAt || item.date || item.createdAt,
     }));
   }, [filteredSportsNews, activeCategory]);
 
@@ -199,6 +205,13 @@ const Sports: React.FC = () => {
                   <div className={styles.featuredContent}>
                     <span className={styles.categoryBadge}>{activeCategory}</span>
                     <h3 className={styles.featuredTitle}>{sportsArticles[0].title}</h3>
+                    {sportsArticles[0].date && (
+                      <div className={styles.articleMeta} style={{ color: 'rgba(255,255,255,0.8)' }}>
+                        <span className={styles.timestamp}>
+                          {formatDateTime(sportsArticles[0].date)}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </article>
               )}
@@ -214,6 +227,13 @@ const Sports: React.FC = () => {
                     <div className={styles.articleContent}>
                       <span className={styles.categoryBadge}>{activeCategory}</span>
                       <h4 className={styles.articleTitle}>{article.title}</h4>
+                      {article.date && (
+                        <div className={styles.articleMeta}>
+                          <span className={styles.timestamp}>
+                            {formatDateTime(article.date)}
+                          </span>
+                        </div>
+                      )}
                     </div>
                     <div className={styles.articleImage}>
                       <img src={article.image} alt={article.title} />

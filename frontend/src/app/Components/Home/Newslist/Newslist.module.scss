@@ -149,6 +149,17 @@
   }
 }
 
+.publishDate {
+  display: block;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  margin-top: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
 
 .sidebar {
   display: flex;
@@ -255,6 +266,18 @@
   line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+.trendingDate {
+  grid-column: 3;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--primary);
+  opacity: 0.8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: -0.5rem;
 }
 
 ──────────────────────────────────────────── .adSpace {

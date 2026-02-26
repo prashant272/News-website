@@ -38,6 +38,7 @@ export interface BaseNewsItem {
   isLatest?: boolean;
   targetLink?: string;
   nominationLink?: string;
+  date?: string;
 }
 
 export interface MoreFromItem extends BaseNewsItem { }
@@ -207,6 +208,7 @@ export function useNewsSectionData<T extends NewsItemVariant = NewsItemVariant>(
         isLatest: !!raw.isLatest,
         targetLink: raw.targetLink,
         nominationLink: raw.nominationLink,
+        date: raw.publishedAt || raw.date || raw.createdAt,
       };
 
       if (variant === 'stories') {
@@ -246,6 +248,7 @@ export function useNewsSectionData<T extends NewsItemVariant = NewsItemVariant>(
         isLatest: !!raw.isLatest,
         targetLink: raw.targetLink,
         nominationLink: raw.nominationLink,
+        date: raw.publishedAt || raw.date || raw.createdAt,
       } as T;
     });
   }, [filteredData, section, topLimit, preferTrendingForTop, variant]);
