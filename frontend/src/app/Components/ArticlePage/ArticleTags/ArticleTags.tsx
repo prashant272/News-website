@@ -10,20 +10,27 @@ export default function ArticleTags({ tags }: ArticleTagsProps) {
   return (
     <div className={styles.articleTags}>
       <div className={styles.tagsList}>
-        {tags.map((tag) => (
-          <Link 
-            key={tag}
-            href={`/tags/${tag.toLowerCase().replace(/\s+/g, '-')}`}
-            className={styles.tag}
-          >
-            {tag}
-          </Link>
-        ))}
+        {tags.map((tag) => {
+          const tagSlug = encodeURIComponent(
+            tag.toLowerCase().trim()
+              .replace(/&/g, 'and')
+              .replace(/\s+/g, '-')
+          );
+          return (
+            <Link
+              key={tag}
+              href={`/tag/${tagSlug}`}
+              className={styles.tag}
+            >
+              {tag}
+            </Link>
+          );
+        })}
       </div>
-      
+
       <div className={styles.bottomCta}>
         <p className={styles.ctaText}>
-          Read all the <Link href="/breaking-news" className={styles.link}>Breaking News</Link> Live on primetimemedia.in and Get <Link href="/latest-news" className={styles.link}>Latest English News</Link> & Updates from <Link href="/sports" className={styles.link}>Sports</Link> and <Link href="/sports/cricket" className={styles.link}>Cricket</Link> Section
+          Read all the <Link href="/Pages/all" className={styles.link}>Breaking News</Link> Live on primetimemedia.in and Get <Link href="/Pages/all" className={styles.link}>Latest English News</Link> & Updates from <Link href="/Pages/sports" className={styles.link}>Sports</Link> Section
         </p>
       </div>
     </div>

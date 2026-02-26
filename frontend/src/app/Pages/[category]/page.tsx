@@ -28,13 +28,16 @@ export default function CategoryPage() {
       .join(' ');
   }, [category]);
 
-  const filteredNews = useMemo(() => {
-    if (!urlCategory || !context?.allNews) return [];
-
+  const mappedSection = useMemo(() => {
+    if (!urlCategory) return '';
     const sectionMap: { [key: string]: string } = {
       'technology': 'tech'
     };
-    const mappedSection = sectionMap[urlCategory] || urlCategory;
+    return sectionMap[urlCategory] || urlCategory;
+  }, [urlCategory]);
+
+  const filteredNews = useMemo(() => {
+    if (!urlCategory || !context?.allNews) return [];
 
     return context.allNews.filter((news) => {
       const newsCategory = news.category?.toLowerCase() || '';
@@ -42,7 +45,7 @@ export default function CategoryPage() {
       return newsCategory === urlCategory || newsCategory === mappedSection
         || newsSection === urlCategory || newsSection === mappedSection;
     });
-  }, [urlCategory, context?.allNews]);
+  }, [urlCategory, context?.allNews, mappedSection]);
 
   // isFiltering: true while loading OR while allNews hasn't arrived yet
   const isFiltering = context.loading || !context?.allNews;
@@ -80,25 +83,27 @@ export default function CategoryPage() {
   }, [filteredNews]);
 
 
-  // Top 10 most-used tags from all filtered news
-  const topTags = useMemo(() => {
-    const tagCount: Record<string, number> = {};
+  // Get unique sub-categories from filtered news
+  const subCategories = useMemo(() => {
+    const categoriesSet = new Set<string>();
     filteredNews.forEach((news) => {
-      const tags = (news as any).tags as string[] | undefined;
-      if (Array.isArray(tags)) {
-        tags.forEach((tag) => {
-          if (tag && tag.trim()) {
-            const t = tag.trim();
-            tagCount[t] = (tagCount[t] || 0) + 1;
-          }
-        });
+      // If news.category is the section (e.g., 'Business'), then subCategory is 'Market'
+      // If news.section is the section, then news.category is the subCategory
+      const newsCat = news.category?.toLowerCase() || '';
+      const newsSection = (news as any).section?.toLowerCase() || '';
+
+      if (newsSection === urlCategory || newsSection === mappedSection) {
+        if (news.category && news.category.toLowerCase() !== urlCategory) {
+          categoriesSet.add(news.category);
+        }
+      } else if (newsCat === urlCategory || newsCat === mappedSection) {
+        if (news.subCategory && news.subCategory.toLowerCase() !== urlCategory) {
+          categoriesSet.add(news.subCategory);
+        }
       }
     });
-    return Object.entries(tagCount)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 10)
-      .map(([tag]) => tag);
-  }, [filteredNews]);
+    return Array.from(categoriesSet).slice(0, 10);
+  }, [filteredNews, urlCategory, mappedSection]);
 
   const transformedNews = infiniteNews.map((news, index) => ({
     id: news._id || news.slug || `news-${index}`,
@@ -185,7 +190,7 @@ export default function CategoryPage() {
       />
       <NewsSection
         sectionTitle={categoryTitle}
-        subCategories={topTags}
+        subCategories={subCategories}
         mainNews={transformedNews}
         topNews={transformedTrendingNews}
         showSidebar={true}

@@ -10,6 +10,7 @@ import { ToastContainer } from "react-toastify";
 import { ThemeProvider } from "./context/ThemeContext";
 
 import ConditionalLayout from "./Components/Common/ConditionalLayout";
+import Script from "next/script";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -192,6 +193,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <Script
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5571209076881303"
+          crossOrigin="anonymous"
+          strategy="lazyOnload"
+        />
         <ThemeProvider>
           <NewsProvider>
             <UserProvider>

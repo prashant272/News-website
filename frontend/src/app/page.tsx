@@ -10,6 +10,7 @@ import LatestNews from "./Components/Home/LatestNewsSection/LatestNews";
 import Sports from "./Components/Home/SportsNewsSection/SportsNews";
 import Entertainment from "./Components/Home/EntertainmentNewsSection/EntertainmentNews";
 import Footer from "./Components/Common/Footer/Footer";
+import NewsCards from "./Components/Common/NewsCard/NewsCard";
 import { stateNewsData } from "@/Data/NewsCardData/NewsCardData";
 import SocialShare from "./Components/Common/SocialShare/SocialShare";
 
