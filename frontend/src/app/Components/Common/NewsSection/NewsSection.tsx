@@ -6,6 +6,7 @@ import { getImageSrc } from '@/Utils/imageUtils';
 import styles from './NewsSection.module.scss';
 import { useActiveAds } from '@/app/hooks/useAds';
 import { useState, useEffect, useMemo } from 'react';
+import SidebarAds from '../SidebarAds/SidebarAds';
 
 export interface NewsGridItem {
   id: string | number;
@@ -125,8 +126,8 @@ const NewsSection: React.FC<NewsSectionProps> = ({
   const topNews: TopNewsItem[] = useMemo(() => {
     if (providedTopNews) return providedTopNews;
     const trendingNews = sectionNews.filter(item => item.isTrending === true);
-    const newsToShow = trendingNews.length >= 5 ? trendingNews : sectionNews;
-    return newsToShow.slice(0, 5).map((item, index) => ({
+    const newsToShow = trendingNews.length >= 10 ? trendingNews : sectionNews;
+    return newsToShow.slice(0, 10).map((item, index) => ({
       id: item._id || `${section}-top-${index}`,
       title: item.title,
       image: getImageSrc(item.image),
@@ -136,17 +137,7 @@ const NewsSection: React.FC<NewsSectionProps> = ({
     }));
   }, [providedTopNews, sectionNews, section]);
 
-  const { data: ads, loading: adsLoading } = useActiveAds();
-  const activeAds = (ads || []).filter(ad => ad.isActive);
-  const [currentAdIndex, setCurrentAdIndex] = useState(0);
 
-  useEffect(() => {
-    if (activeAds.length <= 1) return;
-    const interval = setInterval(() => {
-      setCurrentAdIndex((prev) => (prev + 1) % activeAds.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [activeAds.length]);
 
   if (!sectionNews.length && !providedMainNews) {
     return (
@@ -206,49 +197,7 @@ const NewsSection: React.FC<NewsSectionProps> = ({
 
           {showSidebar && (
             <aside className={styles.sidebar}>
-              <div className={styles.adContainer}>
-                {adsLoading ? (
-                  <div className={styles.adPlaceholder}>
-                    <span>Loading advertisement...</span>
-                  </div>
-                ) : activeAds.length > 0 ? (
-                  <div className={styles.adWrapper}>
-                    <a
-                      href={activeAds[currentAdIndex].link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={styles.adLink}
-                    >
-                      <img
-                        src={activeAds[currentAdIndex].imageUrl}
-                        alt={activeAds[currentAdIndex].title || 'Advertisement'}
-                        className={styles.adImage}
-                        loading="lazy"
-                      />
-                    </a>
-
-                    {activeAds.length > 1 && (
-                      <div className={styles.adDots}>
-                        {activeAds.map((_, idx) => (
-                          <button
-                            key={idx}
-                            onClick={() => setCurrentAdIndex(idx)}
-                            className={`${styles.dot} ${idx === currentAdIndex ? styles.active : ''}`}
-                            aria-label={`Ad ${idx + 1}`}
-                          />
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className={styles.adPlaceholder}>
-                    <div className={styles.emptyAd}>
-                      <span>AD SPACE</span>
-                      <small>Adjusts to image size</small>
-                    </div>
-                  </div>
-                )}
-              </div>
+              <SidebarAds count={4} />
 
               {topNews.length > 0 && (
                 <>

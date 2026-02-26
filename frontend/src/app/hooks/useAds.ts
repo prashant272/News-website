@@ -9,7 +9,10 @@ export interface Ad {
   _id?: string;
   title: string;
   link: string;
+  headerImageUrl?: string;
+  sidebarImageUrl?: string;
   imageUrl: string;
+  placement?: 'header' | 'sidebar' | 'in-article';
   isActive: boolean;
   createdAt?: string;
   updatedAt?: string;

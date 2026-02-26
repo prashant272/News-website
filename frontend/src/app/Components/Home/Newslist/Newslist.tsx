@@ -2,8 +2,8 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useNewsContext } from '@/app/context/NewsContext';
-import { useActiveAds } from '@/app/hooks/useAds'; 
 import styles from './Newslist.module.scss';
+import SidebarAds from '../../Common/SidebarAds/SidebarAds';
 
 
 interface RawNewsItem {
@@ -46,20 +46,7 @@ const NewsList: React.FC = () => {
   const { allNews, loading } = useNewsContext();
   const router = useRouter();
 
-  const { data: adsData, loading: adsLoading } = useActiveAds();
-  const activeAds = (adsData || []).filter(ad => ad.isActive);
 
-  const [adIndex, setAdIndex] = useState(0);
-
-  useEffect(() => {
-    if (activeAds.length <= 1) return;
-
-    const interval = setInterval(() => {
-      setAdIndex(prev => (prev + 1) % activeAds.length);
-    }, 5500);
-
-    return () => clearInterval(interval);
-  }, [activeAds.length]);
 
   const getImageSrc = (img?: string): string => {
     if (!img) return 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80';
@@ -76,31 +63,21 @@ const NewsList: React.FC = () => {
   const newsArticles: NewsArticle[] = useMemo(() => {
     if (!allNews || allNews.length === 0) return [];
 
-    const filteredNews = allNews.filter((item) => item.isLatest !== true);
+    // Sort by most recent (latest and trending first, then by index)
+    const sortedNews = [...allNews].sort((a, b) => {
+      if (a.isLatest && !b.isLatest) return -1;
+      if (!a.isLatest && b.isLatest) return 1;
+      if (a.isTrending && !b.isTrending) return -1;
+      if (!a.isTrending && b.isTrending) return 1;
+      return 0;
+    });
 
-    const grouped = new Map<string, RawNewsItem[]>();
-
-    for (const item of filteredNews) {
-      const cat = item.category || 'Uncategorized';
-      if (!grouped.has(cat)) {
-        grouped.set(cat, []);
-      }
-      grouped.get(cat)!.push(item as RawNewsItem);
-    }
-
-    const selected: RawNewsItem[] = [];
-    const categories = Array.from(grouped.keys());
-
-    for (let i = 0; i < Math.min(categories.length, 6); i++) {
-      const categoryItems = grouped.get(categories[i])!;
-      if (categoryItems.length > 0) {
-        selected.push(categoryItems[0]);
-      }
-    }
+    // Take top 18 items to fill the 3-column grid (covers user's 15-20 range)
+    const selected = sortedNews.slice(0, 21);
 
     const articles: NewsArticle[] = selected.map((item, idx) => ({
       id: `div-${item.slug}-${idx}`,
-      category: item.category,
+      category: item.category || 'News',
       subCategory: item.subCategory,
       title: item.title,
       image: getImageSrc(item.image),
@@ -115,9 +92,13 @@ const NewsList: React.FC = () => {
   const trendingItems: TrendingItem[] = useMemo(() => {
     if (!allNews) return [];
 
-    return allNews
-      .filter((item) => item.isTrending === true)
-      .slice(0, 5)
+    const trending = allNews.filter((item) => item.isTrending === true);
+    const fallback = allNews.slice(0, 12);
+    const finalTrending = trending.length >= 6 ? trending : fallback;
+
+    return finalTrending
+      .slice(0, 12)
+
       .map((item, index) => ({
         id: `${index}-${item.slug}`,
         title: item.title,
@@ -128,59 +109,7 @@ const NewsList: React.FC = () => {
       }));
   }, [allNews]);
 
-  const renderAd = () => {
-    if (adsLoading) {
-      return (
-        <div className={styles.adPlaceholder}>
-          <span>Loading advertisement...</span>
-        </div>
-      );
-    }
 
-    if (activeAds.length === 0) {
-      return (
-        <div className={styles.adPlaceholder}>
-          <div className={styles.emptyAdBox}>
-            <span>AD SPACE</span>
-            <small>Will adjust to image size</small>
-          </div>
-        </div>
-      );
-    }
-
-    const currentAd = activeAds[adIndex % activeAds.length];
-
-    return (
-      <div className={styles.adWrapper}>
-        <a
-          href={currentAd.link}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={styles.adLink}
-        >
-          <img
-            src={currentAd.imageUrl}
-            alt={currentAd.title || "Advertisement"}
-            className={styles.adImage}
-            loading="lazy"
-          />
-        </a>
-
-        {activeAds.length > 1 && (
-          <div className={styles.adDots}>
-            {activeAds.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setAdIndex(i)}
-                className={`${styles.dot} ${i === adIndex % activeAds.length ? styles.activeDot : ''}`}
-                aria-label={`Ad ${i + 1}`}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  };
 
   if (loading) {
     return (
@@ -295,10 +224,7 @@ const NewsList: React.FC = () => {
             </div>
           </div>
 
-          <div className={styles.adSpace}>
-            <span className={styles.adLabel}>ADVERTISEMENT</span>
-            {renderAd()}
-          </div>
+          <SidebarAds count={5} />
         </aside>
       </div>
     </section>

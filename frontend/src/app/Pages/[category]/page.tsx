@@ -69,8 +69,16 @@ export default function CategoryPage() {
   }, []);
 
 
-  const latestNews = filteredNews.filter(news => news.isLatest === true);
-  const trendingNews = filteredNews.filter(news => news.isTrending === true);
+  const latestNews = useMemo(() => {
+    const latest = filteredNews.filter(news => news.isLatest === true);
+    return latest.length >= 10 ? latest : filteredNews.slice(0, 10);
+  }, [filteredNews]);
+
+  const trendingNews = useMemo(() => {
+    const trending = filteredNews.filter(news => news.isTrending === true);
+    return trending.length >= 10 ? trending : filteredNews.slice(0, 10);
+  }, [filteredNews]);
+
 
   // Top 10 most-used tags from all filtered news
   const topTags = useMemo(() => {

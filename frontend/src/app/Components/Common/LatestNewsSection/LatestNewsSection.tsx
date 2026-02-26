@@ -35,7 +35,11 @@ export default function LatestNewsSection({
   });
   const router = useRouter();
 
-  const items = allItems.filter((item: any) => item.isLatest === true);
+  const items = useMemo(() => {
+    const latestItems = allItems.filter((item: any) => item.isLatest === true);
+    return latestItems.length >= 3 ? latestItems : allItems;
+  }, [allItems]);
+
 
   const dynamicReadMoreLink = readMoreLink || `/Pages/${section}`;
 

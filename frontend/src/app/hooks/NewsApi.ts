@@ -339,7 +339,9 @@ export const useInfiniteNews = (section: string, initialData: NewsItem[] = [], l
     const nextPage = page + 1;
 
     try {
-      const res = await newsService.getNewsBySection(section, false, nextPage, limit);
+      const res = section === 'all'
+        ? await newsService.getAllNews(false, nextPage, limit)
+        : await newsService.getNewsBySection(section, false, nextPage, limit);
 
       if (res.success && res.news) {
         setItems(prev => {

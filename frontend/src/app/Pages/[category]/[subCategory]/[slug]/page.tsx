@@ -141,7 +141,7 @@ function renderArticle(foundArticle: any, categoryNews: any[], category: string,
       image: news.image
     }));
 
-  const topNews = categoryNews.slice(0, 2).map((news: any) => ({
+  const topNews = categoryNews.slice(0, 10).map((news: any) => ({
     id: news._id || news.slug,
     title: news.title,
     image: news.image || '/placeholder.jpg',
@@ -150,7 +150,7 @@ function renderArticle(foundArticle: any, categoryNews: any[], category: string,
     category: news.subCategory || ''
   }));
 
-  const recommendedStories = categoryNews.slice(2, 7).map((news: any) => ({
+  const recommendedStories = categoryNews.slice(10, 15).map((news: any) => ({
     id: news._id || news.slug,
     title: news.title,
     image: news.image || '/placeholder.jpg',

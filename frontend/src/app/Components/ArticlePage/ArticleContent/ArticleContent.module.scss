@@ -5,156 +5,64 @@
   overflow: hidden;
   transition: background-color 0.3s ease;
 
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    pointer-events: none;
-  }
+  // ... (rest of existing styles)
+}
 
-  p {
-    margin: 0 0 20px 0;
-    font-family: 'Lora', serif;
-    font-size: 18px;
-    line-height: 1.8;
-    text-align: justify;
-    color: var(--text-color);
-    transition: color 0.3s ease;
+.inArticleAdWrapper {
+  margin: 3rem 0;
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+  overflow: hidden;
 
-    strong {
-      font-weight: 700;
-      color: var(--heading-color);
-      transition: color 0.3s ease;
-    }
-  }
-
-  h2 {
-    font-family: 'Lora', serif;
-    font-size: 28px;
+  .adLabel {
+    font-size: 0.7rem;
     font-weight: 700;
-    margin: 40px 0 20px 0;
-    color: var(--heading-color);
-    line-height: 1.4;
-    letter-spacing: -0.01em;
-    transition: color 0.3s ease;
+    color: #bbb;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
   }
 
-  h3 {
-    font-family: 'Lora', serif;
-    font-size: 22px;
-    font-weight: 600;
-    margin: 32px 0 16px 0;
-    color: var(--heading-color);
-    line-height: 1.4;
-    letter-spacing: -0.01em;
-    transition: color 0.3s ease;
-  }
+  .adSlide {
+    width: 100%;
+    max-width: 800px;
+    animation: adSlideIn 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 
-  a {
-    color: var(--primary);
-    text-decoration: none;
-    border-bottom: 1px solid var(--primary);
-    opacity: 0.8;
-    transition: all 0.3s ease;
+    a {
+      display: block;
+      width: 100%;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      transition: transform 0.3s ease;
 
-    &:hover {
-      color: var(--primary-hover);
-      border-bottom-color: var(--primary-hover);
-      opacity: 1;
+      &:hover {
+        transform: scale(1.01);
+      }
     }
   }
 
-  ul,
-  ol {
-    margin: 24px 0;
-    padding-left: 28px;
-    font-family: 'Lora', serif;
-    font-size: 18px;
-    line-height: 1.8;
-    color: var(--text-color);
-    transition: color 0.3s ease;
-
-    li {
-      margin: 12px 0;
-    }
-  }
-
-  blockquote {
-    border-left: 4px solid var(--primary);
-    padding: 20px 24px;
-    margin: 32px 0;
-    background: var(--nav-hover-bg);
-    font-family: 'Lora', serif;
-    font-style: italic;
-    font-size: 19px;
-    line-height: 1.7;
-    color: var(--text-color);
-    border-radius: 4px;
-    transition: all 0.3s ease;
-  }
-
-  img {
-    max-width: 100%;
+  .adImage {
+    width: 100%;
     height: auto;
-    margin: 32px 0;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px var(--shadow-color);
-    transition: box-shadow 0.3s ease;
+    display: block;
+  }
+}
+
+@keyframes adSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
   }
 
-  @media (max-width: 768px) {
-    padding: 3rem 1.5rem;
-
-    p {
-      font-size: 17px;
-      line-height: 1.75;
-    }
-
-    h2 {
-      font-size: 24px;
-      margin: 32px 0 16px 0;
-    }
-
-    h3 {
-      font-size: 20px;
-      margin: 24px 0 12px 0;
-    }
-
-    ul,
-    ol {
-      font-size: 17px;
-      line-height: 1.75;
-    }
-
-    blockquote {
-      font-size: 17px;
-      padding: 16px 20px;
-      margin: 24px 0;
-    }
-
-    img {
-      margin: 24px 0;
-    }
-  }
-
-  @media (max-width: 480px) {
-    padding: 2rem 1rem;
-
-    p {
-      font-size: 16px;
-    }
-
-    ul,
-    ol {
-      font-size: 16px;
-      padding-left: 24px;
-    }
-
-    blockquote {
-      font-size: 16px;
-    }
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
 }

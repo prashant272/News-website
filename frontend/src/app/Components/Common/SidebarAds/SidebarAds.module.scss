@@ -1,0 +1,99 @@
+.adSpace {
+    background: var(--card-bg);
+    border-radius: 16px;
+    border: 1px solid var(--card-border);
+    box-shadow: 0 2px 8px var(--shadow-color);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    width: 100%;
+}
+
+.sidebarAdsList {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    width: 100%;
+}
+
+.adLabel {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #999;
+    display: block;
+    text-align: center;
+    margin-bottom: 1.25rem;
+}
+
+.adWrapper {
+    position: relative;
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: transparent;
+    line-height: 0;
+    transition: transform 0.3s ease;
+    animation: adSlideIn 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover {
+        transform: scale(1.02);
+    }
+}
+
+@keyframes adSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.adLink {
+    display: block;
+    line-height: 0;
+}
+
+.adImage {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: contain;
+}
+
+.adPlaceholder {
+    width: 100%;
+    min-height: 150px;
+    background: var(--nav-hover-bg);
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted-foreground);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.875rem;
+
+    .emptyAdBox {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.25rem;
+
+        span {
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        small {
+            font-size: 0.7rem;
+            opacity: 0.7;
+        }
+    }
+}

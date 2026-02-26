@@ -1,9 +1,14 @@
 const mongoose = require('mongoose');
 
 const adSchema = new mongoose.Schema({
+  headerImageUrl: {
+    type: String,
+  },
+  sidebarImageUrl: {
+    type: String,
+  },
   imageUrl: {
     type: String,
-    required: true
   },
   title: {
     type: String,
@@ -12,6 +17,11 @@ const adSchema = new mongoose.Schema({
   link: {
     type: String,
     required: true
+  },
+  placement: {
+    type: String,
+    enum: ['header', 'sidebar', 'in-article'],
+    default: 'header'
   },
   isActive: {
     type: Boolean,

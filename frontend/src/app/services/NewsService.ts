@@ -14,6 +14,7 @@ export interface NewsItem {
     isLatest?: boolean;
     isTrending?: boolean;
     isHidden?: boolean;
+    isOpinion?: boolean;
     targetLink?: string;
     nominationLink?: string;
     author?: string;
@@ -126,6 +127,11 @@ class NewsService {
             method: "PATCH",
             body: JSON.stringify(params.flags),
         });
+
+    searchNews = (query: string, page: number = 1, limit: number = 10): Promise<ApiResponse<NewsItem[]>> => {
+        const endpoint = `/search?q=${encodeURIComponent(query)}&page=${page}&limit=${limit}`;
+        return this.request(endpoint);
+    };
 }
 
 export const newsService = new NewsService();

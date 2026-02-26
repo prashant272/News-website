@@ -1,5 +1,5 @@
 const cloudinary = require('cloudinary').v2;
-const Ad = require('../Models/advertisement.model'); 
+const Ad = require('../Models/advertisement.model');
 
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
@@ -9,29 +9,61 @@ cloudinary.config({
 
 exports.AddAd = async (req, res) => {
   try {
-    const { title, link, imageUrl, isActive } = req.body;
+    const { title, link, headerImageUrl, sidebarImageUrl, imageUrl, isActive, placement } = req.body;
 
-    if (!title || !imageUrl) {
+    if (!title) {
       return res.status(400).json({
         success: false,
-        msg: "Missing required fields: title, imageUrl",
+        msg: "Missing required field: title",
       });
     }
 
-    let uploadedImageUrl;
-    if (imageUrl) {
+    let uploadedHeaderUrl;
+    if (headerImageUrl && headerImageUrl.startsWith('data:image')) {
+      const uploadResponse = await cloudinary.uploader.upload(headerImageUrl, {
+        folder: 'ads',
+        resource_type: 'auto',
+      });
+      uploadedHeaderUrl = uploadResponse.secure_url;
+    } else if (headerImageUrl) {
+      uploadedHeaderUrl = headerImageUrl;
+    }
+
+    let uploadedSidebarUrl;
+    if (sidebarImageUrl && sidebarImageUrl.startsWith('data:image')) {
+      const uploadResponse = await cloudinary.uploader.upload(sidebarImageUrl, {
+        folder: 'ads',
+        resource_type: 'auto',
+      });
+      uploadedSidebarUrl = uploadResponse.secure_url;
+    } else if (sidebarImageUrl) {
+      uploadedSidebarUrl = sidebarImageUrl;
+    }
+
+    // Fallback logic for old imageUrl/placement if provided
+    let finalHeaderUrl = uploadedHeaderUrl;
+    let finalSidebarUrl = uploadedSidebarUrl;
+
+    if (!finalHeaderUrl && !finalSidebarUrl && imageUrl) {
       const uploadResponse = await cloudinary.uploader.upload(imageUrl, {
         folder: 'ads',
         resource_type: 'auto',
       });
-      uploadedImageUrl = uploadResponse.secure_url;
+      if (placement === 'sidebar') {
+        finalSidebarUrl = uploadResponse.secure_url;
+      } else {
+        finalHeaderUrl = uploadResponse.secure_url;
+      }
     }
 
     const newAd = new Ad({
       title,
       link,
-      imageUrl: uploadedImageUrl,
+      headerImageUrl: finalHeaderUrl,
+      sidebarImageUrl: finalSidebarUrl,
+      imageUrl: finalHeaderUrl || finalSidebarUrl, // back compat
       isActive: isActive !== undefined ? isActive : true,
+      placement: placement || (finalSidebarUrl && !finalHeaderUrl ? 'sidebar' : 'header'),
     });
 
     const savedAd = await newAd.save();
@@ -54,7 +86,7 @@ exports.AddAd = async (req, res) => {
 exports.UpdateAd = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, link, imageUrl, isActive } = req.body;
+    const { title, link, headerImageUrl, sidebarImageUrl, imageUrl, isActive, placement } = req.body;
 
     if (!id) {
       return res.status(400).json({
@@ -75,25 +107,44 @@ exports.UpdateAd = async (req, res) => {
     if (title !== undefined) existingAd.title = title;
     if (link !== undefined) existingAd.link = link;
     if (isActive !== undefined) existingAd.isActive = isActive;
+    if (placement !== undefined) existingAd.placement = placement;
 
-    if (imageUrl && imageUrl.startsWith('data:image')) {
-      if (existingAd.imageUrl) {
+    // Handle Header Image
+    if (headerImageUrl && headerImageUrl.startsWith('data:image')) {
+      if (existingAd.headerImageUrl) {
         try {
-          const urlParts = existingAd.imageUrl.split('/');
-          const publicIdWithExtension = urlParts[urlParts.length - 1];
-          const publicId = publicIdWithExtension.split('.')[0];
+          const publicId = existingAd.headerImageUrl.split('/').pop().split('.')[0];
           await cloudinary.uploader.destroy(`ads/${publicId}`);
-        } catch (cloudinaryError) {
-          console.error("Cloudinary deletion error:", cloudinaryError);
-        }
+        } catch (err) { }
       }
-
-      const uploadResponse = await cloudinary.uploader.upload(imageUrl, {
+      const uploadResponse = await cloudinary.uploader.upload(headerImageUrl, {
         folder: 'ads',
         resource_type: 'auto',
       });
-      existingAd.imageUrl = uploadResponse.secure_url;
+      existingAd.headerImageUrl = uploadResponse.secure_url;
+    } else if (headerImageUrl === "") {
+      existingAd.headerImageUrl = "";
     }
+
+    // Handle Sidebar Image
+    if (sidebarImageUrl && sidebarImageUrl.startsWith('data:image')) {
+      if (existingAd.sidebarImageUrl) {
+        try {
+          const publicId = existingAd.sidebarImageUrl.split('/').pop().split('.')[0];
+          await cloudinary.uploader.destroy(`ads/${publicId}`);
+        } catch (err) { }
+      }
+      const uploadResponse = await cloudinary.uploader.upload(sidebarImageUrl, {
+        folder: 'ads',
+        resource_type: 'auto',
+      });
+      existingAd.sidebarImageUrl = uploadResponse.secure_url;
+    } else if (sidebarImageUrl === "") {
+      existingAd.sidebarImageUrl = "";
+    }
+
+    // Backwards compatibility sync
+    existingAd.imageUrl = existingAd.headerImageUrl || existingAd.sidebarImageUrl;
 
     const updatedAd = await existingAd.save();
 

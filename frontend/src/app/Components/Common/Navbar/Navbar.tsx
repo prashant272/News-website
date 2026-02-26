@@ -109,12 +109,12 @@ const Navbar: React.FC = () => {
   }, [activeDropdown]);
 
   useEffect(() => {
-    if (!ads || ads.length <= visibleItems || adsLoading || isPaused) return;
+    if (!headerAds || headerAds.length <= visibleItems || adsLoading || isPaused) return;
 
     const interval = setInterval(() => {
       setCurrentAdIndex(prev => {
         const next = prev + 1;
-        return next > ads.length - visibleItems ? 0 : next;
+        return next > headerAds.length - visibleItems ? 0 : next;
       });
     }, 3000);
 
@@ -134,69 +134,85 @@ const Navbar: React.FC = () => {
     setActiveDropdown(activeDropdown === key ? null : key);
   };
 
-  const currentAd = ads && ads.length > 0 ? ads[currentAdIndex] : null;
+  const headerAds = useMemo(() => {
+    if (!ads) return [];
+    return ads.filter(ad => ad.isActive && (ad.headerImageUrl || ad.placement === 'header'));
+  }, [ads]);
 
   return (
     <nav className={`${styles.navbarWrapper} ${scrolled ? styles.scrolled : ''}`}>
       <div className={styles.container}>
 
-        <div
-          className={styles.adBanner}
-          onMouseEnter={() => setIsPaused(true)}
-          onMouseLeave={() => setIsPaused(false)}
-        >
-          {adsLoading ? (
-            <div className={styles.adLoading}>Loading advertisements...</div>
-          ) : ads && ads.length > 0 ? (
-            <div className={styles.adCarousel}>
-              <div
-                className={styles.adTrack}
-                style={{
-                  transform: `translateX(-${currentAdIndex * (100 / visibleItems)}%)`,
-                  transition: 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)'
-                }}
-              >
-                {ads.map((ad, index) => (
-                  <div key={ad._id || index} className={styles.adItem}>
-                    <a
-                      href={ad.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={styles.adLink}
-                    >
-                      <div className={styles.adImageWrapper}>
-                        <Image
-                          src={ad.imageUrl}
-                          alt={ad.title || "Advertisement"}
-                          fill
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                          className={styles.adImage}
-                          priority={index < 3}
-                        />
-                      </div>
-                    </a>
-                  </div>
+        <div className={styles.adBannerContainer}>
+          <div
+            className={styles.adBanner}
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+          >
+            {adsLoading ? (
+              <div className={styles.adLoading}>Loading advertisements...</div>
+            ) : headerAds.length > 0 ? (
+              <div className={styles.adCarousel}>
+                <div
+                  className={styles.adTrack}
+                  style={{
+                    transform: `translateX(-${currentAdIndex * (100 / visibleItems)}%)`,
+                    transition: 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)'
+                  }}
+                >
+                  {headerAds.map((ad, index) => (
+                    <div key={ad._id || index} className={styles.adItem}>
+                      <a
+                        href={ad.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.adLink}
+                      >
+                        <div className={styles.adImageWrapper}>
+                          <Image
+                            src={ad.headerImageUrl || ad.imageUrl}
+                            alt={ad.title || "Advertisement"}
+                            fill
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                            className={styles.adImage}
+                            priority={index < 3}
+                          />
+                        </div>
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className={styles.adPlaceholder}>
+                Advertisement Space – Premium Placements
+              </div>
+            )}
+
+            {headerAds.length > visibleItems && (
+              <div className={styles.adDots}>
+                {Array.from({ length: Math.max(0, headerAds.length - visibleItems + 1) }).map((_, index) => (
+                  <button
+                    key={index}
+                    className={`${styles.dot} ${index === currentAdIndex ? styles.active : ''}`}
+                    onClick={() => setCurrentAdIndex(index)}
+                    aria-label={`Go to advertisement ${index + 1}`}
+                  />
                 ))}
               </div>
-            </div>
-          ) : (
-            <div className={styles.adPlaceholder}>
-              Advertisement Space – Premium Placements
-            </div>
-          )}
+            )}
+          </div>
 
-          {ads && ads.length > visibleItems && (
-            <div className={styles.adDots}>
-              {Array.from({ length: Math.max(0, ads.length - visibleItems + 1) }).map((_, index) => (
-                <button
-                  key={index}
-                  className={`${styles.dot} ${index === currentAdIndex ? styles.active : ''}`}
-                  onClick={() => setCurrentAdIndex(index)}
-                  aria-label={`Go to advertisement ${index + 1}`}
-                />
-              ))}
+          <div className={styles.adFooter}>
+            <div className={styles.sponsoredLabel}>Sponsored By</div>
+            <div className={styles.adContactWrapper}>
+              <div className={styles.adContact}>
+                Contact for advertisement: +91 9971 00 2984 &nbsp; | &nbsp;
+                Contact for advertisement: +91 9971 00 2984 &nbsp; | &nbsp;
+                Contact for advertisement: +91 9971 00 2984
+              </div>
             </div>
-          )}
+          </div>
         </div>
 
         <div className={styles.mainHeader}>
@@ -269,6 +285,7 @@ const Navbar: React.FC = () => {
           </ul>
 
           <div className={styles.rightSection}>
+
             <button
               className={styles.themeToggle}
               onClick={toggleTheme}
@@ -279,8 +296,11 @@ const Navbar: React.FC = () => {
           </div>
         </div>
 
+
         <div className={`${styles.mobileMenu} ${isMobileMenuOpen ? styles.open : ''}`}>
+
           <ul className={styles.navListMobile}>
+
             {navItems.map(item => (
               <li key={item.key} className={item.submenu ? styles.hasMobileSubmenu : ''}>
                 {item.submenu ? (

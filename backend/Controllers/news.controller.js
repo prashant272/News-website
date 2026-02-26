@@ -452,3 +452,41 @@ exports.getEmployeeReport = async (req, res) => {
   }
 };
 
+exports.searchNews = async (req, res) => {
+  try {
+    const { q, page = 1, limit = 10 } = req.query;
+    if (!q) return res.status(400).json({ success: false, msg: "Search query required" });
+    
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    const skip = (pageNum - 1) * limitNum;
+    
+    const query = { $text: { $search: q }, status: 'published' };
+    
+    const results = await NewsArticle.find(query, { score: { $meta: "textScore" } })
+      .sort({ score: { $meta: "textScore" }, publishedAt: -1 })
+      .skip(skip)
+      .limit(limitNum)
+      .lean();
+      
+    const total = await NewsArticle.countDocuments(query);
+    
+    res.status(200).json({
+      success: true,
+      news: results,
+      pagination: { 
+        total, 
+        page: pageNum, 
+        limit: limitNum,
+        totalPages: Math.ceil(total / limitNum) 
+      },
+      count: results.length,
+      msg: "Search completed"
+    });
+  } catch (error) {
+    console.error("Search Error:", error);
+    res.status(500).json({ success: false, msg: error.message });
+  }
+};
+
+

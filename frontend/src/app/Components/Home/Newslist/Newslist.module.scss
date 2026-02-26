@@ -31,6 +31,10 @@
   @media (min-width: 640px) {
     grid-template-columns: repeat(2, 1fr);
   }
+
+  @media (min-width: 1240px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 .newsCard {
@@ -135,6 +139,7 @@
   color: var(--heading-color);
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
   letter-spacing: -0.01em;
@@ -247,18 +252,24 @@
   line-height: 1.5;
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-────────────────────────────────────────────
-
-.adSpace {
+──────────────────────────────────────────── .adSpace {
   background: var(--card-bg);
   border-radius: 16px;
   border: 1px solid var(--card-border);
   box-shadow: 0 2px 8px var(--shadow-color);
   padding: 2rem;
+}
+
+.sidebarAdsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
 }
 
 .adLabel {
@@ -305,7 +316,7 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background: rgba(0,0,0,0.65);
+  background: rgba(0, 0, 0, 0.65);
   color: white;
   padding: 10px 14px;
   font-size: 13px;
@@ -328,7 +339,7 @@
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.45);
+  background: rgba(255, 255, 255, 0.45);
   border: none;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -371,23 +382,69 @@
 
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50%      { opacity: 0.8; transform: scale(0.95); }
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.8;
+    transform: scale(0.95);
+  }
 }
 
 @media (max-width: 1023px) {
-  .newsListSection { padding: 2rem 1.5rem; }
-  .container       { grid-template-columns: 1fr; gap: 2.5rem; }
+  .newsListSection {
+    padding: 2rem 1.5rem;
+  }
+
+  .container {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
 }
 
 @media (max-width: 639px) {
-  .newsListSection { padding: 2rem 1rem; }
-  .newsGrid        { grid-template-columns: 1fr; gap: 1.5rem; }
-  .cardImage       { height: 180px; }
-  .cardTitle       { font-size: 1rem; }
-  .trendingSection { padding: 1.5rem; }
-  .trendingTitle   { font-size: 1.5rem; }
-  .trendingCard    { grid-template-columns: 40px 75px 1fr; gap: 0.875rem; }
-  .trendingRank    { width: 40px; height: 40px; font-size: 1.125rem; }
-  .trendingImage   { width: 75px; height: 56px; }
+  .newsListSection {
+    padding: 2rem 1rem;
+  }
+
+  .newsGrid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .cardImage {
+    height: 180px;
+  }
+
+  .cardTitle {
+    font-size: 1rem;
+  }
+
+  .trendingSection {
+    padding: 1.5rem;
+  }
+
+  .trendingTitle {
+    font-size: 1.5rem;
+  }
+
+  .trendingCard {
+    grid-template-columns: 40px 75px 1fr;
+    gap: 0.875rem;
+  }
+
+  .trendingRank {
+    width: 40px;
+    height: 40px;
+    font-size: 1.125rem;
+  }
+
+  .trendingImage {
+    width: 75px;
+    height: 56px;
+  }
 }
