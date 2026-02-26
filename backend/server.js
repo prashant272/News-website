@@ -42,7 +42,7 @@ app.use(cors({
 }));
 
 // Pre-flight requests
-app.options('*', cors());
+app.options('(.*)', cors());
 
 app.use((req, res, next) => {
     res.setHeader("Cache-Control", "no-store")
