@@ -20,22 +20,30 @@ exports.AddAd = async (req, res) => {
 
     let uploadedHeaderUrl;
     if (headerImageUrl && headerImageUrl.startsWith('data:image')) {
-      const uploadResponse = await cloudinary.uploader.upload(headerImageUrl, {
-        folder: 'ads',
-        resource_type: 'auto',
-      });
-      uploadedHeaderUrl = uploadResponse.secure_url;
+      try {
+        const uploadResponse = await cloudinary.uploader.upload(headerImageUrl, {
+          folder: 'ads',
+          resource_type: 'auto',
+        });
+        uploadedHeaderUrl = uploadResponse.secure_url;
+      } catch (uploadError) {
+        console.error("Header Ad Cloudinary Upload Error:", uploadError);
+      }
     } else if (headerImageUrl) {
       uploadedHeaderUrl = headerImageUrl;
     }
 
     let uploadedSidebarUrl;
     if (sidebarImageUrl && sidebarImageUrl.startsWith('data:image')) {
-      const uploadResponse = await cloudinary.uploader.upload(sidebarImageUrl, {
-        folder: 'ads',
-        resource_type: 'auto',
-      });
-      uploadedSidebarUrl = uploadResponse.secure_url;
+      try {
+        const uploadResponse = await cloudinary.uploader.upload(sidebarImageUrl, {
+          folder: 'ads',
+          resource_type: 'auto',
+        });
+        uploadedSidebarUrl = uploadResponse.secure_url;
+      } catch (uploadError) {
+        console.error("Sidebar Ad Cloudinary Upload Error:", uploadError);
+      }
     } else if (sidebarImageUrl) {
       uploadedSidebarUrl = sidebarImageUrl;
     }
@@ -45,14 +53,27 @@ exports.AddAd = async (req, res) => {
     let finalSidebarUrl = uploadedSidebarUrl;
 
     if (!finalHeaderUrl && !finalSidebarUrl && imageUrl) {
-      const uploadResponse = await cloudinary.uploader.upload(imageUrl, {
-        folder: 'ads',
-        resource_type: 'auto',
-      });
-      if (placement === 'sidebar') {
-        finalSidebarUrl = uploadResponse.secure_url;
+      if (imageUrl.startsWith('data:image')) {
+        try {
+          const uploadResponse = await cloudinary.uploader.upload(imageUrl, {
+            folder: 'ads',
+            resource_type: 'auto',
+          });
+          if (placement === 'sidebar') {
+            finalSidebarUrl = uploadResponse.secure_url;
+          } else {
+            finalHeaderUrl = uploadResponse.secure_url;
+          }
+        } catch (uploadError) {
+          console.error("Legacy Ad Cloudinary Upload Error:", uploadError);
+        }
       } else {
-        finalHeaderUrl = uploadResponse.secure_url;
+        // Already a URL
+        if (placement === 'sidebar') {
+          finalSidebarUrl = imageUrl;
+        } else {
+          finalHeaderUrl = imageUrl;
+        }
       }
     }
 
@@ -117,13 +138,19 @@ exports.UpdateAd = async (req, res) => {
           await cloudinary.uploader.destroy(`ads/${publicId}`);
         } catch (err) { }
       }
-      const uploadResponse = await cloudinary.uploader.upload(headerImageUrl, {
-        folder: 'ads',
-        resource_type: 'auto',
-      });
-      existingAd.headerImageUrl = uploadResponse.secure_url;
+      try {
+        const uploadResponse = await cloudinary.uploader.upload(headerImageUrl, {
+          folder: 'ads',
+          resource_type: 'auto',
+        });
+        existingAd.headerImageUrl = uploadResponse.secure_url;
+      } catch (uploadError) {
+        console.error("Update Header Ad Cloudinary Upload Error:", uploadError);
+      }
     } else if (headerImageUrl === "") {
       existingAd.headerImageUrl = "";
+    } else if (headerImageUrl && !headerImageUrl.startsWith('data:image')) {
+      existingAd.headerImageUrl = headerImageUrl;
     }
 
     // Handle Sidebar Image
@@ -134,13 +161,19 @@ exports.UpdateAd = async (req, res) => {
           await cloudinary.uploader.destroy(`ads/${publicId}`);
         } catch (err) { }
       }
-      const uploadResponse = await cloudinary.uploader.upload(sidebarImageUrl, {
-        folder: 'ads',
-        resource_type: 'auto',
-      });
-      existingAd.sidebarImageUrl = uploadResponse.secure_url;
+      try {
+        const uploadResponse = await cloudinary.uploader.upload(sidebarImageUrl, {
+          folder: 'ads',
+          resource_type: 'auto',
+        });
+        existingAd.sidebarImageUrl = uploadResponse.secure_url;
+      } catch (uploadError) {
+        console.error("Update Sidebar Ad Cloudinary Upload Error:", uploadError);
+      }
     } else if (sidebarImageUrl === "") {
       existingAd.sidebarImageUrl = "";
+    } else if (sidebarImageUrl && !sidebarImageUrl.startsWith('data:image')) {
+      existingAd.sidebarImageUrl = sidebarImageUrl;
     }
 
     // Backwards compatibility sync
