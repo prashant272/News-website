@@ -446,7 +446,7 @@ const NewsCards: React.FC<NewsCardsProps> = ({
                   <h3 className="m-0 px-6 py-4 pb-2 font-['Lora'] text-[0.9375rem] font-semibold leading-normal tracking-tight text-[var(--heading-color)] transition-colors duration-300 line-clamp-2 md:text-[0.875rem] group-hover/featured:text-[var(--primary)]">{featuredItem.title}</h3>
 
                   <span className="block px-6 pb-3 font-['Inter'] text-[0.6875rem] font-semibold uppercase leading-tight tracking-wider text-[var(--muted-foreground)] transition-colors duration-300 sm:px-5">
-                    {formatDateTime(featuredItem.date) || 'Just now'}
+                    {featuredItem.date ? formatDateTime(featuredItem.date) : 'Just now'}
                   </span>
                 </div>
 

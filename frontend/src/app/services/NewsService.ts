@@ -11,6 +11,7 @@ export interface NewsItem {
     tags: string[];
     status: "draft" | "published" | "archived";
     publishedAt?: string;
+    createdAt?: string;
     date?: string;
     isLatest?: boolean;
     isTrending?: boolean;

@@ -141,7 +141,7 @@ const NewsSection: React.FC<NewsSectionProps> = ({
       slug: item.slug,
       subCategory: item.subCategory,
       displaySubCategory: cleanDisplayText(item.subCategory || ''),
-      date: item.publishedAt || item.date || item.createdAt
+      date: item.publishedAt || item.date || (item as any).createdAt
     }));
   }, [providedTopNews, sectionNews, section]);
 
