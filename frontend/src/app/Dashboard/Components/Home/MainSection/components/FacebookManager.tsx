@@ -15,7 +15,7 @@ const FacebookManager: FC<FacebookManagerProps> = ({ showNotification }) => {
 
     const fetchFacebookStatus = useCallback(async () => {
         try {
-            const res = await API.get('/facebook/status');
+            const res = await API.get('/fb/global-status');
             setFbStatus(res.data);
         } catch (err) {
             console.error("Fetch FB status error:", err);
@@ -29,7 +29,7 @@ const FacebookManager: FC<FacebookManagerProps> = ({ showNotification }) => {
     const handleFacebookConnect = async () => {
         setFbLoading(true);
         try {
-            const res = await API.get('/facebook/auth-url');
+            const res = await API.get('/fb/auth');
             if (res.data.url) {
                 window.location.href = res.data.url;
             }
@@ -43,7 +43,7 @@ const FacebookManager: FC<FacebookManagerProps> = ({ showNotification }) => {
     const handleDisconnectFacebook = async () => {
         if (!confirm("Disconnect Facebook? Auto-posting will stop.")) return;
         try {
-            await API.post('/facebook/disconnect');
+            await API.delete('/fb/disconnect');
             showNotification("Facebook disconnected", "success");
             fetchFacebookStatus();
         } catch (err: any) {
@@ -53,7 +53,7 @@ const FacebookManager: FC<FacebookManagerProps> = ({ showNotification }) => {
 
     const handleSaveFacebookPage = async (pageId: string, pageName: string, accessToken: string) => {
         try {
-            await API.post('/facebook/save-page', { pageId, pageName, accessToken });
+            await API.post('/fb/save-global-page', { pageId, pageName, pageAccessToken: accessToken });
             showNotification("Facebook page connected!", "success");
             fetchFacebookStatus();
             setFbPages([]);
@@ -65,7 +65,7 @@ const FacebookManager: FC<FacebookManagerProps> = ({ showNotification }) => {
     const handleFacebookTestPost = async () => {
         setFbLoading(true);
         try {
-            const res = await API.post('/facebook/test-post');
+            const res = await API.post('/fb/test-post');
             if (res.data.success) {
                 showNotification("Success! Check your FB page.", "success");
             }
