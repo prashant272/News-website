@@ -13,6 +13,7 @@ import { compressImage } from "@/Utils/Utils";
 import styles from "../Main.module.scss";
 
 const CATEGORIES = [
+    { id: 'home', label: 'Home', icon: '🏠' },
     { id: 'india', label: 'India', icon: '🇮🇳' },
     { id: 'sports', label: 'Sports', icon: '⚽' },
     { id: 'business', label: 'Business', icon: '📈' },
@@ -21,6 +22,7 @@ const CATEGORIES = [
     { id: 'lifestyle', label: 'Lifestyle', icon: '✨' },
     { id: 'world', label: 'World', icon: '🌍' },
     { id: 'health', label: 'Health', icon: '🏥' },
+    { id: 'regional', label: 'Regional', icon: '📍' },
     { id: 'awards', label: 'Awards', icon: '🏆' },
 ] as const;
 
@@ -102,15 +104,18 @@ const NewsManager: FC<NewsManagerProps> = ({
 
     useEffect(() => {
         if (initialDraft) {
-            const matchedCat = CATEGORIES.find(c => c.id === initialDraft.category.toLowerCase())?.id || 'india';
-            setSelectedCategory(matchedCat);
+            const rawCategory = initialDraft.category?.toLowerCase() || 'india';
+            const matchedCat = CATEGORIES.find(c => c.id === rawCategory)?.id || 'india';
+            setSelectedCategory(matchedCat as NewsCategory);
             setFormState({
                 ...initialDraft,
-                status: 'draft',
+                status: initialDraft.status || 'draft',
                 category: matchedCat.charAt(0).toUpperCase() + matchedCat.slice(1)
             });
             setEditingSlug(initialDraft.slug);
             setTagsInput(initialDraft.tags?.join(", ") || "");
+            setImagePreview(initialDraft.image || null);
+            setShowImage(!!initialDraft.image);
             window.scrollTo({ top: 120, behavior: "smooth" });
         }
     }, [initialDraft]);
@@ -389,27 +394,25 @@ const NewsManager: FC<NewsManagerProps> = ({
                                 placeholder="article-slug"
                             />
                         </div>
-                        {!isEditing && (
-                            <div className={styles.formGroup}>
-                                <label className={styles.label}>Category <span className={styles.required}>*</span></label>
-                                <select
-                                    className={styles.select}
-                                    value={selectedCategory}
-                                    onChange={(e) => {
-                                        const newCat = e.target.value as NewsCategory;
-                                        setSelectedCategory(newCat);
-                                        setFormState(prev => ({
-                                            ...prev,
-                                            category: newCat.charAt(0).toUpperCase() + newCat.slice(1)
-                                        }));
-                                    }}
-                                >
-                                    {CATEGORIES.map(cat => (
-                                        <option key={cat.id} value={cat.id}>{cat.icon} {cat.label}</option>
-                                    ))}
-                                </select>
-                            </div>
-                        )}
+                        <div className={styles.formGroup}>
+                            <label className={styles.label}>Category <span className={styles.required}>*</span></label>
+                            <select
+                                className={styles.select}
+                                value={selectedCategory}
+                                onChange={(e) => {
+                                    const newCat = e.target.value as NewsCategory;
+                                    setSelectedCategory(newCat);
+                                    setFormState(prev => ({
+                                        ...prev,
+                                        category: newCat.charAt(0).toUpperCase() + newCat.slice(1)
+                                    }));
+                                }}
+                            >
+                                {CATEGORIES.map(cat => (
+                                    <option key={cat.id} value={cat.id}>{cat.icon} {cat.label}</option>
+                                ))}
+                            </select>
+                        </div>
                         <div className={styles.formGroup}>
                             <label className={styles.label}>Sub-category</label>
                             <input

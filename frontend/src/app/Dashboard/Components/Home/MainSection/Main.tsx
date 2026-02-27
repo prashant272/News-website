@@ -21,9 +21,12 @@ const AnalyticsDashboard = dynamic(() => import("./components/AnalyticsDashboard
 const FacebookManager = dynamic(() => import("./components/FacebookManager"), {
   loading: () => <div className={styles.loading}>Loading Facebook Settings...</div>
 });
+const BreakingNewsManager = dynamic(() => import("./components/BreakingNewsManager"), {
+  loading: () => <div className={styles.loading}>Loading Breaking News...</div>
+});
 
 interface MainSectionProps {
-  section: 'news_management' | 'ad_management' | 'previous_news' | 'analytics' | 'user_management' | 'facebook_settings';
+  section: 'news_management' | 'ad_management' | 'previous_news' | 'analytics' | 'user_management' | 'facebook_settings' | 'breaking_news';
   initialDraft?: NewsItem | null;
 }
 
@@ -74,22 +77,25 @@ const MainSection: FC<MainSectionProps> = ({ section, initialDraft }) => {
                   {section === 'news_management' ? '📝' :
                     section === 'ad_management' ? '📢' :
                       section === 'analytics' ? '📊' :
-                        section === 'user_management' ? '👤' :
-                          section === 'facebook_settings' ? '📱' : '📁'}
+                        section === 'user_management' ? '👥' :
+                          section === 'breaking_news' ? '🔥' :
+                            section === 'facebook_settings' ? '📱' : '📁'}
                 </span>
                 {section === 'news_management' ? 'News Management' :
                   section === 'ad_management' ? 'Ad Management' :
                     section === 'analytics' ? 'Analytics' :
                       section === 'user_management' ? 'User Management' :
-                        section === 'facebook_settings' ? 'Facebook Settings' : 'Previous News'}
+                        section === 'breaking_news' ? 'Breaking News' :
+                          section === 'facebook_settings' ? 'Facebook Settings' : 'Previous News'}
               </h1>
               <p className={styles.headerSubtitle}>
                 {section === 'news_management' ? 'Add new articles to any category' :
                   section === 'ad_management' ? 'Manage advertisements across the platform' :
                     section === 'analytics' ? 'Platform overview and performance' :
                       section === 'user_management' ? 'Manage administrators and permissions' :
-                        section === 'facebook_settings' ? 'Configure auto-posting to Facebook' :
-                          'View and manage previously published news'}
+                        section === 'breaking_news' ? 'Manage live breaking news headlines' :
+                          section === 'facebook_settings' ? 'Configure auto-posting to Facebook' :
+                            'View and manage previously published news'}
                 {userRole !== "USER" && <span className={styles.roleBadge}> • {userRole}</span>}
               </p>
             </div>
@@ -135,6 +141,9 @@ const MainSection: FC<MainSectionProps> = ({ section, initialDraft }) => {
           <FacebookManager
             showNotification={showNotification}
           />
+        )}
+        {section === 'breaking_news' && (
+          <BreakingNewsManager />
         )}
       </div>
     </div>

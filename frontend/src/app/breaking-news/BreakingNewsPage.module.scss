@@ -1,0 +1,247 @@
+.pageContainer {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 20px;
+    min-height: 80vh;
+    background: #fff;
+}
+
+.header {
+    margin-bottom: 40px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 20px;
+    background: none;
+    box-shadow: none;
+
+    .headerContent {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+    }
+
+    .breadcrumbBadge {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.9rem;
+        font-weight: 500;
+
+        .category {
+            color: #666;
+        }
+
+        .separator {
+            color: #ccc;
+        }
+
+        .badge {
+            background: #cc0000;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 2px;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+    }
+
+    .titleRow {
+        h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #1a1a1a !important;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-shadow: none;
+
+            &::after {
+                display: none;
+            }
+
+            .refreshIcon {
+                color: #cc0000;
+                cursor: pointer;
+                transition: transform 0.3s;
+
+                &:hover {
+                    transform: rotate(-180deg);
+                }
+            }
+        }
+    }
+}
+
+
+.newsList {
+    display: flex;
+    flex-direction: column;
+}
+
+.newsItem {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+    padding: 30px 0;
+    border-bottom: 1px solid #f0f0f0;
+    background: none;
+    box-shadow: none;
+    border-radius: 0;
+    border-left: none;
+    transition: background 0.2s;
+
+    &:last-child {
+        border-bottom: none;
+    }
+
+    &:hover {
+        transform: none;
+        box-shadow: none;
+        border-color: #f0f0f0;
+
+        .shareButtons {
+            opacity: 1;
+        }
+    }
+
+    .timeBox {
+        min-width: 100px;
+        border-right: none;
+        padding-right: 0;
+        display: block;
+
+        .time {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1a1a1a !important;
+        }
+    }
+
+    .contentBox {
+        flex: 1;
+
+        h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1a1a1a !important;
+            line-height: 1.5;
+        }
+    }
+
+    .shareButtons {
+        display: flex;
+        gap: 20px;
+        opacity: 0.8;
+        transition: opacity 0.2s;
+
+        .shareIcon {
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: auto;
+            height: auto;
+            border-radius: 0;
+            transition: transform 0.2s;
+
+            &:hover {
+                transform: scale(1.1);
+            }
+
+            &.facebook {
+                color: #1877F2;
+            }
+
+            &.xTwitter {
+                color: #000000;
+            }
+
+            &.whatsapp {
+                color: #25D366;
+            }
+        }
+    }
+
+    // Featured (Latest) Item Styling
+    &.featuredItem {
+        flex-direction: column;
+        align-items: flex-start;
+        padding-bottom: 40px;
+        gap: 15px;
+
+        .timeBox {
+            display: none;
+        }
+
+        .contentBox h2 {
+            font-size: 2.8rem;
+            font-weight: 900;
+            color: #000 !important;
+            letter-spacing: -0.5px;
+            line-height: 1.2;
+        }
+
+        .shareButtons {
+            display: flex;
+            opacity: 1;
+            margin-top: 10px;
+        }
+    }
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 0.5;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0.5;
+    }
+}
+
+@media (max-width: 768px) {
+    .pageContainer {
+        margin: 20px auto;
+    }
+
+    .header {
+        h1 {
+            font-size: 1.5rem;
+        }
+    }
+
+    .newsItem {
+        padding: 20px 0;
+        flex-wrap: wrap;
+        gap: 10px;
+
+        &.featuredItem .contentBox h2 {
+            font-size: 1.75rem;
+        }
+
+        .timeBox {
+            order: 1;
+        }
+
+        .shareButtons {
+            order: 2;
+            margin-left: auto;
+            opacity: 1;
+        }
+
+        .contentBox {
+            order: 3;
+            width: 100%;
+            flex: none;
+        }
+    }
+}

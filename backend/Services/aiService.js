@@ -12,7 +12,7 @@ const client = new OpenAI({
 const generateArticle = async (facts) => {
     try {
         const response = await client.chat.completions.create({
-            model: "gpt-4o-mini",
+            model: "google/gemini-2.0-flash-lite-preview-02-05:free",
             messages: [
                 {
                     role: "system",
@@ -31,7 +31,6 @@ TITLE RULES:
 - Include the most important keyword of the news naturally.
 - Keep it between 8 and 14 words.
 - Make it interesting so people want to click and read.
-- Example: "India and China Hold Peace Talks — What It Means for You"
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ARTICLE CONTENT RULES:
@@ -55,18 +54,6 @@ Write a LONG article (600-900 words) with the following HTML structure:
 <h2>What Are People Saying?</h2>
 <p>1-2 paragraphs on reactions — from officials, experts, or the public if mentioned in the facts.</p>
 
-<h2>What Happens Next?</h2>
-<p>2-3 sentences on what to expect in the coming days or weeks.</p>
-
-<h2>Frequently Asked Questions (FAQ)</h2>
-<ul>
-  <li><strong>Q: [Simple question about the topic]?</strong> A: [Short, clear answer.]</li>
-  <li><strong>Q: [Another common question]?</strong> A: [Short, clear answer.]</li>
-  <li><strong>Q: [Third question]?</strong> A: [Short, clear answer.]</li>
-</ul>
-
-<h2>Conclusion</h2>
-<p>2-3 sentences wrapping up the story. Keep it simple and leave the reader informed.</p>
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 STRICT LANGUAGE RULES:
@@ -101,14 +88,14 @@ ${facts}
         const content = response.choices[0].message.content;
         return JSON.parse(content);
     } catch (error) {
-        console.error("OpenAI Error:", error);
+        console.error("AI Generation Error:", error.response?.data || error.message || error);
         // Fallback for non-JSON response or error
         return {
-            title: "Error Generating Title",
-            content: "<p>Content generation failed.</p>",
-            summary: "Summary unavailable.",
-            tags: [],
-            subCategory: "General"
+            title: "Article Generation in Progress",
+            content: "<p>The AI service is currently busy or out of credits. Please check back in a few minutes or edit the article manually.</p>",
+            summary: "Content generation failed due to API limits.",
+            tags: ["Draft"],
+            subCategory: "Queue"
         };
     }
 };

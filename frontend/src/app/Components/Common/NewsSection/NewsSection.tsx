@@ -114,9 +114,9 @@ const NewsSection: React.FC<NewsSectionProps> = ({
   })();
 
   const mainNews: NewsGridItem[] = useMemo(() => {
-    if (providedMainNews) return providedMainNews;
-    return sectionNews.slice(0, 12).map((item, index) => ({
-      id: item._id || `${section}-${item.slug || 'no-slug'}-${index}`,
+    const newsToMap = providedMainNews || sectionNews.slice(0, 12);
+    return newsToMap.map((item, index) => ({
+      id: (item as any)._id || (item as any).id || `${section}-${item.slug || 'no-slug'}-${index}`,
       image: getImageSrc(item.image),
       title: item.title,
       slug: item.slug,
@@ -125,13 +125,18 @@ const NewsSection: React.FC<NewsSectionProps> = ({
       displaySubCategory: cleanDisplayText(item.subCategory || ''),
       isTrending: item.isTrending,
       date: item.date,
-      targetLink: item.targetLink,
-      nominationLink: item.nominationLink
+      targetLink: (item as any).targetLink,
+      nominationLink: (item as any).nominationLink
     }));
   }, [providedMainNews, sectionNews, section]);
 
   const topNews: TopNewsItem[] = useMemo(() => {
-    if (providedTopNews) return providedTopNews;
+    if (providedTopNews) {
+      return providedTopNews.map(item => ({
+        ...item,
+        image: getImageSrc(item.image)
+      }));
+    }
     const trendingNews = sectionNews.filter(item => item.isTrending === true);
     const newsToShow = trendingNews.length >= 10 ? trendingNews : sectionNews;
     return newsToShow.slice(0, 10).map((item, index) => ({

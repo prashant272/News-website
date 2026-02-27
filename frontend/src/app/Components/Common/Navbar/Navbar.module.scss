@@ -86,29 +86,33 @@
 }
 
 .adContactWrapper {
-  width: 100%;
+  width: 95%;
   overflow: hidden;
-  background: rgba(220, 38, 38, 0.08); // Subtle red tint
-  padding: 4px 0;
+  background: #ffffff; 
+  padding: 2px 0;
   border-top: 1px solid var(--nav-border);
+  border-bottom: 1px solid var(--nav-border);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 
   @media (max-width: 768px) {
-    padding: 2px 0; // Thinner on mobile
+    padding: 4px 0;
   }
 }
 
 .adContact {
   display: inline-block;
   white-space: nowrap;
-  font-size: 12px;
-  color: #dc2626; // Highlighted red
-  font-weight: 700;
-  animation: marquee 25s linear infinite;
+  font-size: 13px;
+  color: #1a1a1a; // Professional black
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  animation: marquee 30s linear infinite;
 
   @media (max-width: 768px) {
-    display: inline-block !important; // Show again
-    font-size: 10px; // Slightly smaller
-    animation-duration: 15s; // Faster marquee for mobile
+    display: inline-block !important;
+    font-size: 11px;
+    animation-duration: 20s;
   }
 }
 

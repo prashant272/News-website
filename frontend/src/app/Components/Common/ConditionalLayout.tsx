@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import Navbar from "./Navbar/Navbar";
 import Footer from "./Footer/Footer";
 import WhatsAppButton from "./WhatsAppButton/WhatsAppButton";
+import BreakingNewsTicker from "./BreakingNewsTicker/BreakingNewsTicker";
 
 export default function ConditionalLayout({
     children,
@@ -20,6 +21,7 @@ export default function ConditionalLayout({
     return (
         <>
             <Navbar />
+            <BreakingNewsTicker />
             {children}
             <Footer />
             <WhatsAppButton />

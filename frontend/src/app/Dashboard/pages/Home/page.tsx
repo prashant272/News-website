@@ -12,6 +12,7 @@ import { UserContext } from "@/app/Dashboard/Context/ManageUserContext";
 const sections = [
   { id: 'news_management' as const, label: 'News Management', icon: '📝' },
   { id: 'ai_news' as const, label: 'AI News', icon: '🤖' },
+  { id: 'breaking_news' as const, label: 'Breaking News', icon: '🔥' },
   { id: 'ad_management' as const, label: 'Ad Management', icon: '📢' },
   { id: 'previous_news' as const, label: 'Previous News', icon: '📁' },
   { id: 'analytics' as const, label: 'Analytics', icon: '📊' },

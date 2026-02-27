@@ -13,6 +13,7 @@ const OTPRouter = require("./routes/otp.route")
 const AdsRouter = require("./routes/advertisement.route")
 const AutoNewsRouter = require("./routes/autoNewsRoute")
 const FacebookRouter = require("./routes/facebook.routes")
+const BreakingNewsRouter = require("./routes/breakingNewsRoute")
 
 
 const app = express()
@@ -23,6 +24,7 @@ const allowedOrigins = [
     "https://www.primetimemedia.in",
     "https://primetimemedia.in",
     "http://localhost:3000",
+    "http://127.0.0.1:3000",
     "http://localhost:8086"
 ];
 
@@ -71,7 +73,17 @@ app.use("/otp", OTPRouter)
 app.use("/promotions", AdsRouter)
 app.use("/api", AutoNewsRouter)
 app.use("/fb", FacebookRouter)
+app.use("/breaking-news", BreakingNewsRouter)
 
 app.listen(process.env.PORT, () => {
     console.log(`Server is running on port ${process.env.PORT}`);
 })
+
+// Prevent server crash on unhandled errors
+process.on("unhandledRejection", (reason, promise) => {
+    console.error("Unhandled Rejection at:", promise, "reason:", reason);
+});
+
+process.on("uncaughtException", (error) => {
+    console.error("Uncaught Exception:", error);
+});
