@@ -24,9 +24,12 @@ const FacebookManager = dynamic(() => import("./components/FacebookManager"), {
 const BreakingNewsManager = dynamic(() => import("./components/BreakingNewsManager"), {
   loading: () => <div className={styles.loading}>Loading Breaking News...</div>
 });
+const CricketManager = dynamic(() => import("./components/CricketManager"), {
+  loading: () => <div className={styles.loading}>Loading Cricket Manager...</div>
+});
 
 interface MainSectionProps {
-  section: 'news_management' | 'ad_management' | 'previous_news' | 'analytics' | 'user_management' | 'facebook_settings' | 'breaking_news';
+  section: 'news_management' | 'ad_management' | 'previous_news' | 'analytics' | 'user_management' | 'facebook_settings' | 'breaking_news' | 'cricket_management';
   initialDraft?: NewsItem | null;
 }
 
@@ -79,14 +82,16 @@ const MainSection: FC<MainSectionProps> = ({ section, initialDraft }) => {
                       section === 'analytics' ? '📊' :
                         section === 'user_management' ? '👥' :
                           section === 'breaking_news' ? '🔥' :
-                            section === 'facebook_settings' ? '📱' : '📁'}
+                            section === 'facebook_settings' ? '📱' :
+                              section === 'cricket_management' ? '🏏' : '📁'}
                 </span>
                 {section === 'news_management' ? 'News Management' :
                   section === 'ad_management' ? 'Ad Management' :
                     section === 'analytics' ? 'Analytics' :
                       section === 'user_management' ? 'User Management' :
                         section === 'breaking_news' ? 'Breaking News' :
-                          section === 'facebook_settings' ? 'Facebook Settings' : 'Previous News'}
+                          section === 'facebook_settings' ? 'Facebook Settings' :
+                            section === 'cricket_management' ? 'Cricket Management' : 'Previous News'}
               </h1>
               <p className={styles.headerSubtitle}>
                 {section === 'news_management' ? 'Add new articles to any category' :
@@ -95,7 +100,8 @@ const MainSection: FC<MainSectionProps> = ({ section, initialDraft }) => {
                       section === 'user_management' ? 'Manage administrators and permissions' :
                         section === 'breaking_news' ? 'Manage live breaking news headlines' :
                           section === 'facebook_settings' ? 'Configure auto-posting to Facebook' :
-                            'View and manage previously published news'}
+                            section === 'cricket_management' ? 'Select and track live matches' :
+                              'View and manage previously published news'}
                 {userRole !== "USER" && <span className={styles.roleBadge}> • {userRole}</span>}
               </p>
             </div>
@@ -144,6 +150,9 @@ const MainSection: FC<MainSectionProps> = ({ section, initialDraft }) => {
         )}
         {section === 'breaking_news' && (
           <BreakingNewsManager />
+        )}
+        {section === 'cricket_management' && (
+          <CricketManager />
         )}
       </div>
     </div>

@@ -1004,7 +1004,18 @@ $duration-slow: 300ms;
 
 .infoIcon {
   flex-shrink: 0;
-  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.metaHighlight {
+  font-size: 0.85rem;
+  color: #60a5fa; // primary-light fallback
+  font-weight: 600;
+  margin-top: 0.5rem;
+  background: rgba(59, 130, 246, 0.1); // primary fallback
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.5rem;
+  display: inline-block;
 }
 
 .cardActions {
@@ -1680,4 +1691,135 @@ $duration-slow: 300ms;
   font-weight: 700;
   color: var(--text-dim);
   font-size: 1.2rem;
+}
+
+// Cricket Manager Styles
+.managerContainer {
+  margin-top: 1.5rem;
+}
+
+.tableWrapper {
+  background: var(--bg-card);
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-subtle);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+
+  th,
+  td {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  th {
+    background: var(--bg-secondary);
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 700;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  tr:hover td {
+    background: var(--card-overlay);
+  }
+}
+
+.matchName {
+  font-weight: 700;
+  color: var(--text-primary);
+  font-size: 1rem;
+}
+
+.matchMeta {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin-top: 0.25rem;
+}
+
+.metaHighlight {
+  font-size: 0.85rem;
+  color: #60a5fa;
+  font-weight: 600;
+  margin-top: 0.5rem;
+  background: rgba(59, 130, 246, 0.1);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.5rem;
+  display: inline-block;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+
+  &.live {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+  }
+
+  &.upcoming {
+    background: rgba(245, 158, 11, 0.15);
+    color: #fbbf24;
+  }
+
+  &.recent {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+  }
+}
+
+.activeBtn,
+.inactiveBtn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  width: 140px;
+}
+
+.activeBtn {
+  background: #10b981;
+  color: white;
+
+  &:hover {
+    background: #059669;
+    transform: translateY(-1px);
+  }
+}
+
+.inactiveBtn {
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-medium);
+
+  &:hover {
+    border-color: #3b82f6;
+    color: #60a5fa;
+    transform: translateY(-1px);
+  }
+}
+
+.empty {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-dim);
+  font-style: italic;
 }

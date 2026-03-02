@@ -12,31 +12,50 @@ interface BreakingNewsItem {
     _id: string;
     title: string;
     link?: string;
+    source?: string;
     createdAt: string;
 }
 
 const BreakingNewsPage = () => {
     const [news, setNews] = useState<BreakingNewsItem[]>([]);
     const [loading, setLoading] = useState(true);
+    const [seeding, setSeeding] = useState(false);
 
     const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8086";
 
-    useEffect(() => {
-        const fetchNews = async () => {
-            try {
-                const response = await axios.get(`${API_BASE}/breaking-news`);
-                if (response.data.success) {
-                    setNews(response.data.data);
-                }
-            } catch (error) {
-                console.error("Fetch Error:", error);
-            } finally {
-                setLoading(false);
+    const fetchNews = async () => {
+        setLoading(true);
+        try {
+            const response = await axios.get(`${API_BASE}/api/breaking-news`);
+            if (response.data.success) {
+                setNews(response.data.data);
             }
-        };
+        } catch (error) {
+            console.error("Fetch Error:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
+    useEffect(() => {
         fetchNews();
     }, [API_BASE]);
+
+    const handleScrape = async () => {
+        if (!window.confirm("Do you want to scrape real breaking news from live sources?")) return;
+        setSeeding(true);
+        try {
+            const response = await axios.post(`${API_BASE}/api/breaking-news/scrape`);
+            if (response.data.success) {
+                alert(response.data.message || "Real news scraped! Refreshing...");
+                fetchNews();
+            }
+        } catch (error) {
+            alert("Scraping failed: " + (error as any).message);
+        } finally {
+            setSeeding(false);
+        }
+    };
 
     const formatTime = (dateString: string) => {
         const date = new Date(dateString);
@@ -66,7 +85,14 @@ const BreakingNewsPage = () => {
                         <span className={styles.badge}>Breaking News</span>
                     </div>
                     <div className={styles.titleRow}>
-                        <h1>News Flash {formatDate(new Date().toISOString())} <RotateCcw size={20} className={styles.refreshIcon} /></h1>
+                        <h1>News Flash {formatDate(new Date().toISOString())} <RotateCcw size={20} className={styles.refreshIcon} onClick={() => fetchNews()} /></h1>
+                        <button
+                            className={styles.seedButton}
+                            onClick={handleScrape}
+                            disabled={seeding}
+                        >
+                            {seeding ? "Loading..." : "Latest News"}
+                        </button>
                     </div>
                 </div>
             </header>
@@ -84,6 +110,7 @@ const BreakingNewsPage = () => {
                                 <span className={styles.time}>{formatTime(item.createdAt)}</span>
                             </div>
                             <div className={styles.contentBox}>
+                                {item.source && <span className={styles.sourceTag}>{item.source}</span>}
                                 <h2>{item.title}</h2>
                             </div>
                             <div className={styles.shareButtons}>

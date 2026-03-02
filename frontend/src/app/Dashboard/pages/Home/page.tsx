@@ -19,6 +19,7 @@ const sections = [
   { id: 'facebook_settings' as const, label: 'Facebook Post', icon: '📱' },
   { id: 'user_management' as const, label: 'User Management', icon: '👥' },
   { id: 'employee_reports' as const, label: 'Employee Reports', icon: '📋' },
+  { id: 'cricket_management' as const, label: 'Cricket Management', icon: '🏏' },
 ] as const;
 
 type SectionId = typeof sections[number]['id'];

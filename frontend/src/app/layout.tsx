@@ -11,6 +11,8 @@ import { ThemeProvider } from "./context/ThemeContext";
 
 import ConditionalLayout from "./Components/Common/ConditionalLayout";
 import Script from "next/script";
+import AwardsPopup from "./Components/Common/AwardsPopup/AwardsPopup";
+import GoogleAd from "./Components/Common/GoogleAd/GoogleAd";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -197,12 +199,13 @@ export default function RootLayout({
         <Script
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5571209076881303"
           crossOrigin="anonymous"
-          strategy="lazyOnload"
+          strategy="afterInteractive"
         />
         <ThemeProvider>
           <NewsProvider>
             <UserProvider>
               <ToastContainer />
+              <AwardsPopup />
               <ConditionalLayout>
                 <main>
                   {children}

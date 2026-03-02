@@ -21,6 +21,12 @@ const appConfigSchema = new mongoose.Schema(
             connectedAt: { type: Date, default: null },
             autoPostEnabled: { type: Boolean, default: true },
         },
+        // Cricket match discovery and tracking settings
+        cricket: {
+            activeTournament: { type: String, default: "T20 World Cup" },
+            activeSeriesId: { type: String, default: "bbcaa2ce-be45-4541-9eb3-9828d8b13197" },
+            autoTrackEnabled: { type: Boolean, default: true },
+        },
     },
     { timestamps: true }
 );

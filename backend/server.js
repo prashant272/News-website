@@ -14,6 +14,7 @@ const AdsRouter = require("./routes/advertisement.route")
 const AutoNewsRouter = require("./routes/autoNewsRoute")
 const FacebookRouter = require("./routes/facebook.routes")
 const BreakingNewsRouter = require("./routes/breakingNewsRoute")
+const LiveScoreRouter = require("./routes/liveScoreRoute")
 
 
 const app = express()
@@ -25,6 +26,7 @@ const allowedOrigins = [
     "https://primetimemedia.in",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "http://10.40.0.231:3000",
     "http://localhost:8086"
 ];
 
@@ -71,12 +73,34 @@ app.use("/auth", AuthRouter)
 app.use("/news", NewsRouter)
 app.use("/otp", OTPRouter)
 app.use("/promotions", AdsRouter)
+
+// Consolidated API routes
+app.use("/api/live", LiveScoreRouter)
+
+app.use("/api/breaking-news", BreakingNewsRouter)
 app.use("/api", AutoNewsRouter)
 app.use("/fb", FacebookRouter)
-app.use("/breaking-news", BreakingNewsRouter)
+
+const { syncMatchesWithDB } = require("./Services/cricketService")
 
 app.listen(process.env.PORT, () => {
     console.log(`Server is running on port ${process.env.PORT}`);
+
+    // Initial full sync on startup
+    syncMatchesWithDB(true);
+
+    // Live Polling (Every 10 seconds)
+    // Only fetches full scorecard for matches marked 'isLiveTracked'
+    setInterval(() => {
+        const { pollLiveScores } = require("./Services/cricketService");
+        pollLiveScores();
+    }, 10000);
+
+    // Daily Discovery Sync (Every 24 hours)
+    // Discovers new upcoming matches
+    setInterval(() => {
+        syncMatchesWithDB(true);
+    }, 24 * 60 * 60 * 1000);
 })
 
 // Prevent server crash on unhandled errors

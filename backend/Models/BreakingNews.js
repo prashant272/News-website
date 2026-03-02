@@ -8,11 +8,6 @@ const breakingNewsSchema = new mongoose.Schema(
             trim: true,
             maxlength: 500,
         },
-        link: {
-            type: String,
-            trim: true,
-            default: null,
-        },
         isActive: {
             type: Boolean,
             default: true,
@@ -20,6 +15,10 @@ const breakingNewsSchema = new mongoose.Schema(
         priority: {
             type: Number,
             default: 0,
+        },
+        scheduledAt: {
+            type: Date,
+            default: Date.now
         }
     },
     {

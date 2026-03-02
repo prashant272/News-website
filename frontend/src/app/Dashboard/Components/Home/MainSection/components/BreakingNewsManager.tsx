@@ -10,6 +10,8 @@ interface BreakingNewsItem {
     _id: string;
     title: string;
     link?: string;
+    source?: string;
+    scheduledAt?: string;
     isActive: boolean;
     createdAt: string;
 }
@@ -24,7 +26,7 @@ const BreakingNewsManager: React.FC = () => {
 
     const fetchNews = async () => {
         try {
-            const response = await axios.get(`${API_BASE}/breaking-news?all=true`);
+            const response = await axios.get(`${API_BASE}/api/breaking-news?all=true`);
             if (response.data.success) {
                 setNews(response.data.data);
             }
@@ -44,7 +46,7 @@ const BreakingNewsManager: React.FC = () => {
 
         setLoading(true);
         try {
-            const response = await axios.post(`${API_BASE}/breaking-news`, {
+            const response = await axios.post(`${API_BASE}/api/breaking-news`, {
                 title: title.trim(),
                 link: link.trim() || null
             });
@@ -63,9 +65,25 @@ const BreakingNewsManager: React.FC = () => {
         }
     };
 
+    const handleScrape = async () => {
+        if (!window.confirm("Scrape real breaking news from live sources?")) return;
+        setLoading(true);
+        try {
+            const response = await axios.post(`${API_BASE}/api/breaking-news/scrape`);
+            if (response.data.success) {
+                toast.success(response.data.message || "News scraped successfully");
+                fetchNews();
+            }
+        } catch (error) {
+            toast.error("Scraping failed");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleToggle = async (id: string, currentStatus: boolean) => {
         try {
-            const response = await axios.put(`${API_BASE}/breaking-news/${id}`, {
+            const response = await axios.put(`${API_BASE}/api/breaking-news/${id}`, {
                 isActive: !currentStatus
             });
             if (response.data.success) {
@@ -81,7 +99,7 @@ const BreakingNewsManager: React.FC = () => {
         if (!window.confirm("Are you sure you want to delete this news?")) return;
 
         try {
-            const response = await axios.delete(`${API_BASE}/breaking-news/${id}`);
+            const response = await axios.delete(`${API_BASE}/api/breaking-news/${id}`);
             if (response.data.success) {
                 toast.success("Deleted successfully");
                 fetchNews();
@@ -125,6 +143,15 @@ const BreakingNewsManager: React.FC = () => {
                         <button type="submit" className={styles.primaryBtn} disabled={loading}>
                             <Plus size={18} /> {loading ? "Adding..." : "Add Breaking News"}
                         </button>
+                        <button
+                            type="button"
+                            className={styles.primaryBtn}
+                            onClick={handleScrape}
+                            disabled={loading}
+                            style={{ background: '#3b82f6' }}
+                        >
+                            <Plus size={18} /> {loading ? "Scraping..." : "Scrape Real News"}
+                        </button>
                     </div>
                 </form>
             </div>
@@ -139,7 +166,8 @@ const BreakingNewsManager: React.FC = () => {
                         <thead>
                             <tr>
                                 <th>Headline</th>
-                                <th>Created At</th>
+                                <th>Source</th>
+                                <th>Scheduled At</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
@@ -156,7 +184,13 @@ const BreakingNewsManager: React.FC = () => {
                                             <div style={{ fontWeight: '600', color: 'var(--text-primary)' }}>{item.title}</div>
                                             {item.link && <small style={{ color: 'var(--primary)', display: 'block', textOverflow: 'ellipsis', overflow: 'hidden' }}>{item.link}</small>}
                                         </td>
-                                        <td>{new Date(item.createdAt).toLocaleString()}</td>
+                                        <td>{item.source || "Global"}</td>
+                                        <td>
+                                            {new Date(item.scheduledAt || item.createdAt).toLocaleString()}
+                                            {new Date(item.scheduledAt || item.createdAt) > new Date() && (
+                                                <div style={{ fontSize: '10px', color: '#3b82f6', fontWeight: 'bold' }}>QUEUED</div>
+                                            )}
+                                        </td>
                                         <td>
                                             <span className={`${styles.statusBadge} ${item.isActive ? styles.published : styles.draft}`}>
                                                 {item.isActive ? "Active" : "Inactive"}

@@ -88,7 +88,7 @@
 .adContactWrapper {
   width: 95%;
   overflow: hidden;
-  background: #ffffff; 
+  background: #ffffff;
   padding: 2px 0;
   border-top: 1px solid var(--nav-border);
   border-bottom: 1px solid var(--nav-border);
@@ -327,9 +327,9 @@
     a,
     .navLink {
       padding: 12px 18px;
-      color: var(--nav-text-secondary);
+      color: #111;
       text-decoration: none;
-      font-weight: 500;
+      font-weight: 600;
       border-radius: 8px;
       transition: all 0.2s ease;
       background: none;
@@ -343,7 +343,7 @@
       &:hover,
       &.active {
         background: var(--nav-hover-bg);
-        color: var(--nav-hover-text);
+        color: #cc0000;
       }
     }
 
@@ -396,6 +396,28 @@
       color: var(--nav-hover-text);
       transform: translateX(4px);
     }
+
+    &.active {
+      color: #cc0000;
+      font-weight: 600;
+    }
+  }
+
+  .liveDropdownItem {
+    color: #cc0000 !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+
+    &:hover {
+      background: #fff0f0 !important;
+      color: #aa0000 !important;
+    }
+  }
+
+  .dropdownDivider {
+    height: 1px;
+    background: var(--nav-border);
+    margin: 6px 8px;
   }
 }
 
@@ -603,5 +625,51 @@
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
       padding-bottom: 120px;
     }
+  }
+}
+
+.liveButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #cc0000;
+  color: #fff;
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 13px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  margin-right: 15px;
+
+  &:hover {
+    background: #e60000;
+    transform: translateY(-1px);
+  }
+
+  .liveDot {
+    width: 8px;
+    height: 8px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+    animation: live-pulse-anim 1.5s infinite;
+  }
+}
+
+@keyframes live-pulse-anim {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+
+  50% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(0.95);
+    opacity: 0.8;
   }
 }

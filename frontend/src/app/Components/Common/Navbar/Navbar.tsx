@@ -1,9 +1,9 @@
 "use client"
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import styles from './Navbar.module.scss';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, Moon, Sun, ChevronDown } from 'lucide-react';
+import { Menu, X, Moon, Sun, ChevronDown, ChevronRight } from 'lucide-react';
 import { useNewsContext } from '@/app/context/NewsContext';
 import { useTheme } from '@/app/context/ThemeContext';
 import Image from 'next/image';
@@ -40,6 +40,35 @@ const formatSectionName = (key: string): string => {
   return SECTION_LABELS[key] || key.charAt(0).toUpperCase() + key.slice(1);
 };
 
+const LiveScoreButton: React.FC<{ API_BASE: string }> = ({ API_BASE }) => {
+  const [hasLiveMatch, setHasLiveMatch] = useState(false);
+
+  useEffect(() => {
+    const eventSource = new EventSource(`${API_BASE}/api/live/live-stream`);
+
+    eventSource.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        // data is { live: [...], upcoming: [...], recent: [...] }
+        setHasLiveMatch(data && data.live && data.live.length > 0);
+      } catch (err) {
+        // Fallback for old data structure if still in transition
+        const data = JSON.parse(event.data);
+        setHasLiveMatch(Array.isArray(data) && data.length > 0);
+      }
+    };
+
+    return () => eventSource.close();
+  }, [API_BASE]);
+
+  return (
+    <Link href="/sports/live" className={styles.liveButton}>
+      {hasLiveMatch && <span className={styles.liveDot}></span>}
+      {hasLiveMatch ? 'LIVE' : 'Live Scores'}
+    </Link>
+  );
+};
+
 const Navbar: React.FC = () => {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -56,17 +85,13 @@ const Navbar: React.FC = () => {
   const { data: ads, loading: adsLoading } = useActiveAds();
 
   const navItems = useMemo<NavItem[]>(() => {
-    // Explicit list as requested by user
-    const staticItems = [
+    return [
       { label: "Home", href: "/", key: "home" },
       { label: "India", href: "/Pages/india", key: "india" },
+      { label: "World", href: "/Pages/world", key: "world" },
       { label: "Sports", href: "/Pages/sports", key: "sports" },
       { label: "Business", href: "/Pages/business", key: "business" },
       { label: "Technology", href: "/Pages/technology", key: "technology" },
-      { label: "Entertainment", href: "/Pages/entertainment", key: "entertainment" },
-      { label: "Lifestyle", href: "/Pages/lifestyle", key: "lifestyle" },
-      { label: "World", href: "/Pages/world", key: "world" },
-      { label: "Health", href: "/Pages/health", key: "health" },
       {
         label: "Awards",
         href: "/Pages/awards",
@@ -78,9 +103,16 @@ const Navbar: React.FC = () => {
           { label: "Awards News", href: "/Pages/awards" },
         ]
       },
+      { label: "Entertainment", href: "/Pages/entertainment", key: "entertainment" },
+      { label: "Lifestyle", href: "/Pages/lifestyle", key: "lifestyle" },
+      { label: "Health", href: "/Pages/health", key: "health" },
     ];
-    return staticItems;
   }, []);
+
+  // First 7 items shown (including Awards), rest behind >> more
+  const PRIMARY_COUNT = 7;
+  const primaryItems = navItems.slice(0, PRIMARY_COUNT);
+  const moreItems = navItems.slice(PRIMARY_COUNT);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -241,7 +273,8 @@ const Navbar: React.FC = () => {
           </div>
 
           <ul className={styles.navListDesktop}>
-            {navItems.map(item => (
+            {/* Primary 6 tabs */}
+            {primaryItems.map(item => (
               <li
                 key={item.key}
                 className={`${styles.navItem} ${item.submenu ? styles.hasDropdown : ''}`}
@@ -255,7 +288,7 @@ const Navbar: React.FC = () => {
                       onClick={(e) => toggleDropdown(item.key, e)}
                     >
                       {item.label}
-                      <ChevronDown size={16} className={`${styles.chevron} ${activeDropdown === item.key ? styles.rotate : ''}`} />
+                      <ChevronDown size={14} className={`${styles.chevron} ${activeDropdown === item.key ? styles.rotate : ''}`} />
                     </button>
                     <div className={`${styles.dropdownMenu} ${activeDropdown === item.key ? styles.show : ''}`}>
                       {item.submenu.map((sub, idx) => (
@@ -273,15 +306,46 @@ const Navbar: React.FC = () => {
                     </div>
                   </>
                 ) : (
-                  <Link
-                    href={item.href}
-                    className={isActive(item.href) ? styles.active : ''}
-                  >
+                  <Link href={item.href} className={isActive(item.href) ? styles.active : ''}>
                     {item.label}
                   </Link>
                 )}
               </li>
             ))}
+
+            {/* >> More dropdown */}
+            {moreItems.length > 0 && (
+              <li
+                className={`${styles.navItem} ${styles.hasDropdown}`}
+                onMouseEnter={() => setActiveDropdown('__more__')}
+                onMouseLeave={() => setActiveDropdown(null)}
+              >
+                <button
+                  className={`${styles.navLink} ${activeDropdown === '__more__' ? styles.active : ''}`}
+                  onClick={(e) => toggleDropdown('__more__', e)}
+                >
+                  »
+                  <ChevronDown size={14} className={`${styles.chevron} ${activeDropdown === '__more__' ? styles.rotate : ''}`} />
+                </button>
+                <div className={`${styles.dropdownMenu} ${activeDropdown === '__more__' ? styles.show : ''}`}>
+                  {/* Live T20 World Cup link at top */}
+                  <Link href="/sports/live" className={`${styles.dropdownItem} ${styles.liveDropdownItem}`} onClick={() => setActiveDropdown(null)}>
+                    🔴 Live T20 World Cup
+                  </Link>
+                  <div className={styles.dropdownDivider} />
+                  {moreItems.map((item, idx) => (
+                    <Link
+                      key={idx}
+                      href={item.href}
+                      className={`${styles.dropdownItem} ${isActive(item.href) ? styles.active : ''}`}
+                      onClick={() => setActiveDropdown(null)}
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                </div>
+              </li>
+            )}
           </ul>
 
           <div className={styles.rightSection}>
@@ -293,6 +357,9 @@ const Navbar: React.FC = () => {
             >
               {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
             </button>
+
+            {/* Live Button */}
+            <LiveScoreButton API_BASE={(newsContext as any)?.API_BASE || "http://127.0.0.1:8086"} />
           </div>
         </div>
 

@@ -27,14 +27,16 @@
     display: flex;
     align-items: center;
     gap: 15px;
-    font-weight: 800;
+    font-weight: 900;
     font-size: 1rem;
     white-space: nowrap;
     padding-left: 15px;
     padding-right: 50px;
-    letter-spacing: 2px;
+    letter-spacing: 3px;
     text-transform: uppercase;
     color: #ffffff !important;
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-style: italic;
 
     .liveDot {
         width: 12px;
@@ -79,8 +81,8 @@
 }
 
 .newsItem {
-    font-size: 1.3rem;
-    font-weight: 700;
+    font-size: 0.95rem;
+    font-weight: 500;
     color: #ffffff !important;
     white-space: nowrap;
     display: block;
@@ -89,7 +91,9 @@
     overflow: hidden;
     text-overflow: ellipsis;
     padding-right: 40px;
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-style: italic;
+    letter-spacing: 0.3px;
 }
 
 .closeBtn {
