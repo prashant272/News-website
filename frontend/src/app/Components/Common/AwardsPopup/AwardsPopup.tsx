@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './AwardsPopup.module.scss';
-import { X, Trophy, ExternalLink } from 'lucide-react';
+import { X, ExternalLink } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { useNewsContext } from '@/app/context/NewsContext';
 
@@ -12,7 +12,7 @@ const FIRST_SHOW_DELAY_MS = 1000;
 const FALLBACK_AWARDS = [
     {
         _id: 'f1',
-        title: "Healthcare Excellence Awards 2026",
+        title: "Global Healthcare Excellence Awards ,2026 & Summit",
         subtitle: "Recognizing outstanding achievements in India's healthcare sector.",
         badge: "🏥 Healthcare",
         nominateUrl: "https://healthcareawards.primetimemedia.in/nominate",
@@ -20,7 +20,7 @@ const FALLBACK_AWARDS = [
     },
     {
         _id: 'f2',
-        title: "Education Leadership Awards 2026",
+        title: "Global Education Excellence Awards ,2026 & Summit",
         subtitle: "Celebrating visionaries shaping the future of education in India.",
         badge: "🎓 Education",
         nominateUrl: "https://education-awards.primetimemedia.in/nominate",
@@ -28,7 +28,7 @@ const FALLBACK_AWARDS = [
     },
     {
         _id: 'f3',
-        title: "Business Leadership Awards 2026",
+        title: "UK Busnieiness Leadership Awards ,2026 & Summit",
         subtitle: "Honoring India's most influential business leaders of the year.",
         badge: "💼 Business",
         nominateUrl: "https://business-leadership.primetimemedia.in/nominate",
@@ -116,10 +116,6 @@ const AwardsPopup: React.FC = () => {
                 <button className={styles.closeBtn} onClick={() => setVisible(false)} aria-label="Close">
                     <X size={18} />
                 </button>
-
-                <div className={styles.iconWrap}>
-                    <Trophy size={36} className={styles.trophyIcon} />
-                </div>
 
                 <span className={styles.badge}>{badgeLabel}</span>
                 <h2 className={styles.title}>{titleText}</h2>
