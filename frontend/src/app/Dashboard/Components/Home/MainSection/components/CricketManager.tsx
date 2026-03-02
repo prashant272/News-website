@@ -44,12 +44,11 @@ const CricketManager: React.FC = () => {
     const [activeGroupIndex, setActiveGroupIndex] = useState(0);
     const [isManualPoints, setIsManualPoints] = useState(false);
     const [savingPoints, setSavingPoints] = useState(false);
+    const [hasFetchedPoints, setHasFetchedPoints] = useState(false);
 
     // Convenience: rows of active group
     const pointsRows = pointsGroups[activeGroupIndex]?.rows || [];
-    const setPointsRows = (rows: any[]) => {
-        setPointsGroups(prev => prev.map((g, i) => i === activeGroupIndex ? { ...g, rows } : g));
-    };
+
 
     const fetchMatches = async () => {
         setLoading(true);
@@ -207,8 +206,12 @@ const CricketManager: React.FC = () => {
         }
     };
 
+    // Only auto-fetch once when seriesId is first loaded from settings
     useEffect(() => {
-        if (seriesId) fetchPointsTable();
+        if (seriesId && !hasFetchedPoints) {
+            fetchPointsTable();
+            setHasFetchedPoints(true);
+        }
     }, [seriesId]);
 
     const handleSavePoints = async () => {
@@ -245,24 +248,39 @@ const CricketManager: React.FC = () => {
     };
 
     const addPointsRow = () => {
-        setPointsRows([...pointsRows, { teamname: '', matches: 0, wins: 0, loss: 0, ties: 0, nr: 0, pts: 0, nrr: '0.000' }]);
+        setPointsGroups(prev => prev.map((g, i) =>
+            i === activeGroupIndex
+                ? { ...g, rows: [...g.rows, { teamname: '', matches: 0, wins: 0, loss: 0, ties: 0, nr: 0, pts: 0, nrr: '0.000' }] }
+                : g
+        ));
     };
 
     const updatePointsRow = (index: number, field: string, value: any) => {
-        const updated = [...pointsRows];
-        updated[index] = { ...updated[index], [field]: value };
-        // Auto-calculate points if wins/ties/nr change
-        if (field === 'wins' || field === 'nr' || field === 'ties') {
-            const w = parseInt(updated[index].wins || '0');
-            const nr = parseInt(updated[index].nr || '0');
-            const t = parseInt(updated[index].ties || '0');
-            updated[index].pts = (w * 2) + nr + t;
-        }
-        setPointsRows(updated);
+        setPointsGroups(prev => prev.map((group, gIdx) => {
+            if (gIdx !== activeGroupIndex) return group;
+
+            const updatedRows = [...group.rows];
+            const updatedRow = { ...updatedRows[index], [field]: value };
+
+            // Auto-calculate points if wins/ties/nr change
+            if (field === 'wins' || field === 'nr' || field === 'ties') {
+                const w = parseInt(updatedRow.wins || '0', 10);
+                const nr = parseInt(updatedRow.nr || '0', 10);
+                const t = parseInt(updatedRow.ties || '0', 10);
+                updatedRow.pts = (w * 2) + nr + t;
+            }
+
+            updatedRows[index] = updatedRow;
+            return { ...group, rows: updatedRows };
+        }));
     };
 
     const removePointsRow = (index: number) => {
-        setPointsRows(pointsRows.filter((_, i) => i !== index));
+        setPointsGroups(prev => prev.map((g, i) =>
+            i === activeGroupIndex
+                ? { ...g, rows: g.rows.filter((_, rIdx) => rIdx !== index) }
+                : g
+        ));
     };
 
 
@@ -481,7 +499,14 @@ const CricketManager: React.FC = () => {
                 <div style={{ flex: 1, minWidth: '400px', background: '#1a1a1a', padding: '20px', borderRadius: '8px', border: '1px solid #333' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                         <h3 style={{ color: '#fff', margin: 0, fontSize: '18px' }}>📝 Manual Points Table</h3>
-                        {isManualPoints && <span style={{ fontSize: '10px', background: '#28a745', color: '#fff', padding: '2px 6px', borderRadius: '10px' }}>MANUAL MODE</span>}
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                            {isManualPoints && <span style={{ fontSize: '10px', background: '#28a745', color: '#fff', padding: '2px 6px', borderRadius: '10px' }}>MANUAL MODE</span>}
+                            <button
+                                onClick={() => { setHasFetchedPoints(false); fetchPointsTable(); setHasFetchedPoints(true); }}
+                                style={{ fontSize: '11px', padding: '3px 10px', background: '#444', color: '#aaa', border: '1px solid #666', borderRadius: '4px', cursor: 'pointer' }}
+                                title="Reload from DB (will discard unsaved changes)"
+                            >🔄 Reload</button>
+                        </div>
                     </div>
                     {seriesId ? (
                         <div>
@@ -528,10 +553,10 @@ const CricketManager: React.FC = () => {
                                         {pointsRows.map((row, idx) => (
                                             <tr key={idx}>
                                                 <td><input type="text" value={row.teamname ?? ''} onChange={(e) => updatePointsRow(idx, 'teamname', e.target.value)} style={{ width: '80px', background: '#000', border: '1px solid #444', color: '#fff', padding: '2px' }} /></td>
-                                                <td><input type="number" value={row.matches ?? 0} onChange={(e) => updatePointsRow(idx, 'matches', e.target.value)} style={{ width: '35px', background: '#000', border: '1px solid #444', color: '#fff', padding: '2px' }} /></td>
-                                                <td><input type="number" value={row.wins ?? 0} onChange={(e) => updatePointsRow(idx, 'wins', e.target.value)} style={{ width: '35px', background: '#000', border: '1px solid #444', color: '#fff', padding: '2px' }} /></td>
-                                                <td><input type="number" value={row.loss ?? 0} onChange={(e) => updatePointsRow(idx, 'loss', e.target.value)} style={{ width: '35px', background: '#000', border: '1px solid #444', color: '#fff', padding: '2px' }} /></td>
-                                                <td><input type="number" value={row.nr ?? 0} onChange={(e) => updatePointsRow(idx, 'nr', e.target.value)} style={{ width: '35px', background: '#000', border: '1px solid #444', color: '#fff', padding: '2px' }} /></td>
+                                                <td><input type="number" value={row.matches ?? 0} onChange={(e) => updatePointsRow(idx, 'matches', parseInt(e.target.value, 10) || 0)} style={{ width: '35px', background: '#000', border: '1px solid #444', color: '#fff', padding: '2px' }} /></td>
+                                                <td><input type="number" value={row.wins ?? 0} onChange={(e) => updatePointsRow(idx, 'wins', parseInt(e.target.value, 10) || 0)} style={{ width: '35px', background: '#000', border: '1px solid #444', color: '#fff', padding: '2px' }} /></td>
+                                                <td><input type="number" value={row.loss ?? 0} onChange={(e) => updatePointsRow(idx, 'loss', parseInt(e.target.value, 10) || 0)} style={{ width: '35px', background: '#000', border: '1px solid #444', color: '#fff', padding: '2px' }} /></td>
+                                                <td><input type="number" value={row.nr ?? 0} onChange={(e) => updatePointsRow(idx, 'nr', parseInt(e.target.value, 10) || 0)} style={{ width: '35px', background: '#000', border: '1px solid #444', color: '#fff', padding: '2px' }} /></td>
                                                 <td style={{ textAlign: 'center' }}><strong>{row.pts ?? 0}</strong></td>
                                                 <td><input type="text" value={row.nrr ?? '0.000'} onChange={(e) => updatePointsRow(idx, 'nrr', e.target.value)} style={{ width: '50px', background: '#000', border: '1px solid #444', color: '#fff', padding: '2px' }} /></td>
                                                 <td><button onClick={() => removePointsRow(idx)} style={{ color: '#dc3545', background: 'none', border: 'none', cursor: 'pointer' }}>×</button></td>
