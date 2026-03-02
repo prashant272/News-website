@@ -359,7 +359,7 @@ const Navbar: React.FC = () => {
             </button>
 
             {/* Live Button */}
-            <LiveScoreButton API_BASE={(newsContext as any)?.API_BASE || "http://127.0.0.1:8086"} />
+            <LiveScoreButton API_BASE={(newsContext as any)?.API_BASE || "https://api.primetimemedia.in"} />
           </div>
         </div>
 

@@ -22,7 +22,7 @@ const BreakingNewsManager: React.FC = () => {
     const [link, setLink] = useState("");
     const [loading, setLoading] = useState(false);
 
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8086";
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://api.primetimemedia.in";
 
     const fetchNews = async () => {
         try {
