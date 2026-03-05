@@ -40,10 +40,10 @@ const determineCategory = (matchStarted, matchEnded) => {
     return 'upcoming';
 };
 
-const fetchMatchesFromAPI = async (endpoint) => {
+const fetchMatchesFromAPI = async (endpoint, offset = 0) => {
     try {
-        console.log(`[CRICAPI] Fetching: ${endpoint}`);
-        const response = await axios.get(`https://api.cricapi.com/v1/${endpoint}?apikey=${API_KEY}&offset=0`);
+        console.log(`[CRICAPI] Fetching: ${endpoint} (Offset: ${offset})`);
+        const response = await axios.get(`https://api.cricapi.com/v1/${endpoint}?apikey=${API_KEY}&offset=${offset}`);
         if (response.data && response.data.status === "success" && response.data.data) {
             return response.data.data;
         }
@@ -69,10 +69,14 @@ const syncMatchesWithDB = async (forceAll = false) => {
         const matchDataToProcess = [...currentData];
 
         if (forceAll) {
-            console.log("[CRICAPI] Discovery mode - fetching more matches...");
-            const upcomingData = await fetchMatchesFromAPI('matches');
+            console.log("[CRICAPI] Discovery mode - fetching more matches (Page 1 & 2)...");
+            const upcomingDataPage1 = await fetchMatchesFromAPI('matches', 0);
+            const upcomingDataPage2 = await fetchMatchesFromAPI('matches', 25);
+
             const existingIds = new Set(matchDataToProcess.map(m => m.id));
-            for (const match of upcomingData) {
+            const allUpcoming = [...upcomingDataPage1, ...upcomingDataPage2];
+
+            for (const match of allUpcoming) {
                 if (!existingIds.has(match.id)) {
                     matchDataToProcess.push(match);
                 }
@@ -153,7 +157,7 @@ const syncMatchesWithDB = async (forceAll = false) => {
         // currentMatches handles all live ones automatically, so we just rely on that
         // for updates instead of individual deep scraping like before.
 
-        console.log(`[DEBUG-SYNC] Finished API Sync! Synced: ${synced}`);
+        console.log(`[DEBUG-SYNC] Finished API Sync! Total Processed: ${matchDataToProcess.length}, DB Updates: ${synced}`);
 
         // Clean up matches older than 30 days
         await LiveMatch.deleteMany({ lastUpdated: { $lt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } });
@@ -238,15 +242,21 @@ const getAllDiscoveredMatches = async () => {
         const escapedTournament = settings.activeTournament.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         const tournamentRegex = new RegExp(escapedTournament, "i");
 
-        // Admin view shows all discovered matches matching the filter, sorted by date
-        return await LiveMatch.find({
+        const { search } = settings; // Optional search from settings if we want to add it later
+
+        const query = {
             $or: [
                 { name: { $regex: tournamentRegex } },
                 { status: { $regex: tournamentRegex } },
+                { matchType: 't20' },
+                { name: { $regex: /t20/i } },
                 { isLiveTracked: true },
                 { isManual: true }
             ]
-        }).sort({ date: -1 }).lean();
+        };
+
+        // Admin view shows matches matching the filter, ALL T20s, or already tracked ones
+        return await LiveMatch.find(query).sort({ date: -1 }).lean();
     } catch (error) {
         console.error("DB Error:", error.message);
         return [];
@@ -411,6 +421,17 @@ const saveManualPointsTable = async (seriesId, seriesName, groups) => {
     }
 };
 
+const deleteMatch = async (id) => {
+    try {
+        const result = await LiveMatch.findOneAndDelete({ id });
+        if (!result) return { success: false, reason: "Match not found" };
+        return { success: true, data: result };
+    } catch (error) {
+        console.error("Delete Match Error:", error.message);
+        throw error;
+    }
+};
+
 const createManualMatch = async (matchData) => {
     try {
         const id = matchData.id || `manual-${Date.now()}`;
@@ -494,5 +515,6 @@ module.exports = {
     getPlayerInfo,
     getCricketSettings,
     updateCricketSettings,
-    findSeries
+    findSeries,
+    deleteMatch
 };

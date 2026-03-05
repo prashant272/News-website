@@ -1,0 +1,275 @@
+﻿[dotenv@17.2.3] injecting env (17) from .env -- tip: ≡ƒöÉ prevent committing .env to code: https://dotenvx.com/precommit
+[dotenv@17.2.3] injecting env (0) from Config\config.env -- tip: ≡ƒöÉ prevent committing .env to code: https://dotenvx.com/precommit
+[dotenv@17.2.3] injecting env (0) from Config\config.env -- tip: ≡ƒôí add observability to secrets: https://dotenvx.com/ops
+!!! CRICKET SERVICE - API VERSION - CRICAPI INTEGRATION !!!
+Server is running on port 8086
+mongo is connected
+[DEBUG-SYNC] Starting API synchronization (Force All: true, Filter: "ICC Men's T20 World Cup")...
+[CRICAPI] Fetching: currentMatches (Offset: 0)
+[CRICAPI] Discovery mode - fetching more matches (Page 1-6 + Series: e74332ae-5fee-4a43-814a-88ead6909e35)...
+[CRICAPI] Fetching: matches (Offset: 0)
+[CRICAPI] Fetching: matches (Offset: 25)
+[CRICAPI] Fetching: matches (Offset: 50)
+[CRICAPI] Fetching: matches (Offset: 75)
+[CRICAPI] Fetching: matches (Offset: 100)
+[CRICAPI] Fetching: matches (Offset: 125)
+[CRICAPI] Series fetch found 0 matches
+[SYNC-LIST] Found: "North West" | Status: "No result  -  due to rain" | Type: "odi"
+[SYNC-LIST] Found: "Boland vs KwaZulu-Natal Inland" | Status: "Boland won by 43 runs" | Type: "odi"
+[SYNC-LIST] Found: "Western Province vs Warriors, 5th Match, CSA Provincial One-Day Challenge Division One 2026" | Status: "Warriors won by 5 wkts" | Type: "odi"
+[SYNC-LIST] Found: "Titans vs Boland, 4th Match, CSA Provincial One-Day Challenge Division One 2026" | Status: "Titans won by 13 runs (DLS method) - Revised due to rain" | Type: "odi"
+[SYNC-LIST] Found: "KwaZulu-Natal Inland" | Status: "North West  -  Eastvaal Renault Dragons won by 72 runs" | Type: "odi"
+[SYNC-LIST] Found: "Northern Cape vs Limpopo, 11th Match, CSA Provincial One-Day Challenge Division Two 2026" | Status: "Limpopo won by 13 runs" | Type: "odi"
+[SYNC-LIST] Found: "Knights vs South Africa Emerging Players, 10th Match, CSA Provincial One-Day Challenge Division Two 2026" | Status: "Knights won by 1 wkt" | Type: "odi"
+[SYNC-LIST] Found: "Mpumalanga Rhinos vs Border, 12th Match, CSA Provincial One-Day Challenge Division Two 2026" | Status: "Border won by 98 runs (DLS method) - Revised due to rain" | Type: "odi"
+[SYNC-LIST] Found: "Hong Kong, China vs Kuwait, 4th T20I, Kuwait tour of Hong Kong, China, 2026" | Status: "Kuwait won by 3 wkts" | Type: "t20"
+[SYNC-LIST] Found: "West Indies Women vs Sri Lanka Women, 3rd T20I, Sri Lanka Women tour of West Indies 2026" | Status: "Sri Lanka Women won by 9 wkts" | Type: "t20"
+[SYNC-LIST] Found: "West Indies Women vs Sri Lanka Women, 2nd T20I, Sri Lanka Women tour of West Indies 2026" | Status: "Sri Lanka Women won by 4 wkts" | Type: "t20"
+[SYNC-LIST] Found: "South Africa vs New Zealand, 1st Semi-Final, ICC Men's T20 World Cup 2026" | Status: "New Zealand won by 9 wkts" | Type: "t20"
+[SYNC-LIST] Found: "India vs West Indies, 52nd Match, Super 8 Group 1 (X1 v X3), ICC Men's T20 World Cup 2026" | Status: "India won by 5 wkts" | Type: "t20"
+[SYNC-LIST] Found: "Zimbabwe vs South Africa, 51st Match, Super 8 Group 1 (X2 v X4), ICC Men's T20 World Cup 2026" | Status: "South Africa won by 5 wkts" | Type: "t20"
+[SYNC-LIST] Found: "South Australia vs New South Wales, 27th Match, Sheffield Shield 2025-26" | Status: "South Australia opt to bowl" | Type: "test"
+[SYNC-LIST] Found: "Queensland vs Western Australia, 26th Match, Sheffield Shield 2025-26" | Status: "Western Australia opt to bat" | Type: "test"
+[SYNC-LIST] Found: "Tasmania vs Victoria, 25th Match, Sheffield Shield 2025-26" | Status: "Day 1: 3rd Session - Tasmania opt to bowl" | Type: "test"
+[SYNC-LIST] Found: "New Zealand Women vs Zimbabwe Women, 1st ODI, Zimbabwe Women tour of New Zealand, 2026" | Status: "New Zealand Women won by 180 runs" | Type: "odi"
+[SYNC-LIST] Found: "New Zealand Women vs Zimbabwe Women, 3rd T20I, Zimbabwe Women tour of New Zealand, 2026" | Status: "New Zealand Women won by 10 wkts" | Type: "t20"
+[SYNC-LIST] Found: "South Africa Women vs Pakistan Women, 3rd ODI, Pakistan Women tour of South Africa, 2026" | Status: "Pakistan Women won by 119 runs" | Type: "odi"
+[SYNC-LIST] Found: "Australia Women vs India Women, 3rd ODI, India Women tour of Australia, 2026" | Status: "Australia Women won by 185 runs" | Type: "odi"
+[SYNC-LIST] Found: "Pakistan A vs England Lions, 5th unofficial ODI, Pakistan A v England Lions in UAE, 2026" | Status: "Match not started" | Type: "undefined"
+[SYNC-LIST] Found: "Argentina vs Suriname, 3rd Match, ICC Men's T20 2028 World Cup Americas Sub Regional Qualifier B, 2026" | Status: "Match not started" | Type: "t20"
+[SYNC-LIST] Found: "Mexico vs Suriname, 2nd Match, ICC Men's T20 2028 World Cup Americas Sub Regional Qualifier B, 2026" | Status: "Match not started" | Type: "t20"
+[SYNC-LIST] Found: "Cayman Islands vs Argentina, 1st Match, ICC Men's T20 2028 World Cup Americas Sub Regional Qualifier B, 2026" | Status: "Match not started" | Type: "t20"
+[SYNC-LIST] Found: "Kwazulu-natal Inland" | Status: "Match not started" | Type: "odi"
+[SYNC-LIST] Found: "South Africa Emerging Players vs Mpumalanga Rhinos, 20th Match, CSA Provincial One-Day Challenge Division Two 2026" | Status: "Match not started" | Type: "odi"
+[SYNC-LIST] Found: "Knights vs Northern Cape, 19th Match, CSA Provincial One-Day Challenge Division Two 2026" | Status: "Match not started" | Type: "odi"
+[SYNC-LIST] Found: "Border vs South Western Districts, 18th Match, CSA Provincial One-Day Challenge Division Two 2026" | Status: "Match not started" | Type: "odi"
+[SYNC-LIST] Found: "South Western Districts vs Knights, 16th Match, CSA Provincial One-Day Challenge Division Two 2026" | Status: "Match starts at Mar 05, 08:00 GMT" | Type: "odi"
+[SYNC-LIST] Found: "North West" | Status: "Match not started" | Type: "odi"
+[SYNC-LIST] Found: "Limpopo vs Eastern Storm, 17th Match, CSA Provincial One-Day Challenge Division Two 2026" | Status: "Match not started" | Type: "odi"
+[SYNC-LIST] Found: "Lions vs Warriors, 9th Match, CSA Provincial One-Day Challenge Division One 2026" | Status: "Match not started" | Type: "odi"
+[SYNC-LIST] Found: "Pakistan A vs England Lions, 4th unofficial ODI, Pakistan A v England Lions in UAE, 2026" | Status: "Match not started" | Type: "undefined"
+[SYNC-LIST] Found: "Dolphins vs Titans, 8th Match, CSA Provincial One-Day Challenge Division One 2026" | Status: "Match starts at Mar 05, 11:00 GMT" | Type: "odi"
+[SYNC-LIST] Found: "South Africa Emerging Players vs Northern Cape, 15th Match, CSA Provincial One-Day Challenge Division Two 2026" | Status: "Match abandoned without a ball bowled" | Type: "odi"
+[SYNC-LIST] Found: "Pakistan A vs England Lions, 3rd Unofficial ODI, Pakistan A v England Lions in UAE, 2026" | Status: "Match Cancelled" | Type: "undefined"
+[SYNC-LIST] Found: "Pakistan A vs England Lions, 2nd Unofficial ODI, Pakistan A v England Lions in UAE, 2026" | Status: "Match Cancelled" | Type: "undefined"
+[SYNC-LIST] Found: "Lions vs Western Province, 2nd Match, CSA Provincial One-Day Challenge Division One 2026" | Status: "Lions won by 15 runs (DLS Method) - Revised due to rain" | Type: "odi"
+[SYNC-LIST] Found: "Eastern Storm vs South Western Districts, 9th Match, CSA Provincial One-Day Challenge Division Two 2026" | Status: "Eastern Storm won by 4 runs (DLS method) - DLS target - 159 in 29.4 overs" | Type: "odi"
+[SYNC-LIST] Found: "Hong Kong, China vs Kuwait, 3rd T20I, Kuwait tour of Hong Kong, China, 2026" | Status: "Match abandoned without a ball bowled (No toss)" | Type: "t20"
+[SYNC-LIST] Found: "Japan vs Bahrain, Final, Quadrangular T20I Series in Thailand 2026" | Status: "Match tied (Bahrain won the super over)" | Type: "t20"
+[SYNC-LIST] Found: "Thailand vs Bhutan, 3rd place play-off, Quadrangular T20I Series in Thailand 2026" | Status: "Bhutan won by 7 runs" | Type: "t20"
+[SYNC-LIST] Found: "Warriors vs Dolphins, 1st Match, CSA Provincial One-Day Challenge Division One 2026" | Status: "Warriors won by 6 wkts" | Type: "odi"
+[SYNC-LIST] Found: "Pakistan A vs England Lions, 1st Unofficial ODI, Pakistan A v England Lions in UAE, 2026" | Status: "England Lions won by 9 wkts" | Type: "undefined"
+[SYNC-LIST] Found: "Thailand vs Bahrain, 6th Match, Quadrangular T20I Series in Thailand 2026" | Status: "Bahrain won by 12 runs" | Type: "t20"
+[SYNC-LIST] Found: "Bhutan vs Japan, 5th Match, Quadrangular T20I Series in Thailand 2026" | Status: "Japan won by 77 runs" | Type: "t20"
+[SYNC-LIST] Found: "South Africa Emerging Players vs Limpopo, 8th Match, CSA Provincial One-Day Challenge Division Two 2026" | Status: "Limpopo won by 7 wkts" | Type: "odi"
+[SYNC-LIST] Found: "Knights vs Border, 7th Match, CSA Provincial One-Day Challenge Division Two 2026" | Status: "Knights won by 47 runs" | Type: "odi"
+[SYNC-LIST] Found: "Hong Kong, China vs Kuwait, 2nd T20I, Kuwait tour of Hong Kong, China, 2026" | Status: "Hong Kong, China won by 24 runs" | Type: "t20"
+[SYNC-LIST] Found: "Bahrain vs Japan, 4th Match, Quadrangular T20I Series in Thailand 2026" | Status: "Japan won by 8 wkts" | Type: "t20"
+[SYNC-LIST] Found: "Thailand vs Bhutan, 3rd Match, Quadrangular T20I Series in Thailand 2026" | Status: "Thailand won by 60 runs" | Type: "t20"
+[SYNC-LIST] Found: "Northern Cape vs Eastern Storm, 5th Match, CSA Provincial One-Day Challenge Division Two 2026" | Status: "Eastern Storm won by 6 wkts" | Type: "odi"
+[SYNC-LIST] Found: "Mpumalanga Rhinos vs South Western Districts, 6th Match, CSA Provincial One-Day Challenge Division Two 2026" | Status: "Mpumalanga Rhinos won by 5 wkts" | Type: "odi"
+[SYNC-LIST] Found: "Hong Kong, China vs Kuwait, 1st T20I, Kuwait tour of Hong Kong, China, 2026" | Status: "Hong Kong, China won by 3 wkts" | Type: "t20"
+[SYNC-LIST] Found: "Bahrain vs Bhutan, 2nd Match, Quadrangular T20I Series in Thailand 2026" | Status: "Bahrain won by 4 wkts" | Type: "t20"
+[SYNC-LIST] Found: "Thailand vs Japan, 1st Match, Quadrangular T20I Series in Thailand 2026" | Status: "Japan won by 37 runs" | Type: "t20"
+[SYNC-LIST] Found: "Pakistan A vs England Lions, 3rd T20, Pakistan A v England Lions in UAE, 2026" | Status: "England Lions won by 2 wkts" | Type: "t20"
+[SYNC-LIST] Found: "Karnataka vs Jammu and Kashmir, Final, Ranji Trophy Elite 2025-26" | Status: "Match drawn" | Type: "test"
+[SYNC-LIST] Found: "Pakistan A vs England Lions, 2nd T20, Pakistan A v England Lions in UAE, 2026" | Status: "England Lions won by 32 runs" | Type: "t20"
+[SYNC-LIST] Found: "Limpopo vs Knights, 4th Match, CSA Provincial One-Day Challenge Division Two 2026" | Status: "Knights won by 82 runs" | Type: "odi"
+[SYNC-LIST] Found: "Border vs South Africa Emerging Players, 3rd Match, CSA Provincial One-Day Challenge Division Two 2026" | Status: "South Africa Emerging Players won by 83 runs" | Type: "odi"
+[SYNC-LIST] Found: "Eastern Storm vs Mpumalanga Rhinos, 2nd Match, CSA Provincial One-Day Challenge Division Two 2026" | Status: "No result due to rain" | Type: "odi"
+[SYNC-LIST] Found: "South Western Districts vs Northern Cape, 1st Match, CSA Provincial One-Day Challenge Division Two 2026" | Status: "South Western Districts won by 7 wkts" | Type: "odi"
+[SYNC-LIST] Found: "Qatar vs Bahrain, 5th T20I, Bahrain tour of Qatar 2026" | Status: "Qatar won by 51 runs" | Type: "t20"
+[SYNC-LIST] Found: "Uttarakhand vs Karnataka, 1st Semi Final, Ranji Trophy Elite 2025-26" | Status: "Match drawn" | Type: "test"
+[SYNC-LIST] Found: "Jammu and Kashmir vs Bengal, 2nd Semi Final, Ranji Trophy Elite 2025-26" | Status: "Jammu and Kashmir won by 6 wkts" | Type: "test"
+[SYNC-LIST] Found: "Qatar vs Bahrain, 4th T20I, Bahrain tour of Qatar 2026" | Status: "Bahrain won by 5 wkts" | Type: "t20"
+[SYNC-LIST] Found: "Qatar Women vs Oman Women, 5th T20I, Oman Women tour of Qatar 2026" | Status: "Qatar Women won by 7 runs" | Type: "t20"
+[SYNC-LIST] Found: "England U19 vs India U19, Final, ICC Under 19 World Cup 2026" | Status: "India U19 won by 100 runs" | Type: "odi"
+[SYNC-LIST] Found: "Madhya Pradesh vs Jammu and Kashmir, 2nd Quarter-Final (B1 v D2), Ranji Trophy Elite 2025-26" | Status: "Jammu and Kashmir won by 56 runs" | Type: "test"
+[SYNC-LIST] Found: "Mumbai vs Karnataka, 4th Quarter-Final (D1 v B2), Ranji Trophy Elite 2025-26" | Status: "Karnataka won by 4 wkts" | Type: "test"
+[SYNC-LIST] Found: "Bengal vs Andhra, 3rd Quarter-Final (C1 v A2), Ranji Trophy Elite 2025-26" | Status: "Bengal won by an innings and 90 runs" | Type: "test"
+[SYNC-LIST] Found: "Jharkhand vs Uttarakhand, 1st Quarter-Final (A1 v C2), Ranji Trophy Elite 2025-26" | Status: "Uttarakhand won by an innings and 6 runs" | Type: "test"
+[SYNC-LIST] Found: "India U19 vs Afghanistan U19, 2nd Semi-Final (B,C1 v A,D2), ICC Under 19 World Cup 2026" | Status: "India U19 won by 7 wkts" | Type: "odi"
+[SYNC-LIST] Found: "Pakistan A vs England Lions, 1st T20, Pakistan A v England Lions in UAE, 2026" | Status: "England Lions won by 4 wkts" | Type: "t20"
+[SYNC-LIST] Found: "India A vs Namibia, 16th Match, ICC Men's T20 World Cup Warm up Matches 2026" | Status: "India A won by 130 runs" | Type: "t20"
+[SYNC-LIST] Found: "Italy vs United Arab Emirates, 15th Match, ICC Men's T20 World Cup Warm up Matches 2026" | Status: "Italy won by 112 runs" | Type: "t20"
+[SYNC-LIST] Found: "New Zealand vs United States of America, 14th Match, ICC Men's T20 World Cup Warm up Matches 2026" | Status: "New Zealand won by 7 runs" | Type: "t20"
+[SYNC-LIST] Found: "Australia vs Netherlands, 13th Match, ICC Men's T20 World Cup Warm up Matches 2026" | Status: "Match abandoned due to rain (with toss)" | Type: "t20"
+[SYNC-LIST] Found: "Canada vs Nepal, 12th Match, ICC Men's T20 World Cup Warm up Matches 2026" | Status: "Nepal won by 6 wkts" | Type: "t20"
+[SYNC-LIST] Found: "Oman vs Zimbabwe, 11th Match, ICC Men's T20 World Cup Warm up Matches 2026" | Status: "Oman won by 4 wkts" | Type: "t20"
+[SYNC-LIST] Found: "India vs South Africa, 10th Match, ICC Men's T20 World Cup Warm up Matches 2026" | Status: "India won by 30 runs" | Type: "t20"
+[SYNC-LIST] Found: "Ireland vs Pakistan, 9th Match, ICC Men's T20 World Cup Warm up Matches 2026" | Status: "Match abandoned without toss due to rain" | Type: "t20"
+[SYNC-LIST] Found: "Afghanistan vs West Indies, 8th Match, ICC Men's T20 World Cup Warm up Matches 2026" | Status: "Afghanistan won by 23 runs" | Type: "t20"
+[SYNC-LIST] Found: "Namibia vs Scotland, 7th Match, ICC Men's T20 World Cup Warm up Matches 2026" | Status: "Namibia won by 6 runs" | Type: "t20"
+[SYNC-LIST] Found: "Nepal vs United Arab Emirates, 6th Match, ICC Men's T20 World Cup Warm up Matches 2026" | Status: "Nepal won by 7 wkts" | Type: "t20"
+[SYNC-LIST] Found: "Netherlands vs Zimbabwe, 5th Match, ICC Men's T20 World Cup Warm up Matches 2026" | Status: "Zimbabwe won by 29 runs" | Type: "t20"
+[SYNC-LIST] Found: "Sri Lanka A vs Oman, 4th Match, ICC Men's T20 World Cup Warm up Matches 2026" | Status: "Oman won by 5 wkts" | Type: "t20"
+[SYNC-LIST] Found: "Canada vs Italy, 3rd Match, ICC Men's T20 World Cup Warm up Matches 2026" | Status: "Italy won by 10 runs" | Type: "t20"
+[SYNC-LIST] Found: "India A vs United States of America, 2nd Match, ICC Men's T20 World Cup Warm up Matches 2026" | Status: "India A won by 38 runs" | Type: "t20"
+[SYNC-LIST] Found: "Afghanistan vs Scotland, 1st Match, ICC Men's T20 World Cup Warm up Matches 2026" | Status: "Afghanistan won by 61 runs" | Type: "t20"
+[SYNC-LIST] Found: "Tbc vs Tbc, Final, The Hundred Mens Competition 2026" | Status: "Match starts at Aug 16, 17:00 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Tbc vs Tbc, Eliminator, The Hundred Mens Competition 2026" | Status: "Match starts at Aug 14, 17:00 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Birmingham Phoenix vs Mi London, 32nd Match, The Hundred Mens Competition 2026" | Status: "Match starts at Aug 12, 17:30 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Welsh Fire vs London Spirit, 31st Match, The Hundred Mens Competition 2026" | Status: "Match starts at Aug 12, 14:00 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Manchester Super Giants vs Sunrisers Leeds, 30th Match, The Hundred Mens Competition 2026" | Status: "Match starts at Aug 11, 17:30 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Trent Rockets vs Southern Brave, 29th Match, The Hundred Mens Competition 2026" | Status: "Match starts at Aug 10, 17:30 GMT" | Type: "t20"
+[SYNC-LIST] Found: "London Spirit vs Birmingham Phoenix, 28th Match, The Hundred Mens Competition 2026" | Status: "Match starts at Aug 09, 17:00 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Sunrisers Leeds vs Welsh Fire, 27th Match, The Hundred Mens Competition 2026" | Status: "Match starts at Aug 09, 13:30 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Southern Brave vs Manchester Super Giants, 26th Match, The Hundred Mens Competition 2026" | Status: "Match starts at Aug 08, 17:00 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Mi London vs Trent Rockets, 25th Match, The Hundred Mens Competition 2026" | Status: "Match starts at Aug 08, 13:30 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Birmingham Phoenix vs Sunrisers Leeds, 24th Match, The Hundred Mens Competition 2026" | Status: "Match starts at Aug 07, 17:30 GMT" | Type: "t20"
+[SYNC-LIST] Found: "London Spirit vs Mi London, 23rd Match, The Hundred Mens Competition 2026" | Status: "Match starts at Aug 06, 17:30 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Trent Rockets vs Birmingham Phoenix, 22nd Match, The Hundred Mens Competition 2026" | Status: "Match starts at Aug 05, 17:30 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Manchester Super Giants vs Welsh Fire, 21st Match, The Hundred Mens Competition 2026" | Status: "Match starts at Aug 05, 14:00 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Sunrisers Leeds vs London Spirit, 20th Match, The Hundred Mens Competition 2026" | Status: "Match starts at Aug 04, 17:30 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Welsh Fire vs Southern Brave, 19th Match, The Hundred Mens Competition 2026" | Status: "Match starts at Aug 03, 17:30 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Mi London vs Manchester Super Giants, 18th Match, The Hundred Mens Competition 2026" | Status: "Match starts at Aug 02, 18:00 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Trent Rockets vs Sunrisers Leeds, 17th Match, The Hundred Mens Competition 2026" | Status: "Match starts at Aug 02, 13:30 GMT" | Type: "t20"
+[SYNC-LIST] Found: "London Spirit vs Southern Brave, 16th Match, The Hundred Mens Competition 2026" | Status: "Match starts at Aug 01, 18:00 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Birmingham Phoenix vs Welsh Fire, 15th Match, The Hundred Mens Competition 2026" | Status: "Match starts at Aug 01, 13:30 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Manchester Super Giants vs Trent Rockets, 14th Match, The Hundred Mens Competition 2026" | Status: "Match starts at Jul 31, 17:30 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Southern Brave vs Birmingham Phoenix, 13th Match, The Hundred Mens Competition 2026" | Status: "Match starts at Jul 30, 17:30 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Welsh Fire vs Trent Rockets, 12th Match, The Hundred Mens Competition 2026" | Status: "Match starts at Jul 29, 17:30 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Welsh Fire vs Trent Rockets, 11th Match, The Hundred Mens Competition 2026" | Status: "Match starts at Jul 29, 13:00 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Sunrisers Leeds vs Manchester Super Giants, 10th Match, The Hundred Mens Competition 2026" | Status: "Match starts at Jul 28, 17:30 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Tbc vs Tbc, Final, The Hundred Women's Competition 2026" | Status: "Match starts at Aug 16, 13:15 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Southern Brave vs Mi London, 9th Match, The Hundred Mens Competition 2026" | Status: "Match starts at Jul 27, 17:30 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Tbc vs Tbc, Eliminator, The Hundred Women's Competition 2026" | Status: "Match starts at Aug 14, 13:15 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Trent Rockets vs London Spirit, 8th Match, The Hundred Mens Competition 2026" | Status: "Match starts at Jul 26, 16:30 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Birmingham Phoenix Women vs Mi London Women, 32nd Match, The Hundred Women's Competition 2026" | Status: "Match starts at Aug 12, 14:00 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Manchester Super Giants vs Birmingham Phoenix, 7th Match, The Hundred Mens Competition 2026" | Status: "Match starts at Jul 26, 13:00 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Welsh Fire Women vs London Spirit Women, 31st Match, The Hundred Women's Competition 2026" | Status: "Match starts at Aug 12, 10:30 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Welsh Fire vs Mi London, 6th Match, The Hundred Mens Competition 2026" | Status: "Match starts at Jul 25, 16:30 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Manchester Super Giants Women vs Sunrisers Leeds Women, 30th Match, The Hundred Women's Competition 2026" | Status: "Match starts at Aug 11, 14:00 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Sunrisers Leeds vs Southern Brave, 5th Match, The Hundred Mens Competition 2026" | Status: "Match starts at Jul 25, 17:00 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Trent Rockets Women vs Southern Brave Women, 29th Match, The Hundred Women's Competition 2026" | Status: "Match starts at Aug 10, 14:00 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Birmingham Phoenix vs Trent Rockets, 4th Match, The Hundred Mens Competition 2026" | Status: "Match starts at Jul 24, 17:00 GMT" | Type: "t20"
+[SYNC-LIST] Found: "London Spirit Women vs Birmingham Phoenix Women, 28th Match, The Hundred Women's Competition 2026" | Status: "Match starts at Aug 09, 13:30 GMT" | Type: "t20"
+[SYNC-LIST] Found: "London Spirit vs Manchester Originals, 3rd Match, The Hundred Mens Competition 2026" | Status: "Match starts at Jul 23, 17:00 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Sunrisers Leeds Women vs Welsh Fire Women, 27th Match, The Hundred Women's Competition 2026" | Status: "Match starts at Aug 09, 10:00 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Southern Brave vs Welsh Fire, 2nd Match, The Hundred Mens Competition 2026" | Status: "Match starts at Jul 22, 17:00 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Southern Brave Women vs Manchester Super Giants Women, 26th Match, The Hundred Women's Competition 2026" | Status: "Match starts at Aug 08, 13:30 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Mi London vs Sunrisers Leeds, 1st Match, The Hundred Mens Competition 2026" | Status: "Match starts at Jul 21, 17:00 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Mi London Women vs Trent Rockets Women, 25th Match, The Hundred Women's Competition 2026" | Status: "Match starts at Aug 08, 10:00 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Birmingham Phoenix Women vs Sunrisers Leeds Women, 24th Match, The Hundred Women's Competition 2026" | Status: "Match starts at Aug 07, 14:00 GMT" | Type: "t20"
+[SYNC-LIST] Found: "London Spirit Women vs Mi London Women, 23rd Match, The Hundred Women's Competition 2026" | Status: "Match starts at Aug 06, 14:00 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Trent Rockets Women vs Birmingham Phoenix Women, 22nd Match, The Hundred Women's Competition 2026" | Status: "Match starts at Aug 05, 14:00 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Manchester Super Giants Women vs Welsh Fire Women, 21st Match, The Hundred Women's Competition 2026" | Status: "Match starts at Aug 05, 10:30 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Sunrisers Leeds Women vs London Spirit Women, 20th Match, The Hundred Women's Competition 2026" | Status: "Match starts at Aug 04, 14:00 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Welsh Fire Women vs Southern Brave Women, 19th Match, The Hundred Women's Competition 2026" | Status: "Match starts at Aug 03, 14:00 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Mi London Women vs Manchester Super Giants Women, 18th Match, The Hundred Women's Competition 2026" | Status: "Match starts at Aug 02, 13:30 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Trent Rockets Women vs Sunrisers Leeds Women, 17th Match, The Hundred Women's Competition 2026" | Status: "Match starts at Aug 02, 10:00 GMT" | Type: "t20"
+[SYNC-LIST] Found: "London Spirit Women vs Southern Brave Women, 16th Match, The Hundred Women's Competition 2026" | Status: "Match starts at Aug 01, 13:30 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Birmingham Phoenix Women vs Welsh Fire Women, 15th Match, The Hundred Women's Competition 2026" | Status: "Match starts at Aug 01, 10:00 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Manchester Super Giants Women vs Trent Rockets Women, 14th Match, The Hundred Women's Competition 2026" | Status: "Match starts at Jul 31, 14:00 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Southern Brave Women vs Birmingham Phoenix Women, 13th Match, The Hundred Women's Competition 2026" | Status: "Match starts at Jul 30, 14:00 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Mi London Women vs London Spirit Women, 12th Match, The Hundred Women's Competition 2026" | Status: "Match starts at Jul 29, 14:00 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Welsh Fire Women vs Trent Rockets Women, 11th Match, The Hundred Women's Competition 2026" | Status: "Match starts at Jul 29, 10:30 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Sunrisers Leeds Women vs Manchester Super Giants Women, 10th Match, The Hundred Women's Competition 2026" | Status: "Match starts at Jul 28, 14:00 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Southern Brave Women vs Mi London Women, 9th Match, The Hundred Women's Competition 2026" | Status: "Match starts at Jul 27, 14:00 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Trent Rockets Women vs London Spirit Women, 8th Match, The Hundred Women's Competition 2026" | Status: "Match starts at Jul 26, 13:30 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Manchester Super Giants Women vs Birmingham Phoenix Women, 7th Match, The Hundred Women's Competition 2026" | Status: "Match starts at Jul 26, 10:00 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Welsh Fire Women vs Mi London Women, 6th Match, The Hundred Women's Competition 2026" | Status: "Match starts at Jul 25, 13:30 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Sunrisers Leeds Women vs Southern Brave Women, 5th Match, The Hundred Women's Competition 2026" | Status: "Match starts at Jul 25, 10:00 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Birmingham Phoenix Women vs Trent Rockets Women, 4th Match, The Hundred Women's Competition 2026" | Status: "Match starts at Jul 24, 14:00 GMT" | Type: "t20"
+[SYNC-LIST] Found: "London Spirit Women vs Manchester Super Giants Women, 3rd Match, The Hundred Women's Competition 2026" | Status: "Match starts at Jul 23, 14:00 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Southern Brave Women vs Welsh Fire Women, 2nd Match, The Hundred Women's Competition 2026" | Status: "Match starts at Jul 22, 14:00 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Mi London Women vs Sunrisers Leeds Women, 1st Match, The Hundred Women's Competition 2026" | Status: "Match starts at Jul 21, 13:45 GMT" | Type: "t20"
+[SYNC-LIST] Found: "Pune Panthers vs Dubai Royals, Final, World Legends Pro T20 League 2026" | Status: "Dubai Royals won by 8 wkts" | Type: "t20"
+[SYNC-LIST] Found: "Delhi Warriors vs Dubai Royals, Semi Final 2 (1st v 4th), World Legends Pro T20 League 2026" | Status: "Dubai Royals won by 16 runs" | Type: "t20"
+[DEBUG-SYNC] Finished API Sync! Total Processed: 162, DB Updates: 162
+[API REQUEST] GET /news/stream?limit=150 - Origin: http://localhost:3000
+[API REQUEST] GET /news/stream?limit=150 - Origin: http://localhost:3000
+[0mGET /news/stream?limit=150 [32m200[0m 483.632 ms - -[0m
+[API REQUEST] OPTIONS /news/getnewsbysection/india?page=1&limit=1&includeDrafts=true - Origin: http://localhost:3000
+[API REQUEST] OPTIONS /news/getnewsbysection/india?page=1&limit=1&includeDrafts=true - Origin: http://localhost:3000
+[API REQUEST] GET /news/getnewsbysection/india?page=1&limit=1&includeDrafts=true - Origin: http://localhost:3000
+[0mGET /news/stream?limit=150 [32m200[0m 450.681 ms - -[0m
+[0mGET /news/getnewsbysection/india?page=1&limit=1&includeDrafts=true [32m200[0m 261.176 ms - 3227[0m
+[API REQUEST] GET /news/getnewsbysection/india?page=1&limit=1&includeDrafts=true - Origin: http://localhost:3000
+[0mGET /news/getnewsbysection/india?page=1&limit=1&includeDrafts=true [32m200[0m 195.491 ms - 3227[0m
+[API REQUEST] OPTIONS /api/live/all-discovered - Origin: http://localhost:3000
+[API REQUEST] OPTIONS /api/live/settings - Origin: http://localhost:3000
+[API REQUEST] OPTIONS /api/live/all-discovered - Origin: http://localhost:3000
+[API REQUEST] OPTIONS /api/live/settings - Origin: http://localhost:3000
+[API REQUEST] GET /api/live/all-discovered - Origin: http://localhost:3000
+[API REQUEST] GET /api/live/settings - Origin: http://localhost:3000
+[0mGET /api/live/settings [32m200[0m 67.844 ms - 150[0m
+[API REQUEST] GET /api/live/settings - Origin: http://localhost:3000
+[API REQUEST] OPTIONS /api/live/points/e74332ae-5fee-4a43-814a-88ead6909e35 - Origin: http://localhost:3000
+[API REQUEST] GET /api/live/points/e74332ae-5fee-4a43-814a-88ead6909e35 - Origin: http://localhost:3000
+[0mGET /api/live/settings [32m200[0m 68.322 ms - 150[0m
+[SERIES] Returning manual points table for: e74332ae-5fee-4a43-814a-88ead6909e35
+[0mGET /api/live/points/e74332ae-5fee-4a43-814a-88ead6909e35 [32m200[0m 68.989 ms - 121[0m
+[0mGET /api/live/all-discovered [32m200[0m 570.750 ms - 159626[0m
+[API REQUEST] GET /api/live/all-discovered - Origin: http://localhost:3000
+[API REQUEST] GET /api/live/points/e74332ae-5fee-4a43-814a-88ead6909e35 - Origin: http://localhost:3000
+[0mGET /api/live/all-discovered [32m200[0m 376.367 ms - 159626[0m
+[SERIES] Returning manual points table for: e74332ae-5fee-4a43-814a-88ead6909e35
+[0mGET /api/live/points/e74332ae-5fee-4a43-814a-88ead6909e35 [32m200[0m 74.770 ms - 121[0m
+[API REQUEST] GET /api/live/points/e74332ae-5fee-4a43-814a-88ead6909e35 - Origin: http://localhost:3000
+[SERIES] Returning manual points table for: e74332ae-5fee-4a43-814a-88ead6909e35
+[0mGET /api/live/points/e74332ae-5fee-4a43-814a-88ead6909e35 [32m200[0m 152.280 ms - 121[0m
+[API REQUEST] OPTIONS /api/live/toggle-status - Origin: http://localhost:3000
+[API REQUEST] POST /api/live/toggle-status - Origin: http://localhost:3000
+[0mPOST /api/live/toggle-status [32m200[0m 77.166 ms - 8004[0m
+[API REQUEST] POST /api/live/toggle-status - Origin: http://localhost:3000
+[0mPOST /api/live/toggle-status [32m200[0m 99.513 ms - 1102[0m
+[API REQUEST] OPTIONS /api/live/toggle-status - Origin: http://localhost:3000
+[API REQUEST] POST /api/live/toggle-status - Origin: http://localhost:3000
+[0mPOST /api/live/toggle-status [32m200[0m 83.034 ms - 9505[0m
+[API REQUEST] OPTIONS /api/live/toggle-status - Origin: http://localhost:3000
+[API REQUEST] POST /api/live/toggle-status - Origin: http://localhost:3000
+[0mPOST /api/live/toggle-status [32m200[0m 84.380 ms - 10203[0m
+[API REQUEST] POST /api/live/toggle-status - Origin: http://localhost:3000
+[0mPOST /api/live/toggle-status [32m200[0m 110.010 ms - 9951[0m
+[API REQUEST] OPTIONS /api/live/toggle-status - Origin: http://localhost:3000
+[API REQUEST] POST /api/live/toggle-status - Origin: http://localhost:3000
+[0mPOST /api/live/toggle-status [32m200[0m 196.899 ms - 1121[0m
+[API REQUEST] POST /api/live/toggle-status - Origin: http://localhost:3000
+[0mPOST /api/live/toggle-status [32m200[0m 237.386 ms - 1140[0m
+[API REQUEST] POST /api/live/toggle-status - Origin: http://localhost:3000
+[0mPOST /api/live/toggle-status [32m200[0m 92.435 ms - 1185[0m
+[API REQUEST] OPTIONS /api/live/toggle-status - Origin: http://localhost:3000
+[API REQUEST] POST /api/live/toggle-status - Origin: http://localhost:3000
+[0mPOST /api/live/toggle-status [32m200[0m 114.470 ms - 978[0m
+[API REQUEST] POST /api/live/toggle-status - Origin: http://localhost:3000
+[0mPOST /api/live/toggle-status [32m200[0m 65.587 ms - 1084[0m
+[API REQUEST] POST /api/live/toggle-status - Origin: http://localhost:3000
+[0mPOST /api/live/toggle-status [32m200[0m 142.029 ms - 1085[0m
+[API REQUEST] POST /api/live/toggle-status - Origin: http://localhost:3000
+[0mPOST /api/live/toggle-status [32m200[0m 228.869 ms - 1116[0m
+[API REQUEST] OPTIONS /api/live/toggle-status - Origin: http://localhost:3000
+[API REQUEST] POST /api/live/toggle-status - Origin: http://localhost:3000
+[0mPOST /api/live/toggle-status [32m200[0m 138.779 ms - 965[0m
+[API REQUEST] POST /api/live/toggle-status - Origin: http://localhost:3000
+[0mPOST /api/live/toggle-status [32m200[0m 69.133 ms - 1140[0m
+[API REQUEST] OPTIONS /api/live/toggle-status - Origin: http://localhost:3000
+[API REQUEST] POST /api/live/toggle-status - Origin: http://localhost:3000
+[0mPOST /api/live/toggle-status [32m200[0m 153.875 ms - 1116[0m
+[API REQUEST] OPTIONS /api/live/toggle-status - Origin: http://localhost:3000
+[API REQUEST] POST /api/live/toggle-status - Origin: http://localhost:3000
+[0mPOST /api/live/toggle-status [32m200[0m 73.020 ms - 1132[0m
+[API REQUEST] POST /api/live/toggle-status - Origin: http://localhost:3000
+[0mPOST /api/live/toggle-status [32m200[0m 234.216 ms - 1121[0m
+[API REQUEST] POST /api/live/toggle-status - Origin: http://localhost:3000
+[0mPOST /api/live/toggle-status [32m200[0m 318.057 ms - 1111[0m
+[API REQUEST] OPTIONS /api/live/toggle-status - Origin: http://localhost:3000
+[API REQUEST] POST /api/live/toggle-status - Origin: http://localhost:3000
+[0mPOST /api/live/toggle-status [32m200[0m 99.006 ms - 1078[0m
+[API REQUEST] POST /api/live/toggle-status - Origin: http://localhost:3000
+[0mPOST /api/live/toggle-status [32m200[0m 68.779 ms - 1174[0m
+[API REQUEST] POST /api/live/toggle-status - Origin: http://localhost:3000
+[0mPOST /api/live/toggle-status [32m200[0m 86.483 ms - 1146[0m
+[API REQUEST] OPTIONS /api/live/create-match - Origin: http://localhost:3000
+[API REQUEST] POST /api/live/create-match - Origin: http://localhost:3000
+[0mPOST /api/live/create-match [32m200[0m 314.332 ms - 529[0m
+[API REQUEST] OPTIONS /api/live/all-discovered - Origin: http://localhost:3000
+[API REQUEST] GET /api/live/all-discovered - Origin: http://localhost:3000
+[0mGET /api/live/all-discovered [32m200[0m 461.355 ms - 160153[0m
+[API REQUEST] OPTIONS /api/live/points/e74332ae-5fee-4a43-814a-88ead6909e35 - Origin: http://localhost:3000
+[API REQUEST] GET /api/live/points/e74332ae-5fee-4a43-814a-88ead6909e35 - Origin: http://localhost:3000
+[SERIES] Returning manual points table for: e74332ae-5fee-4a43-814a-88ead6909e35
+[0mGET /api/live/points/e74332ae-5fee-4a43-814a-88ead6909e35 [32m200[0m 67.129 ms - 121[0m
+[API REQUEST] GET /api/live/points/e74332ae-5fee-4a43-814a-88ead6909e35 - Origin: http://localhost:3000
+[SERIES] Returning manual points table for: e74332ae-5fee-4a43-814a-88ead6909e35
+[0mGET /api/live/points/e74332ae-5fee-4a43-814a-88ead6909e35 [32m200[0m 72.320 ms - 121[0m

@@ -15,6 +15,7 @@ export interface LiveMatch {
     status: string;
     venue: string;
     date: string;
+    startTime?: string;
     teams: string[];
     score: Score[];
     category: 'live' | 'upcoming' | 'recent';
@@ -24,6 +25,7 @@ export interface LiveMatch {
     isDiscoveryOnly: boolean;
     isManual?: boolean;
     metaText?: string;
+    dateTimeGMT?: string;
     lastUpdated: string;
 }
 
@@ -111,6 +113,16 @@ class CricketService {
         this.request("/create-match", {
             method: "POST",
             body: JSON.stringify(matchData),
+        });
+
+    triggerSync = (): Promise<CricketApiResponse<{ message: string }>> =>
+        this.request("/sync", {
+            method: "POST",
+        });
+
+    deleteMatch = (id: string): Promise<CricketApiResponse<any>> =>
+        this.request(`/delete-match/${id}`, {
+            method: "DELETE",
         });
 }
 

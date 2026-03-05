@@ -12,7 +12,7 @@ const FIRST_SHOW_DELAY_MS = 1000;
 const FALLBACK_AWARDS = [
     {
         _id: 'f1',
-        title: "Global Healthcare Excellence Awards ,2026 & Summit",
+        title: "Global Healthcare Excellence Awards, 2026 & Summit",
         subtitle: "Recognizing outstanding achievements in India's healthcare sector.",
         badge: "🏥 Healthcare",
         nominateUrl: "https://healthcareawards.primetimemedia.in/nominate",
@@ -20,7 +20,7 @@ const FALLBACK_AWARDS = [
     },
     {
         _id: 'f2',
-        title: "Global Education Excellence Awards ,2026 & Summit",
+        title: "Global Education Excellence Awards, 2026 & Summit",
         subtitle: "Celebrating visionaries shaping the future of education in India.",
         badge: "🎓 Education",
         nominateUrl: "https://education-awards.primetimemedia.in/nominate",
@@ -28,7 +28,7 @@ const FALLBACK_AWARDS = [
     },
     {
         _id: 'f3',
-        title: "UK Busnieiness Leadership Awards ,2026 & Summit",
+        title: "UK Busnieiness Leadership Awards, 2026 & Summit",
         subtitle: "Honoring India's most influential business leaders of the year.",
         badge: "💼 Business",
         nominateUrl: "https://business-leadership.primetimemedia.in/nominate",

@@ -16,24 +16,32 @@ const LiveScorePage = () => {
     const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://api.primetimemedia.in";
 
     useEffect(() => {
-        const fetchSettings = async () => {
+        const fetchInitialData = async () => {
             try {
-                const res = await fetch(`${API_BASE}/api/live/settings`);
-                const data = await res.json();
-                if (data.success) setActiveSeriesId(data.data.activeSeriesId);
+                // Fetch settings and initial matches in parallel
+                const [settingsRes, matchesRes] = await Promise.all([
+                    fetch(`${API_BASE}/api/live/settings`).then(res => res.json()),
+                    fetch(`${API_BASE}/api/live/live-matches`).then(res => res.json())
+                ]);
+
+                if (settingsRes.success) setActiveSeriesId(settingsRes.data.activeSeriesId);
+                if (matchesRes.success) {
+                    setMatchData(matchesRes.data || { live: [], upcoming: [], recent: [] });
+                }
             } catch (err) {
-                console.error("Failed to fetch cricket settings", err);
+                console.error("Failed to fetch initial cricket data", err);
+            } finally {
+                setLoading(false);
             }
         };
 
-        fetchSettings();
+        fetchInitialData();
 
         const eventSource = new EventSource(`${API_BASE}/api/live/live-stream`);
         eventSource.onmessage = (event) => {
             try {
                 const data = JSON.parse(event.data);
                 setMatchData(data || { live: [], upcoming: [], recent: [] });
-                setLoading(false);
             } catch (err) {
                 console.error("SSE Error", err);
             }
@@ -53,10 +61,17 @@ const LiveScorePage = () => {
         );
     }
 
-    const formatTime = (dateStr: string, timeStr?: string) => {
-        if (timeStr) return timeStr;
+    const formatTime = (match: any) => {
+        if (match.dateTimeGMT) {
+            return new Date(match.dateTimeGMT).toLocaleTimeString('en-IN', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            });
+        }
+        if (match.startTime) return match.startTime;
         try {
-            return new Date(dateStr).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+            return new Date(match.date).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
         } catch {
             return '';
         }
@@ -133,7 +148,7 @@ const LiveScorePage = () => {
                                     <div className={styles.upcomingMeta}>
                                         <Clock size={15} />
                                         <span>
-                                            {formatTime(match.date, match.startTime)}
+                                            {formatTime(match)}
                                             {match.date && ` • ${new Date(match.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}`}
                                         </span>
                                     </div>

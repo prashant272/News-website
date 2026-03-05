@@ -96,11 +96,11 @@ app.listen(process.env.PORT, () => {
         pollLiveScores();
     }, 10000);
 
-    // Daily Discovery Sync (Every 24 hours)
+    // Discovery Sync (Every 1 hour)
     // Discovers new upcoming matches
     setInterval(() => {
         syncMatchesWithDB(true);
-    }, 24 * 60 * 60 * 1000);
+    }, 60 * 60 * 1000);
 })
 
 // Prevent server crash on unhandled errors

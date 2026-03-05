@@ -181,4 +181,26 @@ router.post('/create-match', async (req, res) => {
     }
 });
 
+// Admin Route: Trigger manual discovery sync
+router.post('/sync', async (req, res) => {
+    try {
+        console.log("[ADMIN] Manual Sync Triggered");
+        // Start sync in background
+        cricketService.syncMatchesWithDB(true);
+        res.status(200).json({ success: true, message: "Sync started in background" });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Admin Route: Delete Match
+router.delete('/delete-match/:id', async (req, res) => {
+    try {
+        const result = await cricketService.deleteMatch(req.params.id);
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 module.exports = router;

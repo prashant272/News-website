@@ -35,6 +35,7 @@ const CricketManager: React.FC = () => {
         matchType: 'T20'
     });
     const [creatingManual, setCreatingManual] = useState(false);
+    const [editingMatchId, setEditingMatchId] = useState<string | null>(null);
 
     // Manual Points Table State — multi-group
     type PointsGroup = { groupName: string; rows: any[] };
@@ -45,6 +46,8 @@ const CricketManager: React.FC = () => {
     const [isManualPoints, setIsManualPoints] = useState(false);
     const [savingPoints, setSavingPoints] = useState(false);
     const [hasFetchedPoints, setHasFetchedPoints] = useState(false);
+
+    const [listSearchQuery, setListSearchQuery] = useState('');
 
     // Convenience: rows of active group
     const pointsRows = pointsGroups[activeGroupIndex]?.rows || [];
@@ -157,15 +160,25 @@ const CricketManager: React.FC = () => {
             alert("Please fill match name and both teams");
             return;
         }
+
+        // TIMEZONE FIX: combine date and time and convert to ISO for dateTimeGMT
+        const localDateTimeStr = `${manualMatch.date}T${manualMatch.startTime}:00`;
+        const dateTimeGMT = new Date(localDateTimeStr).toISOString();
+
         setCreatingManual(true);
         try {
-            const res = await cricketService.createManualMatch({
+            const matchData = {
                 ...manualMatch,
+                id: editingMatchId || undefined, // Use existing ID if editing
+                dateTimeGMT: dateTimeGMT,
                 status: manualMatch.category === 'upcoming' ? 'Upcoming' : (manualMatch.category === 'live' ? 'Live' : 'Match Finished')
-            });
+            };
+
+            const res = await cricketService.createManualMatch(matchData);
             if (res.success) {
-                alert("Manual match created!");
+                alert(editingMatchId ? "Match updated!" : "Manual match created!");
                 fetchMatches();
+                setEditingMatchId(null);
                 setManualMatch({
                     name: '',
                     teams: ['', ''],
@@ -181,6 +194,44 @@ const CricketManager: React.FC = () => {
         } finally {
             setCreatingManual(false);
         }
+    };
+
+    const handleDeleteMatch = async (id: string) => {
+        if (!window.confirm("Are you sure you want to delete this match?")) return;
+        try {
+            const res = await cricketService.deleteMatch(id);
+            if (res.success) {
+                alert("Match deleted");
+                fetchMatches();
+            }
+        } catch (err: any) {
+            alert("Error: " + err.message);
+        }
+    };
+
+    const handleEditMatch = (match: LiveMatch) => {
+        setEditingMatchId(match.id);
+        // Parse dateTimeGMT back to date and time if possible, otherwise use existing
+        let d = match.date || "";
+        let t = "14:30";
+
+        if (match.dateTimeGMT) {
+            const dt = new Date(match.dateTimeGMT);
+            d = dt.toISOString().split('T')[0];
+            t = dt.toTimeString().split(' ')[0].substring(0, 5);
+        }
+
+        setManualMatch({
+            name: match.name,
+            teams: match.teams || ['', ''],
+            date: d,
+            startTime: t,
+            venue: match.venue || '',
+            category: match.category,
+            matchType: match.matchType || 'T20'
+        });
+        // Scroll to form
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const fetchPointsTable = async () => {
@@ -410,7 +461,21 @@ const CricketManager: React.FC = () => {
                         {updatingSettings ? 'Saving...' : 'Save Settings'}
                     </button>
                     <button
-                        onClick={fetchMatches}
+                        onClick={async () => {
+                            setLoading(true);
+                            try {
+                                const res = await cricketService.triggerSync();
+                                if (res.success) {
+                                    // Give the API a moment to start and then refresh list
+                                    setTimeout(() => fetchMatches(), 2000);
+                                    alert("Sync triggered! Refreshing list in 2s...");
+                                }
+                            } catch (err: any) {
+                                alert("Sync failed: " + err.message);
+                            } finally {
+                                setLoading(false);
+                            }
+                        }}
                         style={{ padding: '10px 20px', background: '#6c757d', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                     >
                         Sync Data
@@ -485,13 +550,34 @@ const CricketManager: React.FC = () => {
                                 style={{ width: '100%', padding: '8px', borderRadius: '4px', background: '#000', border: '1px solid #444', color: '#fff' }}
                             />
                         </div>
-                        <button
-                            onClick={handleCreateManualMatch}
-                            disabled={creatingManual}
-                            style={{ gridColumn: 'span 2', padding: '10px', background: '#28a745', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
-                        >
-                            {creatingManual ? 'Creating...' : 'Create Manual Match'}
-                        </button>
+                        <div style={{ gridColumn: 'span 2', display: 'flex', gap: '10px' }}>
+                            <button
+                                onClick={handleCreateManualMatch}
+                                disabled={creatingManual}
+                                style={{ flex: 1, padding: '10px', background: '#28a745', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
+                            >
+                                {creatingManual ? 'Processing...' : (editingMatchId ? 'Update Match' : 'Create Manual Match')}
+                            </button>
+                            {editingMatchId && (
+                                <button
+                                    onClick={() => {
+                                        setEditingMatchId(null);
+                                        setManualMatch({
+                                            name: '',
+                                            teams: ['', ''],
+                                            date: new Date().toISOString().split('T')[0],
+                                            startTime: '14:30',
+                                            venue: '',
+                                            category: 'upcoming',
+                                            matchType: 'T20'
+                                        });
+                                    }}
+                                    style={{ padding: '10px 20px', background: '#6c757d', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                >
+                                    Cancel
+                                </button>
+                            )}
+                        </div>
                     </div>
                 </div>
 
@@ -622,7 +708,16 @@ const CricketManager: React.FC = () => {
 
             {/* Matches List Table */}
             <div className={styles.tableWrapper}>
-                <h3 style={{ color: '#fff', marginBottom: '15px' }}>All Discovered Matches</h3>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                    <h3 style={{ color: '#fff', margin: 0 }}>All Discovered Matches</h3>
+                    <input
+                        type="text"
+                        placeholder="🔍 Search matches in list..."
+                        value={listSearchQuery}
+                        onChange={(e) => setListSearchQuery(e.target.value)}
+                        style={{ padding: '6px 12px', borderRadius: '20px', background: '#111', border: '1px solid #444', color: '#fff', fontSize: '13px', width: '250px' }}
+                    />
+                </div>
                 <table className={styles.table}>
                     <thead>
                         <tr>
@@ -634,84 +729,104 @@ const CricketManager: React.FC = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {matches.map((match) => (
-                            <tr key={match.id}>
-                                <td>
-                                    <div className={styles.matchName}>{match.name}</div>
-                                    <div className={styles.matchMeta}>{match.matchType} • {match.venue}</div>
-                                    <div style={{ display: 'flex', gap: '5px', marginTop: '5px', flexWrap: 'wrap' }}>
-                                        {match.isManual && <span style={{ color: '#6f42c1', fontSize: '9px', border: '1px solid #6f42c1', padding: '1px 4px', borderRadius: '3px', fontWeight: 'bold' }}>MANUAL</span>}
-                                        {match.isLiveTracked && <span style={{ color: '#28a745', fontSize: '9px', border: '1px solid #28a745', padding: '1px 4px', borderRadius: '3px' }}>LIVE</span>}
-                                        {match.showInUpcoming && <span style={{ color: '#ffc107', fontSize: '9px', border: '1px solid #ffc107', padding: '1px 4px', borderRadius: '3px' }}>UPCOMING</span>}
-                                        {match.showInRecent && <span style={{ color: '#6c757d', fontSize: '9px', border: '1px solid #6c757d', padding: '1px 4px', borderRadius: '3px' }}>RECENT</span>}
-                                    </div>
+                        {matches
+                            .filter(m =>
+                                !listSearchQuery ||
+                                m.name.toLowerCase().includes(listSearchQuery.toLowerCase()) ||
+                                m.status.toLowerCase().includes(listSearchQuery.toLowerCase())
+                            )
+                            .map((match) => (
+                                <tr key={match.id}>
+                                    <td>
+                                        <div className={styles.matchName}>{match.name}</div>
+                                        <div className={styles.matchMeta}>{match.matchType} • {match.venue}</div>
+                                        <div style={{ display: 'flex', gap: '5px', marginTop: '5px', flexWrap: 'wrap' }}>
+                                            {match.isManual && <span style={{ color: '#6f42c1', fontSize: '9px', border: '1px solid #6f42c1', padding: '1px 4px', borderRadius: '3px', fontWeight: 'bold' }}>MANUAL</span>}
+                                            {match.isLiveTracked && <span style={{ color: '#28a745', fontSize: '9px', border: '1px solid #28a745', padding: '1px 4px', borderRadius: '3px' }}>LIVE</span>}
+                                            {match.showInUpcoming && <span style={{ color: '#ffc107', fontSize: '9px', border: '1px solid #ffc107', padding: '1px 4px', borderRadius: '3px' }}>UPCOMING</span>}
+                                            {match.showInRecent && <span style={{ color: '#6c757d', fontSize: '9px', border: '1px solid #6c757d', padding: '1px 4px', borderRadius: '3px' }}>RECENT</span>}
+                                        </div>
 
-                                </td>
-                                <td>{match.status}</td>
-                                <td>
-                                    <span className={`${styles.badge} ${styles[match.category]}`}>
-                                        {match.category}
-                                    </span>
-                                </td>
-                                <td>
-                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
-                                        <button
-                                            onClick={() => handleToggleStatus(match.id, 'isLiveTracked', match.isLiveTracked)}
-                                            style={{
-                                                padding: '5px 10px',
-                                                borderRadius: '4px',
-                                                background: match.isLiveTracked ? '#28a745' : '#111',
-                                                color: '#fff',
-                                                border: '1px solid #444',
-                                                cursor: 'pointer',
-                                                fontSize: '11px',
-                                                flex: '1 1 40%'
-                                            }}
-                                        >
-                                            {match.isLiveTracked ? "🔴 Tracking ON" : "⚪ Tracking OFF"}
-                                        </button>
-                                        <button
-                                            onClick={() => handleToggleStatus(match.id, 'showInUpcoming', match.showInUpcoming)}
-                                            style={{
-                                                padding: '5px 10px',
-                                                borderRadius: '4px',
-                                                background: match.showInUpcoming ? '#ffc107' : '#111',
-                                                color: match.showInUpcoming ? '#000' : '#fff',
-                                                border: '1px solid #444',
-                                                cursor: 'pointer',
-                                                fontSize: '11px',
-                                                flex: '1 1 40%'
-                                            }}
-                                        >
-                                            {match.showInUpcoming ? "🔔 In Upcoming" : "➕ Add Upcoming"}
-                                        </button>
-                                        <button
-                                            onClick={() => handleToggleStatus(match.id, 'showInRecent', match.showInRecent)}
-                                            style={{
-                                                padding: '5px 10px',
-                                                borderRadius: '4px',
-                                                background: match.showInRecent ? '#6c757d' : '#111',
-                                                color: '#fff',
-                                                border: '1px solid #444',
-                                                cursor: 'pointer',
-                                                fontSize: '11px',
-                                                flex: '1 1 40%'
-                                            }}
-                                        >
-                                            {match.showInRecent ? "🏁 In Recent" : "➕ Add Recent"}
-                                        </button>
-                                        <button
-                                            onClick={() => setSelectedMatchId(match.id)}
-                                            style={{ padding: '5px 10px', borderRadius: '4px', background: '#007bff', color: '#fff', border: 'none', cursor: 'pointer', fontSize: '11px', flex: '1 1 40%' }}
-                                        >
-                                            👁️ Preview
-                                        </button>
-                                    </div>
+                                    </td>
+                                    <td>{match.status}</td>
+                                    <td>
+                                        <span className={`${styles.badge} ${styles[match.category]}`}>
+                                            {match.category}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
+                                            <button
+                                                onClick={() => handleToggleStatus(match.id, 'isLiveTracked', match.isLiveTracked)}
+                                                style={{
+                                                    padding: '5px 10px',
+                                                    borderRadius: '4px',
+                                                    background: match.isLiveTracked ? '#28a745' : '#111',
+                                                    color: '#fff',
+                                                    border: '1px solid #444',
+                                                    cursor: 'pointer',
+                                                    fontSize: '11px',
+                                                    flex: '1 1 40%'
+                                                }}
+                                            >
+                                                {match.isLiveTracked ? "🔴 Tracking ON" : "⚪ Tracking OFF"}
+                                            </button>
+                                            <button
+                                                onClick={() => handleToggleStatus(match.id, 'showInUpcoming', match.showInUpcoming)}
+                                                style={{
+                                                    padding: '5px 10px',
+                                                    borderRadius: '4px',
+                                                    background: match.showInUpcoming ? '#ffc107' : '#111',
+                                                    color: match.showInUpcoming ? '#000' : '#fff',
+                                                    border: '1px solid #444',
+                                                    cursor: 'pointer',
+                                                    fontSize: '11px',
+                                                    flex: '1 1 40%'
+                                                }}
+                                            >
+                                                {match.showInUpcoming ? "🔔 In Upcoming" : "➕ Add Upcoming"}
+                                            </button>
+                                            <button
+                                                onClick={() => handleToggleStatus(match.id, 'showInRecent', match.showInRecent)}
+                                                style={{
+                                                    padding: '5px 10px',
+                                                    borderRadius: '4px',
+                                                    background: match.showInRecent ? '#6c757d' : '#111',
+                                                    color: '#fff',
+                                                    border: '1px solid #444',
+                                                    cursor: 'pointer',
+                                                    fontSize: '11px',
+                                                    flex: '1 1 40%'
+                                                }}
+                                            >
+                                                {match.showInRecent ? "🏁 In Recent" : "➕ Add Recent"}
+                                            </button>
+                                            <button
+                                                onClick={() => setSelectedMatchId(match.id)}
+                                                style={{ padding: '5px 10px', borderRadius: '4px', background: '#007bff', color: '#fff', border: 'none', cursor: 'pointer', fontSize: '11px', flex: '1 1 40%' }}
+                                            >
+                                                👁️ Preview
+                                            </button>
+                                            <button
+                                                onClick={() => handleEditMatch(match)}
+                                                style={{ padding: '5px 10px', borderRadius: '4px', background: '#17a2b8', color: '#fff', border: 'none', cursor: 'pointer', fontSize: '11px', flex: '1 1 40%' }}
+                                            >
+                                                ✏️ Edit
+                                            </button>
+                                            {match.isManual && (
+                                                <button
+                                                    onClick={() => handleDeleteMatch(match.id)}
+                                                    style={{ padding: '5px 10px', borderRadius: '4px', background: '#dc3545', color: '#fff', border: 'none', cursor: 'pointer', fontSize: '11px', flex: '1 1 40%' }}
+                                                >
+                                                    🗑️ Delete
+                                                </button>
+                                            )}
+                                        </div>
 
-                                </td>
-                                <td>{new Date(match.lastUpdated).toLocaleTimeString()}</td>
-                            </tr>
-                        ))}
+                                    </td>
+                                    <td>{new Date(match.lastUpdated).toLocaleTimeString()}</td>
+                                </tr>
+                            ))}
                     </tbody>
                 </table>
                 {matches.length === 0 && <p className={styles.empty}>No matches discovered yet. Try clicking "Sync Data" above.</p>}

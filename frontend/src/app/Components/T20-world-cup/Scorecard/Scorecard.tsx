@@ -67,7 +67,27 @@ const CricketScorecard: React.FC<ScorecardProps> = ({ matchId }) => {
                                 {inning.batting?.map((batter: any, i: number) => (
                                     <tr key={i} className="hover:bg-gray-50">
                                         <td className="p-2 font-medium text-gray-800">{batter.batsman.name}</td>
-                                        <td className="p-2 text-gray-500 text-xs">{batter.dismissal}</td>
+                                        <td className="p-2 text-gray-500 text-xs">
+                                            {(() => {
+                                                if (batter.dismissal === 'not out') return <span className="text-green-600 font-medium">not out</span>;
+                                                const d = batter.dismissal || '';
+                                                let info = d;
+                                                if (d.includes('catch') && batter.catcher && batter.bowler) {
+                                                    info = `c ${batter.catcher.name} b ${batter.bowler.name}`;
+                                                } else if (d.includes('catch') && batter.bowler) {
+                                                    info = `c ${batter.catcher?.name || 'field'} b ${batter.bowler.name}`;
+                                                } else if (d.includes('bowled') && batter.bowler) {
+                                                    info = `b ${batter.bowler.name}`;
+                                                } else if (d.includes('lbw') && batter.bowler) {
+                                                    info = `lbw b ${batter.bowler.name}`;
+                                                } else if (d.includes('stump') && batter.stumper && batter.bowler) {
+                                                    info = `st ${batter.stumper.name} b ${batter.bowler.name}`;
+                                                } else if (d.includes('run out') && batter.dismissalInfo) {
+                                                    info = `run out (${batter.dismissalInfo})`;
+                                                }
+                                                return info;
+                                            })()}
+                                        </td>
                                         <td className="p-2 text-right font-semibold">{batter.r}</td>
                                         <td className="p-2 text-right text-gray-600">{batter.b}</td>
                                         <td className="p-2 text-right text-gray-600">{batter.u4s || batter["4s"]}</td>
