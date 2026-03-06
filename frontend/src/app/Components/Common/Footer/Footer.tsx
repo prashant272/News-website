@@ -78,8 +78,8 @@ const Footer: React.FC = () => {
               <p className={styles.tagline}>Truth in Every Story</p>
             </div>
             <p className={styles.description}>
-              Your trusted source for breaking news, analysis, and in-depth coverage
-              of events shaping India and the world. Stay informed, stay ahead.
+              Asia&apos;s leading media house for breaking news, analysis, and in-depth coverage
+              of events shaping Asia and the world. Stay informed, stay ahead.
             </p>
             <div className={styles.contact}>
               <a href={`mailto:${contactInfo.email}`} className={styles.contactItem}>

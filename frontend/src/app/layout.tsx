@@ -27,12 +27,12 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.primetimemedia.in"),
   title: {
-    default: "Prime Time News | Asia's Leading Media House | Latest Headlines & Live Updates",
+    default: "Prime Time News | Asia Leading Media House",
     template: "%s | Prime Time News",
   },
-  description: "Prime Time News is Asia's leading media house, delivering fastest breaking news across politics, sports, entertainment, business, and technology. Stay informed with 24/7 live updates, in-depth analysis, and trusted journalism from across the globe.",
+  description: "Prime Time News — Asia Leading Media House for breaking news, politics, sports, entertainment, technology, business and world news. Get live updates 24/7.",
   keywords: [
-    "Asia's leading media house",
+    "Asia Leading Media House",
     "Prime Time News",
     "प्राइम टाइम न्यूज़",
     "Asia Breaking News",
@@ -66,8 +66,8 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "Prime Time News | Asia's Leading Media House",
-    description: "Asia's leading media house for breaking news, politics, sports, and world events. Get the most accurate and fastest live updates.",
+    title: "Prime Time News | Asia Leading Media House",
+    description: "Asia Leading Media House for breaking news, politics, sports, and world events. Get the most accurate and fastest live updates.",
     url: "https://www.primetimemedia.in/",
     siteName: "Prime Time News",
     images: [
@@ -75,7 +75,7 @@ export const metadata: Metadata = {
         url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "Prime Time News - Asia's Leading Media House",
+        alt: "Prime Time News - Asia Leading Media House",
       },
     ],
     locale: "en_IN",
@@ -83,8 +83,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Prime Time News | Asia's Leading Media House",
-    description: "Asia's leading media house for breaking news, politics, sports, and world events. Get the most accurate and fastest live updates.",
+    title: "Prime Time News | Asia Leading Media House",
+    description: "Asia Leading Media House for breaking news, politics, sports, and world events. Get the most accurate and fastest live updates.",
     images: ["/og-image.jpg"],
     site: "@PrimeTimeNews",
   },
@@ -106,7 +106,7 @@ export default function RootLayout({
         "@id": "https://www.primetimemedia.in/#website",
         "url": "https://www.primetimemedia.in",
         "name": "Prime Time News",
-        "description": "Asia's leading media house for breaking news, politics, sports, entertainment, technology, business and world news.",
+        "description": "Asia Leading Media House for breaking news, politics, sports, entertainment, technology, business and world news.",
         "publisher": {
           "@id": "https://www.primetimemedia.in/#organization"
         },
@@ -136,7 +136,7 @@ export default function RootLayout({
           "https://www.facebook.com/primetimemedia",
           "https://twitter.com/PrimeTimeNews"
         ],
-        "description": "Prime Time News is Asia's leading media house, delivering fastest breaking news across politics, sports, entertainment, business, and technology. Stay informed with 24/7 live updates.",
+        "description": "Prime Time News — Asia Leading Media House, delivering fastest breaking news across politics, sports, entertainment, business, and technology. Stay informed with 24/7 live updates.",
         "foundingDate": "2020",
         "address": {
           "@type": "PostalAddress",
@@ -156,11 +156,11 @@ export default function RootLayout({
         "@type": "WebPage",
         "@id": "https://www.primetimemedia.in/#webpage",
         "url": "https://www.primetimemedia.in",
-        "name": "Prime Time News - Latest Breaking News & Updates",
+        "name": "Prime Time News | Asia Leading Media House",
         "isPartOf": {
           "@id": "https://www.primetimemedia.in/#website"
         },
-        "description": "Prime Time News — Asia's leading media house for breaking news, politics, sports, entertainment, technology, business and world news. Get live updates 24/7.",
+        "description": "Prime Time News — Asia Leading Media House for breaking news, politics, sports, entertainment, technology, business and world news. Get live updates 24/7.",
         "breadcrumb": {
           "@id": "https://www.primetimemedia.in/#breadcrumb"
         },

@@ -38,9 +38,9 @@ export default function Home() {
       <LifestyleSection />
 
       <SocialShare
-        url={typeof window !== 'undefined' ? window.location.href : 'https://primetime-media-news.vercel.app/'}
-        title="Prime Time News - Latest Breaking News & Updates"
-        description="Get the latest breaking news, sports updates, entertainment stories, lifestyle tips, and more. Your trusted source for news."
+        url={typeof window !== 'undefined' ? window.location.href : 'https://www.primetimemedia.in/'}
+        title="Prime Time News | Asia's Leading Media House | Breaking News & Live Updates"
+        description="Empowering Asia with the fastest breaking news, in-depth reports, and 24/7 live updates on politics, sports, and entertainment."
         image="/og-image.jpg"
         isArticle={false}
       />
