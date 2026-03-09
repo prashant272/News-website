@@ -194,6 +194,15 @@ const getLiveMatches = async () => {
 // High-Frequency Polling: Runs every 10s for active live matches
 const pollLiveScores = async () => {
     try {
+        console.log("[POLL] Refreshing all live matches via currentMatches API...");
+        const response = await axios.get(`https://api.cricapi.com/v1/currentMatches?apikey=${API_KEY}&offset=0`);
+
+        if (response.data?.status !== "success" || !Array.isArray(response.data.data)) {
+            console.error("[POLL ERROR] Invalid API response:", response.data?.status);
+            return;
+        }
+
+        const apiMatches = response.data.data;
         const liveTracked = await LiveMatch.find({
             isLiveTracked: true,
             category: 'live'
@@ -201,19 +210,24 @@ const pollLiveScores = async () => {
 
         if (liveTracked.length === 0) return;
 
-        console.log(`[POLL] Refreshing scores for ${liveTracked.length} live matches...`);
         for (const match of liveTracked) {
-            const response = await axios.get(`https://api.cricapi.com/v1/match_scorecard?apikey=${API_KEY}&offset=0&id=${match.id}`);
-            if (response.data?.status === "success") {
-                await LiveMatch.findOneAndUpdate(
-                    { id: match.id },
-                    {
-                        $set: {
-                            fullScorecard: response.data.data,
-                            lastUpdated: new Date()
-                        }
-                    }
-                );
+            const freshData = apiMatches.find(m => m.id === match.id);
+            if (freshData) {
+                const updateData = {
+                    status: freshData.status,
+                    score: freshData.score || [],
+                    matchStarted: freshData.matchStarted,
+                    matchEnded: freshData.matchEnded,
+                    lastUpdated: new Date()
+                };
+
+                // Sync category if ended
+                if (freshData.matchStarted && freshData.matchEnded) {
+                    updateData.category = 'recent';
+                }
+
+                await LiveMatch.findOneAndUpdate({ id: match.id }, { $set: updateData });
+                console.log(`[POLL] Bulk Updated ${match.id} - ${freshData.status}`);
             }
         }
     } catch (error) {

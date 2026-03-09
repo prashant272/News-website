@@ -42,8 +42,8 @@ router.get('/live-stream', (req, res) => {
     // Send immediate update
     sendUpdate();
 
-    // Poll every 15 seconds (aligned with cache TTL)
-    const intervalId = setInterval(sendUpdate, 15000);
+    // Poll every 10 seconds (aligned with cache TTL)
+    const intervalId = setInterval(sendUpdate, 10000);
 
     req.on('close', () => {
         clearInterval(intervalId);
