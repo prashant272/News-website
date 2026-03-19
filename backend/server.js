@@ -7,6 +7,8 @@ const cors = require("cors")
 const bodyParser = require("body-parser")
 const { connectdb } = require("./Config/db")
 const morgan = require("morgan")
+const helmet = require("helmet")
+const compression = require("compression")
 const AuthRouter = require("./routes/auth.routes")
 const NewsRouter = require("./routes/news.routes")
 const OTPRouter = require("./routes/otp.route")
@@ -16,11 +18,19 @@ const FacebookRouter = require("./routes/facebook.routes")
 const BreakingNewsRouter = require("./routes/breakingNewsRoute")
 const LiveScoreRouter = require("./routes/liveScoreRoute")
 const InternationalProgramRouter = require("./routes/internationalProgramRoute")
+const VisualStoryRouter = require("./routes/visualStory.route")
 
 
 const app = express()
 
+// Connect to Database
 connectdb()
+
+// Security & Performance Middlewares
+app.use(helmet({
+    contentSecurityPolicy: false, // Set to false if you have trouble with external scripts/images initially
+}))
+app.use(compression())
 
 const allowedOrigins = [
     "https://www.primetimemedia.in",
@@ -31,30 +41,20 @@ const allowedOrigins = [
     "http://localhost:8086"
 ];
 
-// Manual CORS and Logging Middleware
+app.use(cors({
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true
+}));
+
+// No-cache for dynamic API responses
 app.use((req, res, next) => {
-    const origin = req.headers.origin;
-    console.log(`[API REQUEST] ${req.method} ${req.url} - Origin: ${origin}`);
-
-    if (allowedOrigins.includes(origin)) {
-        res.setHeader('Access-Control-Allow-Origin', origin);
-        res.setHeader('Access-Control-Allow-Credentials', 'true');
-    } else if (!origin) {
-        res.setHeader('Access-Control-Allow-Origin', '*');
-    }
-
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
-
-    // Handle Pre-flight
-    if (req.method === 'OPTIONS') {
-        return res.sendStatus(200);
-    }
-    next();
-});
-
-app.use((req, res, next) => {
-    res.setHeader("Cache-Control", "no-store")
+    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate")
     res.setHeader("Pragma", "no-cache")
     res.setHeader("Expires", "0")
     next()
@@ -80,6 +80,7 @@ app.use("/api/live", LiveScoreRouter)
 app.use("/api/international-programs", InternationalProgramRouter)
 
 app.use("/api/breaking-news", BreakingNewsRouter)
+app.use("/api/visual-stories", VisualStoryRouter)
 app.use("/api", AutoNewsRouter)
 app.use("/fb", FacebookRouter)
 
@@ -88,6 +89,7 @@ const { syncMatchesWithDB } = require("./Services/cricketService")
 app.listen(process.env.PORT, () => {
     console.log(`Server is running on port ${process.env.PORT}`);
 
+    /*
     // Initial full sync on startup
     syncMatchesWithDB(true);
 
@@ -103,6 +105,7 @@ app.listen(process.env.PORT, () => {
     setInterval(() => {
         syncMatchesWithDB(true);
     }, 60 * 60 * 1000);
+    */
 })
 
 // Prevent server crash on unhandled errors

@@ -13,6 +13,7 @@ import Footer from "./Components/Common/Footer/Footer";
 import NewsCards from "./Components/Common/NewsCard/NewsCard";
 import { stateNewsData } from "@/Data/NewsCardData/NewsCardData";
 import SocialShare from "./Components/Common/SocialShare/SocialShare";
+import WebStories from "./Components/Home/WebStories/WebStories";
 
 // Lazy-load heavy sections
 const VideosSection = dynamic(() => import("./Components/Common/VideosSection/VideosSection").then(mod => mod.VideosSection), {
@@ -30,6 +31,7 @@ export default function Home() {
     <>
       <NewsSection />
       <NewsList />
+      <WebStories />
 
       <LatestNews />
       <Sports />

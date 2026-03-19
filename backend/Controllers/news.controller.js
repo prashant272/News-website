@@ -3,7 +3,7 @@ const User = require("../Models/user.model");
 const AppConfig = require("../Models/AppConfig");
 const facebookService = require("../Services/facebookService");
 const dotenv = require("dotenv");
-dotenv.config({ path: "./Config/config.env" });
+// dotenv.config({ path: "./Config/config.env" }); // Removed: Root server.js handles env loading
 const cloudinary = require("cloudinary").v2;
 
 cloudinary.config({

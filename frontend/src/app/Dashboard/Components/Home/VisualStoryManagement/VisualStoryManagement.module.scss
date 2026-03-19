@@ -1,0 +1,279 @@
+.container {
+    padding: 24px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    
+    h2 {
+        margin: 0;
+        font-size: 20px;
+        color: #1a1a1a;
+    }
+}
+
+.addBtn {
+    background: #e11d48;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+        background: #be123c;
+        transform: translateY(-1px);
+    }
+}
+
+.tableWrapper {
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    
+    th {
+        text-align: left;
+        padding: 12px;
+        border-bottom: 2px solid #f3f4f6;
+        color: #6b7280;
+        font-weight: 500;
+    }
+
+    td {
+        padding: 12px;
+        border-bottom: 1px solid #f3f4f6;
+        vertical-align: middle;
+    }
+}
+
+.thumbMini {
+    width: 40px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.active { color: #10b981; font-weight: 600; }
+.inactive { color: #ef4444; font-weight: 600; }
+
+.actions {
+    display: flex;
+    gap: 12px;
+}
+
+.editBtn, .deleteBtn {
+    border: none;
+    background: none;
+    padding: 4px 8px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.editBtn { color: #3b82f6; }
+.deleteBtn { color: #ef4444; }
+
+// --- Form Styles ---
+
+.formContainer {
+    animation: fadeIn 0.3s ease-out;
+}
+
+.formHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+
+    h3 { margin: 0; }
+}
+
+.backBtn {
+    background: #f3f4f6;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    label {
+        font-weight: 600;
+        font-size: 14px;
+        color: #374151;
+    }
+
+    input, select, textarea {
+        padding: 10px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        outline: none;
+
+        &:focus { border-color: #e11d48; }
+    }
+}
+
+.mediaInput {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    span { font-size: 12px; color: #9ca3af; font-weight: bold; }
+    input { flex: 1; }
+}
+
+.preview {
+    width: 100px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-top: 8px;
+}
+
+.slidesSection {
+    margin-top: 30px;
+}
+
+.slidesHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.addSlideBtn {
+    background: #10b981;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.slideCard {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.slideHeader {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    font-weight: bold;
+    color: #4b5563;
+}
+
+.slideBody {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 24px;
+}
+
+.slideMedia {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.toggleGroup {
+    display: flex;
+    background: #eee;
+    padding: 4px;
+    border-radius: 6px;
+
+    button {
+        flex: 1;
+        border: none;
+        padding: 4px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+        background: transparent;
+    }
+
+    .activeTab {
+        background: #fff;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+}
+
+.slidePreview {
+    width: 100%;
+    aspect-ratio: 9/16;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.slideText {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    
+    input, textarea {
+        width: 100%;
+    }
+}
+
+.removeBtn {
+    color: #ef4444;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.formFooter {
+    padding-top: 30px;
+    border-top: 1px solid #eee;
+}
+
+.saveBtn {
+    width: 100%;
+    background: #e11d48;
+    color: #fff;
+    border: none;
+    padding: 16px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    
+    &:disabled { opacity: 0.5; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}

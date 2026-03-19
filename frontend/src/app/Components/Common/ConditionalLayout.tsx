@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Navbar from "./Navbar/Navbar";
 import Footer from "./Footer/Footer";
@@ -13,9 +14,21 @@ export default function ConditionalLayout({
     children: React.ReactNode;
 }) {
     const pathname = usePathname();
-    const isDashboard = pathname?.startsWith("/Dashboard");
+    const [mounted, setMounted] = useState(false);
 
-    if (isDashboard) {
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    const normalizedPath = pathname?.toLowerCase() || "";
+    const isDashboard = normalizedPath.startsWith("/dashboard");
+    const isVisualStory = normalizedPath.startsWith("/visualstories");
+
+    console.log("ConditionalLayout path:", pathname, "isStory:", isVisualStory);
+
+    if (!mounted) return null; // Wait for hydration
+
+    if (isDashboard || isVisualStory) {
         return <>{children}</>;
     }
 

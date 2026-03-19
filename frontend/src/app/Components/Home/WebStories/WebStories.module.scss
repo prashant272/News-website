@@ -1,0 +1,190 @@
+.webStoriesSection {
+    padding: 2.5rem 0;
+    background: #f8f9fa;
+    border-top: 1px solid #eee;
+    margin-bottom: 2rem;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.title {
+    font-family: 'Lora', serif;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #000;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.redDot {
+    width: 10px;
+    height: 10px;
+    background: #ff0000;
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.4);
+}
+
+.navButtons {
+    display: flex;
+    gap: 10px;
+}
+
+.navBtn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid #ddd;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    color: #333;
+
+    &:hover {
+        background: #000;
+        color: #fff;
+        border-color: #000;
+        transform: scale(1.1);
+    }
+
+    svg {
+        width: 18px;
+        height: 18px;
+    }
+}
+
+.carouselWrapper {
+    position: relative;
+    width: 100%;
+}
+
+.scrollArea {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding: 0.5rem 0 1rem;
+    scrollbar-width: none; // Firefox
+    
+    &::-webkit-scrollbar {
+        display: none; // Chrome, Safari
+    }
+}
+
+.storyCard {
+    flex: 0 0 180px;
+    height: 280px;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    background: #000;
+    display: block;
+    text-decoration: none;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+
+    &:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 25px rgba(0,0,0,0.2);
+
+        .imageWrapper img {
+            transform: scale(1.1);
+        }
+
+        .overlay {
+            background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.3));
+        }
+    }
+}
+
+.imageWrapper {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.6s ease;
+    }
+}
+
+.overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.2));
+    transition: background 0.4s ease;
+}
+
+.content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 1rem;
+    z-index: 2;
+}
+
+.storyTitle {
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.3;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.categoryBadge {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background: rgba(255, 0, 0, 0.9);
+    color: #fff;
+    padding: 4px 8px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    z-index: 2;
+}
+
+@media (max-width: 768px) {
+    .storyCard {
+        flex: 0 0 150px;
+        height: 240px;
+    }
+
+    .title {
+        font-size: 1.3rem;
+    }
+
+    .container {
+        padding: 0 1rem;
+    }
+}

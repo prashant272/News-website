@@ -6,6 +6,7 @@ import ProtectedRoute from "../../ProtectedRoute/ProtectedRoute";
 import MainSection from '@/app/Dashboard/Components/Home/MainSection/Main';
 import AINewsManagement from "@/app/Dashboard/Components/Home/AINewsManagement/AINewsManagement";
 import EmployeeReports from "@/app/Dashboard/Components/Home/EmployeeReports/EmployeeReports";
+import VisualStoryManagement from "@/app/Dashboard/Components/Home/VisualStoryManagement/VisualStoryManagement";
 import styles from './Page.module.scss';
 import { UserContext } from "@/app/Dashboard/Context/ManageUserContext";
 
@@ -21,6 +22,7 @@ const sections = [
   { id: 'employee_reports' as const, label: 'Employee Reports', icon: '📋' },
   { id: 'cricket_management' as const, label: 'Cricket Management', icon: '🏏' },
   { id: 'international_programs' as const, label: 'International Programs', icon: '🌐' },
+  { id: 'visual_stories' as const, label: 'Visual Stories', icon: '🎬' },
 ] as const;
 
 type SectionId = typeof sections[number]['id'];
@@ -160,6 +162,8 @@ export default function NewsAdminPage() {
                 <AINewsManagement onEdit={handleEditDraft} />
               ) : activeSection === 'employee_reports' ? (
                 <EmployeeReports />
+              ) : activeSection === 'visual_stories' ? (
+                <VisualStoryManagement />
               ) : (
                 <MainSection section={activeSection as any} initialDraft={activeSection === 'news_management' ? draftToEdit : null} />
               )}
