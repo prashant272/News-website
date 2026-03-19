@@ -18,7 +18,7 @@ const getCricketSettings = async () => {
             cricket: {
                 activeTournament: "T20 World Cup",
                 activeSeriesId: "bbcaa2ce-be45-4541-9eb3-9828d8b13197",
-                autoTrackEnabled: true
+                autoTrackEnabled: false
             }
         });
     }
@@ -123,8 +123,11 @@ const syncMatchesWithDB = async (forceAll = false) => {
 
             const isPriorityMatch = matchesTournamentName || matchesSeriesId;
 
-            // Determine if we should track live score (Auto-track only for priority matches or if already tracked)
-            if (category === 'live' && (existingMatch?.isLiveTracked || (autoTrack && isPriorityMatch))) {
+            // Determine if we should track live score (Auto-track only if enabled and it's a priority match)
+            // Or if the match was already manually marked as tracked
+            const shouldTrack = existingMatch?.isLiveTracked || (autoTrack && isPriorityMatch);
+
+            if (category === 'live' && shouldTrack) {
                 console.log(`[SYNC-LB] Syncing Live Scorecard for ${match.name}`);
                 try {
                     const scorecardRes = await axios.get(`https://api.cricapi.com/v1/match_scorecard?apikey=${API_KEY}&offset=0&id=${match.id}`);
@@ -135,12 +138,8 @@ const syncMatchesWithDB = async (forceAll = false) => {
                 } catch (scErr) {
                     console.error(`[SYNC-LB ERROR] Scorecard fetch failed: ${scErr.message}`);
                 }
-            } else if (isPriorityMatch) {
-                // Always track matches that match the tournament/series
-                updateSet.isLiveTracked = true;
-            } else if (autoTrack && isT20) {
-                // Still keep T20 matches in DB for discovery, but don't force 'isLiveTracked' unless explicitly marked
-                // This keeps them hidden from the main view but accessible in 'All Discovered'
+            } else {
+                // If not live tracking, preserve existing status or default to false
                 updateSet.isLiveTracked = existingMatch?.isLiveTracked || false;
             }
 

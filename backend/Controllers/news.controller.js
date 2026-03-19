@@ -63,7 +63,7 @@ exports.AddNews = async (req, res) => {
   try {
     const {
       title, slug, category, subCategory, summary, content,
-      image, tags = [], section, targetLink, nominationLink,
+      image, tags = [], section, targetLink, nominationLink, moreInfoLink,
       author, status, authorId
     } = req.body;
 
@@ -104,6 +104,7 @@ exports.AddNews = async (req, res) => {
       title, slug, category: finalCategory, subCategory: subCategory || null,
       summary: summary || null, content, image: imageUrl, tags,
       targetLink: targetLink || null, nominationLink: nominationLink || null,
+      moreInfoLink: moreInfoLink || null,
       author: author || "Prime Time News",
       authorId: authorId || null,
       status: status || "draft",
@@ -173,7 +174,7 @@ exports.getAllNews = async (req, res) => {
  */
 exports.streamNews = async (req, res) => {
   try {
-    const { includeDrafts, section, limit = 150 } = req.query;
+    const { includeDrafts, section, limit = 50 } = req.query;
     const query = {};
 
     if (includeDrafts !== 'true') query.status = 'published';
@@ -185,7 +186,7 @@ exports.streamNews = async (req, res) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
 
     const cursor = NewsArticle.find(query)
-      .select('title slug category subCategory summary image tags isLatest isTrending isHidden targetLink nominationLink author publishedAt _id')
+      .select('title slug category subCategory summary image tags isLatest isTrending isHidden targetLink nominationLink moreInfoLink author publishedAt _id')
       .sort({ publishedAt: -1, createdAt: -1 })
       .limit(parseInt(limit))
       .lean()
@@ -456,29 +457,29 @@ exports.searchNews = async (req, res) => {
   try {
     const { q, page = 1, limit = 10 } = req.query;
     if (!q) return res.status(400).json({ success: false, msg: "Search query required" });
-    
+
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
     const skip = (pageNum - 1) * limitNum;
-    
+
     const query = { $text: { $search: q }, status: 'published' };
-    
+
     const results = await NewsArticle.find(query, { score: { $meta: "textScore" } })
       .sort({ score: { $meta: "textScore" }, publishedAt: -1 })
       .skip(skip)
       .limit(limitNum)
       .lean();
-      
+
     const total = await NewsArticle.countDocuments(query);
-    
+
     res.status(200).json({
       success: true,
       news: results,
-      pagination: { 
-        total, 
-        page: pageNum, 
+      pagination: {
+        total,
+        page: pageNum,
         limit: limitNum,
-        totalPages: Math.ceil(total / limitNum) 
+        totalPages: Math.ceil(total / limitNum)
       },
       count: results.length,
       msg: "Search completed"

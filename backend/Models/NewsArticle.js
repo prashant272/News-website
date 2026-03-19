@@ -54,6 +54,7 @@ const newsArticleSchema = new mongoose.Schema(
         targetLink: { type: String, trim: true, default: null },
         urlHash: { type: String, trim: true, index: true, unique: true, sparse: true },
         nominationLink: { type: String, trim: true, default: null },
+        moreInfoLink: { type: String, trim: true, default: null },
         author: { type: String, trim: true, default: "Prime Time News" },
         authorId: {
             type: mongoose.Schema.Types.ObjectId,
@@ -86,6 +87,8 @@ const newsArticleSchema = new mongoose.Schema(
 
 // Compound index for efficient querying
 newsArticleSchema.index({ category: 1, status: 1, createdAt: -1 });
+newsArticleSchema.index({ publishedAt: -1, createdAt: -1 });
+newsArticleSchema.index({ status: 1, publishedAt: -1 });
 
 const NewsArticle = mongoose.models.NewsArticle || mongoose.model("NewsArticle", newsArticleSchema);
 

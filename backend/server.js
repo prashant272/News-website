@@ -15,6 +15,7 @@ const AutoNewsRouter = require("./routes/autoNewsRoute")
 const FacebookRouter = require("./routes/facebook.routes")
 const BreakingNewsRouter = require("./routes/breakingNewsRoute")
 const LiveScoreRouter = require("./routes/liveScoreRoute")
+const InternationalProgramRouter = require("./routes/internationalProgramRoute")
 
 
 const app = express()
@@ -76,6 +77,7 @@ app.use("/promotions", AdsRouter)
 
 // Consolidated API routes
 app.use("/api/live", LiveScoreRouter)
+app.use("/api/international-programs", InternationalProgramRouter)
 
 app.use("/api/breaking-news", BreakingNewsRouter)
 app.use("/api", AutoNewsRouter)

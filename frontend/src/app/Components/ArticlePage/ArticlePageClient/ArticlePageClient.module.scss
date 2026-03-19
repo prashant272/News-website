@@ -3,7 +3,7 @@
 .articlePage {
   background-color: var(--background);
   min-height: 100vh;
-  padding: 2rem 0;
+  padding: 1rem 0; // Reduced
   position: relative;
   overflow: hidden;
   transition: background-color 0.3s ease;
@@ -20,8 +20,8 @@
 .articleLayout {
   display: grid;
   grid-template-columns: 1fr 350px;
-  gap: 2rem;
-  margin-top: 1.25rem;
+  gap: 1.5rem; // Reduced gap
+  margin-top: 1rem;
 
   @media (max-width: 1024px) {
     grid-template-columns: 1fr;
@@ -31,11 +31,11 @@
 
 .mainContent {
   background: var(--card-bg);
-  padding: 2.5rem;
-  border-radius: 16px;
-  box-shadow: 0 2px 8px var(--shadow-color), 0 4px 16px var(--shadow-color);
+  padding: 1.5rem; // Further reduced padding
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
   border: 1px solid var(--card-border);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s ease;
 
   @media (max-width: 768px) {
     padding: 1.5rem;

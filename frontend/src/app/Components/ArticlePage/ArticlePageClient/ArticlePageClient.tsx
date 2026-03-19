@@ -208,7 +208,6 @@ export default function ArticlePageClient({
           </div>
 
           <aside className={styles.sidebar}>
-            <SidebarAds count={4} />
             <TopNewsSidebar news={topNews} />
           </aside>
         </div>

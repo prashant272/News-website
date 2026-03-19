@@ -9,7 +9,7 @@ const FB_REDIRECT_URI = process.env.FB_REDIRECT_URI;
 // 1. Generate Facebook OAuth URL
 exports.getFacebookAuthUrl = (req, res) => {
     const scope = ["pages_show_list", "pages_manage_posts", "pages_read_engagement"].join(",");
-    const url = `https://www.facebook.com/v19.0/dialog/oauth?client_id=${FB_APP_ID}&redirect_uri=${encodeURIComponent(FB_REDIRECT_URI)}&scope=${scope}&response_type=code`;
+    const url = `https://www.facebook.com/v19.0/dialog/oauth?client_id=${FB_APP_ID}&redirect_uri=${encodeURIComponent(FB_REDIRECT_URI)}&scope=${scope}&response_type=code&auth_type=rerequest`;
     res.json({ url });
 };
 
@@ -17,6 +17,8 @@ exports.getFacebookAuthUrl = (req, res) => {
 exports.handleFacebookCallback = async (req, res) => {
     try {
         const { code } = req.query;
+        console.log(`[Facebook Callback] Received code: ${code?.substring(0, 10)}...`);
+        console.log(`[Facebook Callback] Using Redirect URI: ${FB_REDIRECT_URI}`);
 
         if (!code) {
             return res.status(400).json({ success: false, msg: "Authorization code is required" });
@@ -61,8 +63,14 @@ exports.handleFacebookCallback = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Facebook Callback Error:", error.response?.data || error.message);
-        res.status(500).json({ success: false, msg: "Facebook authentication failed", error: error.response?.data });
+        const errorData = error.response?.data || error.message;
+        console.error("Facebook Callback Error:", JSON.stringify(errorData, null, 2));
+        res.status(500).json({
+            success: false,
+            msg: "Facebook authentication failed",
+            error: errorData,
+            details: "Please ensure your FB_REDIRECT_URI exactly matches the one in Facebook Developer Console."
+        });
     }
 };
 

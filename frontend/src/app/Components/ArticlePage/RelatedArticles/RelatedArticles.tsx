@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import styles from './RelatedArticles.module.scss';
 
 interface RelatedArticle {
@@ -8,6 +9,7 @@ interface RelatedArticle {
   slug: string;
   section?: string;
   category?: string;
+  image?: string;
 }
 
 interface RelatedArticlesProps {
@@ -27,7 +29,20 @@ export default function RelatedArticles({ articles }: RelatedArticlesProps) {
             href={`/Pages/${article.section || 'india'}/${article.category || 'general'}/${article.slug}`}
             className={styles.articleItem}
           >
-            {article.title}
+            {article.image && (
+              <div className={styles.imageWrapper}>
+                <Image
+                  src={article.image}
+                  alt={article.title}
+                  width={120}
+                  height={80}
+                  className={styles.image}
+                />
+              </div>
+            )}
+            <div className={styles.content}>
+              <span className={styles.title}>{article.title}</span>
+            </div>
           </Link>
         ))}
       </div>
