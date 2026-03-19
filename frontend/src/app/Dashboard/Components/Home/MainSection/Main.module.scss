@@ -420,6 +420,12 @@ $duration-slow: 300ms;
   gap: $s-1;
 }
 
+.helpText {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-top: $s-1;
+}
+
 .required {
   color: $danger-light;
 }

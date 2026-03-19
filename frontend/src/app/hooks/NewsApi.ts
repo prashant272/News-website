@@ -238,8 +238,8 @@ export const useStreamingNews = (section?: string, limit: number = 50) => {
 };
 
 
-export const useNewsBySection = (section: string, includeDrafts: boolean = false, page: number = 1, limit: number = 100): UseApiResult<NewsItem[]> =>
-  useApi<NewsItem[]>(() => newsService.getNewsBySection(section, includeDrafts, page, limit), [section, includeDrafts, page, limit]);
+export const useNewsBySection = (section: string, includeDrafts: boolean = false, page: number = 1, limit: number = 100, status?: string): UseApiResult<NewsItem[]> =>
+  useApi<NewsItem[]>(() => newsService.getNewsBySection(section, includeDrafts, page, limit, status), [section, includeDrafts, page, limit, status]);
 
 export const useNewsBySlug = (section: string, slug: string, includeDrafts: boolean = false): UseApiResult<NewsItem> =>
   useApi<NewsItem>(() => newsService.getNewsBySlug(section, slug, includeDrafts), [section, slug, includeDrafts]);

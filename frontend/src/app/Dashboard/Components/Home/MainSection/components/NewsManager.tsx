@@ -49,6 +49,7 @@ const NewsManager: FC<NewsManagerProps> = ({
 }) => {
     const [selectedCategory, setSelectedCategory] = useState<NewsCategory>('india');
     const [page, setPage] = useState(1);
+    const [filterStatus, setFilterStatus] = useState<"all" | "draft" | "published" | "archived" | "scheduled">("all");
     const limit = 20;
 
     // Only fetch news list if we are in 'previous_news' section or editing
@@ -57,7 +58,8 @@ const NewsManager: FC<NewsManagerProps> = ({
         selectedCategory,
         true,
         page,
-        shouldFetchList ? limit : 1
+        shouldFetchList ? limit : 1,
+        filterStatus === 'all' ? undefined : filterStatus
     );
 
     const { mutate: addNews, loading: addLoading } = useAddNews();
@@ -73,6 +75,7 @@ const NewsManager: FC<NewsManagerProps> = ({
         content: "",
         tags: [],
         status: "draft",
+        scheduledAt: "",
         targetLink: "",
         nominationLink: "",
         moreInfoLink: "",
@@ -82,7 +85,6 @@ const NewsManager: FC<NewsManagerProps> = ({
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [showImage, setShowImage] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
-    const [filterStatus, setFilterStatus] = useState<"all" | "draft" | "published" | "archived">("all");
     const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
     const [sortBy, setSortBy] = useState<"newest" | "oldest" | "title">("newest");
 
@@ -94,6 +96,7 @@ const NewsManager: FC<NewsManagerProps> = ({
             content: "",
             tags: [],
             status: "draft",
+            scheduledAt: "",
             targetLink: "",
             nominationLink: "",
             moreInfoLink: "",
@@ -113,6 +116,7 @@ const NewsManager: FC<NewsManagerProps> = ({
                 ...initialDraft,
                 status: initialDraft.status || 'draft',
                 category: matchedCat.charAt(0).toUpperCase() + matchedCat.slice(1),
+                scheduledAt: initialDraft.scheduledAt ? new Date(initialDraft.scheduledAt).toISOString().slice(0, 16) : "",
                 targetLink: initialDraft.targetLink || "",
                 nominationLink: initialDraft.nominationLink || "",
                 moreInfoLink: initialDraft.moreInfoLink || "",
@@ -303,9 +307,8 @@ const NewsManager: FC<NewsManagerProps> = ({
             );
         }
 
-        if (filterStatus !== "all") {
-            result = result.filter((item) => item.status === filterStatus);
-        }
+        // Status filtering moved to backend hook above
+
 
         if (sortBy === "newest") {
             result.sort((a, b) => new Date(b.publishedAt || 0).getTime() - new Date(a.publishedAt || 0).getTime());
@@ -445,10 +448,24 @@ const NewsManager: FC<NewsManagerProps> = ({
                                 className={styles.select}
                             >
                                 <option value="draft">Draft</option>
+                                <option value="scheduled">Scheduled</option>
                                 <option value="published">Published</option>
                                 <option value="archived">Archived</option>
                             </select>
                         </div>
+                        {formState.status === "scheduled" && (
+                            <div className={styles.formGroup}>
+                                <label className={styles.label}>Schedule At <span className={styles.required}>*</span></label>
+                                <input
+                                    type="datetime-local"
+                                    className={styles.input}
+                                    value={formState.scheduledAt ?? ""}
+                                    onChange={handleChange("scheduledAt" as any)}
+                                    min={new Date().toISOString().slice(0, 16)}
+                                />
+                                <small className={styles.helpText}>Article will be published automatically at this time.</small>
+                            </div>
+                        )}
                         <div className={styles.formGroup}>
                             <label className={styles.label}>Nomination Link (Awards only)</label>
                             <input
@@ -602,6 +619,7 @@ const NewsManager: FC<NewsManagerProps> = ({
                                 <select className={styles.filterSelect} value={filterStatus} onChange={(e) => setFilterStatus(e.target.value as any)}>
                                     <option value="all">All Status</option>
                                     <option value="published">Published</option>
+                                    <option value="scheduled">Scheduled</option>
                                     <option value="draft">Draft</option>
                                 </select>
                                 <select className={styles.filterSelect} value={sortBy} onChange={(e) => setSortBy(e.target.value as any)}>
@@ -635,6 +653,11 @@ const NewsManager: FC<NewsManagerProps> = ({
                                             )}
                                             <span className={`${styles.statusBadge} ${styles[item.status || "draft"]}`}>
                                                 {item.status || "draft"}
+                                                {item.status === 'scheduled' && item.scheduledAt && (
+                                    <span style={{ fontSize: '0.7rem', opacity: 0.8, marginLeft: '4px', fontWeight: 'normal' }}>
+                                        : {new Date(item.scheduledAt).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                    </span>
+                                )}
                                             </span>
                                         </div>
                                         <div className={styles.cardContent}>

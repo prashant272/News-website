@@ -64,7 +64,7 @@ exports.AddNews = async (req, res) => {
     const {
       title, slug, category, subCategory, summary, content,
       image, tags = [], section, targetLink, nominationLink, moreInfoLink,
-      author, status, authorId
+      author, status, authorId, scheduledAt
     } = req.body;
 
     const finalCategory = (category || section)?.toLowerCase();
@@ -108,6 +108,7 @@ exports.AddNews = async (req, res) => {
       author: author || "Prime Time News",
       authorId: authorId || null,
       status: status || "draft",
+      scheduledAt: status === "scheduled" ? scheduledAt : null,
       publishedAt: status === "published" ? new Date() : null
     });
 
@@ -132,10 +133,12 @@ exports.AddNews = async (req, res) => {
 
 exports.getAllNews = async (req, res) => {
   try {
-    const { includeDrafts, page = 1, limit = 10 } = req.query;
+    const { includeDrafts, page = 1, limit = 10, status } = req.query;
     const query = {};
 
-    if (includeDrafts !== 'true') {
+    if (status) {
+      query.status = status;
+    } else if (includeDrafts !== 'true') {
       query.status = 'published';
     }
 
@@ -242,10 +245,14 @@ exports.getNewsBySlug = async (req, res) => {
 exports.getSectionNews = async (req, res) => {
   try {
     const { section } = req.params;
-    const { includeDrafts, page = 1, limit = 10 } = req.query;
+    const { includeDrafts, page = 1, limit = 10, status } = req.query;
 
     const query = { category: section };
-    if (includeDrafts !== 'true') query.status = 'published';
+    if (status) {
+      query.status = status;
+    } else if (includeDrafts !== 'true') {
+      query.status = 'published';
+    }
 
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
@@ -307,6 +314,11 @@ exports.updateNewsBySlug = async (req, res) => {
     // Automatically show news when published
     if (updateData.status === "published") {
       updateData.isHidden = false;
+      updateData.scheduledAt = null; // Clear if manually published
+    }
+
+    if (updateData.status === "scheduled" && updateData.scheduledAt) {
+      updateData.isHidden = true; // Keep hidden until scheduled
     }
 
     // Normalize category if provided

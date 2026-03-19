@@ -9,6 +9,7 @@ const { connectdb } = require("./Config/db")
 const morgan = require("morgan")
 const helmet = require("helmet")
 const compression = require("compression")
+const { initCronJobs } = require("./Services/cronService")
 const AuthRouter = require("./routes/auth.routes")
 const NewsRouter = require("./routes/news.routes")
 const OTPRouter = require("./routes/otp.route")
@@ -87,7 +88,10 @@ app.use("/fb", FacebookRouter)
 const { syncMatchesWithDB } = require("./Services/cricketService")
 
 app.listen(process.env.PORT, () => {
-    console.log(`Server is running on port ${process.env.PORT}`);
+    // Initialize Cron Jobs
+    initCronJobs();
+
+    console.log(`Server is running at http://localhost:${process.env.PORT}`);
 
     /*
     // Initial full sync on startup

@@ -9,7 +9,8 @@ export interface NewsItem {
     content: string;
     image?: string;
     tags: string[];
-    status: "draft" | "published" | "archived";
+    status: "draft" | "published" | "archived" | "scheduled";
+    scheduledAt?: string;
     publishedAt?: string;
     createdAt?: string;
     date?: string;
@@ -97,13 +98,13 @@ class NewsService {
     addNews = (news: Omit<NewsItem, "id"> & { section: string }): Promise<ApiResponse<NewsItem>> =>
         this.request("/addnews", { method: "POST", body: JSON.stringify(news) });
 
-    getAllNews = (includeDrafts: boolean = false, page: number = 1, limit: number = 10): Promise<ApiResponse<NewsItem[]>> => {
-        const endpoint = `/getallnews?page=${page}&limit=${limit}${includeDrafts ? '&includeDrafts=true' : ''}`;
+    getAllNews = (includeDrafts: boolean = false, page: number = 1, limit: number = 10, status?: string): Promise<ApiResponse<NewsItem[]>> => {
+        const endpoint = `/getallnews?page=${page}&limit=${limit}${includeDrafts ? '&includeDrafts=true' : ''}${status ? `&status=${status}` : ''}`;
         return this.request(endpoint);
     };
 
-    getNewsBySection = (section: string, includeDrafts: boolean = false, page: number = 1, limit: number = 10): Promise<ApiResponse<NewsItem[]>> => {
-        const endpoint = `/getnewsbysection/${section}?page=${page}&limit=${limit}${includeDrafts ? '&includeDrafts=true' : ''}`;
+    getNewsBySection = (section: string, includeDrafts: boolean = false, page: number = 1, limit: number = 10, status?: string): Promise<ApiResponse<NewsItem[]>> => {
+        const endpoint = `/getnewsbysection/${section}?page=${page}&limit=${limit}${includeDrafts ? '&includeDrafts=true' : ''}${status ? `&status=${status}` : ''}`;
         return this.request(endpoint);
     };
 
