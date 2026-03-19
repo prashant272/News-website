@@ -19,6 +19,7 @@ export interface NewsItem {
     isOpinion?: boolean;
     targetLink?: string;
     nominationLink?: string;
+    moreInfoLink?: string;
     author?: string;
     authorId?: string | {
         _id: string;

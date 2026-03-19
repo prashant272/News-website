@@ -142,12 +142,22 @@ export default function CategoryPage() {
 
   if (context.loading || isFiltering || isInitialLoading) {
     return (
-      <div style={{ padding: '4rem 2rem', textAlign: 'center' }}>
-        <h2 className="text-2xl font-bold mb-4">Loading...</h2>
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {Array(6).fill(0).map((_, i) => (
+            <div key={i} className="bg-gray-100 rounded-xl overflow-hidden animate-pulse">
+              <div className="h-56 bg-gray-200" />
+              <div className="p-6">
+                <div className="h-6 bg-gray-200 rounded-md w-3/4 mb-4" />
+                <div className="h-4 bg-gray-200 rounded-md w-1/2" />
+              </div>
+            </div>
+          ))}
+        </div>
         {isInitialLoading && (
-          <div className="flex flex-col items-center gap-3">
+          <div className="flex flex-col items-center gap-3 mt-12">
             <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-            <p className="text-gray-600">Fetching the latest {categoryTitle} news directly from our database...</p>
+            <p className="text-gray-600">Fetching the latest {categoryTitle} news...</p>
           </div>
         )}
       </div>

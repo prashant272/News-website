@@ -27,9 +27,12 @@ const BreakingNewsManager = dynamic(() => import("./components/BreakingNewsManag
 const CricketManager = dynamic(() => import("./components/CricketManager"), {
   loading: () => <div className={styles.loading}>Loading Cricket Manager...</div>
 });
+const InternationalProgramManager = dynamic(() => import("./components/InternationalProgramManager"), {
+  loading: () => <div className={styles.loading}>Loading International Program Manager...</div>
+});
 
 interface MainSectionProps {
-  section: 'news_management' | 'ad_management' | 'previous_news' | 'analytics' | 'user_management' | 'facebook_settings' | 'breaking_news' | 'cricket_management';
+  section: 'news_management' | 'ad_management' | 'previous_news' | 'analytics' | 'user_management' | 'facebook_settings' | 'breaking_news' | 'cricket_management' | 'international_programs';
   initialDraft?: NewsItem | null;
 }
 
@@ -83,7 +86,8 @@ const MainSection: FC<MainSectionProps> = ({ section, initialDraft }) => {
                         section === 'user_management' ? '👥' :
                           section === 'breaking_news' ? '🔥' :
                             section === 'facebook_settings' ? '📱' :
-                              section === 'cricket_management' ? '🏏' : '📁'}
+                              section === 'cricket_management' ? '🏏' :
+                                section === 'international_programs' ? '🌐' : '📁'}
                 </span>
                 {section === 'news_management' ? 'News Management' :
                   section === 'ad_management' ? 'Ad Management' :
@@ -101,7 +105,8 @@ const MainSection: FC<MainSectionProps> = ({ section, initialDraft }) => {
                         section === 'breaking_news' ? 'Manage live breaking news headlines' :
                           section === 'facebook_settings' ? 'Configure auto-posting to Facebook' :
                             section === 'cricket_management' ? 'Select and track live matches' :
-                              'View and manage previously published news'}
+                              section === 'international_programs' ? 'Manage links in the Awards dropdown' :
+                                'View and manage previously published news'}
                 {userRole !== "USER" && <span className={styles.roleBadge}> • {userRole}</span>}
               </p>
             </div>
@@ -153,6 +158,9 @@ const MainSection: FC<MainSectionProps> = ({ section, initialDraft }) => {
         )}
         {section === 'cricket_management' && (
           <CricketManager />
+        )}
+        {section === 'international_programs' && (
+          <InternationalProgramManager />
         )}
       </div>
     </div>

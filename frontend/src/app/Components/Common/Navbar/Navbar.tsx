@@ -3,16 +3,19 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import styles from './Navbar.module.scss';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, Moon, Sun, ChevronDown, ChevronRight } from 'lucide-react';
+import { Menu, X, Moon, Sun, ChevronDown, ChevronRight, ChevronLeft } from 'lucide-react';
 import { useNewsContext } from '@/app/context/NewsContext';
 import { useTheme } from '@/app/context/ThemeContext';
 import Image from 'next/image';
 import logo from "@/assets/Logo/primetimelogo.gif"
 import { useActiveAds } from '@/app/hooks/useAds';
+import { baseURL } from '@/Utils/Utils';
 
 interface SubMenuItem {
   label: string;
   href: string;
+  isDivider?: boolean;
+  submenu?: SubMenuItem[];
 }
 
 interface NavItem {
@@ -20,6 +23,7 @@ interface NavItem {
   href: string;
   key: string;
   submenu?: SubMenuItem[];
+  dynamicSubmenu?: boolean;
 }
 
 const SECTION_LABELS: Record<string, string> = {
@@ -77,10 +81,34 @@ const Navbar: React.FC = () => {
   const [isPaused, setIsPaused] = useState(false);
   const [visibleItems, setVisibleItems] = useState(1);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [activeSubDropdown, setActiveSubDropdown] = useState<string | null>(null);
+  const [pinnedSubDropdown, setPinnedSubDropdown] = useState<string | null>(null);
 
   const { theme, toggleTheme } = useTheme();
   const newsContext = useNewsContext();
   const sections = newsContext?.sections;
+  const API_BASE = "http://localhost:8086";
+
+  const [internationalPrograms, setInternationalPrograms] = useState<SubMenuItem[]>([]);
+
+  useEffect(() => {
+    const fetchPrograms = async () => {
+      try {
+        const response = await fetch(`${API_BASE}/api/international-programs`);
+        const data = await response.json();
+        if (data.success) {
+          const formatted = data.data.map((p: any) => ({
+            label: p.title,
+            href: p.link
+          }));
+          setInternationalPrograms(formatted);
+        }
+      } catch (err) {
+        console.error("Fetch Programs Error:", err);
+      }
+    };
+    fetchPrograms();
+  }, [API_BASE]);
 
   const { data: ads, loading: adsLoading } = useActiveAds();
 
@@ -101,13 +129,18 @@ const Navbar: React.FC = () => {
           { label: "Education Awards", href: "https://education-awards.primetimemedia.in/" },
           { label: "Business Awards", href: "https://business-leadership.primetimemedia.in/" },
           { label: "Awards News", href: "/Pages/awards" },
+          ...(internationalPrograms.length > 0 ? [{
+            label: "International Program",
+            href: "#",
+            submenu: internationalPrograms
+          }] : [])
         ]
       },
       { label: "Entertainment", href: "/Pages/entertainment", key: "entertainment" },
       { label: "Lifestyle", href: "/Pages/lifestyle", key: "lifestyle" },
       { label: "Health", href: "/Pages/health", key: "health" },
     ];
-  }, []);
+  }, [internationalPrograms]);
 
   // First 7 items shown (including Awards), rest behind >> more
   const PRIMARY_COUNT = 7;
@@ -290,19 +323,84 @@ const Navbar: React.FC = () => {
                       {item.label}
                       <ChevronDown size={14} className={`${styles.chevron} ${activeDropdown === item.key ? styles.rotate : ''}`} />
                     </button>
-                    <div className={`${styles.dropdownMenu} ${activeDropdown === item.key ? styles.show : ''}`}>
-                      {item.submenu.map((sub, idx) => (
-                        <Link
-                          key={idx}
-                          href={sub.href}
-                          className={styles.dropdownItem}
-                          onClick={() => setActiveDropdown(null)}
-                          target={sub.href.startsWith('http') ? '_blank' : undefined}
-                          rel={sub.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                        >
-                          {sub.label}
-                        </Link>
-                      ))}
+                    <div className={`${styles.dropdownMenu} ${activeDropdown === item.key ? styles.show : ''}`}
+                      onMouseLeave={() => {
+                        setActiveSubDropdown(null);
+                        setPinnedSubDropdown(null);
+                      }}
+                    >
+                      <div className={styles.dropdownScrollArea}>
+                        {item.submenu.map((sub, idx) => {
+                          const subId = `${item.key}-${idx}`;
+                          return (
+                            <div key={idx}
+                              className={`${styles.dropdownItemWrapper} ${sub.submenu ? styles.hasNestedDropdown : ''}`}
+                              onMouseEnter={() => {
+                                if (!pinnedSubDropdown) {
+                                  setActiveSubDropdown(sub.submenu ? subId : null);
+                                }
+                              }}
+                              onClick={(e) => {
+                                if (sub.submenu) {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  setPinnedSubDropdown(pinnedSubDropdown === subId ? null : subId);
+                                  setActiveSubDropdown(subId);
+                                }
+                              }}
+                            >
+                              {sub.submenu ? (
+                                <div className={`${styles.dropdownItem} ${pinnedSubDropdown === subId ? styles.active : ''}`}>
+                                  <ChevronLeft size={12} className={styles.submenuChevron} /> {sub.label}
+                                </div>
+                              ) : (
+                                <Link
+                                  href={sub.href}
+                                  className={styles.dropdownItem}
+                                  onClick={() => {
+                                    setActiveDropdown(null);
+                                    setPinnedSubDropdown(null);
+                                  }}
+                                  target={sub.href.startsWith('http') ? '_blank' : undefined}
+                                  rel={sub.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                                >
+                                  {sub.isDivider ? (
+                                    <div className={styles.dropdownSectionLabel}>{sub.label}</div>
+                                  ) : (
+                                    sub.label
+                                  )}
+                                </Link>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* Render nested menus here, outside scroll area, to prevent clipping */}
+                      {item.submenu.map((sub, idx) => {
+                        const subId = `${item.key}-${idx}`;
+                        return (
+                          sub.submenu && (activeSubDropdown === subId || pinnedSubDropdown === subId) && (
+                            <div key={`nested-${idx}`} className={styles.nestedDropdownMenu}>
+                              {sub.submenu.map((nestedSub, nIdx) => (
+                                <Link
+                                  key={nIdx}
+                                  href={nestedSub.href}
+                                  className={styles.dropdownItem}
+                                  onClick={() => {
+                                    setActiveDropdown(null);
+                                    setPinnedSubDropdown(null);
+                                  }}
+                                  target={nestedSub.href.startsWith('http') ? '_blank' : undefined}
+                                  rel={nestedSub.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                                >
+                                  {nestedSub.label}
+                                </Link>
+                              ))}
+                            </div>
+                          )
+                        );
+                      })}
                     </div>
                   </>
                 ) : (
@@ -359,7 +457,7 @@ const Navbar: React.FC = () => {
             </button>
 
             {/* Live Button */}
-            <LiveScoreButton API_BASE={(newsContext as any)?.API_BASE || "https://api.primetimemedia.in"} />
+            <LiveScoreButton API_BASE={API_BASE} />
           </div>
         </div>
 
@@ -377,20 +475,56 @@ const Navbar: React.FC = () => {
                       onClick={(e) => toggleDropdown(item.key, e)}
                     >
                       {item.label}
-                      <ChevronDown size={20} className={`${styles.chevron} ${activeDropdown === item.key ? styles.rotate : ''}`} />
+                      <ChevronDown size={20} className={`${styles.chevron} ${(activeDropdown === item.key || activeDropdown?.startsWith(`nested-${item.key}`)) ? styles.rotate : ''}`} />
                     </button>
-                    <div className={`${styles.mobileSubmenu} ${activeDropdown === item.key ? styles.open : ''}`}>
+                    <div className={`${styles.mobileSubmenu} ${(activeDropdown === item.key || activeDropdown?.startsWith(`nested-${item.key}`)) ? styles.open : ''}`}>
                       {item.submenu.map((sub, idx) => (
-                        <Link
-                          key={idx}
-                          href={sub.href}
-                          className={styles.mobileSubItem}
-                          onClick={closeMobileMenu}
-                          target={sub.href.startsWith('http') ? '_blank' : undefined}
-                          rel={sub.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                        >
-                          {sub.label}
-                        </Link>
+                        <div key={idx} className={styles.mobileSubItemWrapper}>
+                          {sub.submenu ? (
+                            <>
+                              <button
+                                className={styles.mobileSubItem}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  // Simplified toggle for nested mobile
+                                  const nestedMenuId = `nested-${item.key}-${idx}`;
+                                  setActiveDropdown(activeDropdown === nestedMenuId ? item.key : nestedMenuId);
+                                }}
+                              >
+                                {sub.label} <ChevronDown size={14} className={`${styles.chevron} ${activeDropdown?.startsWith(`nested-${item.key}-${idx}`) ? styles.rotate : ''}`} />
+                              </button>
+                              <div className={`${styles.mobileNestedSubmenu} ${activeDropdown?.startsWith(`nested-${item.key}-${idx}`) ? styles.open : ''}`}>
+                                {sub.submenu.map((nestedSub, nIdx) => (
+                                  <Link
+                                    key={nIdx}
+                                    href={nestedSub.href}
+                                    className={styles.mobileSubItem}
+                                    style={{ paddingLeft: '60px' }}
+                                    onClick={closeMobileMenu}
+                                    target={nestedSub.href.startsWith('http') ? '_blank' : undefined}
+                                    rel={nestedSub.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                                  >
+                                    {nestedSub.label}
+                                  </Link>
+                                ))}
+                              </div>
+                            </>
+                          ) : (
+                            <Link
+                              href={sub.href}
+                              className={styles.mobileSubItem}
+                              onClick={closeMobileMenu}
+                              target={sub.href.startsWith('http') ? '_blank' : undefined}
+                              rel={sub.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                            >
+                              {sub.isDivider ? (
+                                <div className={styles.dropdownSectionLabel} style={{ borderTop: 'none', marginTop: 0, paddingLeft: '40px' }}>{sub.label}</div>
+                              ) : (
+                                sub.label
+                              )}
+                            </Link>
+                          )}
+                        </div>
                       ))}
                     </div>
                   </>

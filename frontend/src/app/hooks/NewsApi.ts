@@ -108,12 +108,13 @@ function setCachedNews(data: NewsItem[]) {
  * Hook for progressive streaming of news items via NDJSON.
  * Uses localStorage cache for instant first paint, then refreshes in background.
  */
-export const useStreamingNews = (section?: string, limit: number = 150) => {
+export const useStreamingNews = (section?: string, limit: number = 50) => {
   const cached = typeof window !== 'undefined' ? getCachedNews() : null;
   const [news, setNews] = useState<NewsItem[]>(cached || []);
-  const [loading, setLoading] = useState(!cached); // if cache hit, don't show loading
+  const [loading, setLoading] = useState(false); // Start false, delay setting to true
   const [error, setError] = useState<string | null>(null);
   const streamingRef = useRef<boolean>(false);
+  const loadingTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const startStream = useCallback(async (isBackground = false) => {
     if (streamingRef.current) {
@@ -123,7 +124,10 @@ export const useStreamingNews = (section?: string, limit: number = 150) => {
 
     streamingRef.current = true;
     if (!isBackground) {
-      setLoading(true);
+      // Delay showing loading state by 300ms to avoid flickering on fast connections
+      loadingTimerRef.current = setTimeout(() => {
+        setLoading(true);
+      }, 300);
       setError(null);
     }
 
@@ -204,6 +208,7 @@ export const useStreamingNews = (section?: string, limit: number = 150) => {
         setError(err.message);
       }
     } finally {
+      if (loadingTimerRef.current) clearTimeout(loadingTimerRef.current);
       setLoading(false);
       streamingRef.current = false;
     }

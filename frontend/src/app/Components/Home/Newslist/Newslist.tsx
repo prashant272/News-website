@@ -18,6 +18,8 @@ interface RawNewsItem {
   tags?: string[];
   isTrending?: boolean;
   isLatest?: boolean;
+  nominationLink?: string;
+  moreInfoLink?: string;
 }
 
 
@@ -31,6 +33,8 @@ interface NewsArticle {
   isOpinion: boolean;
   isVideo: boolean;
   date?: string;
+  nominationLink?: string;
+  moreInfoLink?: string;
 }
 
 
@@ -88,6 +92,8 @@ const NewsList: React.FC = () => {
       isOpinion: item.tags?.includes('opinion') ?? false,
       isVideo: item.tags?.includes('video') ?? false,
       date: item.publishedAt || item.date || item.createdAt,
+      nominationLink: item.nominationLink,
+      moreInfoLink: item.moreInfoLink,
     }));
 
     return articles;
@@ -194,6 +200,26 @@ const NewsList: React.FC = () => {
                     <h3 className={styles.cardTitle}>{article.title}</h3>
                     {article.date && (
                       <span className={styles.publishDate}>{formatDateTime(article.date)}</span>
+                    )}
+                    {article.category.toLowerCase() === 'awards' && (
+                      <div className={styles.awardsActions} onClick={(e) => e.stopPropagation()}>
+                        <a 
+                          href={article.nominationLink || '#'} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className={styles.nominateBtn}
+                        >
+                          🏆 Nominate
+                        </a>
+                        <a 
+                          href={article.moreInfoLink || '#'} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className={styles.moreInfoBtn}
+                        >
+                          ℹ️ More Info
+                        </a>
+                      </div>
                     )}
                   </div>
                 </article>

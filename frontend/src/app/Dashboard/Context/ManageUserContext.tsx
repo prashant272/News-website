@@ -229,7 +229,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   }, [router]);
 
   if (!initialStateLoaded) {
-    return <div>Loading...</div>;
+    return null; // Don't block with text, just wait for hydration
   }
 
   return (

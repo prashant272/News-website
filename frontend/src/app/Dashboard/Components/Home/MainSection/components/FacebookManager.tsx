@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect, useCallback, FC } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { FaFacebook } from "react-icons/fa";
 import { API } from "@/Utils/Utils";
 import styles from "../Main.module.scss";
@@ -12,6 +13,8 @@ const FacebookManager: FC<FacebookManagerProps> = ({ showNotification }) => {
     const [fbStatus, setFbStatus] = useState<any>(null);
     const [fbPages, setFbPages] = useState<any[]>([]);
     const [fbLoading, setFbLoading] = useState(false);
+    const searchParams = useSearchParams();
+    const router = useRouter();
 
     const fetchFacebookStatus = useCallback(async () => {
         try {
@@ -21,6 +24,35 @@ const FacebookManager: FC<FacebookManagerProps> = ({ showNotification }) => {
             console.error("Fetch FB status error:", err);
         }
     }, []);
+
+    // Handle OAuth callback (code in URL)
+    useEffect(() => {
+        const handleCallback = async () => {
+            const code = searchParams.get("code");
+            if (code && fbPages.length === 0 && !fbStatus?.connected) {
+                setFbLoading(true);
+                try {
+                    const res = await API.get(`/fb/callback?code=${code}`);
+                    if (res.data.success) {
+                        setFbPages(res.data.pages);
+                        showNotification("Select a Facebook Page to complete connection", "success");
+                    } else {
+                        showNotification(res.data.msg || "Facebook authentication failed", "error");
+                    }
+                } catch (err: any) {
+                    console.error("Facebook callback error:", err);
+                    showNotification("Failed to authenticate with Facebook", "error");
+                } finally {
+                    setFbLoading(false);
+                    // Clear the code from URL 
+                    const params = new URLSearchParams(searchParams.toString());
+                    params.delete("code");
+                    router.replace(`${window.location.pathname}?${params.toString()}`);
+                }
+            }
+        };
+        handleCallback();
+    }, [searchParams, fbPages.length, fbStatus?.connected, router, showNotification]);
 
     useEffect(() => {
         fetchFacebookStatus();

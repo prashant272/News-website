@@ -20,6 +20,7 @@ const sections = [
   { id: 'user_management' as const, label: 'User Management', icon: '👥' },
   { id: 'employee_reports' as const, label: 'Employee Reports', icon: '📋' },
   { id: 'cricket_management' as const, label: 'Cricket Management', icon: '🏏' },
+  { id: 'international_programs' as const, label: 'International Programs', icon: '🌐' },
 ] as const;
 
 type SectionId = typeof sections[number]['id'];
@@ -42,7 +43,9 @@ export default function NewsAdminPage() {
   const urlSection = searchParams.get('section') as SectionId | null;
   const validSection = urlSection && sections.find(s => s.id === urlSection) ? urlSection : null;
 
-  const [activeSection, setActiveSection] = useState<SectionId>(validSection || 'news_management');
+  const [activeSection, setActiveSection] = useState<SectionId>(
+    validSection || (searchParams.get('code') ? 'facebook_settings' : 'news_management')
+  );
   const activeSectionData = sections.find(s => s.id === activeSection);
   const [draftToEdit, setDraftToEdit] = useState<any>(null);
 

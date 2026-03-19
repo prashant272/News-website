@@ -75,6 +75,7 @@ const NewsManager: FC<NewsManagerProps> = ({
         status: "draft",
         targetLink: "",
         nominationLink: "",
+        moreInfoLink: "",
     });
 
     const [tagsInput, setTagsInput] = useState("");
@@ -95,6 +96,7 @@ const NewsManager: FC<NewsManagerProps> = ({
             status: "draft",
             targetLink: "",
             nominationLink: "",
+            moreInfoLink: "",
         });
         setImagePreview(null);
         setShowImage(false);
@@ -110,7 +112,10 @@ const NewsManager: FC<NewsManagerProps> = ({
             setFormState({
                 ...initialDraft,
                 status: initialDraft.status || 'draft',
-                category: matchedCat.charAt(0).toUpperCase() + matchedCat.slice(1)
+                category: matchedCat.charAt(0).toUpperCase() + matchedCat.slice(1),
+                targetLink: initialDraft.targetLink || "",
+                nominationLink: initialDraft.nominationLink || "",
+                moreInfoLink: initialDraft.moreInfoLink || "",
             });
             setEditingSlug(initialDraft.slug);
             setTagsInput(initialDraft.tags?.join(", ") || "");
@@ -423,6 +428,16 @@ const NewsManager: FC<NewsManagerProps> = ({
                             />
                         </div>
                         <div className={styles.formGroup}>
+                            <label className={styles.label}>Target Link (Redirect)</label>
+                            <input
+                                type="text"
+                                className={styles.input}
+                                value={formState.targetLink ?? ""}
+                                onChange={handleChange("targetLink")}
+                                placeholder="https://..."
+                            />
+                        </div>
+                        <div className={styles.formGroup}>
                             <label className={styles.label}>Status</label>
                             <select
                                 value={formState.status ?? "draft"}
@@ -433,6 +448,26 @@ const NewsManager: FC<NewsManagerProps> = ({
                                 <option value="published">Published</option>
                                 <option value="archived">Archived</option>
                             </select>
+                        </div>
+                        <div className={styles.formGroup}>
+                            <label className={styles.label}>Nomination Link (Awards only)</label>
+                            <input
+                                type="text"
+                                className={styles.input}
+                                value={formState.nominationLink ?? ""}
+                                onChange={handleChange("nominationLink")}
+                                placeholder="https://..."
+                            />
+                        </div>
+                        <div className={styles.formGroup}>
+                            <label className={styles.label}>More Info Link (Awards only)</label>
+                            <input
+                                type="text"
+                                className={styles.input}
+                                value={formState.moreInfoLink ?? ""}
+                                onChange={handleChange("moreInfoLink")}
+                                placeholder="https://..."
+                            />
                         </div>
                         <div className={styles.formGroup}>
                             <label className={styles.label}>Featured Image</label>

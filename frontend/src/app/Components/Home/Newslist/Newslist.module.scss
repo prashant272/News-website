@@ -159,6 +159,52 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
+ 
+.awardsActions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--card-border);
+ 
+  .nominateBtn, .moreInfoBtn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.6rem 0.5rem;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    text-align: center;
+  }
+ 
+  .nominateBtn {
+    background: #f59e0b; // Amber-500
+    color: white;
+    box-shadow: 0 2px 4px rgba(245, 158, 11, 0.2);
+ 
+    &:hover {
+      background: #d97706;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(245, 158, 11, 0.3);
+    }
+  }
+ 
+  .moreInfoBtn {
+    background: var(--nav-hover-bg);
+    color: var(--primary);
+    border: 1px solid var(--primary);
+ 
+    &:hover {
+      background: var(--primary);
+      color: white;
+      transform: translateY(-2px);
+    }
+  }
+}
 
 
 .sidebar {

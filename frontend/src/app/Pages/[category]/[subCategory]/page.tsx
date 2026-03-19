@@ -180,10 +180,22 @@ export default function SubCategoryPage() {
   // Truly loading state
   if (isInitialLoading) {
     return (
-      <div className="p-20 text-center flex flex-col items-center gap-4">
-        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-        <h2 className="text-xl font-bold">Searching in {pageTitle}...</h2>
-        <p className="text-gray-500">Retrieving the latest news for {subPageTitle}.</p>
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {Array(6).fill(0).map((_, i) => (
+            <div key={i} className="bg-gray-100 rounded-xl overflow-hidden animate-pulse">
+              <div className="h-56 bg-gray-200" />
+              <div className="p-6">
+                <div className="h-6 bg-gray-200 rounded-md w-3/4 mb-4" />
+                <div className="h-4 bg-gray-200 rounded-md w-1/2" />
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="flex flex-col items-center gap-3 mt-12">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-gray-600">Searching in {pageTitle} for {subPageTitle} news...</p>
+        </div>
       </div>
     );
   }
