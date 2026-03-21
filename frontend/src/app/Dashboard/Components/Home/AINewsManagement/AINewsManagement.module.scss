@@ -20,16 +20,42 @@
         color: #333;
     }
 
-    .refreshBtn {
+    .headerActions {
+        display: flex;
+        gap: 12px;
+    }
+
+    .refreshBtn,
+    .scrapBtn {
         padding: 8px 16px;
         background: #007bff;
         color: white;
         border: none;
         border-radius: 4px;
         cursor: pointer;
+        font-weight: 500;
+        transition: all 0.2s ease;
 
-        &:hover {
+        &:hover:not(:disabled) {
             background: #0056b3;
+            transform: translateY(-1px);
+        }
+
+        &:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        &:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+    }
+
+    .scrapBtn {
+        background: #28a745;
+
+        &:hover:not(:disabled) {
+            background: #218838;
         }
     }
 }

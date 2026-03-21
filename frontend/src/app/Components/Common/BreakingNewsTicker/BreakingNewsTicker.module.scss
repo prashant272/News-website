@@ -2,9 +2,37 @@
     width: 100%;
     margin: 10px 0;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     z-index: 99;
+}
+
+.mobileTitle {
+    display: none;
+
+    @media (max-width: 480px) {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 800;
+        font-size: 0.75rem;
+        margin-bottom: 6px;
+        color: #e10000;
+        text-transform: uppercase;
+        width: 95%;
+        padding-left: 10px;
+        letter-spacing: 1px;
+        font-family: 'Georgia', 'Times New Roman', serif;
+        font-style: italic;
+
+        .liveDot {
+            background: #e10000;
+            box-shadow: 0 0 5px rgba(225, 0, 0, 0.4);
+            width: 8px;
+            height: 8px;
+        }
+    }
 }
 
 .container {
@@ -26,17 +54,28 @@
 .label {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 10px;
     font-weight: 900;
-    font-size: 1rem;
+    font-size: 0.95rem;
     white-space: nowrap;
-    padding-left: 15px;
-    padding-right: 50px;
-    letter-spacing: 3px;
+    padding-left: 10px;
+    padding-right: 25px;
+    letter-spacing: 2px;
     text-transform: uppercase;
     color: #ffffff !important;
     font-family: 'Georgia', 'Times New Roman', serif;
     font-style: italic;
+
+    @media (max-width: 768px) {
+        font-size: 0.7rem;
+        padding-right: 12px;
+        letter-spacing: 0.5px;
+        gap: 5px;
+    }
+
+    @media (max-width: 480px) {
+        display: none;
+    }
 
     .liveDot {
         width: 12px;
@@ -45,6 +84,11 @@
         border-radius: 50%;
         animation: tickerPulse 1.5s infinite;
         box-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+
+        @media (max-width: 768px) {
+            width: 8px;
+            height: 8px;
+        }
     }
 }
 
@@ -70,6 +114,10 @@
     height: 18px;
     background: rgba(255, 255, 255, 0.4);
     margin-right: 15px;
+
+    @media (max-width: 480px) {
+        display: none;
+    }
 }
 
 .newsTrack {
@@ -90,10 +138,15 @@
     text-align: left;
     overflow: hidden;
     text-overflow: ellipsis;
-    padding-right: 40px;
+    padding-right: 30px;
     font-family: 'Georgia', 'Times New Roman', serif;
     font-style: italic;
     letter-spacing: 0.3px;
+
+    @media (max-width: 768px) {
+        font-size: 0.8rem;
+        padding-right: 20px;
+    }
 }
 
 .closeBtn {
@@ -256,5 +309,27 @@
 
     .newsItem {
         font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 0 10px;
+        height: 36px;
+    }
+
+    .newsTrack {
+        padding-left: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 0 10px;
+        height: 36px;
+    }
+
+    .separator {
+        margin-right: 10px;
     }
 }

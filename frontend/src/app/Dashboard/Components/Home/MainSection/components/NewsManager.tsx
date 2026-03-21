@@ -654,10 +654,10 @@ const NewsManager: FC<NewsManagerProps> = ({
                                             <span className={`${styles.statusBadge} ${styles[item.status || "draft"]}`}>
                                                 {item.status || "draft"}
                                                 {item.status === 'scheduled' && item.scheduledAt && (
-                                    <span style={{ fontSize: '0.7rem', opacity: 0.8, marginLeft: '4px', fontWeight: 'normal' }}>
-                                        : {new Date(item.scheduledAt).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                                    </span>
-                                )}
+                                                    <span style={{ fontSize: '0.7rem', opacity: 0.8, marginLeft: '4px', fontWeight: 'normal' }}>
+                                                        : {new Date(item.scheduledAt).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                                    </span>
+                                                )}
                                             </span>
                                         </div>
                                         <div className={styles.cardContent}>

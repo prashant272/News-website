@@ -12,7 +12,22 @@ interface BreakingNewsItem {
     link?: string;
     source?: string;
     createdAt: string;
+    scheduledAt?: string;
 }
+
+const formatTickerTime = (dateStr: string) => {
+    if (!dateStr) return '';
+    try {
+        const date = new Date(dateStr);
+        return date.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+        });
+    } catch (e) {
+        return '';
+    }
+};
 
 const BreakingNewsTicker: React.FC = () => {
     const router = useRouter();
@@ -57,18 +72,18 @@ const BreakingNewsTicker: React.FC = () => {
         };
     }, [API_BASE]);
 
-    // Combine for rotation: Live scores first
+    // Combine for rotation: Live scores first, then news (limited to top 15 total)
     const combinedItems = [
         ...(liveScores.live || []).map((m: any) => ({ _id: m.id, title: `${m.name}: ${m.status}`, isLive: true })),
         ...news
-    ];
+    ].slice(0, 20);
 
     useEffect(() => {
         if (combinedItems.length <= 1) return;
 
         const timer = setInterval(() => {
             setCurrentIndex((prev) => (prev + 1) % combinedItems.length);
-        }, 5000);
+        }, 10000);
 
         return () => clearInterval(timer);
     }, [combinedItems.length]);
@@ -82,6 +97,10 @@ const BreakingNewsTicker: React.FC = () => {
 
     return (
         <div className={styles.tickerWrapper}>
+            <div className={styles.mobileTitle}>
+                <span className={styles.liveDot}></span>
+                {currentItem.isLive ? "LIVE SCORE" : "BREAKING NEWS"}
+            </div>
             <div className={styles.container} onClick={() => router.push(currentItem.isLive ? "/sports/live" : "/breaking-news")}>
                 <div className={styles.label}>
                     <span className={styles.liveDot}></span>
@@ -99,6 +118,11 @@ const BreakingNewsTicker: React.FC = () => {
                             className={styles.newsItem}
                         >
                             {currentItem.isLive && <span style={{ color: '#ff3b3b', fontWeight: '900', marginRight: '8px' }}>[LIVE]</span>}
+                            {!currentItem.isLive && (currentItem.scheduledAt || currentItem.createdAt) && (
+                                <span style={{ color: '#ffdbdb', fontWeight: '800', marginRight: '8px' }}>
+                                    [{formatTickerTime(currentItem.scheduledAt || currentItem.createdAt)}]
+                                </span>
+                            )}
                             {currentItem.title}
                         </motion.div>
                     </AnimatePresence>

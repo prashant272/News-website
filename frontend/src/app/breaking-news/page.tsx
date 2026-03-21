@@ -14,6 +14,7 @@ interface BreakingNewsItem {
     link?: string;
     source?: string;
     createdAt: string;
+    scheduledAt?: string;
 }
 
 const BreakingNewsPage = () => {
@@ -107,7 +108,7 @@ const BreakingNewsPage = () => {
                     news.map((item, index) => (
                         <div key={item._id} className={`${styles.newsItem} ${index === 0 ? styles.featuredItem : ""}`}>
                             <div className={styles.timeBox}>
-                                <span className={styles.time}>{formatTime(item.createdAt)}</span>
+                                <span className={styles.time}>{formatTime(item.scheduledAt || item.createdAt)}</span>
                             </div>
                             <div className={styles.contentBox}>
                                 {item.source && <span className={styles.sourceTag}>{item.source}</span>}

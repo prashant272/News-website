@@ -83,6 +83,7 @@ const AwardsPopup: React.FC = () => {
     let badgeLabel: string;
     let titleText: string;
     let descText: string;
+    let imageUrl: string | undefined;
 
     if (liveAwards) {
         const idx = awardIndex % liveAwards.length;
@@ -96,6 +97,7 @@ const AwardsPopup: React.FC = () => {
         badgeLabel = `🏆 ${item.subCategory || item.category || 'Awards'}`;
         titleText = item.title;
         descText = item.subtitle || "Recognizing excellence and leadership in India.";
+        imageUrl = item.image || undefined;
     } else {
         const idx = awardIndex % FALLBACK_AWARDS.length;
         const fb = FALLBACK_AWARDS[idx];
@@ -104,6 +106,7 @@ const AwardsPopup: React.FC = () => {
         badgeLabel = fb.badge;
         titleText = fb.title;
         descText = fb.subtitle;
+        imageUrl = undefined;
     }
 
     const totalCount = liveAwards ? liveAwards.length : FALLBACK_AWARDS.length;
@@ -113,13 +116,21 @@ const AwardsPopup: React.FC = () => {
         <div className={styles.overlay} onClick={() => setVisible(false)}>
             <div className={styles.popup} onClick={(e) => e.stopPropagation()}>
 
-                <button className={styles.closeBtn} onClick={() => setVisible(false)} aria-label="Close">
-                    <X size={18} />
-                </button>
+                {imageUrl ? (
+                    <div className={styles.imageWrapper}>
+                        <img src={imageUrl} alt={titleText} className={styles.newsImage} />
+                        <div className={styles.imageOverlay} />
+                        <button className={styles.closeBtn} onClick={() => setVisible(false)} aria-label="Close">
+                            <X size={18} />
+                        </button>
+                    </div>
+                ) : (
+                    <button className={styles.closeBtn} onClick={() => setVisible(false)} aria-label="Close">
+                        <X size={18} />
+                    </button>
+                )}
 
                 <span className={styles.badge}>{badgeLabel}</span>
-                <h2 className={styles.title}>{titleText}</h2>
-                <p className={styles.desc}>{descText}</p>
 
                 <div className={styles.actions}>
                     <a href={nominateUrl} target="_blank" rel="noopener noreferrer"

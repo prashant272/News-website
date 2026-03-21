@@ -4,6 +4,11 @@ const { getLatestLinks } = require("../Services/scraperService");
 // Get all active breaking news
 exports.scrapeBreakingNews = async (req, res) => {
     try {
+        // Immediate Cleanup: Delete news older than 2 days before scraping new ones
+        const twoDaysAgo = new Date();
+        twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+        await BreakingNews.deleteMany({ createdAt: { $lt: twoDaysAgo } });
+
         const sources = [
             { name: "Aaj Tak", url: "https://feeds.feedburner.com/ndtvnews-top-stories" },
             { name: "NDTV", url: "https://feeds.feedburner.com/ndtvnews-india-news" },
@@ -37,7 +42,7 @@ exports.scrapeBreakingNews = async (req, res) => {
         const existingSet = new Set(existingTitles.map(t => t.title));
 
         let staggerTime = new Date();
-        const INTERVAL_MINUTES = 2; // Release every 20 minutes
+        const INTERVAL_MINUTES = 10; // Release every 20 minutes
 
         for (const item of allNewItems) {
             if (!existingSet.has(item.title)) {
@@ -72,18 +77,36 @@ exports.scrapeBreakingNews = async (req, res) => {
 
 exports.getBreakingNews = async (req, res) => {
     try {
-        const { all } = req.query;
-        let query = {
-            isActive: true,
-            scheduledAt: { $lte: new Date() } // Only show released news
-        };
+        const { all, showAll } = req.query;
+        let query = { isActive: true };
 
-        // If all=true, show everything including future scheduled and inactive (for admin)
-        if (all === 'true') {
-            query = {};
+        // Start of today
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        if (showAll === 'true') {
+            // Admin explicitly wants to see all history (still limited below)
+            query = {}; 
+        } else {
+            // Default: Only show today's news
+            query.scheduledAt = {
+                $lte: new Date(), // Already released
+                $gte: today // From today onwards
+            };
         }
 
-        const news = await BreakingNews.find(query).sort({ scheduledAt: -1, createdAt: -1 });
+        // Overwrite if only 'all' is passed (legacy admin call)
+        // If 'all' is true but 'showAll' is not provided, we still filter for today to keep it fast
+        if (all === 'true' && showAll !== 'true') {
+            query = {
+                scheduledAt: { $gte: today }
+            };
+        }
+
+        const news = await BreakingNews.find(query)
+            .sort({ scheduledAt: -1, createdAt: -1 })
+            .limit(100); // Sanity limit for performance
+
         res.status(200).json({ success: true, count: news.length, data: news });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });

@@ -168,3 +168,4 @@ const MainSection: FC<MainSectionProps> = ({ section, initialDraft }) => {
 };
 
 export default MainSection;
+

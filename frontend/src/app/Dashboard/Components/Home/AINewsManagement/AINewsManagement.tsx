@@ -16,6 +16,8 @@ export default function AINewsManagement({ onEdit }: AINewsManagementProps) {
     const [drafts, setDrafts] = useState<AIDraft[]>([]);
     const [loading, setLoading] = useState(true);
 
+    const [scraping, setScraping] = useState(false);
+
     const fetchDrafts = useCallback(async () => {
         setLoading(true);
         try {
@@ -29,6 +31,22 @@ export default function AINewsManagement({ onEdit }: AINewsManagementProps) {
             setLoading(false);
         }
     }, []);
+
+    const handleScrap = async () => {
+        setScraping(true);
+        try {
+            const res = await API.get("/api/auto-news/fetch-daily");
+            if (res.data.success) {
+                alert(`Scraping completed! Processed: ${res.data.stats.processed}, Duplicates: ${res.data.stats.duplicates}`);
+                fetchDrafts();
+            }
+        } catch (error) {
+            console.error("Scraping failed", error);
+            alert("Scraping failed. Check console for details.");
+        } finally {
+            setScraping(false);
+        }
+    };
 
     useEffect(() => {
         fetchDrafts();
@@ -62,13 +80,22 @@ export default function AINewsManagement({ onEdit }: AINewsManagementProps) {
         }
     };
 
-    if (loading) return <div className={styles.loading}>Loading AI Drafts...</div>;
+    if (loading && drafts.length === 0) return <div className={styles.loading}>Loading AI Drafts...</div>;
 
     return (
         <div className={styles.container}>
             <div className={styles.header}>
                 <h2>🤖 AI Generated Drafts ({drafts.length})</h2>
-                <button onClick={fetchDrafts} className={styles.refreshBtn}>Refresh</button>
+                <div className={styles.headerActions}>
+                    <button
+                        onClick={handleScrap}
+                        className={styles.scrapBtn}
+                        disabled={scraping}
+                    >
+                        {scraping ? "Scraping..." : "Scrap News"}
+                    </button>
+                    <button onClick={fetchDrafts} className={styles.refreshBtn}>Refresh</button>
+                </div>
             </div>
 
             <div className={styles.grid}>

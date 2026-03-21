@@ -128,22 +128,31 @@ $text-lighter: #f1f5f9;
   font-weight: 600;
   white-space: nowrap;
   transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-  scroll-snap-align: center;
-  border: 1px solid $border-subtle;
-  background: rgba(30, 41, 59, 0.5);
+  background: rgba(30, 41, 59, 0.75);
   backdrop-filter: $blur-md;
   box-shadow: $shadow-sm;
+  color: #ffffff !important;
+
+  span {
+    color: #ffffff !important;
+  }
 
   &:hover {
     transform: scale(1.03);
+    background: rgba(255, 255, 255, 0.15);
   }
 
   &.active {
-    background: linear-gradient(90deg, rgba(37, 99, 235, 0.38) 0%, rgba(99, 102, 241, 0.38) 100%);
-    color: white;
-    border-color: $border-active;
-    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.28);
-    transform: scale(1.04);
+    background: linear-gradient(90deg, rgba(37, 130, 246, 0.7) 0%, rgba(99, 102, 241, 0.7) 100%);
+    color: #ffffff !important;
+    border-color: rgba(255, 255, 255, 0.6);
+    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.5);
+    transform: scale(1.05);
+    font-weight: 700;
+
+    span {
+      color: #ffffff !important;
+    }
   }
 }
 
@@ -224,19 +233,21 @@ $text-lighter: #f1f5f9;
 
     .userName {
       font-size: 0.9375rem;
-      font-weight: 600;
-      color: #f1f5f9;
+      font-weight: 700;
+      color: #ffffff;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     }
 
     .userRole {
       font-size: 0.75rem;
-      font-weight: 500;
-      color: #94a3b8;
+      font-weight: 700;
+      color: #ffffff;
       text-transform: uppercase;
-      letter-spacing: 0.025em;
+      letter-spacing: 0.05em;
+      opacity: 0.9;
     }
   }
 }
@@ -267,22 +278,37 @@ $text-lighter: #f1f5f9;
   font-weight: 500;
   transition: all 0.2s ease;
 
+  color: #ffffff !important;
+
+  span {
+    color: #ffffff !important;
+  }
+
   &.active {
-    background: linear-gradient(90deg, rgba(37, 99, 235, 0.28) 0%, rgba(99, 102, 241, 0.28) 100%);
-    color: white;
-    border: 1px solid $border-active;
-    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.18);
-    transform: translateX(2px);
+    background: linear-gradient(90deg, rgba(37, 130, 246, 0.7) 0%, rgba(99, 102, 241, 0.7) 100%);
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+    transform: translateX(4px);
+    font-weight: 700;
+
+    span {
+      color: #ffffff !important;
+    }
   }
 
   &:not(.active) {
-    color: #cbd5e1;
+    color: #ffffff !important;
 
     &:hover,
     &:focus-visible {
-      background: rgba(51, 65, 85, 0.45);
-      color: white;
-      transform: translateX(3px);
+      background: rgba(255, 255, 255, 0.18);
+      color: #ffffff !important;
+      transform: translateX(5px);
+
+      span {
+        color: #ffffff !important;
+      }
     }
   }
 }
@@ -365,6 +391,7 @@ $text-lighter: #f1f5f9;
   font-size: 1.625rem;
   font-weight: 700;
   text-transform: capitalize;
+  color: #ffffff !important;
 
   @media #{$mq-tablet} {
     font-size: 2rem;
@@ -379,12 +406,16 @@ $text-lighter: #f1f5f9;
 
 .activeBadge {
   padding: 0.5rem 1.25rem;
-  background: rgba(37, 99, 235, 0.18);
-  border: 1px solid rgba(59, 130, 246, 0.38);
+  background: rgba(37, 99, 235, 0.25);
+  border: 1px solid rgba(59, 130, 246, 0.45);
   border-radius: $radius-md;
-  color: #bfdbfe;
-  font-weight: 500;
+  color: #ffffff !important;
+  font-weight: 600;
   backdrop-filter: $blur-md;
+
+  span {
+    color: #ffffff !important;
+  }
 }
 
 .contentCard {

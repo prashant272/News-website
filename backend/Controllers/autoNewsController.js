@@ -243,7 +243,7 @@ const fetchAndProcessNews = async (req, res) => {
                     newItemsCount++;
 
                     // Add a small delay
-                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    await new Promise(resolve => setTimeout(resolve, 500));
 
                 } catch (err) {
                     console.error(`Failed to process ${item.link}:`, err.message);
