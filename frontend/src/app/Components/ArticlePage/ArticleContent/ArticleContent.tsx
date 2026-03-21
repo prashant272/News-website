@@ -6,6 +6,24 @@ interface ArticleContentProps {
   content: string;
 }
 
+// Strip award-related link lines from ALL articles.
+// These are displayed separately via the Awards section in ArticlePageClient.
+const sanitizeContent = (html: string): string => {
+  if (!html) return html;
+  return html
+    // Remove full <p> tags that contain nomination/more info patterns
+    .replace(/<p[^>]*>\s*More Info\s*:\s*<a[^>]*>[^<]*<\/a>\s*<\/p>/gi, '')
+    .replace(/<p[^>]*>\s*Nomination[^<]*:<\s*a[^>]*>[^<]*<\/a>\s*<\/p>/gi, '')
+    .replace(/<p[^>]*>\s*Nomination\s*\(if applicable\)\s*:[^<]*<a[^>]*>[^<]*<\/a>\s*<\/p>/gi, '')
+    // Remove inline phrases without wrapping <p>
+    .replace(/More Info\s*:\s*<a[^>]*>[^<]*<\/a>/gi, '')
+    .replace(/Nomination\s*\(if applicable\)\s*:\s*<a[^>]*>[^<]*<\/a>/gi, '')
+    .replace(/Nomination\s*:\s*<a[^>]*>[^<]*<\/a>/gi, '')
+    // Remove leftover label-only lines like <p>More Info:</p>
+    .replace(/<p[^>]*>\s*More Info\s*:\s*<\/p>/gi, '')
+    .replace(/<p[^>]*>\s*Nomination[^<]*:\s*<\/p>/gi, '');
+};
+
 export default function ArticleContent({ content }: ArticleContentProps) {
   const { data: ads } = useActiveAds();
   const [currentAdIndex, setCurrentAdIndex] = React.useState(0);
@@ -25,13 +43,14 @@ export default function ArticleContent({ content }: ArticleContentProps) {
 
   const contentWithAds = useMemo(() => {
     if (!content) return null;
+    const cleanContent = sanitizeContent(content);
     if (inArticleAds.length === 0) {
-      return <div className={styles.articleContent} dangerouslySetInnerHTML={{ __html: content }} />;
+      return <div className={styles.articleContent} dangerouslySetInnerHTML={{ __html: cleanContent }} />;
     }
 
-    const paragraphs = content.split('</p>');
+    const paragraphs = cleanContent.split('</p>');
     if (paragraphs.length <= 2) {
-      return <div className={styles.articleContent} dangerouslySetInnerHTML={{ __html: content }} />;
+      return <div className={styles.articleContent} dangerouslySetInnerHTML={{ __html: cleanContent }} />;
     }
 
     const midPoint = Math.floor(paragraphs.length / 2);

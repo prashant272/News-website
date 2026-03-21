@@ -16,13 +16,7 @@ const Footer: React.FC = () => {
   const year = new Date().getFullYear()
 
   const footerLinks = {
-    quickLinks: [
-      { name: 'Home', href: '/' },
-      { name: 'About Us', href: '/about' },
-      { name: 'Contact Us', href: '/contact' },
-      { name: 'Advertise', href: '/advertise' },
-      { name: 'Careers', href: '/careers' }
-    ],
+    quickLinks: [],
     categories: [
       { name: 'India', href: '/Pages/india' },
       { name: 'World', href: '/Pages/world' },
@@ -103,17 +97,7 @@ const Footer: React.FC = () => {
             </div>
           </div>
 
-          <div className={styles.section}>
-            <h3 className={styles.sectionTitle}>Quick Links</h3>
-            <ul className={styles.linkList}>
-              {footerLinks.quickLinks.map((link, index) => (
-                <li key={index} className={styles.linkItem}>
-                  <FaChevronRight className={styles.chevron} />
-                  <Link href={link.href} className={styles.link}>{link.name}</Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {/* Quick Links Removed */}
 
           <div className={styles.section}>
             <h3 className={styles.sectionTitle}>Categories</h3>

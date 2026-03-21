@@ -199,6 +199,8 @@ const NewsSection: React.FC<NewsSectionProps> = ({
                     key={cat}
                     href={linkHref}
                     className={styles.subCategoryLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
                   >
                     {cleanCat}
                   </Link>
@@ -234,20 +236,24 @@ const NewsSection: React.FC<NewsSectionProps> = ({
                         key={news.id}
                         href={news.slug ? `/Pages/${section}/${encodeURIComponent(news.subCategory || 'general')}/${encodeURIComponent(news.slug || '')}` : '#'}
                         className={styles.topNewsItem}
+                        target="_blank"
+                        rel="noopener noreferrer"
                       >
                         <div style={{ flex: 1 }}>
                           <p>{news.title}</p>
                           {news.date && (
-                            <span style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', display: 'block', marginTop: '4px' }}>
+                            <span className={styles.topNewsDate}>
                               {formatDateTime(news.date)}
                             </span>
                           )}
                         </div>
-                        <img
-                          src={news.image}
-                          alt={news.title}
-                          loading="lazy"
-                        />
+                        <div className={styles.topNewsImageWrapper}>
+                          <img
+                            src={news.image}
+                            alt={news.title}
+                            loading="lazy"
+                          />
+                        </div>
                       </Link>
                     ))}
                   </div>

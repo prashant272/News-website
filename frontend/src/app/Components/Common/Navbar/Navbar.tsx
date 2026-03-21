@@ -3,6 +3,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import styles from './Navbar.module.scss';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Moon, Sun, ChevronDown, ChevronRight, ChevronLeft } from 'lucide-react';
 import { useNewsContext } from '@/app/context/NewsContext';
 import { useTheme } from '@/app/context/ThemeContext';
@@ -83,6 +84,8 @@ const Navbar: React.FC = () => {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [activeSubDropdown, setActiveSubDropdown] = useState<string | null>(null);
   const [pinnedSubDropdown, setPinnedSubDropdown] = useState<string | null>(null);
+  const [showPill, setShowPill] = useState(false);
+  const [isPillMenuOpen, setIsPillMenuOpen] = useState(false);
 
   const { theme, toggleTheme } = useTheme();
   const newsContext = useNewsContext();
@@ -148,7 +151,10 @@ const Navbar: React.FC = () => {
   const moreItems = navItems.slice(PRIMARY_COUNT);
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+      setShowPill(window.scrollY > 200);
+    };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -205,7 +211,8 @@ const Navbar: React.FC = () => {
   }, [ads]);
 
   return (
-    <nav className={`${styles.navbarWrapper} ${scrolled ? styles.scrolled : ''}`}>
+    <>
+      <nav className={`${styles.navbarWrapper} ${scrolled ? styles.scrolled : ''} ${showPill && !isMobileMenuOpen ? styles.hideNavbar : ''}`}>
       <div className={styles.container}>
 
         <div className={styles.adBannerContainer}>
@@ -460,12 +467,11 @@ const Navbar: React.FC = () => {
             <LiveScoreButton API_BASE={API_BASE} />
           </div>
         </div>
+      </div>
+    </nav>
 
-
-        <div className={`${styles.mobileMenu} ${isMobileMenuOpen ? styles.open : ''}`}>
-
+      <div className={`${styles.mobileMenu} ${isMobileMenuOpen ? styles.open : ''}`}>
           <ul className={styles.navListMobile}>
-
             {navItems.map(item => (
               <li key={item.key} className={item.submenu ? styles.hasMobileSubmenu : ''}>
                 {item.submenu ? (
@@ -486,7 +492,6 @@ const Navbar: React.FC = () => {
                                 className={styles.mobileSubItem}
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  // Simplified toggle for nested mobile
                                   const nestedMenuId = `nested-${item.key}-${idx}`;
                                   setActiveDropdown(activeDropdown === nestedMenuId ? item.key : nestedMenuId);
                                 }}
@@ -501,8 +506,6 @@ const Navbar: React.FC = () => {
                                     className={styles.mobileSubItem}
                                     style={{ paddingLeft: '60px' }}
                                     onClick={closeMobileMenu}
-                                    target={nestedSub.href.startsWith('http') ? '_blank' : undefined}
-                                    rel={nestedSub.href.startsWith('http') ? 'noopener noreferrer' : undefined}
                                   >
                                     {nestedSub.label}
                                   </Link>
@@ -514,8 +517,6 @@ const Navbar: React.FC = () => {
                               href={sub.href}
                               className={styles.mobileSubItem}
                               onClick={closeMobileMenu}
-                              target={sub.href.startsWith('http') ? '_blank' : undefined}
-                              rel={sub.href.startsWith('http') ? 'noopener noreferrer' : undefined}
                             >
                               {sub.isDivider ? (
                                 <div className={styles.dropdownSectionLabel} style={{ borderTop: 'none', marginTop: 0, paddingLeft: '40px' }}>{sub.label}</div>
@@ -542,10 +543,86 @@ const Navbar: React.FC = () => {
           </ul>
         </div>
 
-      </div>
-    </nav>
+
+      <AnimatePresence>
+        {showPill && (
+          <motion.div
+            initial={{ opacity: 0, y: -50, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, x: '-50%' }}
+            exit={{ opacity: 0, y: -50, x: '-50%' }}
+            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            className={styles.scrollPill}
+          >
+            <div className={`${styles.pillContainer} ${isPillMenuOpen ? styles.menuOpen : ''}`}>
+              <div className={styles.pillMainRow}>
+                <Link href="/" className={styles.pillLogo} onClick={() => setIsPillMenuOpen(false)}>
+                  <Image src={logo} alt="Logo" width={32} height={32} />
+                </Link>
+                
+                <div className={`${styles.pillLinksList} ${isPillMenuOpen ? styles.showMobileLinks : ''}`}>
+                  {navItems.map((item) => (
+                    <div 
+                      key={item.key} 
+                      className={`${styles.pillItemWrapper} ${item.submenu ? styles.hasPillDropdown : ''}`}
+                      onMouseEnter={() => item.submenu && !isPillMenuOpen && setActiveDropdown(`pill-${item.key}`)}
+                      onMouseLeave={() => item.submenu && !isPillMenuOpen && setActiveDropdown(null)}
+                    >
+                      {item.submenu ? (
+                        <>
+                          <button
+                            className={`${styles.pillItem} ${isActive(item.href) ? styles.pillActive : ''}`}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setActiveDropdown(activeDropdown === `pill-${item.key}` ? null : `pill-${item.key}`);
+                            }}
+                          >
+                            {item.label}
+                            <ChevronDown size={14} className={`${styles.pillChevron} ${activeDropdown === `pill-${item.key}` ? styles.rotate : ''}`} />
+                          </button>
+                          
+                          <div className={`${styles.pillDropdownMenu} ${activeDropdown === `pill-${item.key}` ? styles.show : ''}`}>
+                            {item.submenu.map((sub, idx) => (
+                              <Link
+                                key={idx}
+                                href={sub.href}
+                                className={styles.dropdownItem}
+                                onClick={() => {
+                                  setActiveDropdown(null);
+                                  setIsPillMenuOpen(false);
+                                }}
+                              >
+                                {sub.label}
+                              </Link>
+                            ))}
+                          </div>
+                        </>
+                      ) : (
+                        <Link
+                          href={item.href}
+                          className={`${styles.pillItem} ${isActive(item.href) ? styles.pillActive : ''}`}
+                          onClick={() => setIsPillMenuOpen(false)}
+                        >
+                          {item.label}
+                        </Link>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                <button 
+                  className={styles.pillMenuBtn}
+                  onClick={() => setIsPillMenuOpen(!isPillMenuOpen)}
+                  aria-label="Toggle pill menu"
+                >
+                  {isPillMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 };
 
 export default Navbar;
-  

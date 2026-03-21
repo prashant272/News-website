@@ -129,9 +129,17 @@ function renderArticle(foundArticle: any, categoryNews: any[], category: string,
   };
 
   // Filter related articles from the provided category stories and exclude current article
-  const filteredCategoryNews = categoryNews.filter((news: any) => news.slug !== slug);
+  const filteredCategoryNews = categoryNews
+    .filter((news: any) => news.slug !== slug)
+    // Ensure they are sorted by date descending (latest first)
+    .sort((a: any, b: any) => {
+      const dateA = new Date(a.publishedAt || a.date || a.createdAt).getTime();
+      const dateB = new Date(b.publishedAt || b.date || b.createdAt).getTime();
+      return dateB - dateA;
+    });
 
   // Take unique slices for each section to avoid overlaps
+  // Take the 3 latest for "Related" (under the article)
   const related = filteredCategoryNews.slice(0, 3).map((news: any) => ({
     id: news._id || news.slug,
     title: news.title,
@@ -141,7 +149,8 @@ function renderArticle(foundArticle: any, categoryNews: any[], category: string,
     image: news.image
   }));
 
-  const topNews = filteredCategoryNews.slice(3, 18).map((news: any) => ({
+  // Take the top 15 latest for the sidebar
+  const topNews = filteredCategoryNews.slice(0, 15).map((news: any) => ({
     id: news._id || news.slug,
     title: news.title,
     image: news.image || '/placeholder.jpg',
@@ -150,7 +159,8 @@ function renderArticle(foundArticle: any, categoryNews: any[], category: string,
     category: news.subCategory || ''
   }));
 
-  const recommendedStories = filteredCategoryNews.slice(13, 18).map((news: any) => ({
+  // Take the next set of news for recommended stories (e.g., from index 15)
+  const recommendedStories = filteredCategoryNews.slice(15, 20).map((news: any) => ({
     id: news._id || news.slug,
     title: news.title,
     image: news.image || '/placeholder.jpg',

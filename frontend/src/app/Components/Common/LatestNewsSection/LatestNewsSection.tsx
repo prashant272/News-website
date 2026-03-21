@@ -110,7 +110,7 @@ export default function LatestNewsSection({
                 style={{ cursor: 'pointer' }}
                 onClick={() => {
                   if (href && href !== '#') {
-                    router.push(href);
+                    window.open(href, '_blank', 'noopener,noreferrer');
                   }
                 }}
               >
@@ -168,7 +168,7 @@ export default function LatestNewsSection({
 
         {showReadMore && (
           <div className={styles.readMoreWrapper}>
-            <Link href={dynamicReadMoreLink} className={styles.readMoreButton}>
+            <Link href={dynamicReadMoreLink} className={styles.readMoreButton} target="_blank" rel="noopener noreferrer">
               Read More
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                 <path d="M7 4L13 10L7 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />

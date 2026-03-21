@@ -18,8 +18,8 @@ interface MoreFromSectionProps {
 export default function MoreFromSection({
   sectionTitle,
   overrideSection,
-  columns = 3,
-  limit = 6,
+  columns = 2,
+  limit = 10,
   excludeSlug,
 }: MoreFromSectionProps) {
   const { items, isLoading } = useNewsSectionData<MoreFromItem>({
@@ -73,7 +73,7 @@ export default function MoreFromSection({
               style={{ cursor: 'pointer' }}
               onClick={() => {
                 if (href && href !== '#') {
-                  router.push(href);
+                  window.open(href, '_blank', 'noopener,noreferrer');
                 }
               }}
             >
