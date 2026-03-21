@@ -1,5 +1,5 @@
 const { scrapeNews, getLatestLinks } = require("../Services/scraperService");
-const generateArticle = require("../Services/aiService");
+const { generateArticle } = require("../Services/aiService");
 const NewsArticle = require("../Models/NewsArticle");
 const newsSources = require("../Config/newsSources");
 const cloudinary = require("cloudinary").v2;
