@@ -10,10 +10,9 @@ exports.scrapeBreakingNews = async (req, res) => {
         await BreakingNews.deleteMany({ createdAt: { $lt: twoDaysAgo } });
 
         const sources = [
-            { name: "Aaj Tak", url: "https://feeds.feedburner.com/ndtvnews-top-stories" },
+            { name: "Aaj Tak", url: "https://www.aajtak.in/rssfeeds/?id=home" },
             { name: "NDTV", url: "https://feeds.feedburner.com/ndtvnews-india-news" },
             { name: "India TV", url: "https://www.indiatvnews.com/rssnews/topstory.xml" },
-            { name: "DD News", url: "https://ddnews.gov.in/rss/national" },
             { name: "The Hindu", url: "https://www.thehindu.com/news/national/feeder/default.rss" },
             { name: "Zee News", url: "https://zeenews.india.com/rss/india-national-news.xml" },
             { name: "ABP News", url: "https://news.abplive.com/news/india/feed" },

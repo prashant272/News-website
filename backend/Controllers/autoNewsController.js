@@ -94,7 +94,7 @@ const autoGenerateNews = async (req, res) => {
         }
 
         // Check semantic duplicate (within last 24 hours)
-        const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        const dayAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
         const recentArticles = await NewsArticle.find({ createdAt: { $gt: dayAgo } }).select("title").lean();
         const recentTitles = recentArticles.map(a => a.title);
 
@@ -155,7 +155,7 @@ const fetchAndProcessNews = async (req, res) => {
             const items = await getLatestLinks(source.url);
 
             let newItemsCount = 0;
-            const MAX_NEW_PER_SOURCE = 2; // Only fetch 2 new items per source per run
+            const MAX_NEW_PER_SOURCE = 5; // Only fetch 2 new items per source per run
 
             for (const item of items) {
                 if (newItemsCount >= MAX_NEW_PER_SOURCE) break;

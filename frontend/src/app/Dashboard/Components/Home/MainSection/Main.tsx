@@ -21,6 +21,12 @@ const AnalyticsDashboard = dynamic(() => import("./components/AnalyticsDashboard
 const FacebookManager = dynamic(() => import("./components/FacebookManager"), {
   loading: () => <div className={styles.loading}>Loading Facebook Settings...</div>
 });
+const LinkedInManager = dynamic(() => import("./components/LinkedInManager"), {
+  loading: () => <div className={styles.loading}>Loading LinkedIn Settings...</div>
+});
+const TwitterManager = dynamic(() => import("./components/TwitterManager"), {
+  loading: () => <div className={styles.loading}>Loading Twitter Settings...</div>
+});
 const BreakingNewsManager = dynamic(() => import("./components/BreakingNewsManager"), {
   loading: () => <div className={styles.loading}>Loading Breaking News...</div>
 });
@@ -32,7 +38,7 @@ const InternationalProgramManager = dynamic(() => import("./components/Internati
 });
 
 interface MainSectionProps {
-  section: 'news_management' | 'ad_management' | 'previous_news' | 'analytics' | 'user_management' | 'facebook_settings' | 'breaking_news' | 'cricket_management' | 'international_programs';
+  section: 'news_management' | 'ad_management' | 'previous_news' | 'analytics' | 'user_management' | 'facebook_settings' | 'linkedin_settings' | 'twitter_settings' | 'breaking_news' | 'cricket_management' | 'international_programs';
   initialDraft?: NewsItem | null;
 }
 
@@ -85,9 +91,11 @@ const MainSection: FC<MainSectionProps> = ({ section, initialDraft }) => {
                       section === 'analytics' ? '📊' :
                         section === 'user_management' ? '👥' :
                           section === 'breaking_news' ? '🔥' :
-                            section === 'facebook_settings' ? '📱' :
-                              section === 'cricket_management' ? '🏏' :
-                                section === 'international_programs' ? '🌐' : '📁'}
+                          section === 'facebook_settings' ? '📱' :
+                            section === 'linkedin_settings' ? '🔗' :
+                              section === 'twitter_settings' ? '🐦' :
+                                section === 'cricket_management' ? '🏏' :
+                                  section === 'international_programs' ? '🌐' : '📁'}
                 </span>
                 {section === 'news_management' ? 'News Management' :
                   section === 'ad_management' ? 'Ad Management' :
@@ -95,7 +103,10 @@ const MainSection: FC<MainSectionProps> = ({ section, initialDraft }) => {
                       section === 'user_management' ? 'User Management' :
                         section === 'breaking_news' ? 'Breaking News' :
                           section === 'facebook_settings' ? 'Facebook Settings' :
-                            section === 'cricket_management' ? 'Cricket Management' : 'Previous News'}
+                      section === 'linkedin_settings' ? 'LinkedIn Settings' :
+                        section === 'twitter_settings' ? 'Twitter Settings' :
+                          section === 'cricket_management' ? 'Cricket Management' :
+ 'Previous News'}
               </h1>
               <p className={styles.headerSubtitle}>
                 {section === 'news_management' ? 'Add new articles to any category' :
@@ -104,7 +115,9 @@ const MainSection: FC<MainSectionProps> = ({ section, initialDraft }) => {
                       section === 'user_management' ? 'Manage administrators and permissions' :
                         section === 'breaking_news' ? 'Manage live breaking news headlines' :
                           section === 'facebook_settings' ? 'Configure auto-posting to Facebook' :
-                            section === 'cricket_management' ? 'Select and track live matches' :
+                            section === 'linkedin_settings' ? 'Configure auto-posting to LinkedIn' :
+                              section === 'twitter_settings' ? 'Configure auto-posting to Twitter' :
+                                section === 'cricket_management' ? 'Manage cricket tournaments and tracking' :
                               section === 'international_programs' ? 'Manage links in the Awards dropdown' :
                                 'View and manage previously published news'}
                 {userRole !== "USER" && <span className={styles.roleBadge}> • {userRole}</span>}
@@ -150,7 +163,19 @@ const MainSection: FC<MainSectionProps> = ({ section, initialDraft }) => {
 
         {section === 'facebook_settings' && (
           <FacebookManager
-            showNotification={showNotification}
+            showNotification={(msg, type) => setShowToast({ message: msg, type })}
+          />
+        )}
+
+        {section === 'linkedin_settings' && (
+          <LinkedInManager
+            showNotification={(msg, type) => setShowToast({ message: msg, type })}
+          />
+        )}
+
+        {section === 'twitter_settings' && (
+          <TwitterManager
+            showNotification={(msg, type) => setShowToast({ message: msg, type })}
           />
         )}
         {section === 'breaking_news' && (

@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useCallback, ChangeEvent, FC, useMemo } from "react";
-import { FaFacebook, FaWhatsapp, FaShareAlt } from "react-icons/fa";
+import { FaFacebook, FaWhatsapp, FaShareAlt, FaClock } from "react-icons/fa";
 import {
     NewsItem,
     useNewsBySection,
@@ -86,6 +86,32 @@ const NewsManager: FC<NewsManagerProps> = ({
     const [showImage, setShowImage] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+
+    // Schedule time picker state (declared after formState)
+    const [schedDate, setSchedDate] = useState("");
+    const [schedHour, setSchedHour] = useState("12");
+    const [schedMin, setSchedMin] = useState("00");
+    const [schedAmPm, setSchedAmPm] = useState<"AM"|"PM">("AM");
+    const [timeFormat, setTimeFormat] = useState<"12h"|"24h">("12h");
+
+    const buildScheduledISO = useCallback((date: string, hour: string, min: string, ampm: "AM"|"PM", fmt: "12h"|"24h") => {
+        if (!date) return "";
+        let h = parseInt(hour, 10);
+        if (fmt === "12h") {
+            if (ampm === "AM" && h === 12) h = 0;
+            if (ampm === "PM" && h !== 12) h = h + 12;
+        }
+        const localString = `${date}T${String(h).padStart(2, "0")}:${min}:00`;
+        return new Date(localString).toISOString();
+    }, []);
+
+    // Sync schedule inputs → formState.scheduledAt
+    useEffect(() => {
+        if (formState.status === "scheduled" && schedDate) {
+            const iso = buildScheduledISO(schedDate, schedHour, schedMin, schedAmPm, timeFormat);
+            setFormState(prev => ({ ...prev, scheduledAt: iso }));
+        }
+    }, [schedDate, schedHour, schedMin, schedAmPm, timeFormat, formState.status, buildScheduledISO]);
     const [sortBy, setSortBy] = useState<"newest" | "oldest" | "title">("newest");
 
     const resetForm = useCallback(() => {
@@ -199,17 +225,28 @@ const NewsManager: FC<NewsManagerProps> = ({
             showNotification("Title, Slug and Content are required", "error");
             return;
         }
+        if (formState.status === "scheduled" && !formState.scheduledAt) {
+            showNotification("Please set a scheduled date and time", "error");
+            return;
+        }
         try {
             const authorName = userAuthData?.name || "Prime Time News";
             const currentUserId = userAuthData?.userId || userAuthData?._id || userAuthData?.id;
 
+            // Convert datetime-local (local time) to UTC ISO string
+            const scheduledAtISO = formState.scheduledAt
+                ? new Date(formState.scheduledAt).toISOString()
+                : undefined;
+
             await addNews({
                 ...formState,
+                scheduledAt: scheduledAtISO,
                 section: selectedCategory,
                 author: authorName,
                 authorId: currentUserId || null,
                 tags: tagsInput.split(",").map(t => t.trim()).filter(Boolean),
-                publishedAt: new Date().toISOString(),
+                // Only set publishedAt for non-scheduled posts
+                ...(formState.status !== "scheduled" && { publishedAt: new Date().toISOString() }),
             } as NewsItem & { section: string });
             showNotification(`Article created by ${authorName}`, "success");
             resetForm();
@@ -226,7 +263,20 @@ const NewsManager: FC<NewsManagerProps> = ({
                 return;
             }
             setEditingSlug(item.slug);
-            setFormState({ ...item });
+            
+            // Format scheduledAt for datetime-local input (YYYY-MM-DDThh:mm)
+            let formattedDate = "";
+            if (item.scheduledAt) {
+                const d = new Date(item.scheduledAt);
+                if (!isNaN(d.getTime())) {
+                    formattedDate = d.toISOString().slice(0, 16);
+                }
+            }
+
+            setFormState({ 
+                ...item,
+                scheduledAt: formattedDate
+            });
             setTagsInput(item.tags?.join(", ") || "");
             setImagePreview(item.image || null);
             setShowImage(!!item.image);
@@ -235,16 +285,27 @@ const NewsManager: FC<NewsManagerProps> = ({
         [canUpdate, showNotification]
     );
 
+
     const handleUpdate = useCallback(async () => {
         if (!canUpdate || !editingSlug) return;
+        if (formState.status === "scheduled" && !formState.scheduledAt) {
+            showNotification("Please set a scheduled date and time", "error");
+            return;
+        }
         try {
             const authorName = userAuthData?.name || "Prime Time News";
             const currentUserId = userAuthData?.userId || userAuthData?._id || userAuthData?.id;
+
+            // Convert datetime-local (local time) to UTC ISO string
+            const scheduledAtISO = formState.scheduledAt
+                ? new Date(formState.scheduledAt).toISOString()
+                : null;
 
             await updateNews({
                 slug: editingSlug,
                 news: {
                     ...formState,
+                    scheduledAt: scheduledAtISO,
                     author: authorName,
                     authorId: currentUserId || null,
                     tags: tagsInput.split(",").map(t => t.trim()).filter(Boolean)
@@ -454,16 +515,91 @@ const NewsManager: FC<NewsManagerProps> = ({
                             </select>
                         </div>
                         {formState.status === "scheduled" && (
-                            <div className={styles.formGroup}>
-                                <label className={styles.label}>Schedule At <span className={styles.required}>*</span></label>
-                                <input
-                                    type="datetime-local"
-                                    className={styles.input}
-                                    value={formState.scheduledAt ?? ""}
-                                    onChange={handleChange("scheduledAt" as any)}
-                                    min={new Date().toISOString().slice(0, 16)}
-                                />
-                                <small className={styles.helpText}>Article will be published automatically at this time.</small>
+                            <div className={styles.formGroup} style={{ background: 'rgba(10,102,194,0.08)', border: '1px solid rgba(10,102,194,0.3)', borderRadius: '10px', padding: '1rem' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+                                    <label className={styles.label} style={{ marginBottom: 0, color: '#7dd3fc', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                        <FaClock />
+                                        Schedule Date & Time <span className={styles.required}>*</span>
+                                    </label>
+                                    {/* Format Toggle */}
+                                    <div style={{ display: 'flex', gap: '0.4rem' }}>
+                                        {(["12h", "24h"] as const).map(fmt => (
+                                            <button
+                                                key={fmt} type="button"
+                                                onClick={() => {
+                                                    if (fmt === "12h" && timeFormat === "24h") {
+                                                        const h24 = parseInt(schedHour, 10);
+                                                        setSchedAmPm(h24 >= 12 ? "PM" : "AM");
+                                                        setSchedHour(String(h24 % 12 || 12));
+                                                    } else if (fmt === "24h" && timeFormat === "12h") {
+                                                        let h = parseInt(schedHour, 10);
+                                                        if (schedAmPm === "AM" && h === 12) h = 0;
+                                                        if (schedAmPm === "PM" && h !== 12) h += 12;
+                                                        setSchedHour(String(h).padStart(2, "0"));
+                                                    }
+                                                    setTimeFormat(fmt);
+                                                }}
+                                                style={{ padding: '0.25rem 0.75rem', borderRadius: '6px', border: '1px solid #0A66C2', background: timeFormat === fmt ? '#0A66C2' : 'transparent', color: '#fff', fontSize: '0.8rem', cursor: 'pointer', fontWeight: timeFormat === fmt ? 700 : 400 }}
+                                            >{fmt === "12h" ? "AM/PM" : "24h"}</button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                                    {/* Date */}
+                                    <input
+                                        type="date"
+                                        className={styles.input}
+                                        style={{ flex: '2', minWidth: '145px', background: '#1e293b', color: '#e2e8f0', border: '1px solid #334155', colorScheme: 'dark' }}
+                                        value={schedDate}
+                                        min={new Date().toISOString().split("T")[0]}
+                                        onChange={e => setSchedDate(e.target.value)}
+                                    />
+                                    {/* Hour */}
+                                    <input
+                                        type="number"
+                                        className={styles.input}
+                                        style={{ flex: '0 0 60px', textAlign: 'center', background: '#1e293b', color: '#e2e8f0', border: '1px solid #334155', padding: '0.5rem 0.25rem' }}
+                                        value={schedHour}
+                                        min={timeFormat === "12h" ? 1 : 0}
+                                        max={timeFormat === "12h" ? 12 : 23}
+                                        onChange={e => setSchedHour(e.target.value)}
+                                        placeholder={timeFormat === "12h" ? "12" : "HH"}
+                                    />
+                                    <span style={{ fontWeight: 'bold', fontSize: '1.3rem', color: '#94a3b8' }}>:</span>
+                                    {/* Minute */}
+                                    <select
+                                        style={{ flex: '0 0 80px', background: '#1e293b', color: '#e2e8f0', border: '1px solid #334155', borderRadius: '6px', padding: '0.5rem 0.4rem', fontSize: '0.95rem', cursor: 'pointer' }}
+                                        value={schedMin}
+                                        onChange={e => setSchedMin(e.target.value)}
+                                    >
+                                        {["00","05","10","15","20","25","30","35","40","45","50","55"].map(m => (
+                                            <option key={m} value={m} style={{ background: '#1e293b', color: '#e2e8f0' }}>{m}</option>
+                                        ))}
+                                    </select>
+                                    {/* AM/PM toggle (only in 12h mode) */}
+                                    {timeFormat === "12h" && (
+                                        <div style={{ display: 'flex', gap: '0.3rem' }}>
+                                            {(["AM", "PM"] as const).map(p => (
+                                                <button
+                                                    key={p} type="button"
+                                                    onClick={() => setSchedAmPm(p)}
+                                                    style={{ padding: '0.45rem 0.8rem', borderRadius: '6px', border: '1px solid #334155', background: schedAmPm === p ? '#0A66C2' : '#1e293b', color: '#e2e8f0', fontWeight: schedAmPm === p ? 700 : 400, cursor: 'pointer', fontSize: '0.9rem' }}
+                                                >{p}</button>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Preview */}
+                                {schedDate && (
+                                    <div style={{ marginTop: '0.75rem', padding: '0.5rem 0.75rem', background: 'rgba(10,102,194,0.15)', borderRadius: '6px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                        <FaClock style={{ color: '#7dd3fc', flexShrink: 0 }} />
+                                        <small style={{ color: '#7dd3fc', fontWeight: 600 }}>
+                                            Will publish at: {new Date(buildScheduledISO(schedDate, schedHour, schedMin, schedAmPm, timeFormat)).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short', hour12: timeFormat === '12h' })}
+                                        </small>
+                                    </div>
+                                )}
                             </div>
                         )}
                         <div className={styles.formGroup}>

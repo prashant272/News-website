@@ -60,6 +60,18 @@ const userSchema = new mongoose.Schema(
       pageAccessToken: { type: String, default: null },
       connectedAt: { type: Date, default: null }
     },
+    linkedin: {
+      accessToken: { type: String, default: null },
+      memberId: { type: String, default: null },
+      memberName: { type: String, default: null },
+    },
+    twitter: {
+      appKey: { type: String, default: null },
+      appSecret: { type: String, default: null },
+      accessToken: { type: String, default: null },
+      accessSecret: { type: String, default: null },
+      username: { type: String, default: null },
+    },
   },
   {
     timestamps: true,

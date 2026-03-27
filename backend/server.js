@@ -20,6 +20,9 @@ const BreakingNewsRouter = require("./routes/breakingNewsRoute")
 const LiveScoreRouter = require("./routes/liveScoreRoute")
 const InternationalProgramRouter = require("./routes/internationalProgramRoute")
 const VisualStoryRouter = require("./routes/visualStory.route")
+const OneSignalRouter = require("./routes/onesignal.routes")
+const LinkedInRouter = require("./routes/linkedin.routes")
+const TwitterRouter = require("./routes/twitter.routes")
 
 
 const app = express()
@@ -84,6 +87,9 @@ app.use("/api/breaking-news", BreakingNewsRouter)
 app.use("/api/visual-stories", VisualStoryRouter)
 app.use("/api", AutoNewsRouter)
 app.use("/fb", FacebookRouter)
+app.use("/linkedin", LinkedInRouter)
+app.use("/twitter", TwitterRouter)
+app.use("/onesignal", OneSignalRouter)
 
 const { syncMatchesWithDB } = require("./Services/cricketService")
 

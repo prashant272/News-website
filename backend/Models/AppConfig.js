@@ -27,6 +27,37 @@ const appConfigSchema = new mongoose.Schema(
             activeSeriesId: { type: String, default: "bbcaa2ce-be45-4541-9eb3-9828d8b13197" },
             autoTrackEnabled: { type: Boolean, default: true },
         },
+        // OneSignal push notification settings
+        onesignal: {
+            appId: { type: String, default: null },
+            restApiKey: { type: String, default: null },
+            enabled: { type: Boolean, default: true },
+        },
+        // LinkedIn - multiple accounts supported
+        linkedinAccounts: [{
+            accountId: { type: String },     // urn:li:person:XXX or urn:li:organization:XXX
+            accountName: { type: String },
+            accessToken: { type: String },
+            type: { type: String, default: "person" }, // "person" or "organization"
+            autoPostEnabled: { type: Boolean, default: true },
+            connectedAt: { type: Date, default: Date.now },
+        }],
+        // Keep old field for backward compat (will be migrated)
+        linkedin: {
+            accessToken: { type: String, default: null },
+            memberId: { type: String, default: null },
+            memberName: { type: String, default: null },
+            autoPostEnabled: { type: Boolean, default: true },
+        },
+        // Twitter (X) credentials
+        twitter: {
+            appKey: { type: String, default: null },
+            appSecret: { type: String, default: null },
+            accessToken: { type: String, default: null },
+            accessSecret: { type: String, default: null },
+            username: { type: String, default: null },
+            autoPostEnabled: { type: Boolean, default: true },
+        },
     },
     { timestamps: true }
 );

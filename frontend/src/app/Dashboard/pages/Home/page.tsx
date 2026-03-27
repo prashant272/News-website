@@ -18,6 +18,8 @@ const sections = [
   { id: 'previous_news' as const, label: 'Previous News', icon: '📁' },
   { id: 'analytics' as const, label: 'Analytics', icon: '📊' },
   { id: 'facebook_settings' as const, label: 'Facebook Post', icon: '📱' },
+  { id: 'linkedin_settings' as const, label: 'LinkedIn Post', icon: '🔗' },
+  { id: 'twitter_settings' as const, label: 'Twitter Post', icon: '🐦' },
   { id: 'user_management' as const, label: 'User Management', icon: '👥' },
   { id: 'employee_reports' as const, label: 'Employee Reports', icon: '📋' },
   { id: 'cricket_management' as const, label: 'Cricket Management', icon: '🏏' },
@@ -41,13 +43,22 @@ export default function NewsAdminPage() {
     return true;
   });
 
-  // Read initial section from URL params (used by Facebook OAuth callback redirect)
   const urlSection = searchParams.get('section') as SectionId | null;
   const validSection = urlSection && sections.find(s => s.id === urlSection) ? urlSection : null;
 
-  const [activeSection, setActiveSection] = useState<SectionId>(
-    validSection || (searchParams.get('code') ? 'facebook_settings' : 'news_management')
-  );
+  const getInitialSection = (): SectionId => {
+    if (validSection) return validSection;
+    const code = searchParams.get('code');
+    const state = searchParams.get('state');
+
+    if (code) {
+      if (state === 'linkedin') return 'linkedin_settings';
+      return 'facebook_settings';
+    }
+    return 'news_management';
+  };
+
+  const [activeSection, setActiveSection] = useState<SectionId>(getInitialSection());
   const activeSectionData = sections.find(s => s.id === activeSection);
   const [draftToEdit, setDraftToEdit] = useState<any>(null);
 
@@ -159,7 +170,7 @@ export default function NewsAdminPage() {
 
             <div className={styles.contentCard}>
               {activeSection === 'ai_news' ? (
-                <AINewsManagement onEdit={handleEditDraft} />
+                <AINewsManagement onEdit={handleEditDraft} isSuperAdmin={isSuperAdmin} />
               ) : activeSection === 'employee_reports' ? (
                 <EmployeeReports />
               ) : activeSection === 'visual_stories' ? (

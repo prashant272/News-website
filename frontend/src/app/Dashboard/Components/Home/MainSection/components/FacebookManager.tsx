@@ -29,7 +29,9 @@ const FacebookManager: FC<FacebookManagerProps> = ({ showNotification }) => {
     useEffect(() => {
         const handleCallback = async () => {
             const code = searchParams.get("code");
-            if (code && fbPages.length === 0 && !fbStatus?.connected) {
+            const state = searchParams.get("state");
+            // Only handle if it's NOT a LinkedIn callback
+            if (code && state !== 'linkedin' && fbPages.length === 0 && !fbStatus?.connected) {
                 setFbLoading(true);
                 try {
                     const res = await API.get(`/fb/callback?code=${code}`);

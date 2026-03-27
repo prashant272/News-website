@@ -2,6 +2,9 @@ const NewsArticle = require("../Models/NewsArticle");
 const User = require("../Models/user.model");
 const AppConfig = require("../Models/AppConfig");
 const facebookService = require("../Services/facebookService");
+const linkedinService = require("../Services/linkedinService");
+const twitterService = require("../Services/twitterService");
+const onesignalService = require("../Services/onesignalService");
 const dotenv = require("dotenv");
 // dotenv.config({ path: "./Config/config.env" }); // Removed: Root server.js handles env loading
 const cloudinary = require("cloudinary").v2;
@@ -55,6 +58,93 @@ async function triggerFacebookPost(newsItem) {
     }
   } catch (error) {
     console.error("[Facebook] triggerFacebookPost Error:", error);
+  }
+}
+
+/**
+ * Trigger LinkedIn auto-post when an article is published.
+ */
+async function triggerLinkedInPost(newsItem) {
+  if (newsItem.status !== "published") return;
+
+  try {
+    // Get all active LinkedIn accounts
+    const config = await AppConfig.findOne({ key: "linkedin-multi" });
+    const accounts = (config?.linkedinAccounts || []).filter(a => a.autoPostEnabled && a.accessToken);
+
+    if (accounts.length === 0) {
+      console.log("[LinkedIn] Auto-post skipped: No LinkedIn accounts connected.");
+      return;
+    }
+
+    const articleUrl = `https://www.primetimemedia.in/Pages/${newsItem.category}/${newsItem.subCategory || newsItem.category}/${newsItem.slug}`;
+    const message = `📰 ${newsItem.title}\n\n${newsItem.summary || ""}\n\nRead more 👇`;
+
+    // Post to ALL accounts in parallel
+    const results = await Promise.allSettled(
+      accounts.map(account =>
+        linkedinService.postToLinkedIn(account.accessToken, account.accountId, message, articleUrl, newsItem.image || null)
+      )
+    );
+
+    results.forEach((result, i) => {
+      if (result.status === "fulfilled") {
+        console.log(`[LinkedIn] ✅ Posted to: ${accounts[i].accountName}`);
+      } else {
+        console.error(`[LinkedIn] ❌ Failed for ${accounts[i].accountName}:`, result.reason?.message);
+      }
+    });
+  } catch (error) {
+    console.error("[LinkedIn] triggerLinkedInPost Error:", error);
+  }
+}
+
+/**
+ * Trigger Twitter auto-post when an article is published.
+ */
+async function triggerTwitterPost(newsItem) {
+  if (newsItem.status !== "published") return;
+
+  try {
+    let credentials = {};
+
+    // 1. Try global system-level config
+    const globalConfig = await AppConfig.findOne({ key: "twitter" });
+    if (globalConfig?.twitter?.accessToken && globalConfig?.twitter?.autoPostEnabled) {
+      credentials = {
+        appKey: globalConfig.twitter.appKey,
+        appSecret: globalConfig.twitter.appSecret,
+        accessToken: globalConfig.twitter.accessToken,
+        accessSecret: globalConfig.twitter.accessSecret,
+      };
+      console.log(`[Twitter] Using global config for auto-post: @${globalConfig.twitter.username}`);
+    }
+    // 2. Fallback: per-user credentials
+    else if (newsItem.authorId) {
+      const user = await User.findById(newsItem.authorId);
+      if (user?.twitter?.accessToken) {
+        credentials = {
+          appKey: user.twitter.appKey,
+          appSecret: user.twitter.appSecret,
+          accessToken: user.twitter.accessToken,
+          accessSecret: user.twitter.accessSecret,
+        };
+        console.log(`[Twitter] Using per-user config for auto-post: user ${newsItem.authorId}`);
+      }
+    }
+
+    if (!credentials.accessToken) {
+      console.log("[Twitter] Auto-post skipped: No Twitter account connected.");
+      return;
+    }
+
+    const articleUrl = `https://www.primetimemedia.in/Pages/${newsItem.category}/${newsItem.subCategory || newsItem.category}/${newsItem.slug}`;
+    const message = `📰 ${newsItem.title}`;
+
+    await twitterService.postToTwitter(credentials, message, articleUrl);
+    console.log(`[Twitter] ✅ Auto-posted: "${newsItem.title}"`);
+  } catch (error) {
+    console.error("[Twitter] triggerTwitterPost Error:", error);
   }
 }
 
@@ -114,9 +204,12 @@ exports.AddNews = async (req, res) => {
 
     await newItem.save();
 
-    // Trigger Facebook auto-post
+    // Trigger Facebook auto-post & OneSignal notification
     if (status === "published") {
       triggerFacebookPost(newItem);
+      triggerLinkedInPost(newItem);
+      triggerTwitterPost(newItem);
+      onesignalService.sendNotification(newItem);
     }
 
     return res.status(201).json({
@@ -328,9 +421,12 @@ exports.updateNewsBySlug = async (req, res) => {
 
     const updatedItem = await NewsArticle.findOneAndUpdate({ slug }, { ...updateData }, { new: true });
 
-    // Trigger Facebook auto-post if status just changed to published
+    // Trigger Facebook auto-post & OneSignal notification if status just changed to published
     if (updateData.status === "published" && item.status !== "published") {
       triggerFacebookPost(updatedItem);
+      triggerLinkedInPost(updatedItem);
+      triggerTwitterPost(updatedItem);
+      onesignalService.sendNotification(updatedItem);
     }
 
     return res.status(200).json({ success: true, news: updatedItem, section: updatedItem.category, msg: "Updated successfully" });

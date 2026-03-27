@@ -37,6 +37,75 @@ async function triggerFacebookPost(newsItem) {
   }
 }
 
+/**
+ * Trigger LinkedIn auto-post to ALL connected accounts when an article is published.
+ */
+async function triggerLinkedInPost(newsItem) {
+  if (newsItem.status !== "published") return;
+
+  try {
+    const config = await AppConfig.findOne({ key: "linkedin-multi" });
+    const accounts = (config?.linkedinAccounts || []).filter(a => a.autoPostEnabled && a.accessToken);
+    if (accounts.length === 0) return;
+
+    const articleUrl = `https://www.primetimemedia.in/Pages/${newsItem.category}/${newsItem.subCategory || newsItem.category}/${newsItem.slug}`;
+    const message = `📰 ${newsItem.title}\n\n${newsItem.summary || ""}\n\nRead more 👇`;
+
+    const linkedinService = require("./linkedinService");
+    const results = await Promise.allSettled(
+      accounts.map(a => linkedinService.postToLinkedIn(a.accessToken, a.accountId, message, articleUrl, newsItem.image || null))
+    );
+    results.forEach((r, i) => {
+      if (r.status === "fulfilled") console.log(`[Cron-LinkedIn] ✅ Posted to: ${accounts[i].accountName}`);
+      else console.error(`[Cron-LinkedIn] ❌ Failed for ${accounts[i].accountName}:`, r.reason?.message);
+    });
+  } catch (error) {
+    console.error("[Cron-LinkedIn] triggerLinkedInPost Error:", error);
+  }
+}
+
+/**
+ * Trigger Twitter auto-post when an article is published.
+ */
+async function triggerTwitterPost(newsItem) {
+  if (newsItem.status !== "published") return;
+
+  try {
+    let credentials = {};
+
+    const globalConfig = await AppConfig.findOne({ key: "twitter" });
+    if (globalConfig?.twitter?.accessToken && globalConfig?.twitter?.autoPostEnabled) {
+      credentials = {
+        appKey: globalConfig.twitter.appKey,
+        appSecret: globalConfig.twitter.appSecret,
+        accessToken: globalConfig.twitter.accessToken,
+        accessSecret: globalConfig.twitter.accessSecret,
+      };
+    }
+    else if (newsItem.authorId) {
+      const user = await User.findById(newsItem.authorId);
+      if (user?.twitter?.accessToken) {
+        credentials = {
+          appKey: user.twitter.appKey,
+          appSecret: user.twitter.appSecret,
+          accessToken: user.twitter.accessToken,
+          accessSecret: user.twitter.accessSecret,
+        };
+      }
+    }
+
+    if (!credentials.accessToken) return;
+
+    const articleUrl = `https://www.primetimemedia.in/Pages/${newsItem.category}/${newsItem.subCategory || newsItem.category}/${newsItem.slug}`;
+    const message = `📰 ${newsItem.title}`;
+
+    const twitterService = require("./twitterService");
+    await twitterService.postToTwitter(credentials, message, articleUrl);
+  } catch (error) {
+    console.error("[Cron-Twitter] triggerTwitterPost Error:", error);
+  }
+}
+
 const initCronJobs = () => {
   // Run every minute
   cron.schedule("* * * * *", async () => {
@@ -61,8 +130,10 @@ const initCronJobs = () => {
           await article.save();
           console.log(`[Cron] ✅ Automatically published: "${article.title}"`);
 
-          // Trigger Facebook post
+          // Trigger Social Media posts
           triggerFacebookPost(article);
+          triggerLinkedInPost(article);
+          triggerTwitterPost(article);
         }
       }
     } catch (error) {

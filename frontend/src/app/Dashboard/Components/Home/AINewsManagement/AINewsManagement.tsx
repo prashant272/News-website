@@ -10,9 +10,10 @@ interface AIDraft extends NewsItem {
 
 interface AINewsManagementProps {
     onEdit: (item: NewsItem) => void;
+    isSuperAdmin?: boolean;
 }
 
-export default function AINewsManagement({ onEdit }: AINewsManagementProps) {
+export default function AINewsManagement({ onEdit, isSuperAdmin }: AINewsManagementProps) {
     const [drafts, setDrafts] = useState<AIDraft[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -87,13 +88,15 @@ export default function AINewsManagement({ onEdit }: AINewsManagementProps) {
             <div className={styles.header}>
                 <h2>🤖 AI Generated Drafts ({drafts.length})</h2>
                 <div className={styles.headerActions}>
-                    <button
-                        onClick={handleScrap}
-                        className={styles.scrapBtn}
-                        disabled={scraping}
-                    >
-                        {scraping ? "Scraping..." : "Scrap News"}
-                    </button>
+                    {isSuperAdmin && (
+                        <button
+                            onClick={handleScrap}
+                            className={styles.scrapBtn}
+                            disabled={scraping}
+                        >
+                            {scraping ? "Scraping..." : "Scrap News"}
+                        </button>
+                    )}
                     <button onClick={fetchDrafts} className={styles.refreshBtn}>Refresh</button>
                 </div>
             </div>
