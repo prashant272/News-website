@@ -36,11 +36,17 @@ export default function ConditionalLayout({
         <div style={{ overflowX: 'hidden', width: '100%', position: 'relative' }}>
             <Navbar />
             <BreakingNewsTicker />
-            {/* Top Ad — below ticker, above content */}
-            <GoogleAd style={{ margin: '6px auto', maxWidth: 1200 }} />
+            {/* Top Leaderboard Ad — below ticker, above content */}
+            <div style={{ padding: '0 15px', background: '#f8f9fa' }}>
+                <GoogleAd style={{ margin: '10px auto', maxWidth: 1200, borderRadius: '8px' }} />
+            </div>
+            
             {children}
-            {/* Bottom Ad — above footer */}
-            <GoogleAd style={{ margin: '16px auto', maxWidth: 1200 }} />
+            
+            {/* Bottom Leaderboard Ad — above footer */}
+            <div style={{ padding: '0 15px', borderTop: '1px solid #eee' }}>
+                <GoogleAd style={{ margin: '20px auto', maxWidth: 1200 }} />
+            </div>
             <Footer />
             <WhatsAppButton />
         </div>

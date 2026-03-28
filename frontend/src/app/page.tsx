@@ -14,6 +14,7 @@ import NewsCards from "./Components/Common/NewsCard/NewsCard";
 import { stateNewsData } from "@/Data/NewsCardData/NewsCardData";
 import SocialShare from "./Components/Common/SocialShare/SocialShare";
 import WebStories from "./Components/Home/WebStories/WebStories";
+import GoogleAd from "./Components/Common/GoogleAd/GoogleAd";
 
 // Lazy-load heavy sections
 const VideosSection = dynamic(() => import("./Components/Common/VideosSection/VideosSection").then(mod => mod.VideosSection), {
@@ -37,6 +38,9 @@ export default function Home() {
 
       <LatestNews />
       <Sports />
+      <div style={{ margin: '30px auto', width: '100%', maxWidth: '1200px', padding: '0 15px' }}>
+          <GoogleAd />
+      </div>
       <Entertainment />
       <VideosSection />
       <LifestyleSection />

@@ -24,6 +24,8 @@ const sanitizeContent = (html: string): string => {
     .replace(/<p[^>]*>\s*Nomination[^<]*:\s*<\/p>/gi, '');
 };
 
+import GoogleAd from '../../Common/GoogleAd/GoogleAd';
+
 export default function ArticleContent({ content }: ArticleContentProps) {
   const { data: ads } = useActiveAds();
   const [currentAdIndex, setCurrentAdIndex] = React.useState(0);
@@ -44,35 +46,57 @@ export default function ArticleContent({ content }: ArticleContentProps) {
   const contentWithAds = useMemo(() => {
     if (!content) return null;
     const cleanContent = sanitizeContent(content);
-    if (inArticleAds.length === 0) {
-      return <div className={styles.articleContent} dangerouslySetInnerHTML={{ __html: cleanContent }} />;
-    }
-
+    
     const paragraphs = cleanContent.split('</p>');
     if (paragraphs.length <= 2) {
-      return <div className={styles.articleContent} dangerouslySetInnerHTML={{ __html: cleanContent }} />;
+      return (
+        <div className={styles.articleContent}>
+           <div dangerouslySetInnerHTML={{ __html: cleanContent }} />
+           <GoogleAd style={{ margin: '20px 0' }} />
+        </div>
+      );
     }
 
-    const midPoint = Math.floor(paragraphs.length / 2);
-    const firstHalf = paragraphs.slice(0, midPoint).join('</p>') + '</p>';
-    const secondHalf = paragraphs.slice(midPoint).join('</p>');
+    // Insert Google Ad after first few paragraphs (e.g. 2nd or 3rd)
+    const adPosition = Math.min(2, paragraphs.length - 1);
+    const firstPart = paragraphs.slice(0, adPosition).join('</p>') + '</p>';
+    const remainingParts = paragraphs.slice(adPosition);
 
-    const ad = inArticleAds[currentAdIndex];
+    // Insert Internal Ad at a later midpoint if content is long
+    const midPoint = Math.floor(remainingParts.length / 2);
+    const middlePart = remainingParts.slice(0, midPoint).join('</p>') + '</p>';
+    const lastPart = remainingParts.slice(midPoint).join('</p>');
+
+    const internalAd = inArticleAds[currentAdIndex];
 
     return (
       <div className={styles.articleContent}>
-        <div dangerouslySetInnerHTML={{ __html: firstHalf }} />
-
-        <div className={styles.inArticleAdWrapper}>
-          <div className={styles.adLabel}>ADVERTISEMENT</div>
-          <div className={styles.adSlide} key={currentAdIndex}>
-            <a href={ad.link} target="_blank" rel="noopener noreferrer">
-              <img src={ad.headerImageUrl || ad.imageUrl} alt={ad.title} className={styles.adImage} />
-            </a>
-          </div>
+        <div dangerouslySetInnerHTML={{ __html: firstPart }} />
+        
+        {/* Primary Google Ad Slot */}
+        <div className={styles.googleAdWrapper}>
+           <div className={styles.adLabel}>ADVERTISEMENT</div>
+           <GoogleAd />
         </div>
 
-        <div dangerouslySetInnerHTML={{ __html: secondHalf }} />
+        <div dangerouslySetInnerHTML={{ __html: middlePart }} />
+
+        {/* Secondary Internal Ad (Optional if exists) */}
+        {internalAd && (
+          <div className={styles.inArticleAdWrapper}>
+            <div className={styles.adLabel}>COMMERCIAL BREAK</div>
+            <div className={styles.adSlide} key={currentAdIndex}>
+              <a href={internalAd.link} target="_blank" rel="noopener noreferrer">
+                <img src={internalAd.headerImageUrl || internalAd.imageUrl} alt={internalAd.title} className={styles.adImage} />
+              </a>
+            </div>
+          </div>
+        )}
+
+        <div dangerouslySetInnerHTML={{ __html: lastPart }} />
+
+        {/* Bottom Google Ad Slot */}
+        <GoogleAd style={{ marginTop: '20px' }} />
       </div>
     );
   }, [content, inArticleAds, currentAdIndex]);

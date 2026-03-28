@@ -14,6 +14,7 @@ import RecommendedStories from '../RecommendedStories/RecommendedStories';
 import SocialShare from '../../Common/SocialShare/SocialShare';
 import BreadcrumbSchema from '../../Common/JSONLD/BreadcrumbSchema';
 import SidebarAds from '../../Common/SidebarAds/SidebarAds';
+import GoogleAd from '../../Common/GoogleAd/GoogleAd';
 
 interface ArticleData {
   id: string | number;
@@ -136,6 +137,7 @@ export default function ArticlePageClient({
 
         <div className={styles.articleLayout}>
           <div className={styles.mainContent}>
+            <GoogleAd style={{ marginBottom: '20px' }} />
             <ArticleHeader article={article} />
             <ArticleContent content={article.content} />
             <RelatedArticles articles={relatedArticles} />
@@ -209,6 +211,9 @@ export default function ArticlePageClient({
 
           <aside className={styles.sidebar}>
             <TopNewsSidebar news={topNews} />
+            <div style={{ marginTop: '20px', position: 'sticky', top: '100px' }}>
+              <GoogleAd />
+            </div>
           </aside>
         </div>
 
