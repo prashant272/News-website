@@ -52,6 +52,18 @@
   border-radius: 40px;
   border: 1px solid #eee;
 
+  @media (max-width: 768px) {
+    width: 100%;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    border-radius: 12px;
+    padding: 8px;
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
   .categoryButton {
     padding: 10px 24px;
     border-radius: 30px;
@@ -62,6 +74,13 @@
     color: #666;
     cursor: pointer;
     transition: all 0.3s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+
+    @media (max-width: 768px) {
+      padding: 8px 18px;
+      font-size: 0.8rem;
+    }
 
     &.active {
       background: #00b894;

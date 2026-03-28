@@ -27,7 +27,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.primetimemedia.in"),
   title: {
-    default: "Prime Time News | Asia Leading Media House",
+    default: "Prime Time | Asia Leading Media House",
     template: "%s | Prime Time News",
   },
   description: "Prime Time News — Asia Leading Media House for breaking news, politics, sports, entertainment, technology, business and world news. Get live updates 24/7.",
@@ -50,6 +50,10 @@ export const metadata: Metadata = {
     "Prime Time Asia News Portal",
     "Hindi English News Asia",
     "primetimemedia.in",
+    "Global News",
+    "International Media House Asia",
+    "Leading Asia News Network",
+    "Worldwide Breaking News"
   ],
   authors: [{ name: "Prime Time News Editorial Team" }],
   publisher: "Prime Time News",
@@ -66,10 +70,10 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "Prime Time News | Asia Leading Media House",
+    title: "Prime Time | Asia Leading Media House",
     description: "Asia Leading Media House for breaking news, politics, sports, and world events. Get the most accurate and fastest live updates.",
     url: "https://www.primetimemedia.in/",
-    siteName: "Prime Time News",
+    siteName: "Prime Time | Asia Leading Media House",
     images: [
       {
         url: "/og-image.jpg",
@@ -105,7 +109,8 @@ export default function RootLayout({
         "@type": "WebSite",
         "@id": "https://www.primetimemedia.in/#website",
         "url": "https://www.primetimemedia.in",
-        "name": "Prime Time News",
+        "name": "Prime Time | Asia Leading Media House",
+        "alternateName": ["Prime Time News", "Prime Time Media", "primetimemedia.in"],
         "description": "Asia Leading Media House for breaking news, politics, sports, entertainment, technology, business and world news.",
         "publisher": {
           "@id": "https://www.primetimemedia.in/#organization"
@@ -123,8 +128,8 @@ export default function RootLayout({
       {
         "@type": "NewsMediaOrganization",
         "@id": "https://www.primetimemedia.in/#organization",
-        "name": "Prime Time News",
-        "alternateName": "Prime Time Media",
+        "name": "Prime Time | Asia Leading Media House",
+        "alternateName": ["Prime Time News", "Prime Time Media"],
         "url": "https://www.primetimemedia.in",
         "logo": {
           "@type": "ImageObject",
@@ -136,7 +141,7 @@ export default function RootLayout({
           "https://www.facebook.com/primetimemedia",
           "https://twitter.com/PrimeTimeNews"
         ],
-        "description": "Prime Time News — Asia Leading Media House, delivering fastest breaking news across politics, sports, entertainment, business, and technology. Stay informed with 24/7 live updates.",
+        "description": "Prime Time | Asia Leading Media House — Delivering fastest breaking news across politics, sports, entertainment, business, and technology. Stay informed with 24/7 live updates.",
         "foundingDate": "2020",
         "address": {
           "@type": "PostalAddress",
@@ -153,10 +158,27 @@ export default function RootLayout({
         }
       },
       {
+        "@type": "Organization",
+        "name": "Global Education Awards",
+        "alternateName": ["Indian Education Awards", "Global Education Excellence Awards", "Prime Time | Asia Leading Media House"],
+        "url": "https://globaleducationawards.in",
+        "logo": "https://globaleducationawards.in/logo.png",
+        "description": "Recognizing excellence in the global education sector through the prestigious Global Education Excellence Awards and Indian Education Awards.",
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "telephone": "+91-9810882769",
+          "contactType": "Nominations"
+        },
+        "sameAs": [
+          "https://www.facebook.com/PrimeTimeResearchMedia",
+          "https://www.linkedin.com/company/prime-time-research-media-pvt-ltd"
+        ]
+      },
+      {
         "@type": "WebPage",
         "@id": "https://www.primetimemedia.in/#webpage",
         "url": "https://www.primetimemedia.in",
-        "name": "Prime Time News | Asia Leading Media House",
+        "name": "Prime Time | Asia Leading Media House",
         "isPartOf": {
           "@id": "https://www.primetimemedia.in/#website"
         },

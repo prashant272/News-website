@@ -33,7 +33,7 @@ export default function ConditionalLayout({
     }
 
     return (
-        <>
+        <div style={{ overflowX: 'hidden', width: '100%', position: 'relative' }}>
             <Navbar />
             <BreakingNewsTicker />
             {/* Top Ad — below ticker, above content */}
@@ -43,6 +43,6 @@ export default function ConditionalLayout({
             <GoogleAd style={{ margin: '16px auto', maxWidth: 1200 }} />
             <Footer />
             <WhatsAppButton />
-        </>
+        </div>
     );
 }

@@ -35,9 +35,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       const articleUrl = `${siteUrl}/Pages/${category}/${subCategory}/${slug}`;
 
       return {
-        metadataBase: new URL(siteUrl),
         title: news.title,
         description: fullDescription,
+        keywords: news.tags?.length > 0 ? news.tags.filter(Boolean) : ["Prime Time News", news.category || "", news.subCategory || ""],
+        alternates: {
+          canonical: articleUrl,
+        },
         openGraph: {
           title: news.title,
           description: fullDescription,

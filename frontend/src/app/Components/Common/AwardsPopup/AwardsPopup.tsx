@@ -130,30 +130,40 @@ const AwardsPopup: React.FC = () => {
                     </button>
                 )}
 
-                <span className={styles.badge}>{badgeLabel}</span>
+                <div className={styles.innerContent}>
+                    <span className={styles.badge}>{badgeLabel}</span>
 
-                <div className={styles.content}>
-                    <h3 className={styles.title}>{titleText}</h3>
-                    <p className={styles.desc}>{descText}</p>
-                </div>
+                    <div className={styles.content}>
+                        <h3 className={styles.title}>{titleText}</h3>
+                        <p className={styles.desc}>{descText}</p>
+                    </div>
 
-                <div className={styles.actions}>
-                    <a href={nominateUrl} target="_blank" rel="noopener noreferrer"
-                        className={styles.nominateBtn} onClick={() => setVisible(false)}>
-                        🏆 Nominate Now
-                    </a>
-                    <a href={articleUrl} target="_blank" rel="noopener noreferrer"
-                        className={styles.infoBtn} onClick={() => setVisible(false)}>
-                        <ExternalLink size={14} /> More Info
-                    </a>
-                </div>
+                    <div className={styles.actions}>
+                        <a href={nominateUrl} target="_blank" rel="noopener noreferrer"
+                            className={styles.nominateBtn} onClick={() => setVisible(false)}>
+                            🏆 Nominate Now
+                        </a>
+                        <a href={articleUrl} target="_blank" rel="noopener noreferrer"
+                            className={styles.infoBtn} onClick={() => setVisible(false)}>
+                            <ExternalLink size={14} /> More Info
+                        </a>
+                    </div>
 
-                <div className={styles.dots}>
-                    {Array.from({ length: Math.min(totalCount, 12) }).map((_, i) => (
-                        <span key={i} className={`${styles.dot} ${i === currentPos % Math.min(totalCount, 12) ? styles.activeDot : ''}`} />
-                    ))}
+                    <div className={styles.dots}>
+                        {Array.from({ length: Math.min(totalCount, 12) }).map((_, i) => (
+                            <span 
+                                key={i} 
+                                className={`${styles.dot} ${i === currentPos % Math.min(totalCount, 12) ? styles.activeDot : ''}`} 
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setAwardIndex(i);
+                                    indexRef.current = i;
+                                }}
+                            />
+                        ))}
+                    </div>
+                    <p className={styles.counter}>{currentPos + 1} of {totalCount}</p>
                 </div>
-                <p className={styles.counter}>{currentPos + 1} of {totalCount}</p>
             </div>
         </div>
     );

@@ -12,19 +12,30 @@ const GoogleAd: React.FC<GoogleAdProps> = ({ style, className }) => {
 
     useEffect(() => {
         if (pushed.current) return;
-        try {
-            const adsbygoogle = (window as any).adsbygoogle;
-            if (adsbygoogle) {
-                adsbygoogle.push({});
-                pushed.current = true;
+        
+        // Use a small timeout to ensure layout has finished
+        const timer = setTimeout(() => {
+            if (pushed.current) return;
+            
+            try {
+                const adsbygoogle = (window as any).adsbygoogle;
+                // Check if container actually has width to prevent TagError
+                const currentWidth = adRef.current?.parentElement?.offsetWidth || 0;
+                
+                if (adsbygoogle && currentWidth > 0) {
+                    adsbygoogle.push({});
+                    pushed.current = true;
+                }
+            } catch (e) {
+                // Console error prevention — fine in dev/streaming
             }
-        } catch (e) {
-            // AdSense not ready yet — fine in dev
-        }
+        }, 500);
+
+        return () => clearTimeout(timer);
     }, []);
 
     return (
-        <div className={className} style={{ minHeight: 100, textAlign: 'center', overflow: 'hidden', ...style }}>
+        <div className={className} style={{ minHeight: 100, width: '100%', minWidth: '100%', textAlign: 'center', overflow: 'hidden', ...style }}>
             <ins
                 ref={adRef}
                 className="adsbygoogle"

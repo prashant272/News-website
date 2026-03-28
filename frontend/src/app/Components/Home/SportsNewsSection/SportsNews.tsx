@@ -95,7 +95,7 @@ const SportsNews: React.FC = () => {
         <div className={styles.header}>
           <div className={styles.titleWrapper}>
             <span className={styles.dot}></span>
-            <h2 className={styles.title}>Sports Arena</h2>
+            <h2 className={styles.title}>Sports News</h2>
           </div>
           <nav className={styles.categoryNav}>
             {preferredFilters.map((category) => (

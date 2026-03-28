@@ -26,9 +26,14 @@
 .sectionHeader {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   padding-bottom: 15px;
   border-bottom: 2px solid #f9f9f9;
+
+  @media (max-width: 768px) {
+    padding-bottom: 10px;
+    gap: 10px;
+  }
 
   .dot {
     width: 10px;
@@ -45,6 +50,10 @@
     color: #111;
     letter-spacing: -0.5px;
     text-transform: uppercase;
+
+    @media (max-width: 768px) {
+      font-size: 1.3rem;
+    }
   }
 }
 

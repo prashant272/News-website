@@ -179,6 +179,7 @@
       line-height: 1.4;
       display: -webkit-box;
       -webkit-line-clamp: 2;
+      line-clamp: 2; // Standard property
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
@@ -198,7 +199,7 @@
   position: sticky;
   top: 20px;
   height: fit-content;
-  width: 140%;
+  width: 100%; // Fixed from 140%
 }
 
 .adLabel {

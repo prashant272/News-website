@@ -98,7 +98,7 @@
 
     .title {
       color: #ffffff;
-      font-size: clamp(2rem, 3.2vw, 3.2rem);
+      font-size: clamp(1.5rem, 3.2vw, 3.2rem); // Reduced min from 2rem
       font-weight: 900;
       line-height: 1.1;
       margin-bottom: 12px;

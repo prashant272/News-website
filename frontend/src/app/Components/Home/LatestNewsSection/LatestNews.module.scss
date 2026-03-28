@@ -8,6 +8,10 @@
     max-width: 1400px;
     margin: 0 auto;
     padding: 0 20px;
+
+    @media (max-width: 768px) {
+      padding: 0 15px;
+    }
   }
 }
 
@@ -22,11 +26,11 @@
   .headerTop {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 12px;
 
     .liveIndicator {
-      width: 10px;
-      height: 10px;
+      width: 8px;
+      height: 8px;
       background: #cc0000;
       border-radius: 50%;
       animation: blink 1s infinite;
@@ -38,6 +42,10 @@
       font-weight: 900;
       color: #111;
       letter-spacing: -0.5px;
+
+      @media (max-width: 768px) {
+        font-size: 1.3rem;
+      }
     }
   }
 
@@ -53,11 +61,21 @@
     border-radius: 30px;
     transition: all 0.3s;
 
+    @media (max-width: 768px) {
+      font-size: 0.75rem;
+      padding: 6px 14px;
+    }
+
     &:hover {
       background: #cc0000;
       color: #fff;
       transform: translateY(-2px);
     }
+  }
+
+  @media (max-width: 768px) {
+    margin-bottom: 25px;
+    padding-bottom: 15px;
   }
 }
 

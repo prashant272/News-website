@@ -23,6 +23,7 @@ const VisualStoryRouter = require("./routes/visualStory.route")
 const OneSignalRouter = require("./routes/onesignal.routes")
 const LinkedInRouter = require("./routes/linkedin.routes")
 const TwitterRouter = require("./routes/twitter.routes")
+const SitemapRouter = require("./routes/sitemap.routes")
 
 
 const app = express()
@@ -90,6 +91,7 @@ app.use("/fb", FacebookRouter)
 app.use("/linkedin", LinkedInRouter)
 app.use("/twitter", TwitterRouter)
 app.use("/onesignal", OneSignalRouter)
+app.use("/", SitemapRouter)
 
 const { syncMatchesWithDB } = require("./Services/cricketService")
 
