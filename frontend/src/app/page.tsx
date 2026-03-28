@@ -29,7 +29,9 @@ const LifestyleSection = dynamic(() => import("./Components/Home/Lifestyle/Lifes
 export default function Home() {
   return (
     <>
-      <NewsSection />
+      <Suspense fallback={<div className="h-96 animate-pulse bg-gray-100 rounded-xl m-8" />}>
+        <HeroSection />
+      </Suspense>
       <NewsList />
       <WebStories />
 
@@ -39,13 +41,13 @@ export default function Home() {
       <VideosSection />
       <LifestyleSection />
 
-      <SocialShare
+      {/* <SocialShare
         url={typeof window !== 'undefined' ? window.location.href : 'https://www.primetimemedia.in/'}
         title="Prime Time News | Asia's Leading Media House | Breaking News & Live Updates"
         description="Empowering Asia with the fastest breaking news, in-depth reports, and 24/7 live updates on politics, sports, and entertainment."
         image="/og-image.jpg"
         isArticle={false}
-      />
+      /> */}
     </>
   );
 }

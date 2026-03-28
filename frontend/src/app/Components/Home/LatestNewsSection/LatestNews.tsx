@@ -1,10 +1,11 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useNewsContext } from '@/app/context/NewsContext';
 import { formatDateTime } from '@/Utils/Utils';
 import styles from './LatestNews.module.scss';
+import { ChevronDown } from 'lucide-react';
 
 interface DisplayItem {
   id: string;
@@ -20,28 +21,26 @@ interface DisplayItem {
 
 const LatestNews: React.FC = () => {
   const { allNews, loading } = useNewsContext();
+  const [visibleCount, setVisibleCount] = useState(12);
 
-  const displayNews: DisplayItem[] = (() => {
+  const { displayNews, hasMore } = useMemo(() => {
     if (!allNews || !Array.isArray(allNews) || allNews.length === 0) {
-      return [];
+      return { displayNews: [], hasMore: false };
     }
 
-    // Deduplicate by _id then slug to prevent duplicate React keys
-    const seen = new Set<string>();
-    const uniqueNews = allNews.filter((item: any) => {
-      const key = item._id || item.slug;
-      if (!key || seen.has(key)) return false;
-      seen.add(key);
-      return true;
+    // Explicit sorting by date (descending)
+    const sorted = [...allNews].sort((a, b) => {
+      const getSafeTime = (item: any) => {
+        const d = new Date(item.publishedAt || item.date || item.createdAt || 0);
+        return isNaN(d.getTime()) ? 0 : d.getTime();
+      };
+      return getSafeTime(b) - getSafeTime(a);
     });
 
-    const latestItems = uniqueNews
-      .filter((item: any) => item.isLatest === true)
-      .slice(0, 6);
+    const items = sorted.slice(0, visibleCount);
+    const moreAvailable = visibleCount < sorted.length;
 
-    const itemsToMap = latestItems.length > 0 ? latestItems : uniqueNews.slice(0, 6);
-
-    return itemsToMap.map((item: any, idx: number) => {
+    const mappedItems = items.map((item: any, idx: number) => {
       const section = item.section || 'news';
       const sub = item.subCategory || section;
       const catSlug = sub.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
@@ -58,89 +57,55 @@ const LatestNews: React.FC = () => {
         date: item.publishedAt || item.date || item.createdAt,
       };
     });
-  })();
+
+    return { displayNews: mappedItems, hasMore: moreAvailable };
+  }, [allNews, visibleCount]);
+
+  const handleLoadMore = () => {
+    setVisibleCount(prev => prev + 12);
+  };
 
   if (loading) {
-    return (
-      <section className={styles.latestNewsSection}>
-        <div className={styles.container}>
-          <div className={styles.newsGrid}>
-            {[0, 1, 2].map((i) => (
-              <article key={i} className={styles.newsItem}>
-                <div className={`${styles.content} animate-pulse bg-gray-200 h-24 rounded`}></div>
-                <div className={`${styles.imageWrapper} animate-pulse bg-gray-200 h-48 rounded`}></div>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-    );
+    return <div className={styles.loadingContainer}><div className={styles.spinner}></div></div>;
   }
 
-  if (displayNews.length === 0) {
-    return (
-      <section className={styles.latestNewsSection}>
-        <div className={styles.container}>
-          <div className={styles.header}>
-            <h2 className={styles.title}>Latest News</h2>
-            <div className={styles.titleUnderline}></div>
-          </div>
-          <p className="text-center text-gray-500 py-12">
-            No breaking/latest news available right now.
-          </p>
-        </div>
-      </section>
-    );
-  }
+  if (displayNews.length === 0) return null;
 
   return (
     <section className={styles.latestNewsSection}>
       <div className={styles.container}>
         <div className={styles.header}>
-          <h2 className={styles.title}>Latest News</h2>
-          <div className={styles.titleUnderline}></div>
+          <div className={styles.headerTop}>
+            <span className={styles.liveIndicator}></span>
+            <h2 className={styles.sectionTitle}>Latest News</h2>
+          </div>
+          <Link href="/Pages/all" className={styles.viewAll}>View All Latest News</Link>
         </div>
 
-        <div className={styles.newsGrid}>
-          {displayNews.map((item) => {
-            const categorySlug = (item.subCategory || item.section)
-              .toLowerCase()
-              .replace(/\s+/g, '-');
-
-            return (
-              <article key={item.id} className={styles.newsItem}>
-                <div className={styles.content}>
-                  <span className={styles.category}>{item.category}</span>
-                  <h3 className={styles.newsTitle}>
-                    <Link href={item.href} className="hover:underline">
-                      {item.title}
-                    </Link>
-                  </h3>
-                  {item.date && (
-                    <span className={styles.publishDate}>{formatDateTime(item.date)}</span>
-                  )}
-                </div>
-                <div className={styles.imageWrapper}>
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="w-full h-48 object-cover rounded"
-                    loading="lazy"
-                  />
-                </div>
-              </article>
-            );
-          })}
+        <div className={styles.horizontalGrid}>
+          {displayNews.map((item) => (
+            <Link key={item.id} href={item.href} className={styles.newsItem}>
+              <div className={styles.imageOverlay}>
+                <img src={item.image} alt={item.title} loading="lazy" />
+              </div>
+              <div className={styles.content}>
+                <span className={styles.category}>{item.category}</span>
+                <h3 className={styles.newsTitle}>{item.title}</h3>
+                {item.date && (
+                   <span className={styles.date}>{formatDateTime(item.date)}</span>
+                )}
+              </div>
+            </Link>
+          ))}
         </div>
 
-        <div className={styles.readMoreWrapper}>
-          <Link href="/Pages/all" className={styles.readMoreButton}>
-            Read More News
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <path d="M7 4L13 10L7 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-          </Link>
-        </div>
+        {hasMore && (
+          <div className={styles.loadMoreWrapper}>
+            <button className={styles.loadMoreBtn} onClick={handleLoadMore}>
+              Load More News <ChevronDown size={20} />
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );

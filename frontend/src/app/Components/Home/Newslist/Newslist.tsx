@@ -1,27 +1,11 @@
 "use client";
 import React, { useMemo, useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useNewsContext } from '@/app/context/NewsContext';
+import { useActiveAds } from '@/app/hooks/useAds';
 import { formatDateTime } from '@/Utils/Utils';
 import styles from './Newslist.module.scss';
-import SidebarAds from '../../Common/SidebarAds/SidebarAds';
-
-
-interface RawNewsItem {
-  slug: string;
-  title: string;
-  summary?: string;
-  content?: string;
-  image?: string;
-  category: string;
-  subCategory?: string;
-  tags?: string[];
-  isTrending?: boolean;
-  isLatest?: boolean;
-  nominationLink?: string;
-  moreInfoLink?: string;
-}
-
 
 interface NewsArticle {
   id: string;
@@ -37,7 +21,6 @@ interface NewsArticle {
   moreInfoLink?: string;
 }
 
-
 interface TrendingItem {
   id: string;
   title: string;
@@ -48,12 +31,11 @@ interface TrendingItem {
   date?: string;
 }
 
-
 const NewsList: React.FC = () => {
   const { allNews, loading } = useNewsContext();
+  const [visibleCount, setVisibleCount] = useState(10);
+  const [visibleTrending, setVisibleTrending] = useState(6);
   const router = useRouter();
-
-
 
   const getImageSrc = (img?: string): string => {
     if (!img) return 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80';
@@ -61,29 +43,27 @@ const NewsList: React.FC = () => {
     return `/uploads/${img}`;
   };
 
-  const handleCardClick = (slug: string, category: string, subCategory?: string) => {
-    const cat = category || 'news';
-    const subCat = subCategory || 'general';
-    router.push(`/Pages/${cat}/${subCat}/${slug}`);
-  };
+  const { sortedNews, hasMore } = useMemo(() => {
+    if (!allNews) return { sortedNews: [], hasMore: false };
 
-  const newsArticles: NewsArticle[] = useMemo(() => {
-    if (!allNews || allNews.length === 0) return [];
-
-    // Sort by most recent (latest and trending first, then by index)
-    const sortedNews = [...allNews].sort((a, b) => {
-      if (a.isLatest && !b.isLatest) return -1;
-      if (!a.isLatest && b.isLatest) return 1;
-      if (a.isTrending && !b.isTrending) return -1;
-      if (!a.isTrending && b.isTrending) return 1;
-      return 0;
+    const sorted = [...allNews].sort((a, b) => {
+      const getSafeTime = (item: any) => {
+        const d = new Date(item.publishedAt || item.date || item.createdAt || 0);
+        return isNaN(d.getTime()) ? 0 : d.getTime();
+      };
+      return getSafeTime(b) - getSafeTime(a);
     });
 
-    // Take top 18 items to fill the 3-column grid (covers user's 15-20 range)
-    const selected = sortedNews.slice(0, 21);
+    // Skip first 10 (Hero/Latest) and take visibleCount
+    const newsForGrid = sorted.slice(6, 6 + visibleCount);
+    const moreAvailable = (6 + visibleCount) < sorted.length;
 
-    const articles: NewsArticle[] = selected.map((item, idx) => ({
-      id: `div-${item.slug}-${idx}`,
+    return { sortedNews: newsForGrid, hasMore: moreAvailable };
+  }, [allNews, visibleCount]);
+
+  const newsArticles: NewsArticle[] = useMemo(() => {
+    return sortedNews.map((item, idx) => ({
+      id: `list-${item.slug}-${idx}`,
       category: item.category || 'News',
       subCategory: item.subCategory,
       title: item.title,
@@ -95,64 +75,60 @@ const NewsList: React.FC = () => {
       nominationLink: item.nominationLink,
       moreInfoLink: item.moreInfoLink,
     }));
+  }, [sortedNews]);
 
-    return articles;
-  }, [allNews]);
+  const { trendingItems, hasMoreTrending } = useMemo(() => {
+    if (!allNews) return { trendingItems: [], hasMoreTrending: false };
 
-  const trendingItems: TrendingItem[] = useMemo(() => {
-    if (!allNews) return [];
-
+    // Independent of the left grid (removed exclusion)
     const trending = allNews.filter((item) => item.isTrending === true);
-    const fallback = allNews.slice(0, 12);
-    const finalTrending = trending.length >= 6 ? trending : fallback;
+    const fallback = allNews.slice(0, 30);
+    const pool = trending.length >= 5 ? trending : fallback;
 
-    return finalTrending
-      .slice(0, 12)
+    const displayed = pool.slice(0, visibleTrending);
+    const moreAvailable = visibleTrending < pool.length;
 
-      .map((item, index) => ({
-        id: `${index}-${item.slug}`,
+    return {
+      trendingItems: displayed.map((item, index) => ({
+        id: `trend-${index}-${item.slug}`,
         title: item.title,
         image: getImageSrc(item.image),
         slug: item.slug,
         category: item.category,
         subCategory: item.subCategory,
         date: item.publishedAt || item.date || item.createdAt,
-      }));
-  }, [allNews]);
+      })),
+      hasMoreTrending: moreAvailable
+    };
+  }, [allNews, visibleTrending]);
 
+  const handleLoadMore = () => {
+    setVisibleCount(prev => prev + 10);
+  };
 
+  const handleShowMoreTrending = () => {
+    setVisibleTrending(prev => prev + 6);
+  };
 
   if (loading) {
     return (
       <section className={styles.newsListSection}>
         <div className={styles.container}>
           <div className={styles.mainContent}>
-            <div className={styles.newsGrid}>
-              {Array(6).fill(0).map((_, i) => (
-                <article key={i} className={`${styles.newsCard} animate-pulse`}>
-                  <div className="bg-gray-200 h-40 w-full rounded"></div>
-                  <div className="mt-3 space-y-2">
-                    <div className="h-4 bg-gray-200 rounded w-full"></div>
-                    <div className="h-5 bg-gray-200 rounded w-3/4"></div>
-                  </div>
-                </article>
+            <div className={styles.newsList}>
+              {Array(10).fill(0).map((_, i) => (
+                <div key={i} className={`${styles.loadingCard} animate-pulse`}></div>
               ))}
             </div>
+
+            {hasMoreTrending && (
+              <div className={styles.trendingMoreWrapper}>
+                <button className={styles.trendingMore} onClick={handleShowMoreTrending}>
+                  Show More Trends ↓
+                </button>
+              </div>
+            )}
           </div>
-          <aside className={styles.sidebar}>
-            <div className={`${styles.trendingSection} animate-pulse`}>
-              <div className="h-8 bg-gray-200 w-32 rounded mb-6"></div>
-              {Array(3).fill(0).map((_, i) => (
-                <div key={i} className="flex gap-3 mb-4">
-                  <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
-                  <div className="flex-1 space-y-1">
-                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                    <div className="h-12 bg-gray-200 rounded"></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </aside>
         </div>
       </section>
     );
@@ -162,70 +138,55 @@ const NewsList: React.FC = () => {
     <section className={styles.newsListSection}>
       <div className={styles.container}>
         <div className={styles.mainContent}>
-          <div className={styles.newsGrid}>
+          <div className={styles.sectionHeader}>
+            <span className={styles.dot}></span>
+            <h2 className={styles.title}>Recent News</h2>
+          </div>
+          <div className={styles.newsList}>
             {newsArticles.length === 0 ? (
-              <p>No recent news available</p>
+              <p className={styles.noNews}>No recent news available</p>
             ) : (
-              newsArticles.map((article) => (
-                <article
-                  key={article.id}
-                  className={styles.newsCard}
-                  onClick={() => handleCardClick(article.slug, article.category, article.subCategory)}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <div className={styles.cardImage}>
-                    <img src={article.image} alt={article.title} />
-                    {article.isVideo && (
-                      <div className={styles.videoIcon}>
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                          <circle cx="12" cy="12" r="12" fill="rgba(255, 68, 68, 0.95)" />
-                          <path d="M9 6L17 12L9 18V6Z" fill="#fff" />
-                        </svg>
-                      </div>
-                    )}
-                  </div>
-                  <div className={styles.cardContent}>
-                    <div className={styles.cardHeader}>
-                      <span className={styles.categoryBadge}>{article.category}</span>
-                      {article.isOpinion && (
-                        <span className={styles.opinionBadge}>
-                          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                            <rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" strokeWidth="1.5" />
-                            <path d="M5 8L7 10L11 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              newsArticles.map((article) => {
+                const url = `/Pages/${article.category || 'news'}/${article.subCategory || 'general'}/${article.slug}`;
+                return (
+                  <Link
+                    key={article.id}
+                    href={url}
+                    className={styles.newsCard}
+                  >
+                    <div className={styles.cardImage}>
+                      <img src={article.image} alt={article.title} loading="lazy" />
+                      {article.isVideo && (
+                        <div className={styles.playBtn}>
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M5 3L19 12L5 21V3Z" fill="white" />
                           </svg>
-                          OPINION
-                        </span>
+                        </div>
                       )}
                     </div>
-                    <h3 className={styles.cardTitle}>{article.title}</h3>
-                    {article.date && (
-                      <span className={styles.publishDate}>{formatDateTime(article.date)}</span>
-                    )}
-                    {article.category.toLowerCase() === 'awards' && (
-                      <div className={styles.awardsActions} onClick={(e) => e.stopPropagation()}>
-                        <a 
-                          href={article.nominationLink || '#'} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className={styles.nominateBtn}
-                        >
-                          🏆 Nominate
-                        </a>
-                        <a 
-                          href={article.moreInfoLink || '#'} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className={styles.moreInfoBtn}
-                        >
-                          ℹ️ More Info
-                        </a>
-                      </div>
-                    )}
-                  </div>
-                </article>
-              ))
+                    <div className={styles.cardContent}>
+                      <span className={styles.categoryBadge}>{article.category}</span>
+                      <h3 className={styles.cardTitle}>{article.title}</h3>
+                      {article.date && (
+                        <span className={styles.date}>{formatDateTime(article.date)}</span>
+                      )}
+                    </div>
+                  </Link>
+                );
+              })
             )}
           </div>
+
+          {hasMore && (
+            <div className={styles.loadMoreWrapper}>
+              <button className={styles.loadMoreBtn} onClick={handleLoadMore}>
+                Explore More News
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M7 13l5 5 5-5M7 6l5 5 5-5" />
+                </svg>
+              </button>
+            </div>
+          )}
         </div>
 
         <aside className={styles.sidebar}>
@@ -236,35 +197,75 @@ const NewsList: React.FC = () => {
             </div>
 
             <div className={styles.trendingList}>
-              {trendingItems.map((item, index) => (
-                <article
-                  key={item.id}
-                  className={styles.trendingCard}
-                  onClick={() => handleCardClick(item.slug, item.category, item.subCategory)}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <div className={styles.trendingRank}>
-                    <span>{index + 1}</span>
-                  </div>
-                  <div className={styles.trendingImage}>
-                    <img
-                      src={item.image}
-                      alt={item.title}
-                    />
-                  </div>
-                  <h4 className={styles.trendingText}>{item.title}</h4>
-                  {item.date && (
-                    <span className={styles.trendingDate}>{formatDateTime(item.date)}</span>
-                  )}
-                </article>
-              ))}
-            </div>
-          </div>
+              {trendingItems.map((item, index) => {
+                const url = `/Pages/${item.category || 'news'}/${item.subCategory || 'general'}/${item.slug}`;
+                const adToInsert = (index + 1) % 3 === 0;
 
-          <SidebarAds count={5} />
+                return (
+                  <React.Fragment key={item.id}>
+                    <Link
+                      href={url}
+                      className={styles.trendingCard}
+                    >
+                      <div className={styles.trendingRank}>
+                        <span>{index + 1}</span>
+                      </div>
+                      <div className={styles.trendingImage}>
+                        <img
+                          src={item.image}
+                          alt={item.title}
+                        />
+                      </div>
+                      <div className={styles.trendingInfo}>
+                        <h4 className={styles.trendingText}>{item.title}</h4>
+                        {item.date && (
+                          <span className={styles.trendingDate}>{formatDateTime(item.date)}</span>
+                        )}
+                      </div>
+                    </Link>
+                    {adToInsert && <TrendingAdUnit key={`ad-${index}`} />}
+                  </React.Fragment>
+                );
+              })}
+            </div>
+
+            {hasMoreTrending && (
+              <button className={styles.trendingMore} onClick={handleShowMoreTrending}>
+                Show More Trends ↓
+              </button>
+            )}
+          </div>
         </aside>
       </div>
     </section>
+  );
+};
+
+/* --- Internal Ad Component --- */
+const TrendingAdUnit: React.FC = () => {
+  const { data: ads } = useActiveAds();
+  const sidebarAds = (ads || []).filter(ad => ad.isActive && (ad.sidebarImageUrl || ad.placement === 'sidebar'));
+  const [adIndex, setAdIndex] = useState(0);
+
+  useEffect(() => {
+    if (sidebarAds.length <= 1) return;
+    const interval = setInterval(() => {
+      setAdIndex((prev) => (prev + 1) % sidebarAds.length);
+    }, 5000 + Math.random() * 1000);
+    return () => clearInterval(interval);
+  }, [sidebarAds.length]);
+
+  if (sidebarAds.length === 0) return null;
+
+  const currentAd = sidebarAds[adIndex];
+
+  return (
+    <div className={styles.adCard}>
+      <span className={styles.adTag}>ADVERTISEMENT</span>
+      <a href={currentAd.link} target="_blank" rel="noopener noreferrer" className={styles.adLink}>
+        <img src={currentAd.sidebarImageUrl || currentAd.imageUrl} alt="Ad" />
+      </a>
+    </div>
   );
 };
 

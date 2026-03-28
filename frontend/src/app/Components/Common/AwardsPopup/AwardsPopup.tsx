@@ -3,7 +3,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import styles from './AwardsPopup.module.scss';
 import { X, ExternalLink } from 'lucide-react';
 import { usePathname } from 'next/navigation';
-import { useNewsContext } from '@/app/context/NewsContext';
+import { useNewsSectionData } from '@/app/hooks/useNewsSectionData';
+import { getImageSrc } from '@/Utils/imageUtils';
 
 const SHOW_INTERVAL_MS = 2 * 60 * 1000;
 const FIRST_SHOW_DELAY_MS = 1000;
@@ -38,7 +39,11 @@ const FALLBACK_AWARDS = [
 
 const AwardsPopup: React.FC = () => {
     const pathname = usePathname();
-    const { awardsNews } = useNewsContext();
+    const { items: liveAwards, isLoading: liveLoading } = useNewsSectionData({
+        variant: 'grid',
+        overrideSection: 'awards',
+        limit: 15
+    });
     const [visible, setVisible] = useState(false);
     const [awardIndex, setAwardIndex] = useState(0);
     const indexRef = useRef(0);
@@ -52,8 +57,10 @@ const AwardsPopup: React.FC = () => {
 
         // Show first popup
         timerRef.current = setTimeout(() => {
-            setAwardIndex(0);
-            indexRef.current = 0;
+            // Randomize starting index if live awards exist
+            const startingIndex = Math.floor(Math.random() * 10);
+            setAwardIndex(startingIndex);
+            indexRef.current = startingIndex;
             setVisible(true);
 
             // Then cycle every 2 mins
@@ -74,10 +81,11 @@ const AwardsPopup: React.FC = () => {
 
     if (isAdmin || !visible) return null;
 
-    // Build awards list — use live data if available, else fallback
-    const liveAwards = (awardsNews && awardsNews.length > 0) ? awardsNews : null;
+    // Build awards list
+    const hasLiveAwards = liveAwards && liveAwards.length > 0;
+    const totalCount = hasLiveAwards ? liveAwards.length : FALLBACK_AWARDS.length;
+    const currentPos = awardIndex % totalCount;
 
-    let award: any;
     let nominateUrl: string;
     let articleUrl: string;
     let badgeLabel: string;
@@ -85,19 +93,14 @@ const AwardsPopup: React.FC = () => {
     let descText: string;
     let imageUrl: string | undefined;
 
-    if (liveAwards) {
-        const idx = awardIndex % liveAwards.length;
-        const item = liveAwards[idx] as any;
-        articleUrl = item.targetLink
-            ? (item.targetLink.startsWith('http') ? item.targetLink : `https://${item.targetLink}`)
-            : `https://www.primetimemedia.in/Pages/awards/${item.category}/${item.slug}`;
-        nominateUrl = item.nominationLink
-            ? (item.nominationLink.startsWith('http') ? item.nominationLink : `https://${item.nominationLink}`)
-            : articleUrl;
-        badgeLabel = `🏆 ${item.subCategory || item.category || 'Awards'}`;
+    if (hasLiveAwards) {
+        const item = liveAwards[currentPos];
+        articleUrl = item.targetLink || item.href;
+        nominateUrl = item.nominationLink || articleUrl;
+        badgeLabel = `🏆 ${item.displaySubCategory || item.category || 'Awards'}`;
         titleText = item.title;
-        descText = item.subtitle || "Recognizing excellence and leadership in India.";
-        imageUrl = item.image || undefined;
+        descText = "Recognizing excellence and leadership in India.";
+        imageUrl = item.image;
     } else {
         const idx = awardIndex % FALLBACK_AWARDS.length;
         const fb = FALLBACK_AWARDS[idx];
@@ -108,9 +111,6 @@ const AwardsPopup: React.FC = () => {
         descText = fb.subtitle;
         imageUrl = undefined;
     }
-
-    const totalCount = liveAwards ? liveAwards.length : FALLBACK_AWARDS.length;
-    const currentPos = awardIndex % totalCount;
 
     return (
         <div className={styles.overlay} onClick={() => setVisible(false)}>
@@ -132,6 +132,11 @@ const AwardsPopup: React.FC = () => {
 
                 <span className={styles.badge}>{badgeLabel}</span>
 
+                <div className={styles.content}>
+                    <h3 className={styles.title}>{titleText}</h3>
+                    <p className={styles.desc}>{descText}</p>
+                </div>
+
                 <div className={styles.actions}>
                     <a href={nominateUrl} target="_blank" rel="noopener noreferrer"
                         className={styles.nominateBtn} onClick={() => setVisible(false)}>
@@ -144,8 +149,8 @@ const AwardsPopup: React.FC = () => {
                 </div>
 
                 <div className={styles.dots}>
-                    {Array.from({ length: Math.min(totalCount, 8) }).map((_, i) => (
-                        <span key={i} className={`${styles.dot} ${i === currentPos % Math.min(totalCount, 8) ? styles.activeDot : ''}`} />
+                    {Array.from({ length: Math.min(totalCount, 12) }).map((_, i) => (
+                        <span key={i} className={`${styles.dot} ${i === currentPos % Math.min(totalCount, 12) ? styles.activeDot : ''}`} />
                     ))}
                 </div>
                 <p className={styles.counter}>{currentPos + 1} of {totalCount}</p>

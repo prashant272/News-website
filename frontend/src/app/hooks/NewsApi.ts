@@ -171,8 +171,8 @@ export const useStreamingNews = (section?: string, limit: number = 50) => {
           }
         }
 
-        // Batch updates every 200ms or if we have a significant amount of items
-        if (newItems.length > 0 && (Date.now() - lastUpdate > 200 || newItems.length > 50)) {
+        // Batch updates every 800ms or if we have a significant amount of items (70)
+        if (newItems.length > 0 && (Date.now() - lastUpdate > 800 || newItems.length > 70)) {
           const itemsToAdd = [...newItems];
           newItems = [];
 
@@ -184,6 +184,7 @@ export const useStreamingNews = (section?: string, limit: number = 50) => {
           });
 
           lastUpdate = Date.now();
+          setLoading(false); // Release loading state as soon as we have the first batch
         }
       }
 
@@ -232,7 +233,7 @@ export const useStreamingNews = (section?: string, limit: number = 50) => {
         streamingRef.current = false;
       };
     }
-  }, [startStream]);
+  }, [startStream, limit]);
 
   return { news, loading, error, refetch: startStream };
 };

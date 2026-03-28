@@ -1,21 +1,11 @@
 'use client';
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useNewsContext } from '@/app/context/NewsContext';
 import { formatDateTime } from '@/Utils/Utils';
 import styles from './EntertainmentNews.module.scss';
-
-interface RawEntItem {
-  slug: string;
-  title: string;
-  image?: string;
-  category: string;
-  tags?: string[];
-  subCategory?: string;
-  publishedAt?: string;
-  date?: string;
-  createdAt?: string;
-}
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface EntArticle {
   id: string;
@@ -26,159 +16,91 @@ interface EntArticle {
   date?: string;
 }
 
+const getImageSrc = (img?: string): string => {
+  if (!img) {
+    return 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=800&q=80';
+  }
+  if (img.startsWith('http') || img.startsWith('data:')) return img;
+  return img.startsWith('/') ? img : `/uploads/${img}`;
+};
+
 const Entertainment: React.FC = () => {
   const router = useRouter();
   const { entertainmentNews, loading } = useNewsContext();
-  
-  const availableCategories = useMemo(() => {
-    if (!entertainmentNews || entertainmentNews.length === 0) return [];
+  const [activeCategory, setActiveCategory] = useState('Entertainment');
+  const [activeIndex, setActiveIndex] = useState(0);
 
-    const categoryCount: Record<string, number> = {};
-
-    entertainmentNews.forEach(item => {
-      const subCat = item.subCategory;
-      if (subCat) {
-        categoryCount[subCat] = (categoryCount[subCat] || 0) + 1;
-      }
-    });
-
-    const categories = Object.entries(categoryCount)
-      .filter(([_, count]) => count > 0)
-      .map(([name, count]) => ({ name, count }))
-      .sort((a, b) => b.count - a.count);
-
-    return categories.map(c => c.name);
-  }, [entertainmentNews]);
-
-  const [activeCategory, setActiveCategory] = useState(() => 
-    availableCategories.length > 0 ? availableCategories[0] : 'Bollywood'
-  );
-
-  useMemo(() => {
-    if (availableCategories.length > 0 && !availableCategories.includes(activeCategory)) {
-      setActiveCategory(availableCategories[0]);
-    }
-  }, [availableCategories, activeCategory]);
-
-  const getImageSrc = (img?: string): string => {
-    if (!img) {
-      return 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=800&q=80';
-    }
-    if (img.startsWith('http') || img.startsWith('data:')) {
-      return img;
-    }
-    if (img.startsWith('/')) {
-      return img;
-    }
-    return `/uploads/${img}`;
-  };
+  const preferredFilters = ['Entertainment', 'Bollywood', 'Hollywood', 'Others'];
 
   const filteredEntNews = useMemo(() => {
     if (!entertainmentNews) return [];
-    
-    return entertainmentNews.filter(item => 
-      item.subCategory?.toLowerCase() === activeCategory.toLowerCase()
-    );
+    const active = activeCategory.toLowerCase();
+
+    if (active === 'entertainment') return entertainmentNews;
+
+    if (active === 'others') {
+      return entertainmentNews.filter(item => {
+        const sub = (item.subCategory || '').toLowerCase();
+        return !sub.includes('bollywood') && !sub.includes('hollywood');
+      });
+    }
+
+    return entertainmentNews.filter(item => {
+      const sub = (item.subCategory || '').toLowerCase();
+      const cat = (item.category || '').toLowerCase();
+      return sub.includes(active) || cat.includes(active);
+    });
   }, [entertainmentNews, activeCategory]);
 
-  const entertainmentArticles: EntArticle[] = useMemo(() => {
+  const entArticles: EntArticle[] = useMemo(() => {
     if (!filteredEntNews.length) return [];
     
-    return filteredEntNews.slice(0, 6).map((item, index) => ({
-      id: `${activeCategory.toLowerCase()}-${item.slug}-${index}`,
+    // filteredEntNews is already sorted by date in NewsContext
+    return filteredEntNews.slice(0, 5).map((item, index) => ({
+      id: `ent-${item.slug}-${index}`,
       slug: item.slug,
       title: item.title,
       image: getImageSrc(item.image),
-      category: activeCategory,
+      category: item.subCategory || item.category || 'Entertainment',
       date: item.publishedAt || item.date || item.createdAt,
     }));
-  }, [filteredEntNews, activeCategory]);
+  }, [filteredEntNews]);
 
-  const handleArticleClick = (slug: string, category: string) => {
-    router.push(`/Pages/entertainment/${category}/${slug}`);
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [activeCategory]);
+
+  const getHref = (article: EntArticle) => {
+    const sub = (article.category || 'general').toLowerCase().trim();
+    return `/Pages/entertainment/${sub}/${article.slug}`;
   };
 
-  const handleReadMoreClick = () => {
-    router.push('/Pages/entertainment');
-  };
-
-  if (loading) {
+  if (loading && entArticles.length === 0) {
     return (
-      <section className={styles.sportsSection}>
+      <section className={styles.entSection}>
         <div className={styles.container}>
-          <div className={styles.header}>
-            <h2 className={styles.title}>Entertainment</h2>
-            <div className={styles.categoryNav}>
-              {Array(6).fill(0).map((_, i) => (
-                <div key={i} className="h-10 w-24 bg-gray-200 rounded-full animate-pulse"></div>
-              ))}
-            </div>
-          </div>
-          <div className={styles.articlesContainer}>
-            <div className={styles.articlesGrid}>
-              <article className={`${styles.featuredArticle} animate-pulse`}>
-                <div className="bg-gradient-to-br from-purple-200 to-pink-200 h-64 rounded-2xl"></div>
-              </article>
-              <div className={styles.regularArticles}>
-                {Array(5).fill(0).map((_, i) => (
-                  <article key={i} className={`${styles.regularArticle} animate-pulse`}>
-                    <div className="space-y-2">
-                      <div className="h-5 bg-gray-200 rounded w-3/4"></div>
-                      <div className="h-6 bg-gray-200 rounded w-full"></div>
-                    </div>
-                    <div className="bg-gray-200 h-24 rounded"></div>
-                  </article>
-                ))}
-              </div>
-            </div>
-          </div>
+           <div className="animate-pulse bg-gray-100 h-10 w-48 rounded-lg mb-10"></div>
+          <div className="animate-pulse bg-gray-100 h-96 rounded-3xl"></div>
         </div>
       </section>
     );
   }
 
-  if (!entertainmentNews || entertainmentNews.length === 0) {
-    return (
-      <section className={styles.sportsSection}>
-        <div className={styles.container}>
-          <div className={styles.header}>
-            <h2 className={styles.title}>Entertainment</h2>
-          </div>
-          <div className={styles.articlesContainer}>
-            <p className="text-center text-gray-500 py-8">No entertainment news available</p>
-          </div>
-        </div>
-      </section>
-    );
-  }
-
-  if (availableCategories.length === 0) {
-    return (
-      <section className={styles.sportsSection}>
-        <div className={styles.container}>
-          <div className={styles.header}>
-            <h2 className={styles.title}>Entertainment</h2>
-          </div>
-          <div className={styles.articlesContainer}>
-            <p className="text-center text-gray-500 py-8">No entertainment categories available</p>
-          </div>
-        </div>
-      </section>
-    );
-  }
+  const featured = entArticles[activeIndex];
 
   return (
-    <section className={styles.sportsSection}>
+    <section className={styles.entSection}>
       <div className={styles.container}>
         <div className={styles.header}>
-          <h2 className={styles.title}>Entertainment</h2>
+          <div className={styles.titleWrapper}>
+            <span className={styles.dot}></span>
+            <h2 className={styles.title}>Today's Entertainment</h2>
+          </div>
           <nav className={styles.categoryNav}>
-            {availableCategories.map((category) => (
+            {preferredFilters.map((category) => (
               <button
                 key={category}
-                className={`${styles.categoryButton} ${
-                  activeCategory === category ? styles.active : ''
-                }`}
+                className={`${styles.categoryButton} ${activeCategory === category ? styles.active : ''}`}
                 onClick={() => setActiveCategory(category)}
               >
                 {category}
@@ -188,74 +110,72 @@ const Entertainment: React.FC = () => {
         </div>
 
         <div className={styles.articlesContainer}>
-          {entertainmentArticles.length > 0 ? (
-            <div className={styles.articlesGrid}>
-              {entertainmentArticles[0] && (
-                <article 
-                  className={styles.featuredArticle}
-                  onClick={() => handleArticleClick(entertainmentArticles[0].slug, entertainmentArticles[0].category)}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <div className={styles.featuredImage}>
-                    <img src={entertainmentArticles[0].image} alt={entertainmentArticles[0].title} />
-                    <div className={styles.imageOverlay}></div>
-                  </div>
-                  <div className={styles.featuredContent}>
-                    <span className={styles.categoryBadge}>{entertainmentArticles[0].category}</span>
-                    <h3 className={styles.featuredTitle}>{entertainmentArticles[0].title}</h3>
-                    {entertainmentArticles[0].date && (
-                      <div className={styles.articleMeta} style={{ color: 'rgba(255,255,255,0.8)' }}>
-                        <span className={styles.timestamp}>
-                          {formatDateTime(entertainmentArticles[0].date)}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </article>
-              )}
-
-              <div className={styles.regularArticles}>
-                {entertainmentArticles.slice(1).map((article) => (
-                  <article 
-                    key={article.id} 
-                    className={styles.regularArticle}
-                    onClick={() => handleArticleClick(article.slug, article.category)}
-                    style={{ cursor: 'pointer' }}
+          {entArticles.length > 0 ? (
+            <div className={styles.spotlightLayout}>
+              {/* Left Spotlight */}
+              <div className={styles.spotlightFeatured}>
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={featured.id}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 1.05 }}
+                    transition={{ duration: 0.4 }}
+                    className={styles.featuredBox}
                   >
-                    <div className={styles.articleContent}>
-                      <span className={styles.categoryBadge}>{article.category}</span>
-                      <h4 className={styles.articleTitle}>{article.title}</h4>
-                      {article.date && (
-                        <div className={styles.articleMeta}>
-                          <span className={styles.timestamp}>
-                            {formatDateTime(article.date)}
-                          </span>
+                    <Link href={getHref(featured)} className={styles.featuredLink}>
+                      <div className={styles.featuredImg}>
+                        <img src={featured.image} alt={featured.title} />
+                        <div className={styles.glassOverlay}>
+                          <span className={styles.badge}>{featured.category}</span>
+                          <h3 className={styles.featuredTitle}>{featured.title}</h3>
+                          {featured.date && (
+                            <p className={styles.dateText}>{formatDateTime(featured.date)}</p>
+                          )}
                         </div>
-                      )}
-                    </div>
-                    <div className={styles.articleImage}>
-                      <img src={article.image} alt={article.title} />
-                    </div>
-                  </article>
+                      </div>
+                    </Link>
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+
+              {/* Right Grid */}
+              <div className={styles.entGrid}>
+                {entArticles.map((article, index) => (
+                  <div
+                    key={article.id}
+                    onMouseEnter={() => setActiveIndex(index)}
+                    className={`${styles.smallCard} ${activeIndex === index ? styles.activeCard : ''}`}
+                  >
+                    <Link href={getHref(article)} className={styles.cardLink}>
+                      <div className={styles.cardImg}>
+                        <img src={article.image} alt={article.title} />
+                      </div>
+                      <div className={styles.cardInfo}>
+                        <span className={styles.smallBadge}>{article.category}</span>
+                        <h4 className={styles.smallTitle}>{article.title}</h4>
+                        {article.date && (
+                          <p className={styles.smallDate}>{formatDateTime(article.date)}</p>
+                        )}
+                      </div>
+                    </Link>
+                  </div>
                 ))}
               </div>
             </div>
           ) : (
-            <div className="text-center py-8">
-              <p className="text-gray-500">No articles found for {activeCategory}</p>
+            <div className={styles.noData}>
+              <p>No {activeCategory} news found at the moment.</p>
             </div>
           )}
         </div>
 
-        {entertainmentArticles.length > 0 && (
-          <div className={styles.readMoreWrapper}>
-            <button 
-              className={styles.readMoreButton}
-              onClick={handleReadMoreClick}
-            >
-              More Entertainment News
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M7 4L13 10L7 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        {entArticles.length > 0 && (
+          <div className={styles.footer}>
+            <button className={styles.viewMore} onClick={() => router.push('/Pages/entertainment')}>
+              More Entertainment
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M5 12H19M19 12L12 5M19 12L12 19" />
               </svg>
             </button>
           </div>

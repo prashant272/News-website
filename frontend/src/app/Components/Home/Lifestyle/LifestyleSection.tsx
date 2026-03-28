@@ -1,341 +1,191 @@
 'use client';
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useNewsContext } from '@/app/context/NewsContext';
-import { useActiveAds } from '@/app/hooks/useAds'; 
 import { formatDateTime } from '@/Utils/Utils';
 import styles from './LifestyleSection.module.scss';
-
-interface RawLifestyleItem {
-  slug: string;
-  title: string;
-  image?: string;
-  category: string;
-  tags?: string[];
-  subCategory?: string;
-  publishedAt?: string;
-  date?: string;
-  createdAt?: string;
-}
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface LifestyleArticle {
   id: string;
   slug: string;
-  category: string;
   title: string;
   image: string;
+  category: string;
   date?: string;
 }
 
-interface ArticleCardProps {
-  article: LifestyleArticle;
-  onImageError: (e: React.SyntheticEvent<HTMLImageElement>) => void;
-  onClick: () => void;
-}
-
-interface CategoryNavProps {
-  categories: string[];
-  activeTab: string;
-  onTabChange: (category: string) => void;
-}
-
-const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1620619767323-b95a89183081?w=500&q=80';
-const MAX_ARTICLES_PER_CATEGORY = 8;
-const SKELETON_ITEMS = 4;
-const CATEGORY_NAV_SKELETON_ITEMS = 6;
-
-const getImageSrc = (img?: string): string => {
-  if (!img) return FALLBACK_IMAGE;
-  if (img.startsWith('http') || img.startsWith('data:')) return img;
-  if (img.startsWith('/')) return img;
-  return `/uploads/${img}`;
-};
-
-const ArticleCard: React.FC<ArticleCardProps> = React.memo(({ article, onImageError, onClick }) => (
-  <article className={styles.articleCard} onClick={onClick} style={{ cursor: 'pointer' }}>
-    <div className={styles.imageWrapper}>
-      <img 
-        src={article.image} 
-        alt={article.title} 
-        className={styles.cardImage}
-        loading="lazy"
-        onError={onImageError}
-      />
-    </div>
-    <div className={styles.cardContent}>
-      <span className={styles.categoryLabel}>{article.category}</span>
-      <h3 className={styles.articleTitle}>{article.title}</h3>
-      {article.date && (
-        <div className={styles.articleMeta}>
-          <span className={styles.timestamp}>
-            {formatDateTime(article.date)}
-          </span>
-        </div>
-      )}
-    </div>
-  </article>
-));
-
-ArticleCard.displayName = 'ArticleCard';
-
-const CategoryNav: React.FC<CategoryNavProps> = React.memo(({ categories, activeTab, onTabChange }) => (
-  <nav className={styles.categoryNav} role="tablist" aria-label="Lifestyle categories">
-    {categories.map((category) => (
-      <button 
-        key={category} 
-        className={`${styles.navBtn} ${activeTab === category ? styles.active : ''}`}
-        onClick={() => onTabChange(category)}
-        role="tab"
-        aria-selected={activeTab === category}
-        aria-controls={`${category}-panel`}
-      >
-        {category}
-      </button>
-    ))}
-  </nav>
-));
-
-CategoryNav.displayName = 'CategoryNav';
-
-const LoadingSkeleton: React.FC = () => (
-  <div className={styles.container}>
-    <h2 className={styles.mainTitle}>Lifestyle</h2>
-    <div className={styles.categoryNav}>
-      {Array(CATEGORY_NAV_SKELETON_ITEMS).fill(0).map((_, i) => (
-        <div key={i} className="h-10 w-24 bg-gray-200 rounded-full animate-pulse" />
-      ))}
-    </div>
-    <div className={`${styles.articleGrid} animate-pulse`}>
-      {Array(SKELETON_ITEMS).fill(0).map((_, i) => (
-        <article key={i} className={styles.articleCard}>
-          <div className="bg-gradient-to-br from-green-200 to-blue-200 h-48 rounded-lg" />
-          <div className="mt-3 space-y-2">
-            <div className="h-4 bg-gray-200 rounded w-1/2" />
-            <div className="h-6 bg-gray-200 rounded w-full" />
-          </div>
-        </article>
-      ))}
-    </div>
-  </div>
-);
-
-const EmptyState: React.FC<{ message: string }> = ({ message }) => (
-  <div className="text-center py-8">
-    <p className="text-gray-500">{message}</p>
-  </div>
-);
-
 const LifestyleSection: React.FC = () => {
-  const router = useRouter();
   const { lifestyleNews, loading } = useNewsContext();
-  
-  const { data: adsData, loading: adsLoading } = useActiveAds();
-  const activeAds = (adsData || []).filter(ad => ad.isActive);
+  const [activeCategory, setActiveCategory] = useState('Lifestyle');
+  const [activeIndex, setActiveIndex] = useState(0);
+  const router = useRouter();
 
-  const [currentAdIndex, setCurrentAdIndex] = useState(0);
+  const preferredFilters = ['Lifestyle', 'Fashion', 'Culture', 'Shopping', 'Others'];
 
-  useEffect(() => {
-    if (activeAds.length <= 1) return;
-
-    const interval = setInterval(() => {
-      setCurrentAdIndex(prev => (prev + 1) % activeAds.length);
-    }, 6000);
-
-    return () => clearInterval(interval);
-  }, [activeAds.length]);
-
-  const availableCategories = useMemo(() => {
-    if (!lifestyleNews?.length) return [];
-
-    const categoryCount = lifestyleNews.reduce((acc, item) => {
-      const subCat = item.subCategory;
-      if (subCat) acc[subCat] = (acc[subCat] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
-    return Object.entries(categoryCount)
-      .filter(([_, count]) => count > 0)
-      .sort(([, a], [, b]) => b - a)
-      .map(([name]) => name);
-  }, [lifestyleNews]);
-
-  const [activeTab, setActiveTab] = useState<string>(() => 
-    availableCategories[0] || 'Food'
-  );
-
-  useEffect(() => {
-    if (availableCategories.length > 0 && !availableCategories.includes(activeTab)) {
-      setActiveTab(availableCategories[0]);
-    }
-  }, [availableCategories, activeTab]);
-
-  const filteredArticles = useMemo(() => {
-    if (!lifestyleNews) return [];
-    
-    return lifestyleNews
-      .filter(item => item.subCategory?.toLowerCase() === activeTab.toLowerCase())
-      .slice(0, MAX_ARTICLES_PER_CATEGORY);
-  }, [lifestyleNews, activeTab]);
-
-  const lifestyleArticles: LifestyleArticle[] = useMemo(() => 
-    filteredArticles.map((item, index) => ({
-      id: `${activeTab.toLowerCase()}-${item.slug}-${index}`,
-      slug: item.slug,
-      category: item.subCategory || item.category || 'Lifestyle',
-      title: item.title,
-      image: getImageSrc(item.image),
-      date: item.publishedAt || item.date || item.createdAt,
-    })),
-    [filteredArticles, activeTab]
-  );
-
-  const handleTabChange = useCallback((category: string) => {
-    setActiveTab(category);
-  }, []);
-
-  const handleImageError = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
-    e.currentTarget.src = FALLBACK_IMAGE;
-  }, []);
-
-  const handleArticleClick = useCallback((slug: string, category: string) => {
-    router.push(`/Pages/lifestyle/${category}/${slug}`);
-  }, [router]);
-
-  const handleReadMoreClick = useCallback(() => {
-    router.push('/Pages/lifestyle');
-  }, [router]);
-
-  const renderAd = () => {
-    if (adsLoading) {
-      return (
-        <div className={styles.adPlaceholder}>
-          <span>Loading advertisement...</span>
-        </div>
-      );
-    }
-
-    if (activeAds.length === 0) {
-      return (
-        <div className={styles.adPlaceholder}>
-          <div className={styles.emptyAdBox}>
-            <span>AD SPACE</span>
-            <small>Will adjust to image size</small>
-          </div>
-        </div>
-      );
-    }
-
-    const ad = activeAds[currentAdIndex % activeAds.length];
-
-    return (
-      <div className={styles.adWrapper}>
-        <a
-          href={ad.link}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={styles.adLink}
-        >
-          <img
-            src={ad.imageUrl}
-            alt={ad.title || 'Advertisement'}
-            className={styles.adImage}
-            loading="lazy"
-          />
-        </a>
-
-        {activeAds.length > 1 && (
-          <div className={styles.adDots}>
-            {activeAds.map((_, i) => (
-              <div
-                key={i}
-                className={`${styles.dot} ${i === currentAdIndex % activeAds.length ? styles.activeDot : ''}`}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-    );
+  const getImageSrc = (img?: string): string => {
+    if (!img) return 'https://images.unsplash.com/photo-1620619767323-b95a89183081?w=800&q=80';
+    if (img.startsWith('http') || img.startsWith('data:')) return img;
+    return img.startsWith('/') ? img : `/uploads/${img}`;
   };
 
-  if (loading) {
-    return (
-      <section className={styles.lifestyleSection}>
-        <LoadingSkeleton />
-      </section>
-    );
-  }
+  const filteredLifestyleNews = useMemo(() => {
+    if (!lifestyleNews) return [];
+    const active = activeCategory.toLowerCase();
+    if (active === 'lifestyle') return lifestyleNews;
 
-  if (!lifestyleNews?.length) {
+    if (active === 'others') {
+      return lifestyleNews.filter(item => {
+        const sub = (item.subCategory || '').toLowerCase();
+        return !sub.includes('fashion') && !sub.includes('culture') && !sub.includes('shopping');
+      });
+    }
+
+    return lifestyleNews.filter(item => {
+      const sub = (item.subCategory || '').toLowerCase();
+      const cat = (item.category || '').toLowerCase();
+      return sub.includes(active) || cat.includes(active);
+    });
+  }, [lifestyleNews, activeCategory]);
+
+  const lifestyleArticles: LifestyleArticle[] = useMemo(() => {
+    if (!filteredLifestyleNews.length) return [];
+    
+    // filteredLifestyleNews is already sorted by date in NewsContext
+    return filteredLifestyleNews.slice(0, 5).map((item, index) => ({
+      id: `life-${item.slug}-${index}`,
+      slug: item.slug,
+      title: item.title,
+      image: getImageSrc(item.image),
+      category: item.subCategory || item.category || 'Lifestyle',
+      date: item.publishedAt || item.date || item.createdAt,
+    }));
+  }, [filteredLifestyleNews]);
+
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [activeCategory]);
+
+  const getHref = (article: LifestyleArticle) => {
+    const sub = (article.category || 'general').toLowerCase().trim();
+    return `/Pages/lifestyle/${encodeURIComponent(sub)}/${article.slug}`;
+  };
+
+  if (loading && lifestyleArticles.length === 0) {
     return (
       <section className={styles.lifestyleSection}>
         <div className={styles.container}>
-          <h2 className={styles.mainTitle}>Lifestyle</h2>
-          <EmptyState message="No lifestyle news available" />
+          <div className="animate-pulse bg-gray-100 h-10 w-48 rounded-lg mb-10"></div>
+          <div className="animate-pulse bg-gray-100 h-96 rounded-3xl"></div>
         </div>
       </section>
     );
   }
 
-  if (!availableCategories.length) {
-    return (
-      <section className={styles.lifestyleSection}>
-        <div className={styles.container}>
-          <h2 className={styles.mainTitle}>Lifestyle</h2>
-          <EmptyState message="No lifestyle categories available" />
-        </div>
-      </section>
-    );
-  }
+  const featured = lifestyleArticles[activeIndex];
 
   return (
     <section className={styles.lifestyleSection}>
       <div className={styles.container}>
-        <h2 className={styles.mainTitle}>Lifestyle</h2>
-        
-        <CategoryNav 
-          categories={availableCategories}
-          activeTab={activeTab}
-          onTabChange={handleTabChange}
-        />
-
-        <div className={styles.contentGrid}>
-          {lifestyleArticles.length > 0 ? (
-            <div 
-              className={`${styles.articleGrid} ${lifestyleArticles.length === 1 ? styles.singleCard : ''}`}
-              role="tabpanel"
-              id={`${activeTab}-panel`}
-              aria-labelledby={activeTab}
-            >
-              {lifestyleArticles.map((article) => (
-                <ArticleCard 
-                  key={article.id} 
-                  article={article}
-                  onImageError={handleImageError}
-                  onClick={() => handleArticleClick(article.slug, article.category)}
-                />
-              ))}
-            </div>
-          ) : (
-            <EmptyState message={`No articles found for ${activeTab}`} />
-          )}
-
-          <aside className={styles.adSidebar} aria-label="Advertisement">
-            <span className={styles.adLabel}>ADVERTISEMENT</span>
-            {renderAd()}
-          </aside>
+        <div className={styles.header}>
+          <div className={styles.titleWrapper}>
+            <span className={styles.dot}></span>
+            <h2 className={styles.title}>Lifestyle & Culture</h2>
+          </div>
+          <nav className={styles.categoryNav}>
+            {preferredFilters.map((category) => (
+              <button
+                key={category}
+                className={`${styles.categoryButton} ${activeCategory === category ? styles.active : ''}`}
+                onClick={() => setActiveCategory(category)}
+              >
+                {category}
+              </button>
+            ))}
+          </nav>
         </div>
 
-        {lifestyleArticles.length > 0 && (
-          <div className={styles.footerAction}>
-            <button 
-              className={styles.readMoreBtn} 
-              aria-label="Read more lifestyle articles"
-              onClick={handleReadMoreClick}
-            >
-              Read More <span aria-hidden="true">→</span>
-            </button>
-          </div>
-        )}
+        <div className={styles.articlesContainer}>
+          {lifestyleArticles.length > 0 ? (
+            <div className={styles.spotlightLayout}>
+              {/* Left Spotlight */}
+              <div className={styles.spotlightFeatured}>
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={featured.id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className={styles.featuredBox}
+                  >
+                    <Link href={getHref(featured)} className={styles.featuredLink}>
+                      <div className={styles.featuredImg}>
+                        <Image 
+                          src={featured.image}
+                          alt={featured.title}
+                          fill
+                          className={styles.spotlightImg}
+                        />
+                        <div className={styles.glassOverlay}>
+                          <span className={styles.badge}>{featured.category}</span>
+                          <h3 className={styles.featuredTitle}>{featured.title}</h3>
+                          {featured.date && (
+                            <p className={styles.dateText}>{formatDateTime(featured.date)}</p>
+                          )}
+                        </div>
+                      </div>
+                    </Link>
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+
+              {/* Right Grid */}
+              <div className={styles.lifeGrid}>
+                {lifestyleArticles.map((article, index) => (
+                  <div
+                    key={article.id}
+                    onMouseEnter={() => setActiveIndex(index)}
+                    className={`${styles.smallCard} ${activeIndex === index ? styles.activeCard : ''}`}
+                  >
+                    <Link href={getHref(article)} className={styles.cardLink}>
+                      <div className={styles.cardImg}>
+                        <Image 
+                          src={article.image}
+                          alt={article.title}
+                          fill
+                          className={styles.thumbImg}
+                        />
+                      </div>
+                      <div className={styles.cardInfo}>
+                        <span className={styles.smallBadge}>{article.category}</span>
+                        <h4 className={styles.smallTitle}>{article.title}</h4>
+                        {article.date && (
+                          <p className={styles.smallDate}>{formatDateTime(article.date)}</p>
+                        )}
+                      </div>
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className={styles.noData}>
+              <p>Polishing the latest lifestyle trends for you...</p>
+            </div>
+          )}
+        </div>
+
+        <div className={styles.footer}>
+          <button className={styles.viewMore} onClick={() => router.push('/Pages/lifestyle')}>
+            Explore More Trends
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
       </div>
     </section>
   );

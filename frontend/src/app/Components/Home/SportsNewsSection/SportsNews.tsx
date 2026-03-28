@@ -1,186 +1,107 @@
 'use client';
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useNewsContext } from '@/app/context/NewsContext';
 import { formatDateTime } from '@/Utils/Utils';
 import styles from './SportsNews.module.scss';
-
-interface RawSportsItem {
-  slug: string;
-  title: string;
-  image?: string;
-  category: string;
-  tags?: string[];
-  subCategory?: string;
-  publishedAt?: string;
-  date?: string;
-  createdAt?: string;
-}
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface SportsArticle {
   id: string;
   slug: string;
   title: string;
   image: string;
-  isFeatured: boolean;
   subCategory: string;
   date?: string;
 }
 
-const Sports: React.FC = () => {
-  const router = useRouter();
+const SportsNews: React.FC = () => {
   const { sportsNews, loading } = useNewsContext();
-  
-  const availableCategories = useMemo(() => {
-    if (!sportsNews || sportsNews.length === 0) return [];
+  const [activeCategory, setActiveCategory] = useState('Sports');
+  const [activeIndex, setActiveIndex] = useState(0);
+  const router = useRouter();
 
-    const categoryCount: Record<string, number> = {};
-
-    sportsNews.forEach(item => {
-      const subCat = item.subCategory;
-      if (subCat) {
-        categoryCount[subCat] = (categoryCount[subCat] || 0) + 1;
-      }
-    });
-
-    const categories = Object.entries(categoryCount)
-      .filter(([_, count]) => count > 0)
-      .map(([name, count]) => ({ name, count }))
-      .sort((a, b) => b.count - a.count);
-
-    return categories.map(c => c.name);
-  }, [sportsNews]);
-
-  const [activeCategory, setActiveCategory] = useState(() => 
-    availableCategories.length > 0 ? availableCategories[0] : 'Cricket'
-  );
-
-  useMemo(() => {
-    if (availableCategories.length > 0 && !availableCategories.includes(activeCategory)) {
-      setActiveCategory(availableCategories[0]);
-    }
-  }, [availableCategories, activeCategory]);
+  const preferredFilters = ['Sports', 'Cricket', 'Football', 'Others'];
 
   const getImageSrc = (img?: string): string => {
-    if (!img) {
-      return 'https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?w=800&q=80';
-    }
-    if (img.startsWith('http') || img.startsWith('data:')) {
-      return img;
-    }
-    if (img.startsWith('/')) {
-      return img;
-    }
-    return `/uploads/${img}`;
+    if (!img) return 'https://images.unsplash.com/photo-1504450758481-7338eba7524a?w=800&q=80';
+    if (img.startsWith('http') || img.startsWith('data:')) return img;
+    return img.startsWith('/') ? img : `/uploads/${img}`;
   };
 
   const filteredSportsNews = useMemo(() => {
     if (!sportsNews) return [];
-    
-    return sportsNews.filter(item => 
-      item.subCategory?.toLowerCase() === activeCategory.toLowerCase()
-    );
+    const active = activeCategory.toLowerCase();
+
+    if (active === 'sports') return sportsNews;
+
+    if (active === 'others') {
+      return sportsNews.filter(item => {
+        const sub = (item.subCategory || '').toLowerCase();
+        return !sub.includes('cricket') && !sub.includes('football');
+      });
+    }
+
+    return sportsNews.filter(item => {
+      const sub = (item.subCategory || '').toLowerCase();
+      const cat = (item.category || '').toLowerCase();
+      return sub.includes(active) || cat.includes(active);
+    });
   }, [sportsNews, activeCategory]);
 
   const sportsArticles: SportsArticle[] = useMemo(() => {
     if (!filteredSportsNews.length) return [];
     
-    return filteredSportsNews.slice(0, 6).map((item, index) => ({
-      id: `${activeCategory.toLowerCase()}-${item.slug}-${index}`,
+    // filteredSportsNews is already sorted by date in NewsContext
+    return filteredSportsNews.slice(0, 5).map((item, index) => ({
+      id: `sports-${item.slug}-${index}`,
       slug: item.slug,
       title: item.title,
       image: getImageSrc(item.image),
-      isFeatured: index === 0,
-      subCategory: item.subCategory || activeCategory,
+      subCategory: item.subCategory || item.category || 'Sports',
       date: item.publishedAt || item.date || item.createdAt,
     }));
-  }, [filteredSportsNews, activeCategory]);
+  }, [filteredSportsNews]);
 
-  const handleArticleClick = (slug: string, subCategory: string) => {
-    router.push(`/Pages/sports/${subCategory}/${slug}`);
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [activeCategory]);
+
+  const getHref = (article: SportsArticle) => {
+    const sub = (article.subCategory || 'general').toLowerCase().trim();
+    return `/Pages/sports/${encodeURIComponent(sub)}/${article.slug}`;
   };
 
-  const handleReadMoreClick = () => {
-    router.push('/Pages/sports');
-  };
-
-  if (loading) {
+  if (loading && sportsArticles.length === 0) {
     return (
       <section className={styles.sportsSection}>
         <div className={styles.container}>
           <div className={styles.header}>
-            <h2 className={styles.title}>Sports</h2>
-            <div className={styles.categoryNav}>
-              {Array(6).fill(0).map((_, i) => (
-                <div key={i} className="h-10 w-24 bg-gray-200 rounded-full animate-pulse"></div>
-              ))}
-            </div>
+             <div className="animate-pulse bg-gray-100 h-10 w-48 rounded-lg"></div>
           </div>
-          <div className={styles.articlesContainer}>
-            <div className={styles.articlesGrid}>
-              <article className={`${styles.featuredArticle} animate-pulse`}>
-                <div className="bg-gradient-to-br from-gray-200 to-gray-300 h-64 rounded-2xl"></div>
-              </article>
-              <div className={styles.regularArticles}>
-                {Array(5).fill(0).map((_, i) => (
-                  <article key={i} className={`${styles.regularArticle} animate-pulse`}>
-                    <div className="space-y-2">
-                      <div className="h-5 bg-gray-200 rounded w-3/4"></div>
-                      <div className="h-6 bg-gray-200 rounded w-full"></div>
-                    </div>
-                    <div className="bg-gray-200 h-24 rounded"></div>
-                  </article>
-                ))}
-              </div>
-            </div>
-          </div>
+          <div className="animate-pulse bg-gray-100 h-96 rounded-3xl mt-10"></div>
         </div>
       </section>
     );
   }
 
-  if (!sportsNews || sportsNews.length === 0) {
-    return (
-      <section className={styles.sportsSection}>
-        <div className={styles.container}>
-          <div className={styles.header}>
-            <h2 className={styles.title}>Sports</h2>
-          </div>
-          <div className={styles.articlesContainer}>
-            <p className="text-center text-gray-500 py-8">No sports news available</p>
-          </div>
-        </div>
-      </section>
-    );
-  }
-
-  if (availableCategories.length === 0) {
-    return (
-      <section className={styles.sportsSection}>
-        <div className={styles.container}>
-          <div className={styles.header}>
-            <h2 className={styles.title}>Sports</h2>
-          </div>
-          <div className={styles.articlesContainer}>
-            <p className="text-center text-gray-500 py-8">No sports categories available</p>
-          </div>
-        </div>
-      </section>
-    );
-  }
+  const featured = sportsArticles[activeIndex];
 
   return (
     <section className={styles.sportsSection}>
       <div className={styles.container}>
         <div className={styles.header}>
-          <h2 className={styles.title}>Sports</h2>
+          <div className={styles.titleWrapper}>
+            <span className={styles.dot}></span>
+            <h2 className={styles.title}>Sports Arena</h2>
+          </div>
           <nav className={styles.categoryNav}>
-            {availableCategories.map((category) => (
+            {preferredFilters.map((category) => (
               <button
                 key={category}
-                className={`${styles.categoryButton} ${
-                  activeCategory === category ? styles.active : ''
-                }`}
+                className={`${styles.categoryButton} ${activeCategory === category ? styles.active : ''}`}
                 onClick={() => setActiveCategory(category)}
               >
                 {category}
@@ -191,80 +112,87 @@ const Sports: React.FC = () => {
 
         <div className={styles.articlesContainer}>
           {sportsArticles.length > 0 ? (
-            <div className={styles.articlesGrid}>
-              {sportsArticles[0] && (
-                <article 
-                  className={styles.featuredArticle}
-                  onClick={() => handleArticleClick(sportsArticles[0].slug, sportsArticles[0].subCategory)}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <div className={styles.featuredImage}>
-                    <img src={sportsArticles[0].image} alt={sportsArticles[0].title} />
-                    <div className={styles.imageOverlay}></div>
-                  </div>
-                  <div className={styles.featuredContent}>
-                    <span className={styles.categoryBadge}>{activeCategory}</span>
-                    <h3 className={styles.featuredTitle}>{sportsArticles[0].title}</h3>
-                    {sportsArticles[0].date && (
-                      <div className={styles.articleMeta} style={{ color: 'rgba(255,255,255,0.8)' }}>
-                        <span className={styles.timestamp}>
-                          {formatDateTime(sportsArticles[0].date)}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </article>
-              )}
-
-              <div className={styles.regularArticles}>
-                {sportsArticles.slice(1).map((article) => (
-                  <article 
-                    key={article.id} 
-                    className={styles.regularArticle}
-                    onClick={() => handleArticleClick(article.slug, article.subCategory)}
-                    style={{ cursor: 'pointer' }}
+            <div className={styles.spotlightLayout}>
+              {/* Left Spotlight: Featured Image */}
+              <div className={styles.spotlightFeatured}>
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={featured.id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className={styles.featuredBox}
                   >
-                    <div className={styles.articleContent}>
-                      <span className={styles.categoryBadge}>{activeCategory}</span>
-                      <h4 className={styles.articleTitle}>{article.title}</h4>
-                      {article.date && (
-                        <div className={styles.articleMeta}>
-                          <span className={styles.timestamp}>
-                            {formatDateTime(article.date)}
-                          </span>
+                    <Link href={getHref(featured)} className={styles.featuredLink}>
+                      <div className={styles.featuredImg}>
+                        <Image 
+                          src={featured.image}
+                          alt={featured.title}
+                          fill
+                          priority={activeIndex === 0}
+                          className={styles.spotlightImg}
+                        />
+                        <div className={styles.glassOverlay}>
+                          <span className={styles.badge}>{featured.subCategory}</span>
+                          <h3 className={styles.featuredTitle}>{featured.title}</h3>
+                          {featured.date && (
+                            <p className={styles.dateText}>{formatDateTime(featured.date)}</p>
+                          )}
                         </div>
-                      )}
-                    </div>
-                    <div className={styles.articleImage}>
-                      <img src={article.image} alt={article.title} />
-                    </div>
-                  </article>
+                      </div>
+                    </Link>
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+
+              {/* Right Grid: Interactive Thumbnails */}
+              <div className={styles.sportsGrid}>
+                {sportsArticles.map((article, index) => (
+                  <div 
+                    key={article.id}
+                    onMouseEnter={() => setActiveIndex(index)}
+                    className={`${styles.smallCard} ${activeIndex === index ? styles.activeCard : ''}`}
+                  >
+                    <Link href={getHref(article)} className={styles.cardLink}>
+                      <div className={styles.cardImg}>
+                        <Image 
+                          src={article.image}
+                          alt={article.title}
+                          fill
+                          className={styles.thumbImg}
+                        />
+                      </div>
+                      <div className={styles.cardInfo}>
+                        <span className={styles.smallBadge}>{article.subCategory}</span>
+                        <h4 className={styles.smallTitle}>{article.title}</h4>
+                        {article.date && (
+                          <p className={styles.smallDate}>{formatDateTime(article.date)}</p>
+                        )}
+                      </div>
+                    </Link>
+                  </div>
                 ))}
               </div>
             </div>
           ) : (
-            <div className="text-center py-8">
-              <p className="text-gray-500">No articles found for {activeCategory}</p>
+            <div className={styles.noData}>
+              <p>Fetching the latest sports action...</p>
             </div>
           )}
         </div>
 
-        {sportsArticles.length > 0 && (
-          <div className={styles.readMoreWrapper}>
-            <button 
-              className={styles.readMoreButton}
-              onClick={handleReadMoreClick}
-            >
-              Read More
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M7 4L13 10L7 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-            </button>
-          </div>
-        )}
+        <div className={styles.footer}>
+          <button className={styles.viewMore} onClick={() => router.push('/Pages/sports')}>
+            Full Sports Coverage
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </button>
+        </div>
       </div>
     </section>
   );
 };
 
-export default Sports;
+export default SportsNews;
