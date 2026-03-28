@@ -172,14 +172,57 @@ function renderArticle(foundArticle: any, categoryNews: any[], category: string,
     category: news.subCategory || ''
   }));
 
+  // Prepare NewsArticle JSON-LD for Google News
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    "headline": articleData.title,
+    "image": [articleData.image.startsWith('http') ? articleData.image : `${siteUrl}${articleData.image}`],
+    "datePublished": articleData.date,
+    "dateModified": foundArticle.updatedAt || articleData.date,
+    "author": [{
+      "@type": "Organization",
+      "name": articleData.author,
+      "url": siteUrl
+    }],
+    "publisher": {
+      "@type": "Organization",
+      "name": "Prime Time | Asia Leading Media House",
+      "logo": {
+        "@type": "ImageObject",
+        "url": `${siteUrl}/favicon.ico`,
+        "width": 32,
+        "height": 32
+      }
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": `${siteUrl}/Pages/${foundArticle.category || category}/${slugify(foundArticle.subCategory) || subCategory}/${slug}`
+    }
+  };
+
   return (
-    <ArticlePageClient
-      article={articleData}
-      relatedArticles={related}
-      topNews={topNews}
-      recommendedStories={recommendedStories}
-      section={category}
-      category={subCategory}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <ArticlePageClient
+        article={articleData}
+        relatedArticles={related}
+        topNews={topNews}
+        recommendedStories={recommendedStories}
+        section={category}
+        category={subCategory}
+      />
+    </>
   );
+}
+
+// Reuse slugify logic in client component or props
+function slugify(text: string) {
+    if (!text) return "";
+    return text.toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)+/g, '');
 }

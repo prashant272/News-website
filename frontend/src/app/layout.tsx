@@ -110,7 +110,7 @@ export default function RootLayout({
         "@id": "https://www.primetimemedia.in/#website",
         "url": "https://www.primetimemedia.in",
         "name": "Prime Time | Asia Leading Media House",
-        "alternateName": ["Prime Time News", "Prime Time Media", "primetimemedia.in"],
+        "alternateName": ["Prime Time News", "Prime Time Research Media Pvt Ltd", "Prime Time Media", "primetimemedia.in"],
         "description": "Asia Leading Media House for breaking news, politics, sports, entertainment, technology, business and world news.",
         "publisher": {
           "@id": "https://www.primetimemedia.in/#organization"
@@ -129,11 +129,11 @@ export default function RootLayout({
         "@type": "NewsMediaOrganization",
         "@id": "https://www.primetimemedia.in/#organization",
         "name": "Prime Time | Asia Leading Media House",
-        "alternateName": ["Prime Time News", "Prime Time Media"],
+        "alternateName": ["Prime Time News", "Prime Time Research Media Pvt Ltd", "Prime Time Media"],
         "url": "https://www.primetimemedia.in",
         "logo": {
           "@type": "ImageObject",
-          "url": "https://www.primetimemedia.in/primetimelogo.gif",
+          "url": "https://www.primetimemedia.in/favicon.ico",
           "width": 192,
           "height": 192
         },
@@ -159,15 +159,15 @@ export default function RootLayout({
       },
       {
         "@type": "Organization",
-        "name": "Global Education Awards",
-        "alternateName": ["Indian Education Awards", "Global Education Excellence Awards", "Prime Time | Asia Leading Media House"],
-        "url": "https://globaleducationawards.in",
-        "logo": "https://globaleducationawards.in/logo.png",
-        "description": "Recognizing excellence in the global education sector through the prestigious Global Education Excellence Awards and Indian Education Awards.",
+        "name": "Prime Time | Asia Leading Media House",
+        "alternateName": ["Prime Time Research Media Pvt Ltd", "Prime Time News ", "Prime Time Media","Asia leading media house"],
+        "url": "https://www.primetimemedia.in",
+        "logo": "https://www.primetimemedia.in/favicon.ico",
+        "description": "Prime Time | Asia's leading media house delivering 24/7 breaking news, in-depth analysis, and latest updates across politics, sports, entertainment, and world events.",
         "contactPoint": {
           "@type": "ContactPoint",
           "telephone": "+91-9810882769",
-          "contactType": "Nominations"
+          "contactType": ""
         },
         "sameAs": [
           "https://www.facebook.com/PrimeTimeResearchMedia",
