@@ -195,9 +195,15 @@ export default function ArticlePageClient({
                           />
                         </div>
                         <div className={styles.authorInfo}>
-                          <span className={styles.authorLabel}>Editor-in-Chief</span>
-                          <h4 className={styles.authorNamePrimary}>{article.authorId.name}</h4>
-                          <p className={styles.authorDistinction}>{article.authorId.designation || 'Senior Editorial Staff'}</p>
+                          <div className={styles.publisherLabel}>This article published by:</div>
+                          <div className={styles.authorNameWrapper}>
+                            <h4 className={styles.authorNamePrimary}>{article.authorId.name}</h4>
+                            <svg className={styles.verifiedBadge} viewBox="0 0 24 24" fill="none">
+                                <path d="M12 2L15.09 5.26L19.44 5.9L20.08 10.25L23.34 13.34L20.08 16.43L19.44 20.78L15.09 21.42L12 24.68L8.91 21.42L4.56 20.78L3.92 16.43L0.66 13.34L3.92 10.25L4.56 5.9L8.91 5.26L12 2Z" fill="#3897f0"/>
+                                <path d="M17.5 8.5L10 16L6.5 12.5" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                          </div>
+                          <p className={styles.authorDistinction}>{article.authorId.designation || 'Editorial Staff'}</p>
                         </div>
                       </div>
                     ) : (
