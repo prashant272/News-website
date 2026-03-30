@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import styles from './VisualStoriesPage.module.scss';
+import styles from '../VisualStoriesPage.module.scss'; // Reuse existing styles
 
 interface VisualStory {
     _id: string;
@@ -13,10 +14,11 @@ interface VisualStory {
     category: string;
 }
 
-export default function VisualStoriesListing() {
+export default function CategoryVisualStoriesListing() {
+    const params = useParams();
+    const categoryName = params?.category as string;
     const [stories, setStories] = useState<VisualStory[]>([]);
     const [loading, setLoading] = useState(true);
-    const [activeCategory, setActiveCategory] = useState('All');
 
     useEffect(() => {
         const fetchStories = async () => {
@@ -25,7 +27,10 @@ export default function VisualStoriesListing() {
                 const res = await fetch(`${base}/api/visual-stories`);
                 const data = await res.json();
                 if (data.success) {
-                    setStories(data.data);
+                    const filtered = data.data.filter((s: VisualStory) => 
+                        s.category?.toLowerCase() === categoryName?.toLowerCase()
+                    );
+                    setStories(filtered);
                 }
             } catch (error) {
                 console.error('Error fetching visual stories:', error);
@@ -33,34 +38,21 @@ export default function VisualStoriesListing() {
                 setLoading(false);
             }
         };
-        fetchStories();
-    }, []);
+        if (categoryName) fetchStories();
+    }, [categoryName]);
 
-    // Get unique categories from stories
-    const categories = ['All', ...new Set(stories.map(s => s.category).filter(Boolean))];
-
-    // Filter stories based on active category
-    const filteredStories = stories.filter(s => activeCategory === 'All' || s.category === activeCategory);
-
-    if (loading) return <div className={styles.loader}>Loading Stories...</div>;
+    if (loading) return <div className={styles.loader}>Loading {categoryName} Stories...</div>;
 
     return (
         <div className={styles.container}>
             <div className={styles.header}>
-                <Link href="/" className={styles.backHome}>← Back to Home</Link>
-                <h1>All Visual Stories</h1>
-            </div>
-
-            <div className={styles.tabsContainer}>
-                {categories.map(cat => (
-                    <button
-                        key={cat}
-                        className={`${styles.tab} ${activeCategory === cat ? styles.active : ''}`}
-                        onClick={() => setActiveCategory(cat)}
-                    >
-                        {cat}
-                    </button>
-                ))}
+                <Link href="/visualstories" className={styles.backHome}>
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="3">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                    Back to All Stories
+                </Link>
+                <h1 style={{ textTransform: 'capitalize' }}>{categoryName}</h1>
             </div>
 
             <motion.div 
@@ -75,7 +67,7 @@ export default function VisualStoriesListing() {
                     }
                 }}
             >
-                {filteredStories.map((story) => (
+                {stories.map((story) => (
                     <motion.div
                         key={story._id}
                         variants={{
@@ -100,15 +92,19 @@ export default function VisualStoriesListing() {
                     </motion.div>
                 ))}
             </motion.div>
+
             <AnimatePresence>
-                {filteredStories.length === 0 && (
+                {stories.length === 0 && (
                     <motion.div 
                         className={styles.noData}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                     >
-                        <p>No stories found in '{activeCategory}' category.</p>
+                        <p>No stories found in the '{categoryName}' category.</p>
+                        <Link href="/visualstories" className={styles.backHome} style={{ display: 'inline-flex', marginTop: '20px' }}>
+                            Browse all categories
+                        </Link>
                     </motion.div>
                 )}
             </AnimatePresence>

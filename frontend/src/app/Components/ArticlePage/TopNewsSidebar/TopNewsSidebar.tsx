@@ -27,8 +27,7 @@ export default function TopNewsSidebar({ news }: TopNewsSidebarProps) {
 
   useEffect(() => {
     if (sidebarAds.length > 0) {
-      // Initialize indices for interleaved ads
-      const interleavedCount = Math.floor(news.length / 3);
+      const interleavedCount = Math.floor(news.length / 4);
       setAdIndices(Array(interleavedCount).fill(0).map((_, i) => i % sidebarAds.length));
     }
   }, [sidebarAds.length, news.length]);
@@ -42,18 +41,18 @@ export default function TopNewsSidebar({ news }: TopNewsSidebarProps) {
     if (!currentAd) return null;
 
     return (
-      <div className={styles.interleavedAd} key={`ad-${index}`}>
-        <span className={styles.adLabel}>ADVERTISEMENT</span>
+      <div className={styles.sidebarAdContainer} key={`ad-${index}`}>
+        <span className={styles.adTag}>ADVERTISEMENT</span>
         <a
           href={currentAd.link}
           target="_blank"
           rel="noopener noreferrer"
-          className={styles.adLink}
+          className={styles.adLinkWrapper}
         >
           <img
             src={currentAd.sidebarImageUrl || currentAd.imageUrl}
             alt={currentAd.title || "Advertisement"}
-            className={styles.adImage}
+            className={styles.adBanner}
             loading="lazy"
           />
         </a>
@@ -61,15 +60,19 @@ export default function TopNewsSidebar({ news }: TopNewsSidebarProps) {
     );
   };
 
+  if (!news || news.length === 0) return null;
+
   return (
-    <div className={styles.topNews}>
-      <h2 className={styles.heading}>Top News</h2>
-      <div className={styles.newsList}>
+    <div className={styles.topNewsSidebar}>
+      <div className={styles.sidebarHeading}>
+        <h2>TOP STORIES</h2>
+        <div className={styles.headingAccent} />
+      </div>
+
+      <div className={styles.listContainer}>
         {news.map((item, index) => {
           const sectionSlug = item.section.toLowerCase();
-
-          const categoryValue = item.category || 'general';
-          const categorySlug = categoryValue
+          const categorySlug = (item.category || 'general')
             .toLowerCase()
             .replace(/\s+/g, '-')
             .replace(/[^a-z0-9-]/g, '');
@@ -78,29 +81,35 @@ export default function TopNewsSidebar({ news }: TopNewsSidebarProps) {
 
           return (
             <React.Fragment key={item.id}>
-              <Link
-                href={href}
-                className={styles.newsItem}
-              >
-                <div className={styles.imageWrapper}>
-                  <Image
-                    src={item.image}
-                    alt={item.title}
-                    width={120}
-                    height={80}
-                    className={styles.image}
-                    sizes="120px"
-                  />
+              <Link href={href} className={styles.newsCard}>
+                <div className={styles.cardImage}>
+                   <Image
+                     src={item.image || '/placeholder.jpg'}
+                     alt={item.title}
+                     fill
+                     sizes="120px"
+                     className={styles.img}
+                   />
                 </div>
-                <h3 className={styles.title}>{item.title}</h3>
+                <div className={styles.cardContent}>
+                  <span className={styles.sectionLabel}>{item.section}</span>
+                  <h3 className={styles.cardTitle}>{item.title}</h3>
+                </div>
               </Link>
               
-              {/* Interleave an ad after every 3 items */}
-              {(index + 1) % 3 === 0 && renderAd(Math.floor(index / 3))}
+              {/* Interleave ad every 4 items for better balance */}
+              {(index + 1) % 4 === 0 && renderAd(Math.floor(index / 4))}
             </React.Fragment>
           );
         })}
       </div>
+
+      <Link href="/Pages/india" className={styles.viewMoreBtn}>
+        <span>View all top stories</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+          <path d="M5 12h14M12 5l7 7-7 7" />
+        </svg>
+      </Link>
     </div>
   );
 }

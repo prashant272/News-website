@@ -129,6 +129,13 @@ export function useNewsSectionData<T extends NewsItemVariant = NewsItemVariant>(
 
   const [localItems, setLocalItems] = useState<any[]>([]);
   const [localLoading, setLocalLoading] = useState(false);
+  const [hasFetchedFallback, setHasFetchedFallback] = useState(false);
+
+  // Reset hasFetched when section changes
+  useEffect(() => {
+    setHasFetchedFallback(false);
+    setLocalItems([]);
+  }, [section]);
 
   // Derive the context data for the current section
   const contextData = useMemo(() => {
@@ -153,15 +160,19 @@ export function useNewsSectionData<T extends NewsItemVariant = NewsItemVariant>(
     }
   }, [context, section]);
 
-  // Fallback fetch if context is empty for this section
+  // Fallback fetch if context is empty or insufficient for this section
   useEffect(() => {
-    if (providedItems || !section || section === 'all' || section === 'india') return;
+    if (providedItems || !section || section === 'all' || section === 'india' || hasFetchedFallback) return;
 
-    // If context news is empty and context is NOT loading, fetch specifically
-    if (contextData.length === 0 && context && !context.loading && localItems.length === 0 && !localLoading) {
-      console.log(`[useNewsSectionData] Context empty for ${section}, fetching fallback...`);
+    // If context news is insufficient (less than requested limit) and context is NOT loading
+    const needsMoreData = contextData.length < limit && contextData.length > 0;
+    const isEmpty = contextData.length === 0 && context && !context.loading;
+
+    if ((isEmpty || needsMoreData) && !localLoading && localItems.length < limit) {
+      console.log(`[useNewsSectionData] Cache insufficient for ${section} (have ${contextData.length}, need ${limit}), fetching fallback...`);
       setLocalLoading(true);
-      newsService.getNewsBySection(section, false, 1, limit)
+      setHasFetchedFallback(true); // Mark as fetched immediately to prevent loop
+      newsService.getNewsBySection(section, false, 1, Math.max(limit, 12))
         .then(res => {
           if (res.success && res.news) {
             setLocalItems(res.news);
@@ -170,7 +181,7 @@ export function useNewsSectionData<T extends NewsItemVariant = NewsItemVariant>(
         .catch(err => console.warn(`[useNewsSectionData] Fallback fetch failed for ${section}:`, err))
         .finally(() => setLocalLoading(false));
     }
-  }, [section, contextData.length, context?.loading, limit, providedItems, localItems.length, localLoading]);
+  }, [section, contextData.length, context?.loading, limit, providedItems, localItems.length, localLoading, hasFetchedFallback]);
 
   const rawData = useMemo(() => {
     if (providedItems) return providedItems;

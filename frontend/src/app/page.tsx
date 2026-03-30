@@ -38,9 +38,6 @@ export default function Home() {
 
       <LatestNews />
       <Sports />
-      <div style={{ margin: '30px auto', width: '100%', maxWidth: '1200px', padding: '0 15px' }}>
-          <GoogleAd />
-      </div>
       <Entertainment />
       <VideosSection />
       <LifestyleSection />

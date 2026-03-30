@@ -1,4 +1,6 @@
-import React, { useMemo, useEffect } from 'react';
+'use client';
+
+import React, { useMemo, useState, useEffect } from 'react';
 import styles from './ArticleContent.module.scss';
 import { useActiveAds } from '@/app/hooks/useAds';
 
@@ -7,99 +9,82 @@ interface ArticleContentProps {
 }
 
 // Strip award-related link lines from ALL articles.
-// These are displayed separately via the Awards section in ArticlePageClient.
 const sanitizeContent = (html: string): string => {
   if (!html) return html;
   return html
-    // Remove full <p> tags that contain nomination/more info patterns
     .replace(/<p[^>]*>\s*More Info\s*:\s*<a[^>]*>[^<]*<\/a>\s*<\/p>/gi, '')
     .replace(/<p[^>]*>\s*Nomination[^<]*:<\s*a[^>]*>[^<]*<\/a>\s*<\/p>/gi, '')
     .replace(/<p[^>]*>\s*Nomination\s*\(if applicable\)\s*:[^<]*<a[^>]*>[^<]*<\/a>\s*<\/p>/gi, '')
-    // Remove inline phrases without wrapping <p>
     .replace(/More Info\s*:\s*<a[^>]*>[^<]*<\/a>/gi, '')
     .replace(/Nomination\s*\(if applicable\)\s*:\s*<a[^>]*>[^<]*<\/a>/gi, '')
     .replace(/Nomination\s*:\s*<a[^>]*>[^<]*<\/a>/gi, '')
-    // Remove leftover label-only lines like <p>More Info:</p>
     .replace(/<p[^>]*>\s*More Info\s*:\s*<\/p>/gi, '')
     .replace(/<p[^>]*>\s*Nomination[^<]*:\s*<\/p>/gi, '');
 };
 
-import GoogleAd from '../../Common/GoogleAd/GoogleAd';
-
-export default function ArticleContent({ content }: ArticleContentProps) {
-  const { data: ads } = useActiveAds();
-  const [currentAdIndex, setCurrentAdIndex] = React.useState(0);
-
-  const inArticleAds = useMemo(() => {
-    if (!ads) return [];
-    return ads.filter(ad => ad.isActive && (ad.headerImageUrl || ad.placement === 'in-article' || ad.placement === 'header'));
-  }, [ads]);
+const ArticleContent: React.FC<ArticleContentProps> = ({ content }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const { data: ads, loading } = useActiveAds();
+  const [internalAd, setInternalAd] = useState<any>(null);
+  
+  const cleanContent = useMemo(() => sanitizeContent(content), [content]);
 
   useEffect(() => {
-    if (inArticleAds.length <= 1) return;
-    const interval = setInterval(() => {
-      setCurrentAdIndex(prev => (prev + 1) % inArticleAds.length);
-    }, 6000);
-    return () => clearInterval(interval);
-  }, [inArticleAds.length]);
-
-  const contentWithAds = useMemo(() => {
-    if (!content) return null;
-    const cleanContent = sanitizeContent(content);
-    
-    const paragraphs = cleanContent.split('</p>');
-    if (paragraphs.length <= 2) {
-      return (
-        <div className={styles.articleContent}>
-           <div dangerouslySetInnerHTML={{ __html: cleanContent }} />
-           <GoogleAd style={{ margin: '20px 0' }} />
-        </div>
-      );
+    if (!loading && ads && ads.length > 0) {
+      setInternalAd(ads[Math.floor(Math.random() * ads.length)]);
     }
+  }, [ads, loading]);
 
-    // Insert Google Ad after first few paragraphs (e.g. 2nd or 3rd)
-    const adPosition = Math.min(2, paragraphs.length - 1);
-    const firstPart = paragraphs.slice(0, adPosition).join('</p>') + '</p>';
-    const remainingParts = paragraphs.slice(adPosition);
+  const paragraphs = useMemo(() => cleanContent.split('</p>'), [cleanContent]);
+  
+  // Truncation logic: Show 4 paragraphs initially if not expanded
+  const cutoff = 4;
+  const showReadMore = paragraphs.length > cutoff;
 
-    // Insert Internal Ad at a later midpoint if content is long
-    const midPoint = Math.floor(remainingParts.length / 2);
-    const middlePart = remainingParts.slice(0, midPoint).join('</p>') + '</p>';
-    const lastPart = remainingParts.slice(midPoint).join('</p>');
+  const renderedContent = useMemo(() => {
+    const visibleParagraphs = (!isExpanded && showReadMore) 
+      ? paragraphs.slice(0, cutoff) 
+      : paragraphs;
 
-    const internalAd = inArticleAds[currentAdIndex];
+    const firstPart = visibleParagraphs.join('</p>') + (visibleParagraphs.length > 0 ? '</p>' : '');
 
     return (
-      <div className={styles.articleContent}>
+      <>
         <div dangerouslySetInnerHTML={{ __html: firstPart }} />
-        
-        {/* Primary Google Ad Slot */}
-        <div className={styles.googleAdWrapper}>
-           <div className={styles.adLabel}>ADVERTISEMENT</div>
-           <GoogleAd />
-        </div>
 
-        <div dangerouslySetInnerHTML={{ __html: middlePart }} />
-
-        {/* Secondary Internal Ad (Optional if exists) */}
-        {internalAd && (
+        {internalAd && isExpanded && (
           <div className={styles.inArticleAdWrapper}>
-            <div className={styles.adLabel}>COMMERCIAL BREAK</div>
-            <div className={styles.adSlide} key={currentAdIndex}>
+            <span className={styles.adLabel}>Promoted Story</span>
+            <div className={styles.adSlide}>
               <a href={internalAd.link} target="_blank" rel="noopener noreferrer">
-                <img src={internalAd.headerImageUrl || internalAd.imageUrl} alt={internalAd.title} className={styles.adImage} />
+                <img src={internalAd.imageUrl} alt="Advertisement" className={styles.adImage} />
               </a>
             </div>
           </div>
         )}
-
-        <div dangerouslySetInnerHTML={{ __html: lastPart }} />
-
-        {/* Bottom Google Ad Slot */}
-        <GoogleAd style={{ marginTop: '20px' }} />
-      </div>
+      </>
     );
-  }, [content, inArticleAds, currentAdIndex]);
+  }, [paragraphs, isExpanded, internalAd, showReadMore]);
 
-  return contentWithAds;
-}
+  return (
+    <article className={`${styles.articleContent} ${!isExpanded && showReadMore ? styles.truncated : ''}`}>
+      {renderedContent}
+      
+      {!isExpanded && showReadMore && (
+        <div className={styles.readMoreContainer}>
+          <button 
+            className={styles.readMoreButton}
+            onClick={() => setIsExpanded(true)}
+          >
+            <span>Read Full Article</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M7 13l5 5 5-5M7 6l5 5 5-5" />
+            </svg>
+          </button>
+        </div>
+      )}
+    </article>
+  );
+};
+
+export default ArticleContent;

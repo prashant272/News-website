@@ -3,25 +3,18 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { useNewsContext } from '@/app/context/NewsContext';
+import { newsService, NewsItem } from '@/app/services/NewsService';
 import { getImageSrc } from '@/Utils/imageUtils';
 import styles from './TagPage.module.scss';
-
-const normalize = (str: string | undefined) =>
-    str
-        ? decodeURIComponent(str)
-            .toLowerCase()
-            .replace(/&/g, 'and')
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/-+/g, '-')
-            .replace(/^-|-$/g, '')
-            .trim()
-        : '';
+import Image from 'next/image';
 
 export default function TagPage() {
     const params = useParams();
-    const context = useNewsContext();
     const tagSlug = params?.tagSlug as string;
+    
+    const [news, setNews] = useState<NewsItem[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     const tagName = useMemo(() => {
         if (!tagSlug) return '';
@@ -30,27 +23,51 @@ export default function TagPage() {
             .replace(/\b\w/g, (c) => c.toUpperCase());
     }, [tagSlug]);
 
-    const filteredNews = useMemo(() => {
-        if (!tagSlug || !context?.allNews) return [];
-        const normTag = normalize(tagSlug);
-        return context.allNews.filter((news) => {
-            const tags = news.tags || [];
-            return tags.some((t) => normalize(t) === normTag);
-        });
-    }, [tagSlug, context?.allNews]);
+    useEffect(() => {
+        if (!tagSlug) return;
 
-    if (!context || context.loading) {
+        async function fetchTaggedNews() {
+            setLoading(true);
+            try {
+                // Use searchNews API which is much faster than client-side filtering
+                const res = await newsService.searchNews(tagName, 1, 24);
+                if (res.success) {
+                    setNews(res.news || []);
+                } else {
+                    setError(res.msg || "Failed to fetch news");
+                }
+            } catch (err: any) {
+                console.error("Tag fetch error:", err);
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        fetchTaggedNews();
+    }, [tagSlug, tagName]);
+
+    if (loading) {
         return (
-            <div className={styles.loading}>
-                <h2>Loading...</h2>
+            <div className={styles.pageWrapper}>
+                <div className={styles.container}>
+                    <div className={styles.skeletonHeader} />
+                    <div className={styles.newsGrid}>
+                        {Array(6).fill(0).map((_, i) => (
+                            <div key={i} className={styles.skeletonCard} />
+                        ))}
+                    </div>
+                </div>
             </div>
         );
     }
 
-    if (context.error) {
+    if (error) {
         return (
-            <div className={styles.loading}>
-                <h2>Error: {context.error}</h2>
+            <div className={styles.errorContainer}>
+                <h2>Something went wrong</h2>
+                <p>{error}</p>
+                <Link href="/" className={styles.backLink}>Go back Home</Link>
             </div>
         );
     }
@@ -59,41 +76,53 @@ export default function TagPage() {
         <div className={styles.pageWrapper}>
             <div className={styles.container}>
                 <div className={styles.header}>
-                    <span className={styles.tagLabel}>Tag</span>
+                    <div className={styles.tagBadge}>TOPIC</div>
                     <h1 className={styles.tagTitle}>#{tagName}</h1>
-                    <p className={styles.count}>{filteredNews.length} article{filteredNews.length !== 1 ? 's' : ''} found</p>
+                    <div className={styles.stats}>
+                       <span className={styles.count}>{news.length}</span>
+                       <span className={styles.label}>Articles Found</span>
+                    </div>
                 </div>
 
-                {filteredNews.length === 0 ? (
+                {news.length === 0 ? (
                     <div className={styles.noResults}>
-                        <p>No articles found for &ldquo;{tagName}&rdquo;</p>
-                        <Link href="/" className={styles.backLink}>← Go back to Home</Link>
+                        <div className={styles.emptyIcon}>🔍</div>
+                        <h3>No articles found</h3>
+                        <p>We couldn't find any articles tagged with &ldquo;{tagName}&rdquo;</p>
+                        <Link href="/" className={styles.backLink}>← Back to Home</Link>
                     </div>
                 ) : (
                     <div className={styles.newsGrid}>
-                        {filteredNews.map((news, index) => {
-                            const section = news.category?.toLowerCase() || 'india';
-                            const subCat = news.subCategory || 'general';
-                            const href = news.slug
-                                ? `/Pages/${section}/${encodeURIComponent(subCat)}/${encodeURIComponent(news.slug)}`
-                                : '#';
+                        {news.map((item) => {
+                            const section = item.category?.toLowerCase() || 'india';
+                            const subCat = (item.subCategory || 'general').toLowerCase().replace(/\s+/g, '-');
+                            const href = item.slug ? `/Pages/${section}/${subCat}/${item.slug}` : '#';
+                            
                             return (
-                                <Link key={news._id || index} href={href} className={styles.newsCard}>
+                                <Link key={item._id} href={href} className={styles.newsCard}>
                                     <div className={styles.imageWrapper}>
-                                        <img
-                                            src={getImageSrc(news.image || '')}
-                                            alt={news.title}
-                                            loading="lazy"
+                                        <Image
+                                            src={getImageSrc(item.image || '')}
+                                            alt={item.title}
+                                            fill
+                                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                            className={styles.cardImg}
                                         />
-                                        {news.category && (
-                                            <span className={styles.categoryBadge}>{news.category}</span>
-                                        )}
+                                        <div className={styles.categoryLabel}>{item.category}</div>
                                     </div>
-                                    <div className={styles.cardContent}>
-                                        <p className={styles.newsTitle}>{news.title}</p>
-                                        {news.summary && (
-                                            <p className={styles.newsSummary}>{news.summary.slice(0, 100)}...</p>
-                                        )}
+                                    <div className={styles.cardInfo}>
+                                        <h3 className={styles.title}>{item.title}</h3>
+                                        <div className={styles.footer}>
+                                           <span className={styles.author}>{item.author || 'Prime Time News'}</span>
+                                           <span className={styles.dot} />
+                                           <span className={styles.date}>
+                                              {new Date(item.publishedAt || item.createdAt || "").toLocaleDateString('en-IN', {
+                                                  day: 'numeric',
+                                                  month: 'short',
+                                                  year: 'numeric'
+                                              })}
+                                           </span>
+                                        </div>
                                     </div>
                                 </Link>
                             );

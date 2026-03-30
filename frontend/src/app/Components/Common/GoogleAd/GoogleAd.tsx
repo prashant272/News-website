@@ -35,7 +35,7 @@ const GoogleAd: React.FC<GoogleAdProps> = ({ style, className }) => {
     }, []);
 
     return (
-        <div className={className} style={{ minHeight: 100, width: '100%', minWidth: '100%', textAlign: 'center', overflow: 'hidden', ...style }}>
+        <div className={className} style={{ width: '100%', minWidth: '100%', textAlign: 'center', overflow: 'hidden', ...style }}>
             <ins
                 ref={adRef}
                 className="adsbygoogle"

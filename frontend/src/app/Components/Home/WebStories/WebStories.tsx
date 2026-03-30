@@ -10,6 +10,7 @@ interface StorySlide {
     title: string;
     description: string;
     link?: string;
+    source?: string;
 }
 
 interface VisualStory {
@@ -115,8 +116,8 @@ function WebStoryViewer({
                                 style={{
                                     width: index < currentIndex ? '100%'
                                         : index === currentIndex && !showEndScreen ? `${progress}%`
-                                        : index < story.slides.length && showEndScreen ? '100%'
-                                        : '0%'
+                                            : index < story.slides.length && showEndScreen ? '100%'
+                                                : '0%'
                                 }}
                             />
                         </div>
@@ -165,7 +166,20 @@ function WebStoryViewer({
                     <>
                         {/* Main Slide Content */}
                         <div className={viewerStyles.contentArea}>
-                            <img src={currentSlide?.image} alt={currentSlide?.title} className={viewerStyles.slideImage} />
+                            <div className={viewerStyles.imageWrapper}>
+                                {currentSlide?.source && (
+                                    <div className={viewerStyles.imageSource}>
+                                        <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ marginRight: '4px' }}>
+                                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                                            <circle cx="12" cy="13" r="4" />
+                                        </svg>
+                                        {currentSlide.source}
+                                    </div>
+                                )}
+                                <img src={currentSlide?.image} alt="" className={viewerStyles.blurBg} aria-hidden="true" />
+                                <img src={currentSlide?.image} alt={currentSlide?.title} className={viewerStyles.mainImg} />
+                            </div>
+
                             <div className={viewerStyles.textContent}>
                                 <h2 className={viewerStyles.slideTitle}>{currentSlide?.title}</h2>
                                 <p className={viewerStyles.slideDescription}>{currentSlide?.description}</p>
@@ -205,8 +219,19 @@ function WebStoryViewer({
 // ─── Main WebStories Carousel ────────────────────────────────────────────────
 export default function WebStories() {
     const [stories, setStories] = useState<VisualStory[]>([]);
+    const [selectedStory, setSelectedStory] = useState<VisualStory | null>(null);
     const [loading, setLoading] = useState(true);
     const scrollRef = useRef<HTMLDivElement>(null);
+
+    // Lock body scroll when story is open
+    useEffect(() => {
+        if (selectedStory) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => { document.body.style.overflow = ''; };
+    }, [selectedStory]);
 
     useEffect(() => {
         const fetchStories = async () => {
@@ -215,7 +240,6 @@ export default function WebStories() {
                 const res = await fetch(`${base}/api/visual-stories`);
                 const data = await res.json();
                 if (data.success) {
-                    console.log('Visual Stories loaded:', data.data.map((s: any) => ({ t: s.title, s: s.slug })));
                     setStories(data.data);
                 } else {
                     console.warn('API returned success:false for visual stories:', data);
@@ -264,23 +288,33 @@ export default function WebStories() {
                 <div className={styles.carouselWrapper}>
                     <div className={styles.scrollArea} ref={scrollRef}>
                         {stories.map(story => (
-                            <Link
+                            <div
                                 key={story._id}
-                                href={`/visualstories/${story.category || 'general'}/${story.slug || story._id}`}
                                 className={styles.storyCard}
+                                onClick={() => setSelectedStory(story)}
                             >
                                 <div className={styles.imageWrapper}>
-                                    <img src={story.thumbnail} alt={story.title} className={styles.thumbnail} />
+                                    <img src={story.thumbnail} alt="" className={styles.blurBgImg} aria-hidden="true" />
+                                    <img src={story.thumbnail} alt={story.title} className={styles.mainThumbnail} />
                                     <div className={styles.overlay} />
                                 </div>
                                 <div className={styles.content}>
                                     <h3 className={styles.storyTitle}>{story.title}</h3>
                                 </div>
                                 <div className={styles.categoryBadge}>{story.category}</div>
-                            </Link>
+                            </div>
                         ))}
                     </div>
                 </div>
+
+                {selectedStory && (
+                    <WebStoryViewer
+                        story={selectedStory}
+                        allStories={stories}
+                        onClose={() => setSelectedStory(null)}
+                        onSelectStory={(s) => setSelectedStory(s)}
+                    />
+                )}
             </div>
         </section>
     );

@@ -9,6 +9,7 @@ interface Slide {
     title: string;
     description: string;
     link: string;
+    source: string;
     isUpload: boolean;
 }
 
@@ -34,6 +35,7 @@ export default function VisualStoryForm({
             title: s.title || '',
             description: s.description || '',
             link: s.link || '',
+            source: s.source || '',
             isUpload: s.isUpload ?? false
         }));
 
@@ -44,7 +46,7 @@ export default function VisualStoryForm({
         isActive: story?.isActive ?? true,
         slides: story?.slides
             ? normalizeSlides(story.slides)
-            : [{ image: '', title: '', description: '', link: '', isUpload: false }]
+            : [{ image: '', title: '', description: '', link: '', source: '', isUpload: false }]
     });
     const [loading, setLoading] = useState(false);
 
@@ -104,7 +106,7 @@ export default function VisualStoryForm({
         if (formData.slides.length >= 20) return;
         setFormData({
             ...formData,
-            slides: [...formData.slides, { image: '', title: '', description: '', link: '', isUpload: false }]
+            slides: [...formData.slides, { image: '', title: '', description: '', link: '', source: '', isUpload: false }]
         });
     };
 
@@ -214,14 +216,24 @@ export default function VisualStoryForm({
                 <div className={styles.slidesSection}>
                     <div className={styles.slidesHeader}>
                         <h4>Slides ({formData.slides.length})</h4>
-                        <button type="button" onClick={addSlide} className={styles.addSlideBtn}>+ Add Slide</button>
+                        <button type="button" onClick={addSlide} className={styles.addSlideBtn}>
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="3">
+                                <path d="M12 5v14M5 12h14" />
+                            </svg>
+                            Add Slide
+                        </button>
                     </div>
 
                     {formData.slides.map((slide, index) => (
                         <div key={index} className={styles.slideCard}>
                             <div className={styles.slideHeader}>
-                                <span>Slide {index + 1}</span>
-                                <button type="button" onClick={() => removeSlide(index)} className={styles.removeBtn}>Remove</button>
+                                <div className={styles.slideBadge}>Slide {index + 1}</div>
+                                <button type="button" onClick={() => removeSlide(index)} className={styles.removeBtn}>
+                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                        <path d="M18 6L6 18M6 6l12 12" />
+                                    </svg>
+                                    Remove
+                                </button>
                             </div>
 
                             <div className={styles.slideBody}>
@@ -273,6 +285,11 @@ export default function VisualStoryForm({
                                         onChange={e => updateSlide(index, 'link', e.target.value)}
                                         placeholder="Read More Link (optional)"
                                     />
+                                    <input
+                                        value={slide.source ?? ''}
+                                        onChange={e => updateSlide(index, 'source', e.target.value)}
+                                        placeholder="Image Source / Credit (e.g. AFP)"
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -281,7 +298,21 @@ export default function VisualStoryForm({
 
                 <div className={styles.formFooter}>
                     <button type="submit" className={styles.saveBtn} disabled={loading}>
-                        {loading ? 'Saving...' : story?._id ? 'Update Story' : 'Create Story'}
+                        {loading ? (
+                            <>
+                                <span className={styles.loaderSpinner} />
+                                Saving Story...
+                            </>
+                        ) : (
+                            <>
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="3">
+                                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                                    <polyline points="17 21 17 13 7 13 7 21" />
+                                    <polyline points="7 3 7 8 15 8" />
+                                </svg>
+                                {story?._id ? 'Update Story' : 'Publish Story'}
+                            </>
+                        )}
                     </button>
                 </div>
             </form>

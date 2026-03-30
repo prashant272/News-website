@@ -213,335 +213,335 @@ const Navbar: React.FC = () => {
   return (
     <>
       <nav className={`${styles.navbarWrapper} ${scrolled ? styles.scrolled : ''} ${showPill && !isMobileMenuOpen ? styles.hideNavbar : ''}`}>
-      <div className={styles.container}>
+        <div className={styles.container}>
 
-        <div className={styles.adBannerContainer}>
-          <div
-            className={styles.adBanner}
-            onMouseEnter={() => setIsPaused(true)}
-            onMouseLeave={() => setIsPaused(false)}
-          >
-            {adsLoading ? (
-              <div className={styles.adLoading}>Loading advertisements...</div>
-            ) : headerAds.length > 0 ? (
-              <div className={styles.adCarousel}>
-                <div
-                  className={styles.adTrack}
-                  style={{
-                    transform: `translateX(-${currentAdIndex * (100 / visibleItems)}%)`,
-                    transition: 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)'
-                  }}
-                >
-                  {headerAds.map((ad, index) => (
-                    <div key={ad._id || index} className={styles.adItem}>
-                      <a
-                        href={ad.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={styles.adLink}
-                      >
-                        <div className={styles.adImageWrapper}>
-                          <Image
-                            src={ad.headerImageUrl || ad.imageUrl}
-                            alt={ad.title || "Advertisement"}
-                            fill
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                            className={styles.adImage}
-                            priority={index < 3}
-                          />
-                        </div>
-                      </a>
-                    </div>
+          <div className={styles.adBannerContainer}>
+            <div
+              className={styles.adBanner}
+              onMouseEnter={() => setIsPaused(true)}
+              onMouseLeave={() => setIsPaused(false)}
+            >
+              {adsLoading ? (
+                <div className={styles.adLoading}>Loading advertisements...</div>
+              ) : headerAds.length > 0 ? (
+                <div className={styles.adCarousel}>
+                  <div
+                    className={styles.adTrack}
+                    style={{
+                      transform: `translateX(-${currentAdIndex * (100 / visibleItems)}%)`,
+                      transition: 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)'
+                    }}
+                  >
+                    {headerAds.map((ad, index) => (
+                      <div key={ad._id || index} className={styles.adItem}>
+                        <a
+                          href={ad.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.adLink}
+                        >
+                          <div className={styles.adImageWrapper}>
+                            <Image
+                              src={ad.headerImageUrl || ad.imageUrl}
+                              alt={ad.title || "Advertisement"}
+                              fill
+                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                              className={styles.adImage}
+                              priority={index < 3}
+                            />
+                          </div>
+                        </a>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className={styles.adPlaceholder}>
+                  Advertisement Space – Premium Placements
+                </div>
+              )}
+
+              {headerAds.length > visibleItems && (
+                <div className={styles.adDots}>
+                  {Array.from({ length: Math.max(0, headerAds.length - visibleItems + 1) }).map((_, index) => (
+                    <button
+                      key={index}
+                      className={`${styles.dot} ${index === currentAdIndex ? styles.active : ''}`}
+                      onClick={() => setCurrentAdIndex(index)}
+                      aria-label={`Go to advertisement ${index + 1}`}
+                    />
                   ))}
                 </div>
-              </div>
-            ) : (
-              <div className={styles.adPlaceholder}>
-                Advertisement Space – Premium Placements
-              </div>
-            )}
+              )}
+            </div>
 
-            {headerAds.length > visibleItems && (
-              <div className={styles.adDots}>
-                {Array.from({ length: Math.max(0, headerAds.length - visibleItems + 1) }).map((_, index) => (
-                  <button
-                    key={index}
-                    className={`${styles.dot} ${index === currentAdIndex ? styles.active : ''}`}
-                    onClick={() => setCurrentAdIndex(index)}
-                    aria-label={`Go to advertisement ${index + 1}`}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className={styles.adFooter}>
-            <div className={styles.sponsoredLabel}>Sponsored By</div>
-            <div className={styles.adContactWrapper}>
-              <div className={styles.adContact}>
-                Contact for advertisement: +91 9971 00 2984 &nbsp; | &nbsp;
-                Contact for advertisement: +91 9971 00 2984 &nbsp; | &nbsp;
-                Contact for advertisement: +91 9971 00 2984
+            <div className={styles.adFooter}>
+              <div className={styles.sponsoredLabel}>Sponsored By</div>
+              <div className={styles.adContactWrapper}>
+                <div className={styles.adContact}>
+                  Contact for advertisement: +91 9971 00 2984 &nbsp; | &nbsp;
+                  Contact for advertisement: +91 9971 00 2984 &nbsp; | &nbsp;
+                  Contact for advertisement: +91 9971 00 2984
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div className={styles.mainHeader}>
-          <div className={styles.leftSection}>
-            <button
-              className={styles.menuButton}
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              aria-label="Toggle menu"
-              aria-expanded={isMobileMenuOpen}
-            >
-              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
-
-            <Link href="/" className={styles.logoContainer} onClick={closeMobileMenu}>
-              <Image
-                src={logo}
-                alt="PrimeTime Logo"
-                className={styles.logoImg}
-                width={160}
-                height={160}
-                priority
-              />
-              {/* prime time text */}
-              <span className={styles.brandName}> Prime Time</span>
-            </Link>
-          </div>
-
-          <ul className={styles.navListDesktop}>
-            {/* Primary 6 tabs */}
-            {primaryItems.map(item => (
-              <li
-                key={item.key}
-                className={`${styles.navItem} ${item.submenu ? styles.hasDropdown : ''}`}
-                onMouseEnter={() => item.submenu && setActiveDropdown(item.key)}
-                onMouseLeave={() => item.submenu && setActiveDropdown(null)}
+          <div className={styles.mainHeader}>
+            <div className={styles.leftSection}>
+              <button
+                className={styles.menuButton}
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                aria-label="Toggle menu"
+                aria-expanded={isMobileMenuOpen}
               >
-                {item.submenu ? (
-                  <>
-                    <button
-                      className={`${styles.navLink} ${isActive(item.href) ? styles.active : ''} ${activeDropdown === item.key ? styles.active : ''}`}
-                      onClick={(e) => toggleDropdown(item.key, e)}
-                    >
-                      {item.label}
-                      <ChevronDown size={14} className={`${styles.chevron} ${activeDropdown === item.key ? styles.rotate : ''}`} />
-                    </button>
-                    <div className={`${styles.dropdownMenu} ${activeDropdown === item.key ? styles.show : ''}`}
-                      onMouseLeave={() => {
-                        setActiveSubDropdown(null);
-                        setPinnedSubDropdown(null);
-                      }}
-                    >
-                      <div className={styles.dropdownScrollArea}>
+                {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
+
+              <Link href="/" className={styles.logoContainer} onClick={closeMobileMenu}>
+                <Image
+                  src={logo}
+                  alt="PrimeTime Logo"
+                  className={styles.logoImg}
+                  width={160}
+                  height={160}
+                  priority
+                />
+                {/* prime time text */}
+                <span className={styles.brandName}> Prime Time</span>
+              </Link>
+            </div>
+
+            <ul className={styles.navListDesktop}>
+              {/* Primary 6 tabs */}
+              {primaryItems.map(item => (
+                <li
+                  key={item.key}
+                  className={`${styles.navItem} ${item.submenu ? styles.hasDropdown : ''}`}
+                  onMouseEnter={() => item.submenu && setActiveDropdown(item.key)}
+                  onMouseLeave={() => item.submenu && setActiveDropdown(null)}
+                >
+                  {item.submenu ? (
+                    <>
+                      <button
+                        className={`${styles.navLink} ${isActive(item.href) ? styles.active : ''} ${activeDropdown === item.key ? styles.active : ''}`}
+                        onClick={(e) => toggleDropdown(item.key, e)}
+                      >
+                        {item.label}
+                        <ChevronDown size={14} className={`${styles.chevron} ${activeDropdown === item.key ? styles.rotate : ''}`} />
+                      </button>
+                      <div className={`${styles.dropdownMenu} ${activeDropdown === item.key ? styles.show : ''}`}
+                        onMouseLeave={() => {
+                          setActiveSubDropdown(null);
+                          setPinnedSubDropdown(null);
+                        }}
+                      >
+                        <div className={styles.dropdownScrollArea}>
+                          {item.submenu.map((sub, idx) => {
+                            const subId = `${item.key}-${idx}`;
+                            return (
+                              <div key={idx}
+                                className={`${styles.dropdownItemWrapper} ${sub.submenu ? styles.hasNestedDropdown : ''}`}
+                                onMouseEnter={() => {
+                                  if (!pinnedSubDropdown) {
+                                    setActiveSubDropdown(sub.submenu ? subId : null);
+                                  }
+                                }}
+                                onClick={(e) => {
+                                  if (sub.submenu) {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    setPinnedSubDropdown(pinnedSubDropdown === subId ? null : subId);
+                                    setActiveSubDropdown(subId);
+                                  }
+                                }}
+                              >
+                                {sub.submenu ? (
+                                  <div className={`${styles.dropdownItem} ${pinnedSubDropdown === subId ? styles.active : ''}`}>
+                                    <ChevronLeft size={12} className={styles.submenuChevron} /> {sub.label}
+                                  </div>
+                                ) : (
+                                  <Link
+                                    href={sub.href}
+                                    className={styles.dropdownItem}
+                                    onClick={() => {
+                                      setActiveDropdown(null);
+                                      setPinnedSubDropdown(null);
+                                    }}
+                                    target={sub.href.startsWith('http') ? '_blank' : undefined}
+                                    rel={sub.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                                  >
+                                    {sub.isDivider ? (
+                                      <div className={styles.dropdownSectionLabel}>{sub.label}</div>
+                                    ) : (
+                                      sub.label
+                                    )}
+                                  </Link>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        {/* Render nested menus here, outside scroll area, to prevent clipping */}
                         {item.submenu.map((sub, idx) => {
                           const subId = `${item.key}-${idx}`;
                           return (
-                            <div key={idx}
-                              className={`${styles.dropdownItemWrapper} ${sub.submenu ? styles.hasNestedDropdown : ''}`}
-                              onMouseEnter={() => {
-                                if (!pinnedSubDropdown) {
-                                  setActiveSubDropdown(sub.submenu ? subId : null);
-                                }
-                              }}
-                              onClick={(e) => {
-                                if (sub.submenu) {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  setPinnedSubDropdown(pinnedSubDropdown === subId ? null : subId);
-                                  setActiveSubDropdown(subId);
-                                }
-                              }}
-                            >
-                              {sub.submenu ? (
-                                <div className={`${styles.dropdownItem} ${pinnedSubDropdown === subId ? styles.active : ''}`}>
-                                  <ChevronLeft size={12} className={styles.submenuChevron} /> {sub.label}
-                                </div>
-                              ) : (
-                                <Link
-                                  href={sub.href}
-                                  className={styles.dropdownItem}
-                                  onClick={() => {
-                                    setActiveDropdown(null);
-                                    setPinnedSubDropdown(null);
-                                  }}
-                                  target={sub.href.startsWith('http') ? '_blank' : undefined}
-                                  rel={sub.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                                >
-                                  {sub.isDivider ? (
-                                    <div className={styles.dropdownSectionLabel}>{sub.label}</div>
-                                  ) : (
-                                    sub.label
-                                  )}
-                                </Link>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-
-                      {/* Render nested menus here, outside scroll area, to prevent clipping */}
-                      {item.submenu.map((sub, idx) => {
-                        const subId = `${item.key}-${idx}`;
-                        return (
-                          sub.submenu && (activeSubDropdown === subId || pinnedSubDropdown === subId) && (
-                            <div key={`nested-${idx}`} className={styles.nestedDropdownMenu}>
-                              {sub.submenu.map((nestedSub, nIdx) => (
-                                <Link
-                                  key={nIdx}
-                                  href={nestedSub.href}
-                                  className={styles.dropdownItem}
-                                  onClick={() => {
-                                    setActiveDropdown(null);
-                                    setPinnedSubDropdown(null);
-                                  }}
-                                  target={nestedSub.href.startsWith('http') ? '_blank' : undefined}
-                                  rel={nestedSub.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                                >
-                                  {nestedSub.label}
-                                </Link>
-                              ))}
-                            </div>
-                          )
-                        );
-                      })}
-                    </div>
-                  </>
-                ) : (
-                  <Link href={item.href} className={isActive(item.href) ? styles.active : ''}>
-                    {item.label}
-                  </Link>
-                )}
-              </li>
-            ))}
-
-            {/* >> More dropdown */}
-            {moreItems.length > 0 && (
-              <li
-                className={`${styles.navItem} ${styles.hasDropdown}`}
-                onMouseEnter={() => setActiveDropdown('__more__')}
-                onMouseLeave={() => setActiveDropdown(null)}
-              >
-                <button
-                  className={`${styles.navLink} ${activeDropdown === '__more__' ? styles.active : ''}`}
-                  onClick={(e) => toggleDropdown('__more__', e)}
-                >
-                  »
-                  <ChevronDown size={14} className={`${styles.chevron} ${activeDropdown === '__more__' ? styles.rotate : ''}`} />
-                </button>
-                <div className={`${styles.dropdownMenu} ${activeDropdown === '__more__' ? styles.show : ''}`}>
-                  {/* Live T20 World Cup link at top */}
-                  <Link href="/sports/live" className={`${styles.dropdownItem} ${styles.liveDropdownItem}`} onClick={() => setActiveDropdown(null)}>
-                    🔴 Live T20 World Cup
-                  </Link>
-                  <div className={styles.dropdownDivider} />
-                  {moreItems.map((item, idx) => (
-                    <Link
-                      key={idx}
-                      href={item.href}
-                      className={`${styles.dropdownItem} ${isActive(item.href) ? styles.active : ''}`}
-                      onClick={() => setActiveDropdown(null)}
-                    >
-                      {item.label}
-                    </Link>
-                  ))}
-                </div>
-              </li>
-            )}
-          </ul>
-
-          <div className={styles.rightSection}>
-
-            <button
-              className={styles.themeToggle}
-              onClick={toggleTheme}
-              aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-            >
-              {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
-            </button>
-
-            {/* Live Button */}
-            <LiveScoreButton API_BASE={API_BASE} />
-          </div>
-        </div>
-      </div>
-    </nav>
-
-      <div className={`${styles.mobileMenu} ${isMobileMenuOpen ? styles.open : ''}`}>
-          <ul className={styles.navListMobile}>
-            {navItems.map(item => (
-              <li key={item.key} className={item.submenu ? styles.hasMobileSubmenu : ''}>
-                {item.submenu ? (
-                  <>
-                    <button
-                      className={`${styles.mobileNavLink} ${isActive(item.href) ? styles.active : ''}`}
-                      onClick={(e) => toggleDropdown(item.key, e)}
-                    >
-                      {item.label}
-                      <ChevronDown size={20} className={`${styles.chevron} ${(activeDropdown === item.key || activeDropdown?.startsWith(`nested-${item.key}`)) ? styles.rotate : ''}`} />
-                    </button>
-                    <div className={`${styles.mobileSubmenu} ${(activeDropdown === item.key || activeDropdown?.startsWith(`nested-${item.key}`)) ? styles.open : ''}`}>
-                      {item.submenu.map((sub, idx) => (
-                        <div key={idx} className={styles.mobileSubItemWrapper}>
-                          {sub.submenu ? (
-                            <>
-                              <button
-                                className={styles.mobileSubItem}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  const nestedMenuId = `nested-${item.key}-${idx}`;
-                                  setActiveDropdown(activeDropdown === nestedMenuId ? item.key : nestedMenuId);
-                                }}
-                              >
-                                {sub.label} <ChevronDown size={14} className={`${styles.chevron} ${activeDropdown?.startsWith(`nested-${item.key}-${idx}`) ? styles.rotate : ''}`} />
-                              </button>
-                              <div className={`${styles.mobileNestedSubmenu} ${activeDropdown?.startsWith(`nested-${item.key}-${idx}`) ? styles.open : ''}`}>
+                            sub.submenu && (activeSubDropdown === subId || pinnedSubDropdown === subId) && (
+                              <div key={`nested-${idx}`} className={styles.nestedDropdownMenu}>
                                 {sub.submenu.map((nestedSub, nIdx) => (
                                   <Link
                                     key={nIdx}
                                     href={nestedSub.href}
-                                    className={styles.mobileSubItem}
-                                    style={{ paddingLeft: '60px' }}
-                                    onClick={closeMobileMenu}
+                                    className={styles.dropdownItem}
+                                    onClick={() => {
+                                      setActiveDropdown(null);
+                                      setPinnedSubDropdown(null);
+                                    }}
+                                    target={nestedSub.href.startsWith('http') ? '_blank' : undefined}
+                                    rel={nestedSub.href.startsWith('http') ? 'noopener noreferrer' : undefined}
                                   >
                                     {nestedSub.label}
                                   </Link>
                                 ))}
                               </div>
-                            </>
-                          ) : (
-                            <Link
-                              href={sub.href}
-                              className={styles.mobileSubItem}
-                              onClick={closeMobileMenu}
-                            >
-                              {sub.isDivider ? (
-                                <div className={styles.dropdownSectionLabel} style={{ borderTop: 'none', marginTop: 0, paddingLeft: '40px' }}>{sub.label}</div>
-                              ) : (
-                                sub.label
-                              )}
-                            </Link>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </>
-                ) : (
-                  <Link
-                    href={item.href}
-                    className={isActive(item.href) ? styles.active : ''}
-                    onClick={closeMobileMenu}
+                            )
+                          );
+                        })}
+                      </div>
+                    </>
+                  ) : (
+                    <Link href={item.href} className={isActive(item.href) ? styles.active : ''}>
+                      {item.label}
+                    </Link>
+                  )}
+                </li>
+              ))}
+
+              {/* >> More dropdown */}
+              {moreItems.length > 0 && (
+                <li
+                  className={`${styles.navItem} ${styles.hasDropdown}`}
+                  onMouseEnter={() => setActiveDropdown('__more__')}
+                  onMouseLeave={() => setActiveDropdown(null)}
+                >
+                  <button
+                    className={`${styles.navLink} ${activeDropdown === '__more__' ? styles.active : ''}`}
+                    onClick={(e) => toggleDropdown('__more__', e)}
+                  >
+                    »
+                    <ChevronDown size={14} className={`${styles.chevron} ${activeDropdown === '__more__' ? styles.rotate : ''}`} />
+                  </button>
+                  <div className={`${styles.dropdownMenu} ${activeDropdown === '__more__' ? styles.show : ''}`}>
+                    {/* Live T20 World Cup link at top */}
+                    <Link href="/sports/live" className={`${styles.dropdownItem} ${styles.liveDropdownItem}`} onClick={() => setActiveDropdown(null)}>
+                      🔴 Live T20 World Cup
+                    </Link>
+                    <div className={styles.dropdownDivider} />
+                    {moreItems.map((item, idx) => (
+                      <Link
+                        key={idx}
+                        href={item.href}
+                        className={`${styles.dropdownItem} ${isActive(item.href) ? styles.active : ''}`}
+                        onClick={() => setActiveDropdown(null)}
+                      >
+                        {item.label}
+                      </Link>
+                    ))}
+                  </div>
+                </li>
+              )}
+            </ul>
+
+            <div className={styles.rightSection}>
+
+              <button
+                className={styles.themeToggle}
+                onClick={toggleTheme}
+                aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+              >
+                {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+              </button>
+
+              {/* Live Button */}
+              <LiveScoreButton API_BASE={API_BASE} />
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div className={`${styles.mobileMenu} ${isMobileMenuOpen ? styles.open : ''}`}>
+        <ul className={styles.navListMobile}>
+          {navItems.map(item => (
+            <li key={item.key} className={item.submenu ? styles.hasMobileSubmenu : ''}>
+              {item.submenu ? (
+                <>
+                  <button
+                    className={`${styles.mobileNavLink} ${isActive(item.href) ? styles.active : ''}`}
+                    onClick={(e) => toggleDropdown(item.key, e)}
                   >
                     {item.label}
-                  </Link>
-                )}
-              </li>
-            ))}
-          </ul>
-        </div>
+                    <ChevronDown size={20} className={`${styles.chevron} ${(activeDropdown === item.key || activeDropdown?.startsWith(`nested-${item.key}`)) ? styles.rotate : ''}`} />
+                  </button>
+                  <div className={`${styles.mobileSubmenu} ${(activeDropdown === item.key || activeDropdown?.startsWith(`nested-${item.key}`)) ? styles.open : ''}`}>
+                    {item.submenu.map((sub, idx) => (
+                      <div key={idx} className={styles.mobileSubItemWrapper}>
+                        {sub.submenu ? (
+                          <>
+                            <button
+                              className={styles.mobileSubItem}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const nestedMenuId = `nested-${item.key}-${idx}`;
+                                setActiveDropdown(activeDropdown === nestedMenuId ? item.key : nestedMenuId);
+                              }}
+                            >
+                              {sub.label} <ChevronDown size={14} className={`${styles.chevron} ${activeDropdown?.startsWith(`nested-${item.key}-${idx}`) ? styles.rotate : ''}`} />
+                            </button>
+                            <div className={`${styles.mobileNestedSubmenu} ${activeDropdown?.startsWith(`nested-${item.key}-${idx}`) ? styles.open : ''}`}>
+                              {sub.submenu.map((nestedSub, nIdx) => (
+                                <Link
+                                  key={nIdx}
+                                  href={nestedSub.href}
+                                  className={styles.mobileSubItem}
+                                  style={{ paddingLeft: '60px' }}
+                                  onClick={closeMobileMenu}
+                                >
+                                  {nestedSub.label}
+                                </Link>
+                              ))}
+                            </div>
+                          </>
+                        ) : (
+                          <Link
+                            href={sub.href}
+                            className={styles.mobileSubItem}
+                            onClick={closeMobileMenu}
+                          >
+                            {sub.isDivider ? (
+                              <div className={styles.dropdownSectionLabel} style={{ borderTop: 'none', marginTop: 0, paddingLeft: '40px' }}>{sub.label}</div>
+                            ) : (
+                              sub.label
+                            )}
+                          </Link>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <Link
+                  href={item.href}
+                  className={isActive(item.href) ? styles.active : ''}
+                  onClick={closeMobileMenu}
+                >
+                  {item.label}
+                </Link>
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
 
 
       <AnimatePresence>
@@ -558,11 +558,11 @@ const Navbar: React.FC = () => {
                 <Link href="/" className={styles.pillLogo} onClick={() => setIsPillMenuOpen(false)}>
                   <Image src={logo} alt="Logo" width={32} height={32} />
                 </Link>
-                
+
                 <div className={`${styles.pillLinksList} ${isPillMenuOpen ? styles.showMobileLinks : ''}`}>
                   {navItems.map((item) => (
-                    <div 
-                      key={item.key} 
+                    <div
+                      key={item.key}
                       className={`${styles.pillItemWrapper} ${item.submenu ? styles.hasPillDropdown : ''}`}
                       onMouseEnter={() => item.submenu && !isPillMenuOpen && setActiveDropdown(`pill-${item.key}`)}
                       onMouseLeave={() => item.submenu && !isPillMenuOpen && setActiveDropdown(null)}
@@ -579,7 +579,7 @@ const Navbar: React.FC = () => {
                             {item.label}
                             <ChevronDown size={14} className={`${styles.pillChevron} ${activeDropdown === `pill-${item.key}` ? styles.rotate : ''}`} />
                           </button>
-                          
+
                           <div className={`${styles.pillDropdownMenu} ${activeDropdown === `pill-${item.key}` ? styles.show : ''}`}>
                             {item.submenu.map((sub, idx) => (
                               <Link
@@ -609,7 +609,7 @@ const Navbar: React.FC = () => {
                   ))}
                 </div>
 
-                <button 
+                <button
                   className={styles.pillMenuBtn}
                   onClick={() => setIsPillMenuOpen(!isPillMenuOpen)}
                   aria-label="Toggle pill menu"

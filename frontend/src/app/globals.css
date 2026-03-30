@@ -11,8 +11,8 @@
   --nav-text: #1a1a1a;
   --nav-text-secondary: #6b7280;
   --nav-border: rgba(0, 0, 0, 0.06);
-  --nav-hover-bg: rgba(59, 130, 246, 0.08);
-  --nav-hover-text: #3b82f6;
+  --nav-hover-bg: rgba(208, 2, 27, 0.08);
+  --nav-hover-text: #d0021b;
   --search-bg: white;
   --search-text: #1a1a1a;
   --search-border: rgba(59, 130, 246, 0.2);
@@ -22,8 +22,8 @@
   /* Additional app variables */
   --card-bg: #ffffff;
   --card-border: rgba(0, 0, 0, 0.1);
-  --primary: #3b82f6;
-  --primary-hover: #2563eb;
+  --primary: #d0021b;
+  --primary-hover: #a80115;
   --secondary: #6b7280;
   --accent: #8b5cf6;
   --muted: #f3f4f6;
@@ -58,8 +58,8 @@
   /* Additional app variables */
   --card-bg: #1e293b;
   --card-border: rgba(255, 255, 255, 0.1);
-  --primary: #60a5fa;
-  --primary-hover: #3b82f6;
+  --primary: #ef4444;
+  --primary-hover: #dc2626;
   --secondary: #94a3b8;
   --accent: #a78bfa;
   --muted: #1e293b;
@@ -78,6 +78,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-serif: var(--font-serif);
 
   /* Add custom Tailwind theme colors */
   --color-card: var(--card-bg);
@@ -138,6 +139,51 @@ p {
   text-align: justify;
   color: var(--text-color);
   transition: color 0.3s ease;
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+}
+
+.premium-serif {
+  font-family: var(--font-serif), Georgia, serif;
+}
+
+.premium-sans {
+  font-family: var(--font-geist-sans), Inter, sans-serif;
+}
+
+.drop-cap::first-letter {
+  font-family: var(--font-serif);
+  float: left;
+  font-size: 5rem;
+  line-height: 1;
+  font-weight: bold;
+  margin-right: 0.75rem;
+  padding-top: 0.25rem;
+  color: var(--primary);
+  text-transform: uppercase;
+}
+
+blockquote {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.5rem;
+  line-height: 1.5;
+  border-left: 5px solid var(--primary);
+  padding: 1.5rem 2rem;
+  margin: 2.5rem 0;
+  background: var(--muted);
+  border-radius: 0 1rem 1rem 0;
+  position: relative;
+}
+
+blockquote::before {
+  content: '"';
+  position: absolute;
+  top: -1rem;
+  left: 0.5rem;
+  font-size: 5rem;
+  color: var(--primary);
+  opacity: 0.2;
 }
 
 span,

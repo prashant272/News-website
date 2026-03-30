@@ -7,8 +7,15 @@ interface ArticleTagsProps {
 }
 
 export default function ArticleTags({ tags }: ArticleTagsProps) {
+  if (!tags || tags.length === 0) return null;
+
   return (
     <div className={styles.articleTags}>
+      <div className={styles.tagSectionHeader}>
+        <span className={styles.tagLabelIcon}>#</span>
+        <h4 className={styles.tagsTitle}>Trending Tags</h4>
+      </div>
+
       <div className={styles.tagsList}>
         {tags.map((tag) => {
           const tagSlug = encodeURIComponent(
@@ -28,9 +35,12 @@ export default function ArticleTags({ tags }: ArticleTagsProps) {
         })}
       </div>
 
-      <div className={styles.bottomCta}>
-        <p className={styles.ctaText}>
-          Read all the <Link href="/Pages/all" className={styles.link}>Breaking News</Link> Live on primetimemedia.in and Get <Link href="/Pages/all" className={styles.link}>Latest English News</Link> & Updates from <Link href="/Pages/sports" className={styles.link}>Sports</Link> Section
+      <div className={styles.newsCtaBox}>
+        <div className={styles.ctaAccent} />
+        <p className={styles.ctaContent}>
+          Read all the <Link href="/Pages/all" className={styles.inlineLink}>Breaking News</Link> Live on primetimemedia.in. 
+          Follow us for the <Link href="/Pages/all" className={styles.inlineLink}>Latest English News</Link> & updates from the 
+          <Link href="/Pages/sports" className={styles.inlineLink}> Sports</Link> world.
         </p>
       </div>
     </div>

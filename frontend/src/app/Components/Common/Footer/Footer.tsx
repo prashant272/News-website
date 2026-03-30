@@ -151,6 +151,11 @@ const Footer: React.FC = () => {
             <p className={styles.copyright}>
               © {year} Prime Time Research Media Pvt. Ltd. All rights reserved.
             </p>
+            <div className={styles.developerBadge}>
+              <a href="https://www.primeimpact.in/" target="_blank" rel="noopener noreferrer">
+                Designed and Developed by <span>Prime Impact Solutions</span>
+              </a>
+            </div>
           </div>
         </div>
       </div>

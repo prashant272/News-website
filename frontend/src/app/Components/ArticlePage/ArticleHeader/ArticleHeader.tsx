@@ -18,26 +18,31 @@ export default function ArticleHeader({ article }: ArticleHeaderProps) {
   const formattedDate = formatDateTime(article.date);
 
   return (
-    <div className={styles.articleHeader}>
-      <h1 className={styles.title}>{article.title}</h1>
+    <header className={styles.articleHeader}>
+      <h1 className={`${styles.title} premium-serif`}>{article.title}</h1>
 
-      <p className={styles.subtitle}>{article.subtitle}</p>
+      {article.subtitle && (
+        <p className={`${styles.subtitle} premium-sans`}>{article.subtitle}</p>
+      )}
 
       <div className={styles.meta}>
-        <span className={styles.author}>
-          {article.author || 'Prime Time News'}
-        </span>
-        <span className={styles.date}>
-          {formattedDate}
-        </span>
-        {article.readTime && (
-          <span className={styles.readTime}>
-            {article.readTime}
+        <div className={styles.authorSection}>
+          <span className={styles.label}>Author:</span>
+          <span className={styles.authorName}>
+            {article.author || 'Prime Time News'}
           </span>
-        )}
+        </div>
+        <div className={styles.timeSection}>
+           <span className={styles.date}>{formattedDate}</span>
+           {article.readTime && (
+             <span className={styles.readTime}>
+               {article.readTime}
+             </span>
+           )}
+        </div>
       </div>
 
-      <div className={styles.featuredImage}>
+      <div className={styles.featuredImageWrapper}>
         <Image
           src={article.image}
           alt={article.title}
@@ -47,6 +52,6 @@ export default function ArticleHeader({ article }: ArticleHeaderProps) {
           priority
         />
       </div>
-    </div>
+    </header>
   );
 }

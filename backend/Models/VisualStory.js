@@ -16,6 +16,11 @@ const slideSchema = new mongoose.Schema({
     link: {
         type: String,
         trim: true
+    },
+    source: {
+        type: String,
+        trim: true,
+        default: ""
     }
 });
 

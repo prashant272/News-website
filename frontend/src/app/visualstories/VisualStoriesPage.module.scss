@@ -1,85 +1,171 @@
 .container {
-    max-width: 1200px;
-    margin: 40px auto;
-    padding: 20px;
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 60px 20px;
+    background: #fafafa;
+    min-height: 100vh;
 }
 
 .header {
-    margin-bottom: 30px;
+    margin-bottom: 40px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 15px;
 
     h1 {
-        font-size: 2.5rem;
-        color: #1a1a1a;
+        font-size: 3rem;
+        font-weight: 800;
+        color: #111;
+        letter-spacing: -0.02em;
+        margin: 0;
     }
 }
 
 .backHome {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     color: #ed2124;
     text-decoration: none;
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: transform 0.3s;
+
+    &:hover {
+        transform: translateX(-5px);
+    }
+}
+
+.tabsContainer {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 50px;
+    padding-bottom: 15px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+.tab {
+    padding: 10px 28px;
+    border-radius: 100px;
+    background: #fff;
+    color: #444;
     font-weight: 600;
-    &:hover { text-decoration: underline; }
+    font-size: 0.9rem;
+    cursor: pointer;
+    white-space: nowrap;
+    border: 1px solid #eee;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    text-transform: capitalize;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+
+    &:hover {
+        background: #f8f8f8;
+        border-color: #ddd;
+        transform: translateY(-2px);
+    }
+
+    &.active {
+        background: #ed2124;
+        color: #fff;
+        box-shadow: 0 8px 20px rgba(237, 33, 36, 0.25);
+        border-color: #ed2124;
+    }
 }
 
 .grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 25px;
+    gap: 30px;
 }
 
 .card {
-    background: #fff;
-    border-radius: 12px;
+    position: relative;
+    border-radius: 20px;
     overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     text-decoration: none;
-    transition: transform 0.3s;
+    background: #000;
+    aspect-ratio: 9/16;
+    display: block;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
 
     &:hover {
-        transform: translateY(-5px);
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+
+        .imageWrapper img {
+            transform: scale(1.1);
+        }
+
+        .overlay {
+            background: linear-gradient(to top, rgba(237, 33, 36, 0.6) 0%, rgba(0,0,0,0.4) 50%, transparent 100%);
+        }
     }
 }
 
 .imageWrapper {
+    width: 100%;
+    height: 100%;
     position: relative;
-    aspect-ratio: 9/16;
-    background: #eee;
 
     img {
         width: 100%;
         height: 100%;
         object-fit: cover;
+        transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     }
+}
+
+.overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 40%, transparent 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 24px;
+    transition: background 0.5s ease;
 }
 
 .badge {
     position: absolute;
-    top: 15px;
-    left: 15px;
-    background: rgba(237, 33, 36, 0.9);
+    top: 20px;
+    left: 20px;
+    background: #ed2124;
     color: #fff;
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 800;
     text-transform: uppercase;
+    letter-spacing: 0.1em;
+    z-index: 5;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
 
 .content {
-    padding: 15px;
     h3 {
         margin: 0;
-        font-size: 1.1rem;
-        color: #333;
-        line-height: 1.4;
+        font-size: 1.4rem;
+        color: #fff;
+        line-height: 1.3;
+        font-weight: 700;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
     }
 }
 
 .loader, .noData {
     text-align: center;
-    padding: 50px;
-    font-size: 1.2rem;
-    color: #666;
+    padding: 100px 20px;
+    font-size: 1.1rem;
+    color: #888;
+    
+    p { margin-bottom: 20px; }
 }

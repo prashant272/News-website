@@ -11,6 +11,7 @@ interface StorySlide {
     title: string;
     description: string;
     link?: string;
+    source?: string;
 }
 
 interface VisualStory {
@@ -206,22 +207,44 @@ export default function VisualStoryPage() {
                     </div>
                 ) : (
                     <>
-                        {/* Slide Image with Ken Burns Effect */}
+                        {/* Slide Image with Dual-Layer Zero-Crop & Quality Optimization */}
                         <div className={styles.slideImage}>
+                            {currentSlide?.source && (
+                                <div className={styles.imageSource}>
+                                    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ marginRight: '5px' }}>
+                                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                                        <circle cx="12" cy="13" r="4" />
+                                    </svg>
+                                    {currentSlide.source}
+                                </div>
+                            )}
                             <AnimatePresence mode="popLayout">
-                                <motion.img
-                                    key={currentIndex}
-                                    src={currentSlide?.image}
-                                    alt={currentSlide?.title}
-                                    initial={{ opacity: 0, scale: 1 }}
-                                    animate={{ opacity: 1, scale: 1.15 }}
-                                    exit={{ opacity: 0 }}
-                                    transition={{ 
-                                        opacity: { duration: 1.5, ease: "easeOut" },
-                                        scale: { duration: 6, ease: "linear" } 
-                                    }}
-                                    className={styles.storyImg}
-                                />
+                                <div key={currentIndex} className={styles.imageLayerWrapper} style={{ width: '100%', height: '100%', position: 'relative' }}>
+                                    {/* Layer 1: Blurred Background */}
+                                    <motion.img
+                                        src={currentSlide?.image}
+                                        alt=""
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        exit={{ opacity: 0 }}
+                                        transition={{ duration: 1 }}
+                                        className={styles.blurBg}
+                                        aria-hidden="true"
+                                    />
+                                    {/* Layer 2: Sharp Main Image (Uncropped) */}
+                                    <motion.img
+                                        src={currentSlide?.image}
+                                        alt={currentSlide?.title}
+                                        initial={{ opacity: 0, scale: 1 }}
+                                        animate={{ opacity: 1, scale: 1.05 }}
+                                        exit={{ opacity: 0 }}
+                                        transition={{ 
+                                            opacity: { duration: 1.5, ease: "easeOut" },
+                                            scale: { duration: 6, ease: "linear" } 
+                                        }}
+                                        className={styles.storyImg}
+                                    />
+                                </div>
                             </AnimatePresence>
                             <div className={styles.slideGradient} />
                         </div>

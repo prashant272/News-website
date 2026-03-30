@@ -14,7 +14,7 @@ import RecommendedStories from '../RecommendedStories/RecommendedStories';
 import SocialShare from '../../Common/SocialShare/SocialShare';
 import BreadcrumbSchema from '../../Common/JSONLD/BreadcrumbSchema';
 import SidebarAds from '../../Common/SidebarAds/SidebarAds';
-import GoogleAd from '../../Common/GoogleAd/GoogleAd';
+import ReadingProgressBar from '../ReadingProgressBar/ReadingProgressBar';
 
 interface ArticleData {
   id: string | number;
@@ -83,14 +83,6 @@ export default function ArticlePageClient({
   category
 }: ArticlePageClientProps) {
 
-  console.log("[DEBUG] ArticlePageClient data:", {
-    id: article.id,
-    author: article.author,
-    authorId: article.authorId
-  });
-
-
-
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "NewsArticle",
@@ -109,7 +101,7 @@ export default function ArticlePageClient({
       "name": "Prime Time Media",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://www.primetimemedia.in/logo.png" // Replace with actual logo URL if available
+        "url": "https://www.primetimemedia.in/logo.png"
       }
     },
     "description": article.subtitle || article.content.substring(0, 150)
@@ -117,6 +109,7 @@ export default function ArticlePageClient({
 
   return (
     <div className={styles.articlePage}>
+      <ReadingProgressBar />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
@@ -128,6 +121,7 @@ export default function ArticlePageClient({
           { name: article.title, item: `/Pages/${section}/${category}/${article.slug}` }
         ]}
       />
+      
       <div className={styles.container}>
         <Breadcrumb
           section={section}
@@ -137,82 +131,103 @@ export default function ArticlePageClient({
 
         <div className={styles.articleLayout}>
           <div className={styles.mainContent}>
-            <GoogleAd style={{ marginBottom: '20px' }} />
             <ArticleHeader article={article} />
-            <ArticleContent content={article.content} />
-            <RelatedArticles articles={relatedArticles} />
-            {article.tags && article.tags.length > 0 && (
-              <ArticleTags tags={article.tags} />
-            )}
+            
+            <div className={styles.contentWrapper}>
+               <div className={styles.stickyShare}>
+                  <SocialShare
+                    url={typeof window !== 'undefined' ? window.location.href : `https://www.primetimemedia.in/Pages/${article.section}/${article.category}/${article.slug}`}
+                    title={article.title}
+                    description={article.subtitle}
+                    image={article.image}
+                    isArticle={true}
+                  />
+               </div>
+               
+               <div className={styles.bodyContent}>
+                  <ArticleContent content={article.content} />
+                  
+                  {article.tags && article.tags.length > 0 && (
+                    <div className={styles.tagSection}>
+                       <ArticleTags tags={article.tags} />
+                    </div>
+                  )}
 
-            {(article.category?.toUpperCase() === "AWARDS" || section?.toUpperCase() === "AWARDS") && (
-              <div className={styles.articleAwardActions}>
-                {article.targetLink && (
-                  <a
-                    href={article.targetLink.startsWith('http') ? article.targetLink : `https://${article.targetLink}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={styles.articleMoreInfoBtn}
-                  >
-                    <span>Visit More Info</span>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
-                    </svg>
-                  </a>
-                )}
-                {article.nominationLink && (
-                  <a
-                    href={article.nominationLink.startsWith('http') ? article.nominationLink : `https://${article.nominationLink}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={styles.articleNominationBtn}
-                  >
-                    <span>Submit Nomination</span>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                    </svg>
-                  </a>
-                )}
-              </div>
-            )}
-            <div className={styles.shareSection}>
-              <SocialShare
-                url={typeof window !== 'undefined' ? window.location.href : `https://www.primetimemedia.in/Pages/${article.section}/${article.category}/${article.slug}`}
-                title={article.title}
-                description={article.subtitle}
-                image={article.image}
-                isArticle={true}
-              />
-              <div className={styles.authorProfileSection}>
-                {article.authorId ? (
-                  <div className={styles.premiumAuthorCard}>
-                    <div className={styles.authorImageContainer}>
-                      <img
-                        src={article.authorId.ProfilePicture || '/default-avatar.png'}
-                        alt={article.authorId.name}
-                        className={styles.authorProfilePic}
-                      />
+                  {(article.category?.toUpperCase() === "AWARDS" || section?.toUpperCase() === "AWARDS") && (
+                    <div className={styles.articleAwardActions}>
+                      {article.targetLink && (
+                        <a
+                          href={article.targetLink.startsWith('http') ? article.targetLink : `https://${article.targetLink}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.articleMoreInfoBtn}
+                        >
+                          <span>Visit More Info</span>
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                          </svg>
+                        </a>
+                      )}
+                      {article.nominationLink && (
+                        <a
+                          href={article.nominationLink.startsWith('http') ? article.nominationLink : `https://${article.nominationLink}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.articleNominationBtn}
+                        >
+                          <span>Submit Nomination</span>
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                          </svg>
+                        </a>
+                      )}
                     </div>
-                    <div className={styles.authorInfo}>
-                      <span className={styles.authorLabel}>Published By</span>
-                      <h4 className={styles.authorNamePrimary}>{article.authorId.name}</h4>
-                      <p className={styles.authorDistinction}>{article.authorId.designation || 'Senior Editor'}</p>
-                    </div>
+                  )}
+
+                  <div className={styles.authorBadgeSection}>
+                    {article.authorId ? (
+                      <div className={styles.premiumAuthorCard}>
+                        <div className={styles.authorImageContainer}>
+                          <img
+                            src={article.authorId.ProfilePicture || '/default-avatar.png'}
+                            alt={article.authorId.name}
+                            className={styles.authorProfilePic}
+                          />
+                        </div>
+                        <div className={styles.authorInfo}>
+                          <span className={styles.authorLabel}>Editor-in-Chief</span>
+                          <h4 className={styles.authorNamePrimary}>{article.authorId.name}</h4>
+                          <p className={styles.authorDistinction}>{article.authorId.designation || 'Senior Editorial Staff'}</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className={styles.authorAttribution}>
+                        <span className={styles.authorPrefix}>Published by:</span>
+                        <span className={styles.authorName}>{article.author || 'Prime Time News'}</span>
+                      </div>
+                    )}
                   </div>
-                ) : (
-                  <div className={styles.authorAttribution}>
-                    <span className={styles.authorPrefix}>Published by:</span>
-                    <span className={styles.authorName}>{article.author || 'Prime Time News'}</span>
-                  </div>
-                )}
-              </div>
+               </div>
             </div>
+
+            <RelatedArticles articles={relatedArticles} />
           </div>
 
           <aside className={styles.sidebar}>
-            <TopNewsSidebar news={topNews} />
-            <div style={{ marginTop: '20px', position: 'sticky', top: '100px' }}>
-              <GoogleAd />
+            <div className={styles.stickySidebar}>
+              <TopNewsSidebar news={topNews} />
+              
+              <div className={styles.sidebarAd}>
+                 <span className={styles.adLabel}>ADVERTISEMENT</span>
+                 <SidebarAds />
+              </div>
+
+              {recommendedStories && recommendedStories.length > 0 && (
+                <div className={styles.sidebarRecommended}>
+                   <h3 className={styles.sidebarSubheading}>MUST READ</h3>
+                   <RecommendedStories stories={recommendedStories} />
+                </div>
+              )}
             </div>
           </aside>
         </div>
@@ -224,4 +239,4 @@ export default function ArticlePageClient({
       </div>
     </div>
   );
-}
+}

@@ -95,6 +95,25 @@ newsArticleSchema.index({ category: 1, status: 1, createdAt: -1 });
 newsArticleSchema.index({ publishedAt: -1, createdAt: -1 });
 newsArticleSchema.index({ status: 1, publishedAt: -1 });
 
+// Full text search index
+newsArticleSchema.index(
+    {
+        title: "text",
+        summary: "text",
+        content: "text",
+        tags: "text",
+    },
+    {
+        weights: {
+            title: 10,
+            tags: 8,
+            summary: 5,
+            content: 1,
+        },
+        name: "NewsTextSearchIndex",
+    }
+);
+
 const NewsArticle = mongoose.models.NewsArticle || mongoose.model("NewsArticle", newsArticleSchema);
 
 module.exports = NewsArticle;

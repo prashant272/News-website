@@ -84,24 +84,27 @@ export default async function ArticleDetailPage({ params }: PageProps) {
   const sectionKey = catParam.toLowerCase(); // Use raw param for API
 
   try {
-    // Fetch specifically by slug. The backend now finds by slug regardless of section mismatch.
-    const newsRes = await newsService.getNewsBySlug(sectionKey, slug).catch(err => {
-      console.warn(`Initial fetch failed for ${slug} in ${sectionKey}, trying fallback...`, err.message);
-      return null;
-    });
+    // 1. Parallelize fetching: Get article AND category news concurrently
+    const [newsRes, sectionRes] = await Promise.all([
+      newsService.getNewsBySlug(sectionKey, slug).catch(err => {
+        console.warn(`Initial fetch failed for ${slug} in ${sectionKey}`, err.message);
+        return null;
+      }),
+      // We don't know the exact articleCategory yet, so we use sectionKey as first guess
+      // Most of the time they match. If not, we still get some good context news.
+      newsService.getNewsBySection(sectionKey).catch(() => ({ news: [], data: [] }))
+    ]);
 
     let foundArticle = newsRes?.news || newsRes?.data;
 
-    // If still not found, it might be a truly missing article or a draft
+    // 2. If article still not found, it might be truly missing
     if (!foundArticle) {
       notFound();
     }
 
-    // Fetch related news from the same category
-    const articleCategory = foundArticle.category || sectionKey;
-    const sectionRes = await newsService.getNewsBySection(articleCategory).catch(() => ({ news: [], data: [] }));
     const relatedNews = ((sectionRes as any).news || (sectionRes as any).data || []) as NewsItem[];
 
+    // 3. Render
     return renderArticle(foundArticle!, relatedNews, category, subCategory, slug);
 
   } catch (error) {
@@ -141,15 +144,27 @@ function renderArticle(foundArticle: any, categoryNews: any[], category: string,
       return dateB - dateA;
     });
 
-  // Take unique slices for each section to avoid overlaps
-  // Take the 3 latest for "Related" (under the article)
-  const related = filteredCategoryNews.slice(0, 3).map((news: any) => ({
+  // 1. Separate articles into subCategory matches and category-only matches
+  const subCategoryMatches = filteredCategoryNews.filter((news: any) => 
+    news.subCategory && foundArticle.subCategory && news.subCategory.toLowerCase() === foundArticle.subCategory.toLowerCase()
+  );
+  
+  const categoryOnlyMatches = filteredCategoryNews.filter((news: any) => 
+    !subCategoryMatches.find(sc => sc.slug === news.slug)
+  );
+
+  // 2. Combine them, prioritizing subCategory matches
+  const prioritizedRelated = [...subCategoryMatches, ...categoryOnlyMatches];
+
+  // 3. Take unique slices for "Also Read" (6 articles)
+  const related = prioritizedRelated.slice(0, 16).map((news: any) => ({
     id: news._id || news.slug,
     title: news.title,
     slug: news.slug,
     section: news.category,
     category: news.subCategory,
-    image: news.image
+    image: news.image,
+    publishedAt: news.publishedAt || news.date || news.createdAt
   }));
 
   // Take the top 15 latest for the sidebar

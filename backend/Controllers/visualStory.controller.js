@@ -14,7 +14,7 @@ const uploadToCloudinary = async (image, folder = "visual_stories") => {
     console.log(`DEBUG: Cloudinary upload attempt started (Size: ${sizeInMB} MB)...`);
 
     try {
-        const res = await cloudinary.uploader.upload(image, { 
+        const res = await cloudinary.uploader.upload(image, {
             folder,
             timeout: 120000 // Increase timeout to 120 seconds
         });
@@ -45,26 +45,34 @@ exports.createVisualStory = async (req, res) => {
         const { title, thumbnail, category, slides } = req.body;
 
         if (!title || !thumbnail || !category) {
-            return res.status(400).json({ 
-                success: false, 
-                message: "Missing required fields: title, thumbnail and category are mandatory." 
+            return res.status(400).json({
+                success: false,
+                message: "Missing required fields: title, thumbnail and category are mandatory."
             });
         }
 
         if (!slides || slides.length === 0) {
-            return res.status(400).json({ 
-                success: false, 
-                message: "A visual story must have at least one slide." 
+            return res.status(400).json({
+                success: false,
+                message: "A visual story must have at least one slide."
             });
         }
 
         const uploadedThumbnail = await uploadToCloudinary(thumbnail);
         const processedSlides = await Promise.all(
-            (slides || []).map(async (slide) => ({
-                ...slide,
-                image: await uploadToCloudinary(slide.image)
-            }))
+            (slides || []).map(async (slide) => {
+                const uploadedUrl = await uploadToCloudinary(slide.image);
+                return {
+                    title: slide.title || "",
+                    description: slide.description || "",
+                    link: slide.link || "",
+                    source: slide.source || "",
+                    image: uploadedUrl
+                };
+            })
         );
+
+        console.log("DEBUG: Saving story with processed slides:", processedSlides.map(s => ({ title: s.title, source: s.source })));
 
         const story = await VisualStory.create({
             title,
@@ -86,19 +94,27 @@ exports.updateVisualStory = async (req, res) => {
         const storyId = req.params.id;
 
         if (!title || !thumbnail || !category) {
-            return res.status(400).json({ 
-                success: false, 
-                message: "Missing required fields: title, thumbnail and category are mandatory." 
+            return res.status(400).json({
+                success: false,
+                message: "Missing required fields: title, thumbnail and category are mandatory."
             });
         }
 
         const uploadedThumbnail = await uploadToCloudinary(thumbnail);
         const processedSlides = await Promise.all(
-            (slides || []).map(async (slide) => ({
-                ...slide,
-                image: await uploadToCloudinary(slide.image)
-            }))
+            (slides || []).map(async (slide) => {
+                const uploadedUrl = await uploadToCloudinary(slide.image);
+                return {
+                    title: slide.title || "",
+                    description: slide.description || "",
+                    link: slide.link || "",
+                    source: slide.source || "",
+                    image: uploadedUrl
+                };
+            })
         );
+
+        console.log("DEBUG: Updating story with processed slides:", processedSlides.map(s => ({ title: s.title, source: s.source })));
 
         const updatedStory = await VisualStory.findByIdAndUpdate(
             storyId,
