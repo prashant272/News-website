@@ -1,49 +1,97 @@
 "use client";
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface GoogleAdProps {
+    slot?: string;
+    format?: 'auto' | 'rectangle' | 'horizontal' | 'vertical' | 'fluid';
+    responsive?: boolean;
     style?: React.CSSProperties;
     className?: string;
 }
 
-const GoogleAd: React.FC<GoogleAdProps> = ({ style, className }) => {
+const GoogleAd: React.FC<GoogleAdProps> = ({ 
+    slot = "5006567326", 
+    format = "auto", 
+    responsive = true, 
+    style, 
+    className 
+}) => {
     const adRef = useRef<HTMLModElement>(null);
+    const [isVisible, setIsVisible] = useState(true);
     const pushed = useRef(false);
 
     useEffect(() => {
-        if (pushed.current) return;
-        
-        // Use a small timeout to ensure layout has finished
-        const timer = setTimeout(() => {
-            if (pushed.current) return;
-            
+        if (pushed.current || !adRef.current) return;
+
+        const checkAdStatus = () => {
+            const ins = adRef.current;
+            if (!ins) return;
+
+            // MutationObserver to detect status change (filled/unfilled)
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.type === 'attributes' && mutation.attributeName === 'data-ad-status') {
+                        const status = ins.getAttribute('data-ad-status');
+                        if (status === 'unfilled') {
+                            setIsVisible(false);
+                            console.log(`Ad slot ${slot} was unfilled, collapsing container.`);
+                        }
+                    }
+                });
+            });
+
+            observer.observe(ins, { attributes: true });
+
+            // Push common AdSense logic
             try {
                 const adsbygoogle = (window as any).adsbygoogle;
-                // Check if container actually has width to prevent TagError
-                const currentWidth = adRef.current?.parentElement?.offsetWidth || 0;
-                
-                if (adsbygoogle && currentWidth > 0) {
+                if (adsbygoogle) {
                     adsbygoogle.push({});
                     pushed.current = true;
                 }
             } catch (e) {
-                // Console error prevention — fine in dev/streaming
+                console.error("AdSense push error:", e);
+                // On error, we don't necessarily hide, let the status check handle it
             }
-        }, 500);
 
+            // Fallback: If height is still 0 after a long time (e.g. 5s), hide it
+            const timeout = setTimeout(() => {
+                if (ins.offsetHeight === 0 && ins.getAttribute('data-ad-status') !== 'filled') {
+                    setIsVisible(false);
+                }
+            }, 5000);
+
+            return () => {
+                observer.disconnect();
+                clearTimeout(timeout);
+            };
+        };
+
+        const timer = setTimeout(checkAdStatus, 500);
         return () => clearTimeout(timer);
-    }, []);
+    }, [slot]);
+
+    if (!isVisible) return null;
 
     return (
-        <div className={className} style={{ width: '100%', minWidth: '100%', textAlign: 'center', overflow: 'hidden', ...style }}>
+        <div 
+            className={className} 
+            style={{ 
+                width: '100%', 
+                textAlign: 'center', 
+                overflow: 'hidden', 
+                margin: '20px 0',
+                ...style 
+            }}
+        >
             <ins
                 ref={adRef}
                 className="adsbygoogle"
-                style={{ display: 'block' }}
+                style={{ display: 'block', minWidth: '100%' }}
                 data-ad-client="ca-pub-5571209076881303"
-                data-ad-slot="5006567326"
-                data-ad-format="auto"
-                data-full-width-responsive="true"
+                data-ad-slot={slot}
+                data-ad-format={format}
+                data-full-width-responsive={responsive ? "true" : "false"}
             />
         </div>
     );

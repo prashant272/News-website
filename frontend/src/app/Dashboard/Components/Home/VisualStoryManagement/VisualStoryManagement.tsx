@@ -21,6 +21,7 @@ export default function VisualStoryManagement() {
     const [loading, setLoading] = useState(true);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingStory, setEditingStory] = useState<VisualStory | null>(null);
+    const [activeTab, setActiveTab] = useState<'stories' | 'awards'>('stories');
 
     const fetchStories = async () => {
         setLoading(true);
@@ -90,44 +91,67 @@ export default function VisualStoryManagement() {
             {loading ? (
                 <div className={styles.loader}>Loading...</div>
             ) : (
-                <div className={styles.tableWrapper}>
-                    <table className={styles.table}>
-                        <thead>
-                            <tr>
-                                <th>Thumbnail</th>
-                                <th>Title</th>
-                                <th>Category</th>
-                                <th>Views</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {stories.map(story => (
-                                <tr key={story._id}>
-                                    <td>
-                                        <img src={story.thumbnail} alt="" className={styles.thumbMini} />
-                                    </td>
-                                    <td>{story.title}</td>
-                                    <td>{story.category}</td>
-                                    <td>{story.viewCount}</td>
-                                    <td>
-                                        <span className={story.isActive ? styles.active : styles.inactive}>
-                                            {story.isActive ? 'Active' : 'Hidden'}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div className={styles.actions}>
-                                            <button onClick={() => handleEdit(story)} className={styles.editBtn}>Edit</button>
-                                            <button onClick={() => handleDelete(story._id)} className={styles.deleteBtn}>Delete</button>
-                                        </div>
-                                    </td>
+                <>
+                    <div className={styles.tabs}>
+                        <button 
+                            className={activeTab === 'stories' ? styles.activeTab : ''} 
+                            onClick={() => setActiveTab('stories')}
+                        >
+                            News Visual Stories
+                        </button>
+                        <button 
+                            className={activeTab === 'awards' ? styles.activeTab : ''} 
+                            onClick={() => setActiveTab('awards')}
+                        >
+                            Award Visual Stories
+                        </button>
+                    </div>
+
+                    <div className={styles.tableWrapper}>
+                        <table className={styles.table}>
+                            <thead>
+                                <tr>
+                                    <th>Thumbnail</th>
+                                    <th>Title</th>
+                                    <th>Category</th>
+                                    <th>Views</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                    {stories.length === 0 && <p className={styles.noData}>No visual stories found.</p>}
-                </div>
+                            </thead>
+                            <tbody>
+                                {stories
+                                    .filter(story => 
+                                        activeTab === 'awards' ? story.category === 'awards' : story.category !== 'awards'
+                                    )
+                                    .map(story => (
+                                        <tr key={story._id}>
+                                            <td>
+                                                <img src={story.thumbnail} alt="" className={styles.thumbMini} />
+                                            </td>
+                                            <td>{story.title}</td>
+                                            <td>{story.category}</td>
+                                            <td>{story.viewCount}</td>
+                                            <td>
+                                                <span className={story.isActive ? styles.active : styles.inactive}>
+                                                    {story.isActive ? 'Active' : 'Hidden'}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div className={styles.actions}>
+                                                    <button onClick={() => handleEdit(story)} className={styles.editBtn}>Edit</button>
+                                                    <button onClick={() => handleDelete(story._id)} className={styles.deleteBtn}>Delete</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                            </tbody>
+                        </table>
+                        {stories.filter(story => 
+                            activeTab === 'awards' ? story.category === 'awards' : story.category !== 'awards'
+                        ).length === 0 && <p className={styles.noData}>No stories found in this category.</p>}
+                    </div>
+                </>
             )}
         </div>
     );

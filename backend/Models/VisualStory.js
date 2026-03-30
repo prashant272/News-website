@@ -3,7 +3,8 @@ const mongoose = require("mongoose");
 const slideSchema = new mongoose.Schema({
     image: {
         type: String,
-        required: true
+        required: false,
+        default: ""
     },
     title: {
         type: String,
@@ -18,6 +19,11 @@ const slideSchema = new mongoose.Schema({
         trim: true
     },
     source: {
+        type: String,
+        trim: true,
+        default: ""
+    },
+    videoUrl: {
         type: String,
         trim: true,
         default: ""

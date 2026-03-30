@@ -11,14 +11,18 @@ interface MoreFromSectionProps {
   sectionTitle: string;
   overrideSection?: string;
   excludeSlug?: string;
+  columns?: number;
+  limit?: number;
 }
 
 export default function MoreFromSection({
   sectionTitle,
   overrideSection,
   excludeSlug,
+  columns = 3,
+  limit = 9,
 }: MoreFromSectionProps) {
-  const [visibleCount, setVisibleCount] = useState(9);
+  const [visibleCount, setVisibleCount] = useState(limit);
   
   const { items, isLoading } = useNewsSectionData<MoreFromItem>({
     variant: 'more-from',
@@ -28,7 +32,7 @@ export default function MoreFromSection({
   });
 
   const handleReadMore = () => {
-    setVisibleCount(prev => prev + 9);
+    setVisibleCount(prev => prev + limit);
   };
 
   if (isLoading && items.length === 0) {

@@ -1,192 +1,150 @@
 "use client"
 import React, { useState, useEffect } from 'react';
 import styles from './VideosSection.module.scss';
-import { Play } from 'lucide-react'; 
+import { Play, ArrowRight } from 'lucide-react'; 
 import { useActiveAds } from '@/app/hooks/useAds'; 
+import { WebStoryViewer, VisualStory } from '../../Home/WebStories/WebStories';
+import { motion, AnimatePresence } from 'framer-motion';
 
-const categories = [
-  'Awards', 'Excellence', 'Leadership', 'Healthcare', 'Education', 
-  'Business', 'Innovation', 'Recognition', 'Events', 'Achievements'
-];
-
-const videoData = [
-  {
-    id: '1',
-    category: 'Leadership',
-    title: "Dr. Preeti Jain | Excellence in Tech Leadership | Prime Time Media",
-    videoUrl: 'https://www.youtube.com/watch?v=voKUcapq1Jc',
-    image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&q=80',
-    tag: 'TECH EXCELLENCE',
-    date: 'Jan 23, 2026'
-  },
-  {
-    id: '2',
-    category: 'Healthcare',
-    title: "Healthcare Excellence Homeopathy of the Year 24-25",
-    videoUrl: 'https://www.youtube.com/watch?v=qmrqjt8VfQ0',
-    image: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=400&q=80',
-    tag: 'HEALTHCARE AWARDS',
-    date: 'Jan 22, 2026'
-  },
-  {
-    id: '3',
-    category: 'Excellence',
-    title: "Fighter Wings | India Excellence Award 2025 | Prime Time Media",
-    videoUrl: 'https://www.youtube.com/watch?v=ZXbTIuNz2iQ',
-    image: 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=400&q=80',
-    tag: 'INDIA EXCELLENCE',
-    date: 'Jan 23, 2026'
-  },
-  {
-    id: '4',
-    category: 'Awards',
-    title: "Global Icon Awards 2024 - Celebrating Excellence and Innovation",
-    videoUrl: 'https://www.youtube.com/@primetimermedia',
-    image: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=400&q=80',
-    tag: 'GLOBAL ICON',
-    date: 'Mar 19, 2024'
-  },
-  {
-    id: '5',
-    category: 'Education',
-    title: "Global Education Excellence Awards - Recognizing Outstanding Institutions",
-    videoUrl: 'https://www.youtube.com/@primetimermedia',
-    image: 'https://images.unsplash.com/photo-1523050353063-95c55a576307?w=400&q=80',
-    tag: 'EDUCATION',
-    date: '2025'
-  },
-  {
-    id: '6',
-    category: 'Business',
-    title: "India Excellence Awards 2025 - Honoring Business Leadership",
-    videoUrl: 'https://www.youtube.com/@primetimermedia',
-    image: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400&q=80',
-    tag: 'BUSINESS AWARDS',
-    date: '2025'
-  }
-];
 
 export const VideosSection: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('Awards');
+    const [stories, setStories] = useState<VisualStory[]>([]);
+    const [selectedStory, setSelectedStory] = useState<VisualStory | null>(null);
+    const [loading, setLoading] = useState(true);
 
-  const { data: ads, loading: adsLoading } = useActiveAds();
-  const activeAds = (ads || []).filter(ad => ad.isActive);
+    const { data: ads, loading: adsLoading } = useActiveAds();
+    const activeAds = (ads || []).filter(ad => ad.isActive);
+    const [currentAdIndex, setCurrentAdIndex] = useState(0);
 
-  const [currentAdIndex, setCurrentAdIndex] = useState(0);
+    useEffect(() => {
+        const fetchAwards = async () => {
+            const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8086';
+            try {
+                const res = await fetch(`${base}/api/visual-stories`);
+                const data = await res.json();
+                if (data.success) {
+                    const awards = data.data.filter((s: any) => s.category?.toLowerCase() === 'awards');
+                    setStories(awards);
+                }
+            } catch (error) {
+                console.error('Error fetching awards stories:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchAwards();
+    }, []);
 
-  useEffect(() => {
-    if (activeAds.length <= 1) return;
+    useEffect(() => {
+        if (activeAds.length <= 1) return;
+        const interval = setInterval(() => {
+            setCurrentAdIndex((prev) => (prev + 1) % activeAds.length);
+        }, 5000);
+        return () => clearInterval(interval);
+    }, [activeAds.length]);
 
-    const interval = setInterval(() => {
-      setCurrentAdIndex((prev) => (prev + 1) % activeAds.length);
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [activeAds.length]);
-
-  return (
-    <section className={styles.videoSection}>
-      <div className={styles.container}>
-        <h2 className={styles.mainTitle}>Videos</h2>
-        
-        <nav className={styles.categoryNav}>
-          {categories.map((cat) => (
-            <button 
-              key={cat} 
-              className={`${styles.navBtn} ${activeTab === cat ? styles.active : ''}`}
-              onClick={() => setActiveTab(cat)}
-            >
-              {cat}
-            </button>
-          ))}
-        </nav>
-
-        <div className={styles.contentGrid}>
-          <div className={styles.videoGrid}>
-            {videoData.map((video) => (
-              <a 
-                key={video.id} 
-                href={video.videoUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.videoCard}
-              >
-                <div className={styles.thumbnailContainer}>
-                  <img src={video.image} alt={video.title} className={styles.thumbnail} />
-                  <div className={styles.overlay}>
-                    <div className={styles.playIcon}>
-                      <Play fill="white" size={20} />
-                    </div>
-                    <span className={styles.tag}>{video.tag}</span>
-                  </div>
-                </div>
-                <div className={styles.cardInfo}>
-                  <span className={styles.categoryLabel}>{video.category}</span>
-                  <h3 className={styles.videoTitle}>{video.title}</h3>
-                </div>
-              </a>
-            ))}
-          </div>
-
-          <aside className={styles.adBlock}>
-            <span className={styles.adLabel}>ADVERTISEMENT</span>
-
-            {adsLoading ? (
-              <div className={styles.adPlaceholder}>
-                <span>Loading advertisement...</span>
-              </div>
-            ) : activeAds.length > 0 ? (
-              <div className={styles.adWrapper}>
-                <a
-                  href={activeAds[currentAdIndex].link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.adLink}
+    return (
+        <section className={styles.videoSection}>
+            <div className={styles.container}>
+                <motion.h2 
+                    className={styles.mainTitle}
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
                 >
-                  <img
-                    src={activeAds[currentAdIndex].imageUrl}
-                    alt={activeAds[currentAdIndex].title || 'Advertisement'}
-                    className={styles.adImage}
-                    loading="lazy"
-                  />
-                </a>
+                    Awards & Showreels
+                </motion.h2>
+                
+                <div className={styles.contentGrid}>
+                    <motion.div 
+                        className={styles.videoGrid}
+                        initial={{ opacity: 0 }}
+                        whileInView={{ opacity: 1 }}
+                        viewport={{ once: true, amount: 0.1 }}
+                    >
+                        {loading ? (
+                            <div className={styles.loader}>Loading Award Stories...</div>
+                        ) : stories.length > 0 ? (
+                            stories.map((story, index) => (
+                                <motion.div 
+                                    key={story._id} 
+                                    className={styles.videoCard}
+                                    onClick={() => setSelectedStory(story)}
+                                    initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                                    viewport={{ once: true }}
+                                    transition={{ duration: 0.6, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
+                                    style={{ cursor: 'pointer' }}
+                                >
+                                    <div className={styles.thumbnailContainer}>
+                                        <img src={story.thumbnail} alt={story.title} className={styles.thumbnail} />
+                                        
+                                        <div className={styles.overlay}>
+                                            <span className={styles.categoryLabel}>Recognition</span>
+                                            <h3 className={styles.videoTitle}>{story.title}</h3>
+                                        </div>
 
-                {activeAds.length > 1 && (
-                  <div className={styles.adDots}>
-                    {activeAds.map((_, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => setCurrentAdIndex(idx)}
-                        className={`${styles.dot} ${idx === currentAdIndex ? styles.activeDot : ''}`}
-                        aria-label={`Ad ${idx + 1}`}
-                      />
-                    ))}
-                  </div>
-                )}
+                                        <div className={styles.playIcon}>
+                                            <Play size={24} />
+                                        </div>
+                                        <span className={styles.tag}>{story.category}</span>
+                                    </div>
+                                </motion.div>
+                            ))
+                        ) : (
+                            <div className={styles.noData}>No award stories available yet.</div>
+                        )}
+                    </motion.div>
 
-              </div>
-            ) : (
-              <div className={styles.adPlaceholder}>
-                <div className={styles.emptyAdBox}>
-                  <span>AD SPACE</span>
-                  <small>Adjusts to image size</small>
+                    <aside className={styles.adBlock}>
+                        <span className={styles.adLabel}>PREMIUM PARTNER</span>
+                        {adsLoading ? (
+                            <div className={styles.adWrapper}>
+                                <div style={{ height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#999' }}>
+                                    Loading Ads...
+                                </div>
+                            </div>
+                        ) : activeAds.length > 0 ? (
+                            <div className={styles.adWrapper}>
+                                <a
+                                    href={activeAds[currentAdIndex].link}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    <img
+                                        src={activeAds[currentAdIndex].imageUrl}
+                                        alt="Ad"
+                                        className={styles.adImage}
+                                    />
+                                </a>
+                            </div>
+                        ) : (
+                            <div className={styles.adWrapper}>
+                                <div style={{ padding: '40px', textAlign: 'center', color: '#ccc' }}>
+                                    <small>ADVERTISEMENT</small>
+                                </div>
+                            </div>
+                        )}
+                    </aside>
                 </div>
-              </div>
-            )}
-          </aside>
-        </div>
 
-        <div className={styles.footerAction}>
-          <a 
-            href="https://www.youtube.com/@primetimermedia"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.viewAllBtn}
-          >
-            View All Videos <span>→</span>
-          </a>
-        </div>
-      </div>
-    </section>
-  );
+                <div className={styles.footerAction}>
+                    <a href="/visualstories/awards" className={styles.viewAllBtn}>
+                        View All Awards <ArrowRight size={20} />
+                    </a>
+                </div>
+            </div>
+
+            <AnimatePresence>
+                {selectedStory && (
+                    <WebStoryViewer
+                        story={selectedStory}
+                        allStories={stories}
+                        onClose={() => setSelectedStory(null)}
+                        onSelectStory={(story: VisualStory) => setSelectedStory(story)}
+                    />
+                )}
+            </AnimatePresence>
+        </section>
+    );
 };

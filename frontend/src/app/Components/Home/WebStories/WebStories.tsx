@@ -5,15 +5,23 @@ import Link from 'next/link';
 import styles from './WebStories.module.scss';
 import viewerStyles from './WebStoryViewer.module.scss';
 
-interface StorySlide {
+function getYouTubeID(url: string) {
+    if (!url) return "";
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : "";
+}
+
+export interface StorySlide {
     image: string;
+    videoUrl?: string; // Add videoUrl
     title: string;
     description: string;
     link?: string;
     source?: string;
 }
 
-interface VisualStory {
+export interface VisualStory {
     _id: string;
     title: string;
     slug: string;
@@ -23,7 +31,7 @@ interface VisualStory {
 }
 
 // ─── Inline Story Viewer ────────────────────────────────────────────────────
-function WebStoryViewer({
+export function WebStoryViewer({
     story,
     allStories,
     onClose,
@@ -83,7 +91,7 @@ function WebStoryViewer({
     useEffect(() => {
         if (showEndScreen) return; // Pause timer on end screen
         setProgress(0);
-        const duration = 5000;
+        const duration = currentSlide?.videoUrl ? 10000 : 5000;
         const intervalMs = 50;
         const step = (intervalMs / duration) * 100;
         let current = 0;
@@ -167,7 +175,7 @@ function WebStoryViewer({
                         {/* Main Slide Content */}
                         <div className={viewerStyles.contentArea}>
                             <div className={viewerStyles.imageWrapper}>
-                                {currentSlide?.source && (
+                                {currentSlide?.source && !currentSlide.videoUrl && (
                                     <div className={viewerStyles.imageSource}>
                                         <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ marginRight: '4px' }}>
                                             <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
@@ -176,8 +184,35 @@ function WebStoryViewer({
                                         {currentSlide.source}
                                     </div>
                                 )}
-                                <img src={currentSlide?.image} alt="" className={viewerStyles.blurBg} aria-hidden="true" />
-                                <img src={currentSlide?.image} alt={currentSlide?.title} className={viewerStyles.mainImg} />
+                                
+                                {currentSlide?.videoUrl ? (
+                                    <div className={viewerStyles.videoWrapper}>
+                                        <iframe
+                                            id={`yt-player-${currentIndex}`}
+                                            src={`https://www.youtube.com/embed/${getYouTubeID(story.slides[currentIndex].videoUrl!)}?autoplay=1&mute=1&controls=0&loop=1&playlist=${getYouTubeID(story.slides[currentIndex].videoUrl!)}&enablejsapi=1&rel=0&start=1`}
+                                            title="YouTube video player"
+                                            frameBorder="0"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                            allowFullScreen
+                                            style={{ width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }}
+                                            onLoad={(e) => {
+                                                const target = e.target as HTMLIFrameElement;
+                                                setTimeout(() => {
+                                                    target.contentWindow?.postMessage(JSON.stringify({
+                                                        event: 'command',
+                                                        func: 'setPlaybackRate',
+                                                        args: [1.5, true]
+                                                    }), '*');
+                                                }, 1000);
+                                            }}
+                                        />
+                                    </div>
+                                ) : (
+                                    <>
+                                        <img src={currentSlide?.image} alt="" className={viewerStyles.blurBg} aria-hidden="true" />
+                                        <img src={currentSlide?.image} alt={currentSlide?.title} className={viewerStyles.mainImg} />
+                                    </>
+                                )}
                             </div>
 
                             <div className={viewerStyles.textContent}>
@@ -240,7 +275,9 @@ export default function WebStories() {
                 const res = await fetch(`${base}/api/visual-stories`);
                 const data = await res.json();
                 if (data.success) {
-                    setStories(data.data);
+                    // Filter out 'awards' category stories as they belong in the VideosSection
+                    const filtered = data.data.filter((s: any) => s.category?.toLowerCase() !== 'awards');
+                    setStories(filtered);
                 } else {
                     console.warn('API returned success:false for visual stories:', data);
                 }

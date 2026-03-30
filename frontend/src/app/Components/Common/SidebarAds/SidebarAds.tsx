@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import styles from './SidebarAds.module.scss';
 import { useActiveAds } from '@/app/hooks/useAds';
+import GoogleAd from '../GoogleAd/GoogleAd';
 
 interface SidebarAdsProps {
     count?: number;
@@ -70,6 +71,7 @@ const SidebarAds: React.FC<SidebarAdsProps> = ({ count = 5 }) => {
         <div className={styles.adSpace}>
             <span className={styles.adLabel}>ADVERTISEMENT</span>
             <div className={styles.sidebarAdsList}>
+                <GoogleAd slot="5006567326" format="rectangle" style={{ marginBottom: '20px' }} />
                 {Array.from({ length: count }).map((_, i) => (
                     <React.Fragment key={i}>
                         {renderAd(i)}

@@ -33,13 +33,22 @@ export default function Home() {
       <Suspense fallback={<div className="h-96 animate-pulse bg-gray-100 rounded-xl m-8" />}>
         <HeroSection />
       </Suspense>
+      
+      <GoogleAd slot="5006567326" format="horizontal" />
+
       <NewsList />
       <WebStories />
 
       <LatestNews />
       <Sports />
+      
+      <GoogleAd slot="5006567326" format="auto" />
+
       <Entertainment />
       <VideosSection />
+      
+      <GoogleAd slot="5006567326" format="horizontal" />
+
       <LifestyleSection />
 
       {/* <SocialShare

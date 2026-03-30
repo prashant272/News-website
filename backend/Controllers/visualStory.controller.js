@@ -67,7 +67,8 @@ exports.createVisualStory = async (req, res) => {
                     description: slide.description || "",
                     link: slide.link || "",
                     source: slide.source || "",
-                    image: uploadedUrl
+                    image: uploadedUrl,
+                    videoUrl: slide.videoUrl || ""
                 };
             })
         );
@@ -109,7 +110,8 @@ exports.updateVisualStory = async (req, res) => {
                     description: slide.description || "",
                     link: slide.link || "",
                     source: slide.source || "",
-                    image: uploadedUrl
+                    image: uploadedUrl,
+                    videoUrl: slide.videoUrl || ""
                 };
             })
         );

@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 
 interface Slide {
     image: string;
+    videoUrl?: string; // New field
     title: string;
     description: string;
     link: string;
@@ -32,6 +33,7 @@ export default function VisualStoryForm({
     const normalizeSlides = (slides: any[]) =>
         slides.map(s => ({
             image: s.image || '',
+            videoUrl: s.videoUrl || '', // Normalize
             title: s.title || '',
             description: s.description || '',
             link: s.link || '',
@@ -46,7 +48,7 @@ export default function VisualStoryForm({
         isActive: story?.isActive ?? true,
         slides: story?.slides
             ? normalizeSlides(story.slides)
-            : [{ image: '', title: '', description: '', link: '', source: '', isUpload: false }]
+            : [{ image: '', videoUrl: '', title: '', description: '', link: '', source: '', isUpload: false }]
     });
     const [loading, setLoading] = useState(false);
 
@@ -106,7 +108,7 @@ export default function VisualStoryForm({
         if (formData.slides.length >= 20) return;
         setFormData({
             ...formData,
-            slides: [...formData.slides, { image: '', title: '', description: '', link: '', source: '', isUpload: false }]
+            slides: [...formData.slides, { image: '', videoUrl: '', title: '', description: '', link: '', source: '', isUpload: false }]
         });
     };
 
@@ -128,8 +130,8 @@ export default function VisualStoryForm({
         if (!formData.category) return toast.error('Category is required');
         if (!formData.thumbnail) return toast.error('Main thumbnail is required');
         
-        const invalidSlide = formData.slides.find(s => !s.image);
-        if (invalidSlide) return toast.error('All slides must have an image');
+        const invalidSlide = formData.slides.find(s => !s.image && !s.videoUrl);
+        if (invalidSlide) return toast.error('Each slide must have an image or a YouTube video link');
 
         try {
             const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8086';
@@ -183,6 +185,7 @@ export default function VisualStoryForm({
                         >
                             <option value="">Select Category</option>
                             <option value="news">News</option>
+                            <option value="awards">Awards</option>
                             <option value="entertainment">Entertainment</option>
                             <option value="sports">Sports</option>
                             <option value="lifestyle">Lifestyle</option>
@@ -258,12 +261,20 @@ export default function VisualStoryForm({
                                             onChange={e => handleFileChange(e, index)}
                                         />
                                     ) : (
-                                        <input
-                                            key={`slide-url-${index}`}
-                                            value={slide.image || ''}
-                                            onChange={e => updateSlide(index, 'image', e.target.value)}
-                                            placeholder="Image URL (e.g. Unsplash/Instagram)"
-                                        />
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                            <input
+                                                key={`slide-url-${index}`}
+                                                value={slide.image || ''}
+                                                onChange={e => updateSlide(index, 'image', e.target.value)}
+                                                placeholder="Image URL (Thumbnail for video)"
+                                            />
+                                            <input
+                                                key={`slide-video-${index}`}
+                                                value={slide.videoUrl || ''}
+                                                onChange={e => updateSlide(index, 'videoUrl', e.target.value)}
+                                                placeholder="YouTube Video Link (Optional)"
+                                            />
+                                        </div>
                                     )}
                                     {slide.image && <img src={slide.image} alt="" className={styles.slidePreview} />}
                                 </div>

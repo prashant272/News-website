@@ -3,6 +3,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import styles from './ArticleContent.module.scss';
 import { useActiveAds } from '@/app/hooks/useAds';
+import GoogleAd from '../../Common/GoogleAd/GoogleAd';
 
 interface ArticleContentProps {
   content: string;
@@ -46,11 +47,16 @@ const ArticleContent: React.FC<ArticleContentProps> = ({ content }) => {
       ? paragraphs.slice(0, cutoff) 
       : paragraphs;
 
-    const firstPart = visibleParagraphs.join('</p>') + (visibleParagraphs.length > 0 ? '</p>' : '');
+    const firstPart = visibleParagraphs.slice(0, 2).join('</p>') + (visibleParagraphs.length > 2 ? '</p>' : '');
+    const secondPart = visibleParagraphs.slice(2).join('</p>') + (visibleParagraphs.length > 0 ? '</p>' : '');
 
     return (
       <>
         <div dangerouslySetInnerHTML={{ __html: firstPart }} />
+        
+        {isExpanded && <GoogleAd slot="5006567326" format="fluid" style={{ margin: '30px 0' }} />}
+
+        <div dangerouslySetInnerHTML={{ __html: secondPart }} />
 
         {internalAd && isExpanded && (
           <div className={styles.inArticleAdWrapper}>
@@ -62,6 +68,8 @@ const ArticleContent: React.FC<ArticleContentProps> = ({ content }) => {
             </div>
           </div>
         )}
+
+        {isExpanded && <GoogleAd slot="5006567326" format="auto" />}
       </>
     );
   }, [paragraphs, isExpanded, internalAd, showReadMore]);

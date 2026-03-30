@@ -8,6 +8,7 @@ import styles from './VisualStoryPage.module.scss';
 
 interface StorySlide {
     image: string;
+    videoUrl?: string; // Add videoUrl
     title: string;
     description: string;
     link?: string;
@@ -101,7 +102,7 @@ export default function VisualStoryPage() {
     useEffect(() => {
         if (showEndScreen || !story) return;
         setProgress(0);
-        const duration = 5000;
+        const duration = currentSlide?.videoUrl ? 10000 : 5000;
         const intervalMs = 50;
         const step = (intervalMs / duration) * 100;
         let current = 0;
@@ -219,32 +220,55 @@ export default function VisualStoryPage() {
                                 </div>
                             )}
                             <AnimatePresence mode="popLayout">
-                                <div key={currentIndex} className={styles.imageLayerWrapper} style={{ width: '100%', height: '100%', position: 'relative' }}>
-                                    {/* Layer 1: Blurred Background */}
-                                    <motion.img
-                                        src={currentSlide?.image}
-                                        alt=""
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        exit={{ opacity: 0 }}
-                                        transition={{ duration: 1 }}
-                                        className={styles.blurBg}
-                                        aria-hidden="true"
-                                    />
-                                    {/* Layer 2: Sharp Main Image (Uncropped) */}
-                                    <motion.img
-                                        src={currentSlide?.image}
-                                        alt={currentSlide?.title}
-                                        initial={{ opacity: 0, scale: 1 }}
-                                        animate={{ opacity: 1, scale: 1.05 }}
-                                        exit={{ opacity: 0 }}
-                                        transition={{ 
-                                            opacity: { duration: 1.5, ease: "easeOut" },
-                                            scale: { duration: 6, ease: "linear" } 
-                                        }}
-                                        className={styles.storyImg}
-                                    />
-                                </div>
+                                {currentSlide?.videoUrl ? (
+                                    <div style={{ width: '100%', height: '100%', background: '#000' }}>
+                                        <iframe
+                                            src={`https://www.youtube.com/embed/${getYouTubeID(currentSlide.videoUrl)}?autoplay=1&mute=1&controls=0&loop=1&playlist=${getYouTubeID(currentSlide.videoUrl)}&enablejsapi=1&rel=0&start=1`}
+                                            title="YouTube video player"
+                                            frameBorder="0"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                            allowFullScreen
+                                            style={{ width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }}
+                                            onLoad={(e) => {
+                                                const target = e.target as HTMLIFrameElement;
+                                                setTimeout(() => {
+                                                    target.contentWindow?.postMessage(JSON.stringify({
+                                                        event: 'command',
+                                                        func: 'setPlaybackRate',
+                                                        args: [1.5, true]
+                                                    }), '*');
+                                                }, 1000);
+                                            }}
+                                        />
+                                    </div>
+                                ) : (
+                                    <div key={currentIndex} className={styles.imageLayerWrapper} style={{ width: '100%', height: '100%', position: 'relative' }}>
+                                        {/* Layer 1: Blurred Background */}
+                                        <motion.img
+                                            src={currentSlide?.image}
+                                            alt=""
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            exit={{ opacity: 0 }}
+                                            transition={{ duration: 1 }}
+                                            className={styles.blurBg}
+                                            aria-hidden="true"
+                                        />
+                                        {/* Layer 2: Sharp Main Image (Uncropped) */}
+                                        <motion.img
+                                            src={currentSlide?.image}
+                                            alt={currentSlide?.title}
+                                            initial={{ opacity: 0, scale: 1 }}
+                                            animate={{ opacity: 1, scale: 1.05 }}
+                                            exit={{ opacity: 0 }}
+                                            transition={{ 
+                                                opacity: { duration: 1.5, ease: "easeOut" },
+                                                scale: { duration: 6, ease: "linear" } 
+                                            }}
+                                            className={styles.storyImg}
+                                        />
+                                    </div>
+                                )}
                             </AnimatePresence>
                             <div className={styles.slideGradient} />
                         </div>
@@ -293,4 +317,11 @@ export default function VisualStoryPage() {
             </div>
         </div>
     );
+}
+
+function getYouTubeID(url: string) {
+    if (!url) return "";
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : "";
 }
