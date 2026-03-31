@@ -10,7 +10,7 @@ import {
 } from 'react-icons/fa'
 import { FaXTwitter } from 'react-icons/fa6'
 import Image from 'next/image'
-import logo from "@/assets/Logo/primetimelogo.gif"
+import logo from "@/assets/Logo/logo.png"
 
 const Footer: React.FC = () => {
   const year = new Date().getFullYear()
@@ -64,11 +64,10 @@ const Footer: React.FC = () => {
                 src={logo}
                 alt="Prime Time News"
                 className={styles.logoImg}
-                width={64}
-                height={64}
+                width={150}
+                height={150}
                 priority
               />
-              <h3 className={styles.brandName}>Prime Time News</h3>
               <p className={styles.tagline}>Truth in Every Story</p>
             </div>
             <p className={styles.description}>
@@ -148,13 +147,16 @@ const Footer: React.FC = () => {
 
         <div className={styles.bottomBar}>
           <div className={styles.bottomContent}>
-            <p className={styles.copyright}>
-              © {year} Prime Time Research Media Pvt. Ltd. All rights reserved.
-            </p>
-            <div className={styles.developerBadge}>
-              <a href="https://www.primeimpact.in/" target="_blank" rel="noopener noreferrer">
-                Designed and Developed by <span>Prime Impact Solutions</span>
-              </a>
+            <div className={styles.attributionBlock}>
+              <p className={styles.copyright}>
+                © {year} Prime Time Research Media Pvt. Ltd. All rights reserved.
+              </p>
+              <div className={styles.divider}></div>
+              <div className={styles.developerBadge}>
+                <a href="https://www.primeimpact.in/" target="_blank" rel="noopener noreferrer">
+                  Designed and Developed by <span>Prime Impact Solutions</span>
+                </a>
+              </div>
             </div>
           </div>
         </div>

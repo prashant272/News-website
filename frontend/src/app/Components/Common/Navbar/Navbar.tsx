@@ -8,7 +8,7 @@ import { Menu, X, Moon, Sun, ChevronDown, ChevronRight, ChevronLeft } from 'luci
 import { useNewsContext } from '@/app/context/NewsContext';
 import { useTheme } from '@/app/context/ThemeContext';
 import Image from 'next/image';
-import logo from "@/assets/Logo/primetimelogo.gif"
+import logo from "@/assets/Logo/logo.png"
 import { useActiveAds } from '@/app/hooks/useAds';
 import { baseURL } from '@/Utils/Utils';
 
@@ -54,12 +54,13 @@ const LiveScoreButton: React.FC<{ API_BASE: string }> = ({ API_BASE }) => {
     eventSource.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        // data is { live: [...], upcoming: [...], recent: [...] }
-        setHasLiveMatch(data && data.live && data.live.length > 0);
+        if (data && data.live) {
+          setHasLiveMatch(data.live.length > 0);
+        } else if (Array.isArray(data)) {
+          setHasLiveMatch(data.length > 0);
+        }
       } catch (err) {
-        // Fallback for old data structure if still in transition
-        const data = JSON.parse(event.data);
-        setHasLiveMatch(Array.isArray(data) && data.length > 0);
+        console.error("Live Score SSE Error:", err);
       }
     };
 
@@ -86,6 +87,9 @@ const Navbar: React.FC = () => {
   const [pinnedSubDropdown, setPinnedSubDropdown] = useState<string | null>(null);
   const [showPill, setShowPill] = useState(false);
   const [isPillMenuOpen, setIsPillMenuOpen] = useState(false);
+
+  const desktopNavRef = useRef<HTMLDivElement>(null);
+  const scrollPillRef = useRef<HTMLDivElement>(null);
 
   const { theme, toggleTheme } = useTheme();
   const newsContext = useNewsContext();
@@ -171,7 +175,11 @@ const Navbar: React.FC = () => {
   // Handle click outside to close dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (activeDropdown && !(event.target as Element).closest(`.${styles.navItem}`)) {
+      const target = event.target as Node;
+      const isInsideDesktop = desktopNavRef.current?.contains(target);
+      const isInsidePill = scrollPillRef.current?.contains(target);
+
+      if (activeDropdown && !isInsideDesktop && !isInsidePill) {
         setActiveDropdown(null);
       }
     };
@@ -212,7 +220,7 @@ const Navbar: React.FC = () => {
 
   return (
     <>
-      <nav className={`${styles.navbarWrapper} ${scrolled ? styles.scrolled : ''} ${showPill && !isMobileMenuOpen ? styles.hideNavbar : ''}`}>
+      <nav ref={desktopNavRef} className={`${styles.navbarWrapper} ${scrolled ? styles.scrolled : ''} ${showPill && !isMobileMenuOpen ? styles.hideNavbar : ''}`}>
         <div className={styles.container}>
 
           <div className={styles.adBannerContainer}>
@@ -278,10 +286,17 @@ const Navbar: React.FC = () => {
             <div className={styles.adFooter}>
               <div className={styles.sponsoredLabel}>Sponsored By</div>
               <div className={styles.adContactWrapper}>
-                <div className={styles.adContact}>
-                  Contact for advertisement: +91 9971 00 2984 &nbsp; | &nbsp;
-                  Contact for advertisement: +91 9971 00 2984 &nbsp; | &nbsp;
-                  Contact for advertisement: +91 9971 00 2984
+                <div className={styles.adContactContainer}>
+                  <div className={styles.adContact}>
+                    Contact for advertisement: +91 9971 00 2984 &nbsp; | &nbsp;
+                    Contact for advertisement: +91 9971 00 2984 &nbsp; | &nbsp;
+                    Contact for advertisement: +91 9971 00 2984 &nbsp; | &nbsp;
+                  </div>
+                  <div className={styles.adContact} aria-hidden="true">
+                    Contact for advertisement: +91 9971 00 2984 &nbsp; | &nbsp;
+                    Contact for advertisement: +91 9971 00 2984 &nbsp; | &nbsp;
+                    Contact for advertisement: +91 9971 00 2984 &nbsp; | &nbsp;
+                  </div>
                 </div>
               </div>
             </div>
@@ -308,7 +323,7 @@ const Navbar: React.FC = () => {
                   priority
                 />
                 {/* prime time text */}
-                <span className={styles.brandName}> Prime Time</span>
+                <span className={styles.brandName}> </span>
               </Link>
             </div>
 
@@ -547,6 +562,7 @@ const Navbar: React.FC = () => {
       <AnimatePresence>
         {showPill && (
           <motion.div
+            ref={scrollPillRef}
             initial={{ opacity: 0, y: -50, x: '-50%' }}
             animate={{ opacity: 1, y: 0, x: '-50%' }}
             exit={{ opacity: 0, y: -50, x: '-50%' }}
@@ -565,7 +581,6 @@ const Navbar: React.FC = () => {
                       key={item.key}
                       className={`${styles.pillItemWrapper} ${item.submenu ? styles.hasPillDropdown : ''}`}
                       onMouseEnter={() => item.submenu && !isPillMenuOpen && setActiveDropdown(`pill-${item.key}`)}
-                      onMouseLeave={() => item.submenu && !isPillMenuOpen && setActiveDropdown(null)}
                     >
                       {item.submenu ? (
                         <>
@@ -573,27 +588,98 @@ const Navbar: React.FC = () => {
                             className={`${styles.pillItem} ${isActive(item.href) ? styles.pillActive : ''}`}
                             onClick={(e) => {
                               e.preventDefault();
-                              setActiveDropdown(activeDropdown === `pill-${item.key}` ? null : `pill-${item.key}`);
+                              // Ensure it's open. If it's already open, keep it open.
+                              // This prevents the "close on click" issue when already opened by hover.
+                              setActiveDropdown(`pill-${item.key}`);
                             }}
                           >
                             {item.label}
                             <ChevronDown size={14} className={`${styles.pillChevron} ${activeDropdown === `pill-${item.key}` ? styles.rotate : ''}`} />
                           </button>
 
-                          <div className={`${styles.pillDropdownMenu} ${activeDropdown === `pill-${item.key}` ? styles.show : ''}`}>
-                            {item.submenu.map((sub, idx) => (
-                              <Link
-                                key={idx}
-                                href={sub.href}
-                                className={styles.dropdownItem}
-                                onClick={() => {
-                                  setActiveDropdown(null);
-                                  setIsPillMenuOpen(false);
-                                }}
-                              >
-                                {sub.label}
-                              </Link>
-                            ))}
+                          <div className={`${styles.pillDropdownMenu} ${activeDropdown === `pill-${item.key}` ? styles.show : ''}`}
+                            onMouseLeave={() => {
+                              if (!isPillMenuOpen) {
+                                setActiveDropdown(null);
+                                setActiveSubDropdown(null);
+                                setPinnedSubDropdown(null);
+                              }
+                            }}
+                          >
+                            <div className={styles.pillDropdownScrollArea}>
+                              {item.submenu.map((sub, idx) => {
+                                const subId = `pill-${item.key}-${idx}`;
+                                return (
+                                  <div key={idx}
+                                    className={`${styles.dropdownItemWrapper} ${sub.submenu ? styles.hasNestedDropdown : ''}`}
+                                    onMouseEnter={() => {
+                                      if (!pinnedSubDropdown) {
+                                        setActiveSubDropdown(sub.submenu ? subId : null);
+                                      }
+                                    }}
+                                    onClick={(e) => {
+                                      if (sub.submenu) {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        setPinnedSubDropdown(pinnedSubDropdown === subId ? null : subId);
+                                        setActiveSubDropdown(subId);
+                                      }
+                                    }}
+                                  >
+                                    {sub.submenu ? (
+                                      <div className={`${styles.dropdownItem} ${pinnedSubDropdown === subId ? styles.active : ''}`}>
+                                        <ChevronLeft size={12} className={styles.submenuChevron} /> {sub.label}
+                                      </div>
+                                    ) : (
+                                      <Link
+                                        href={sub.href}
+                                        className={styles.dropdownItem}
+                                        onClick={() => {
+                                          setActiveDropdown(null);
+                                          setPinnedSubDropdown(null);
+                                          setIsPillMenuOpen(false);
+                                        }}
+                                        target={sub.href.startsWith('http') ? '_blank' : undefined}
+                                        rel={sub.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                                      >
+                                        {sub.isDivider ? (
+                                          <div className={styles.dropdownSectionLabel}>{sub.label}</div>
+                                        ) : (
+                                          sub.label
+                                        )}
+                                      </Link>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+
+                            {/* Render nested menus for pill */}
+                            {item.submenu.map((sub, idx) => {
+                              const subId = `pill-${item.key}-${idx}`;
+                              return (
+                                sub.submenu && (activeSubDropdown === subId || pinnedSubDropdown === subId) && (
+                                  <div key={`nested-pill-${idx}`} className={styles.pillNestedDropdownMenu}>
+                                    {sub.submenu.map((nestedSub, nIdx) => (
+                                      <Link
+                                        key={nIdx}
+                                        href={nestedSub.href}
+                                        className={styles.dropdownItem}
+                                        onClick={() => {
+                                          setActiveDropdown(null);
+                                          setPinnedSubDropdown(null);
+                                          setIsPillMenuOpen(false);
+                                        }}
+                                        target={nestedSub.href.startsWith('http') ? '_blank' : undefined}
+                                        rel={nestedSub.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                                      >
+                                        {nestedSub.label}
+                                      </Link>
+                                    ))}
+                                  </div>
+                                )
+                              );
+                            })}
                           </div>
                         </>
                       ) : (

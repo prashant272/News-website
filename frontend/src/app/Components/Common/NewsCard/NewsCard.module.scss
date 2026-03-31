@@ -63,7 +63,7 @@
   flex-direction: column;
   position: relative;
   height: 100%;
-  
+
   &.animated {
     animation: fadeInUp 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
     opacity: 0;
@@ -143,8 +143,17 @@
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(0.8); }
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.5;
+    transform: scale(0.8);
+  }
 }
 
 // Modern Subcategories
@@ -442,8 +451,17 @@
 }
 
 @keyframes livepulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(0.6); }
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.4;
+    transform: scale(0.6);
+  }
 }
 
 .mediaBadge {
@@ -691,7 +709,8 @@
   padding: 0 1.5rem 1.25rem;
   margin-top: 4px;
 
-  .moreInfoBtn, .nominationBtn {
+  .moreInfoBtn,
+  .nominationBtn {
     flex: 1;
     padding: 10px 16px;
     border-radius: 100px;
@@ -742,7 +761,8 @@
   margin-left: auto;
   align-items: center;
 
-  .infoBtnSmall, .nominationBtnSmall {
+  .infoBtnSmall,
+  .nominationBtnSmall {
     padding: 6px 12px;
     border-radius: 100px;
     font-family: 'Inter', sans-serif;

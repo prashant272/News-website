@@ -1,14 +1,23 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import styles from './VisualStoryPage.module.scss';
 
+// Quality Optimizer: Injects high-fidelity parameters into Cloudinary URLs
+const optimizeImageUrl = (url: string) => {
+    if (!url || !url.includes('res.cloudinary.com')) return url;
+    if (url.includes('/upload/')) {
+        return url.replace('/upload/', '/upload/q_auto:best,f_auto,c_limit,w_1200/');
+    }
+    return url;
+};
+
 interface StorySlide {
     image: string;
-    videoUrl?: string; // Add videoUrl
+    videoUrl?: string;
     title: string;
     description: string;
     link?: string;
@@ -28,7 +37,6 @@ export default function VisualStoryPage() {
     const params = useParams();
     const router = useRouter();
     const slug = params?.slug as string;
-    const category = params?.category as string;
 
     const [story, setStory] = useState<VisualStory | null>(null);
     const [allStories, setAllStories] = useState<VisualStory[]>([]);
@@ -36,36 +44,58 @@ export default function VisualStoryPage() {
     const [progress, setProgress] = useState(0);
     const [showEndScreen, setShowEndScreen] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [recsLoading, setRecsLoading] = useState(false);
 
     const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8086';
+    const timerRef = useRef<NodeJS.Timeout | null>(null);
 
+    // Initial Fetch: Priority on story data
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchStory = async () => {
             setLoading(true);
             try {
-                const [storyRes, allRes] = await Promise.all([
-                    fetch(`${base}/api/visual-stories/slug/${slug}`),
-                    fetch(`${base}/api/visual-stories`)
-                ]);
-                const storyData = await storyRes.json();
-                const allData = await allRes.json();
-                if (storyData.success) setStory(storyData.data);
-                if (allData.success) setAllStories(allData.data);
+                const res = await fetch(`${base}/api/visual-stories/slug/${slug}`);
+                const data = await res.json();
+                if (data.success) {
+                    setStory(data.data);
+                }
             } catch (err) {
-                console.error(err);
+                console.error("Error fetching story:", err);
             } finally {
                 setLoading(false);
             }
         };
-        if (slug) fetchData();
-    }, [slug]);
+        if (slug) fetchStory();
+    }, [slug, base]);
 
-    // Reset slide index when story changes
+    // Lazy load recommendations ONLY on end screen
     useEffect(() => {
-        setCurrentIndex(0);
-        setProgress(0);
-        setShowEndScreen(false);
-    }, [story?._id]);
+        if (showEndScreen && allStories.length === 0 && !recsLoading) {
+            const fetchRecs = async () => {
+                setRecsLoading(true);
+                try {
+                    const res = await fetch(`${base}/api/visual-stories`);
+                    const data = await res.json();
+                    if (data.success) {
+                        setAllStories(data.data.filter((s: any) => s.slug !== slug));
+                    }
+                } catch (err) {
+                    console.error("Error fetching recommendations:", err);
+                } finally {
+                    setRecsLoading(false);
+                }
+            };
+            fetchRecs();
+        }
+    }, [showEndScreen, allStories.length, recsLoading, base, slug]);
+
+    // Preload next slide images
+    useEffect(() => {
+        if (story && currentIndex < story.slides.length - 1) {
+            const nextImg = new window.Image();
+            nextImg.src = optimizeImageUrl(story.slides[currentIndex + 1].image);
+        }
+    }, [currentIndex, story]);
 
     const nextSlide = useCallback(() => {
         if (!story) return;
@@ -87,47 +117,33 @@ export default function VisualStoryPage() {
         }
     }, [currentIndex, showEndScreen]);
 
-    // Keyboard navigation
-    useEffect(() => {
-        const handleKey = (e: KeyboardEvent) => {
-            if (e.key === 'ArrowRight') nextSlide();
-            if (e.key === 'ArrowLeft') prevSlide();
-            if (e.key === 'Escape') router.back();
-        };
-        window.addEventListener('keydown', handleKey);
-        return () => window.removeEventListener('keydown', handleKey);
-    }, [nextSlide, prevSlide, router]);
-
     // Auto-advance timer
     useEffect(() => {
         if (showEndScreen || !story) return;
+        if (timerRef.current) clearInterval(timerRef.current);
+        
         setProgress(0);
-        const duration = currentSlide?.videoUrl ? 10000 : 5000;
+        const duration = story.slides[currentIndex]?.videoUrl ? 10000 : 5000;
         const intervalMs = 50;
         const step = (intervalMs / duration) * 100;
         let current = 0;
 
-        const timer = setInterval(() => {
+        timerRef.current = setInterval(() => {
             current += step;
             if (current >= 100) {
-                clearInterval(timer);
                 nextSlide();
             } else {
                 setProgress(current);
             }
         }, intervalMs);
 
-        return () => clearInterval(timer);
+        return () => { if (timerRef.current) clearInterval(timerRef.current); };
     }, [currentIndex, nextSlide, showEndScreen, story]);
-
-    const goToStory = (s: VisualStory) => {
-        router.push(`/visualstories/${s.category}/${s.slug}`);
-    };
 
     if (loading) {
         return (
             <div className={styles.loadingScreen}>
-                <div className={styles.spinner} />
+                <div className={styles.premiumSpinner} />
             </div>
         );
     }
@@ -146,15 +162,13 @@ export default function VisualStoryPage() {
 
     return (
         <div className={styles.pageWrapper}>
-            {/* Back button */}
-            <button className={styles.backBtn} onClick={() => router.back()}>
+            <button className={styles.backBtn} onClick={() => router.back()} title="Back">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                     <path d="M19 12H5M12 5l-7 7 7 7" />
                 </svg>
             </button>
 
             <div className={styles.viewerContainer}>
-                {/* Progress Bars */}
                 <div className={styles.progressContainer}>
                     {story.slides.map((_, index) => (
                         <div key={index} className={styles.progressBarWrapper}>
@@ -171,28 +185,30 @@ export default function VisualStoryPage() {
                     ))}
                 </div>
 
-                {/* Story Title Header */}
                 <div className={styles.storyHeader}>
                     <span className={styles.storyHeaderTitle}>{story.title}</span>
                 </div>
 
-                {/* End Screen */}
                 {showEndScreen ? (
                     <div className={styles.endScreen}>
                         <div className={styles.endBg}>
-                            <img src={story.thumbnail} alt="" className={styles.endBgImg} />
+                            <img src={optimizeImageUrl(story.thumbnail)} alt="" className={styles.endBgImg} />
                             <div className={styles.endBgOverlay} />
                         </div>
                         <div className={styles.endContent}>
-                            <h3 className={styles.endTitle}>Check This Too</h3>
+                            <h3 className={styles.endTitle}>Discover More</h3>
                             <div className={styles.endGrid}>
-                                {otherStories.slice(0, 4).map(s => (
-                                    <div key={s._id} className={styles.endCard} onClick={() => goToStory(s)}>
-                                        <img src={s.thumbnail} alt={s.title} className={styles.endCardImg} />
-                                        <div className={styles.endCardOverlay} />
-                                        <p className={styles.endCardTitle}>{s.title}</p>
-                                    </div>
-                                ))}
+                                {recsLoading ? (
+                                    <div className={styles.recsLoading}>Loading Stories...</div>
+                                ) : (
+                                    otherStories.slice(0, 4).map(s => (
+                                        <div key={s._id} className={styles.endCard} onClick={() => router.push(`/visualstories/${s.category}/${s.slug}`)}>
+                                            <img src={optimizeImageUrl(s.thumbnail)} alt={s.title} className={styles.endCardImg} />
+                                            <div className={styles.endCardOverlay} />
+                                            <p className={styles.endCardTitle}>{s.title}</p>
+                                        </div>
+                                    ))
+                                )}
                             </div>
                             <button
                                 className={styles.replayBtn}
@@ -208,62 +224,38 @@ export default function VisualStoryPage() {
                     </div>
                 ) : (
                     <>
-                        {/* Slide Image with Dual-Layer Zero-Crop & Quality Optimization */}
                         <div className={styles.slideImage}>
                             {currentSlide?.source && (
-                                <div className={styles.imageSource}>
-                                    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ marginRight: '5px' }}>
-                                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-                                        <circle cx="12" cy="13" r="4" />
-                                    </svg>
-                                    {currentSlide.source}
-                                </div>
+                                <div className={styles.imageSource}>{currentSlide.source}</div>
                             )}
                             <AnimatePresence mode="popLayout">
                                 {currentSlide?.videoUrl ? (
-                                    <div style={{ width: '100%', height: '100%', background: '#000' }}>
+                                    <div className={styles.videoLayer}>
                                         <iframe
                                             src={`https://www.youtube.com/embed/${getYouTubeID(currentSlide.videoUrl)}?autoplay=1&mute=1&controls=0&loop=1&playlist=${getYouTubeID(currentSlide.videoUrl)}&enablejsapi=1&rel=0&start=1`}
                                             title="YouTube video player"
                                             frameBorder="0"
                                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                            allowFullScreen
-                                            style={{ width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }}
-                                            onLoad={(e) => {
-                                                const target = e.target as HTMLIFrameElement;
-                                                setTimeout(() => {
-                                                    target.contentWindow?.postMessage(JSON.stringify({
-                                                        event: 'command',
-                                                        func: 'setPlaybackRate',
-                                                        args: [1.5, true]
-                                                    }), '*');
-                                                }, 1000);
-                                            }}
+                                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                         />
                                     </div>
                                 ) : (
-                                    <div key={currentIndex} className={styles.imageLayerWrapper} style={{ width: '100%', height: '100%', position: 'relative' }}>
-                                        {/* Layer 1: Blurred Background */}
-                                        <motion.img
-                                            src={currentSlide?.image}
+                                    <div key={currentIndex} className={styles.imageLayerWrapper}>
+                                        <img
+                                            src={optimizeImageUrl(currentSlide?.image)}
                                             alt=""
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            exit={{ opacity: 0 }}
-                                            transition={{ duration: 1 }}
                                             className={styles.blurBg}
                                             aria-hidden="true"
                                         />
-                                        {/* Layer 2: Sharp Main Image (Uncropped) */}
                                         <motion.img
-                                            src={currentSlide?.image}
+                                            src={optimizeImageUrl(currentSlide?.image)}
                                             alt={currentSlide?.title}
                                             initial={{ opacity: 0, scale: 1 }}
                                             animate={{ opacity: 1, scale: 1.05 }}
                                             exit={{ opacity: 0 }}
                                             transition={{ 
-                                                opacity: { duration: 1.5, ease: "easeOut" },
-                                                scale: { duration: 6, ease: "linear" } 
+                                                opacity: { duration: 1.5 },
+                                                scale: { duration: 12, ease: "linear" } 
                                             }}
                                             className={styles.storyImg}
                                         />
@@ -273,7 +265,6 @@ export default function VisualStoryPage() {
                             <div className={styles.slideGradient} />
                         </div>
 
-                        {/* Slide Text with Entrance Animation */}
                         <AnimatePresence mode="wait">
                             <motion.div 
                                 key={currentIndex}
@@ -281,36 +272,28 @@ export default function VisualStoryPage() {
                                 initial={{ opacity: 0, y: 30 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -20 }}
-                                transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+                                transition={{ duration: 0.8 }}
                             >
                                 <h2 className={styles.slideTitle}>{currentSlide?.title}</h2>
                                 <p className={styles.slideDesc}>{currentSlide?.description}</p>
                                 {currentSlide?.link && (
-                                    <a href={currentSlide.link} className={styles.readMore}>
-                                        Read Full Story →
+                                    <a href={currentSlide.link} target="_blank" rel="noopener noreferrer" className={styles.readMore}>
+                                        Read More →
                                     </a>
                                 )}
                             </motion.div>
                         </AnimatePresence>
 
-                        {/* Tap zones */}
                         <div className={styles.tapZones}>
                             <div className={styles.tapLeft} onClick={prevSlide} />
                             <div className={styles.tapRight} onClick={nextSlide} />
                         </div>
 
-                        {/* Arrow buttons */}
-                        {currentIndex > 0 && (
-                            <button className={`${styles.arrowBtn} ${styles.arrowLeft}`} onClick={prevSlide}>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                    <path d="M15 18l-6-6 6-6" />
-                                </svg>
-                            </button>
-                        )}
+                        <button className={`${styles.arrowBtn} ${styles.arrowLeft}`} onClick={prevSlide}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M15 18l-6-6 6-6" /></svg>
+                        </button>
                         <button className={`${styles.arrowBtn} ${styles.arrowRight}`} onClick={nextSlide}>
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                <path d="M9 18l6-6-6-6" />
-                            </svg>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M9 18l6-6-6-6" /></svg>
                         </button>
                     </>
                 )}

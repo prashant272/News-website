@@ -92,15 +92,20 @@
 }
 
 .adContactWrapper {
-  width: 95%;
+  width: 100%;
+  max-width: 1300px; // Slightly less than container to clear logo
   overflow: hidden;
   background: #ffffff;
   padding: 2px 0;
   border-top: 1px solid var(--nav-border);
   border-bottom: 1px solid var(--nav-border);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  margin-left: 200px; // BUFFER: Clears the logo area on desktop
+  mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent); // Elegant fade
+  -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
 
-  @media (max-width: 768px) {
+  @media (max-width: 1024px) {
+    margin-left: 0; // Logo doesn't overlap on mobile/tablet the same way
     padding: 4px 0;
   }
 }
@@ -113,22 +118,31 @@
   font-weight: 800;
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  animation: marquee 30s linear infinite;
+  padding-right: 50px; // Gap between loops
 
   @media (max-width: 768px) {
-    display: inline-block !important;
     font-size: 11px;
-    animation-duration: 20s;
+    padding-right: 30px;
   }
 }
 
-@keyframes marquee {
+.adContactContainer {
+  display: flex;
+  width: max-content;
+  animation: seamless 35s linear infinite;
+
+  @media (max-width: 768px) {
+    animation-duration: 25s;
+  }
+}
+
+@keyframes seamless {
   0% {
-    transform: translateX(100%);
+    transform: translateX(0);
   }
 
   100% {
-    transform: translateX(-100%);
+    transform: translateX(-50%);
   }
 }
 
@@ -274,8 +288,8 @@
     text-decoration: none;
 
     .logoImg {
-      width: 160px;
-      height: 160px;
+      width: 190px;
+      height: 190px;
       object-fit: contain;
       position: absolute;
       top: -110px; // Desktop overlap
@@ -285,16 +299,17 @@
       transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 
       @media (max-width: 1024px) {
-        width: 18px; // Tiny logo
-        height: 18px;
+        width: 50px; // Tiny logo
+        height: 50px;
         position: static;
         filter: none;
       }
     }
 
     .brandName {
-      margin-left: 140px; // Offset for desktop
+      margin-left: 175px; // Offset for desktop
       font-size: 26px;
+      top: -10px;
       font-weight: 800;
       background: linear-gradient(135deg, #f87171 0%, #dc2626 50%, #7f1d1d 100%);
       -webkit-background-clip: text;
@@ -475,7 +490,7 @@
     }
   }
 
-  // Anim for side menu (sliding from left)
+  /* Anim for side menu (sliding from left) */
   @keyframes sideSlideLeft {
     from {
       opacity: 0;
@@ -599,7 +614,6 @@
     opacity: 0.7;
   }
 }
-
 
 .mobileMenu {
   display: none;
@@ -820,7 +834,7 @@
     0 0 0 1px rgba(0, 0, 0, 0.05);
   max-width: 95vw;
   width: max-content;
-  min-height: 55px;
+  min-height: 70px; // Increased for larger logo
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   // Remove overflow: hidden to allow dropdowns to show
   overflow: visible;
@@ -851,11 +865,12 @@
   gap: 20px;
   width: 100%;
   padding: 4px 16px;
-  min-height: 55px;
+  min-height: 70px; // Matches container and larger logo
 
   @media (max-width: 1024px) {
     justify-content: space-between;
     padding: 2px 4px;
+    min-height: 60px;
   }
 }
 
@@ -863,7 +878,7 @@
   display: flex;
   align-items: center;
   flex-shrink: 0;
-  padding: 2px;
+  padding: 1px;
   background: white;
   border-radius: 50%;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
@@ -874,9 +889,14 @@
   }
 
   img {
-    width: 42px;
-    height: 42px;
+    width: 60px; // Larger logo as requested
+    height: 60px;
     object-fit: contain;
+
+    @media (max-width: 1024px) {
+      width: 45px;
+      height: 45px;
+    }
   }
 }
 
@@ -899,7 +919,6 @@
   @media (max-width: 1024px) {
     display: none; // Default hidden for mobile pill menu
     overflow-x: auto; // Only scroll horizontal if needed on mobile before menu opens? 
-    // Actually on mobile it expands vertically, so no scroll needed usually.
 
     &.showMobileLinks {
       display: flex;
@@ -921,7 +940,7 @@
         width: 100%;
         text-align: left;
         padding: 12px 20px;
-        font-size: 16px;
+        font-size: 18px;
         border-radius: 12px;
       }
     }
@@ -989,6 +1008,26 @@
     border-color: rgba(255, 255, 255, 0.1);
   }
 
+  .pillDropdownScrollArea {
+    max-height: 480px;
+    overflow-y: auto;
+    padding-right: 4px;
+
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.05);
+      border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #cc0000;
+      border-radius: 10px;
+    }
+  }
+
   .dropdownItem {
     padding: 10px 16px;
     border-radius: 10px;
@@ -998,11 +1037,81 @@
     font-weight: 600;
     transition: all 0.2s ease;
     white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
 
     &:hover {
       background: var(--nav-hover-bg);
       color: #cc0000;
       transform: translateX(5px);
+    }
+
+    &.active {
+      background: var(--nav-hover-bg);
+      color: #cc0000;
+    }
+  }
+
+  .dropdownItemWrapper {
+    position: static;
+    width: 100%;
+
+    &.hasNestedDropdown {
+      .dropdownItem {
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-right: 12px;
+      }
+    }
+  }
+
+  .pillNestedDropdownMenu {
+    position: absolute;
+    top: 0;
+    left: 100%; // Opens on the right
+    min-width: 220px;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 16px;
+    padding: 8px;
+    margin-left: 12px;
+    box-shadow: 15px 15px 35px rgba(0, 0, 0, 0.15);
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    animation: pillSideSlide 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    [data-theme="dark"] & {
+      background: rgba(15, 23, 42, 0.98);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -20px;
+      width: 20px;
+      height: 100%;
+      background: transparent;
+    }
+  }
+
+  @keyframes pillSideSlide {
+    from {
+      opacity: 0;
+      transform: translateX(-10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateX(0);
     }
   }
 }
@@ -1038,27 +1147,37 @@
 .pillItem {
   color: var(--nav-text);
   text-decoration: none;
-  font-size: 16px;
-  font-weight: 850;
-  padding: 8px 12px;
-  border-radius: 20px;
+  font-size: 18px; // Enlarged as requested
+  font-weight: 700;
+  padding: 2px 18px; // Reduced vertical padding as requested
+  border-radius: 24px;
   transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-  display: inline-block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  line-height: normal;
 
   &:hover {
     background: var(--nav-hover-bg);
     color: var(--nav-hover-text);
-    transform: translateY(-3px);
   }
 
   &.pillActive {
     background: #cc0000;
     color: #ffffff !important;
-    box-shadow: 0 10px 24px rgba(204, 0, 0, 0.45);
+    box-shadow: 0 10px 24px rgba(204, 0, 0, 0.25);
   }
 
-  @media (max-width: 768px) {
-    font-size: 14px;
-    padding: 8px 14px;
+  @media (max-width: 1024px) {
+    font-size: 15px; // Balanced for mobile
+    padding: 10px 16px;
+    width: 100%;
+    text-align: left;
+    border-radius: 12px;
   }
 }

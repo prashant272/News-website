@@ -184,7 +184,7 @@ export function WebStoryViewer({
                                         {currentSlide.source}
                                     </div>
                                 )}
-                                
+
                                 {currentSlide?.videoUrl ? (
                                     <div className={viewerStyles.videoWrapper}>
                                         <iframe
@@ -258,6 +258,40 @@ export default function WebStories() {
     const [loading, setLoading] = useState(true);
     const scrollRef = useRef<HTMLDivElement>(null);
 
+    // Handle story selection with URL update (PushState)
+    const handleSelectStory = (story: VisualStory) => {
+        setSelectedStory(story);
+        const category = story.category?.toLowerCase().trim().replace(/\s+/g, '-') || 'general';
+        const newPath = `/visualstories/${category}/${story.slug}`;
+        
+        // Update URL without full page reload or Next.js navigation
+        window.history.pushState({ ...window.history.state, as: newPath, url: newPath }, '', newPath);
+    };
+
+    const handleCloseStory = () => {
+        setSelectedStory(null);
+        // Reset URL back to home
+        window.history.pushState({ ...window.history.state, as: '/', url: '/' }, '', '/');
+    };
+
+    // Handle browser back/forward buttons
+    useEffect(() => {
+        const handlePopState = () => {
+            const path = window.location.pathname;
+            if (path === '/') {
+                setSelectedStory(null);
+            } else if (path.startsWith('/visualstories/')) {
+                const parts = path.split('/');
+                const slug = parts[parts.length - 1];
+                const found = stories.find(s => s.slug === slug);
+                if (found) setSelectedStory(found);
+            }
+        };
+
+        window.addEventListener('popstate', handlePopState);
+        return () => window.removeEventListener('popstate', handlePopState);
+    }, [stories]);
+
     // Lock body scroll when story is open
     useEffect(() => {
         if (selectedStory) {
@@ -324,23 +358,34 @@ export default function WebStories() {
 
                 <div className={styles.carouselWrapper}>
                     <div className={styles.scrollArea} ref={scrollRef}>
-                        {stories.map(story => (
-                            <div
-                                key={story._id}
-                                className={styles.storyCard}
-                                onClick={() => setSelectedStory(story)}
-                            >
-                                <div className={styles.imageWrapper}>
-                                    <img src={story.thumbnail} alt="" className={styles.blurBgImg} aria-hidden="true" />
-                                    <img src={story.thumbnail} alt={story.title} className={styles.mainThumbnail} />
-                                    <div className={styles.overlay} />
-                                </div>
-                                <div className={styles.content}>
-                                    <h3 className={styles.storyTitle}>{story.title}</h3>
-                                </div>
-                                <div className={styles.categoryBadge}>{story.category}</div>
-                            </div>
-                        ))}
+                        {stories.map(story => {
+                            // Extra safety: Verify story has required fields to prevent home page crash
+                            if (!story || !story.slug) return null;
+                            
+                            const categoryStr = typeof story.category === 'string' ? story.category : 'general';
+                            const categorySlug = categoryStr.toLowerCase().trim().replace(/\s+/g, '-');
+                            const storyPath = `/visualstories/${categorySlug}/${story.slug}`;
+                            
+                            return (
+                                <Link
+                                    key={story._id}
+                                    href={storyPath}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className={styles.storyCard}
+                                >
+                                    <div className={styles.imageWrapper}>
+                                        <img src={story.thumbnail} alt="" className={styles.blurBgImg} aria-hidden="true" />
+                                        <img src={story.thumbnail} alt={story.title} className={styles.mainThumbnail} />
+                                        <div className={styles.overlay} />
+                                    </div>
+                                    <div className={styles.content}>
+                                        <h3 className={styles.storyTitle}>{story.title}</h3>
+                                    </div>
+                                    <div className={styles.categoryBadge}>{story.category}</div>
+                                </Link>
+                            );
+                        })}
                     </div>
                 </div>
 
@@ -348,8 +393,8 @@ export default function WebStories() {
                     <WebStoryViewer
                         story={selectedStory}
                         allStories={stories}
-                        onClose={() => setSelectedStory(null)}
-                        onSelectStory={(s) => setSelectedStory(s)}
+                        onClose={handleCloseStory}
+                        onSelectStory={handleSelectStory}
                     />
                 )}
             </div>

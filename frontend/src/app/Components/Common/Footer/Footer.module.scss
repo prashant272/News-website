@@ -3,7 +3,7 @@
 .footer {
   background-color: var(--background); // Keeping current background as requested
   color: var(--text-color);
-  padding: 4rem 0 0;
+  padding: 0; // Removed top padding to allow logo to touch top border
   position: relative;
   border-top: 1px solid var(--border);
 }
@@ -11,14 +11,15 @@
 .container {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 0 1.5rem;
+  padding: 0 1rem;
 }
 
 .grid {
   display: grid;
   grid-template-columns: 1.5fr repeat(2, 1fr);
   gap: 3rem;
-  padding-bottom: 4rem;
+  padding-bottom: 1rem;
+  padding-top: 10px; // Ensure no top padding in grid either
 
   @media (max-width: 968px) {
     grid-template-columns: 1fr;
@@ -29,65 +30,64 @@
 .section {
   display: flex;
   flex-direction: column;
-  gap: 1.2rem;
+  gap: 1rem;
 }
 
 .logoSection {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 0; // Eliminated gap as requested
+  margin-top: -15px; // Pull logo up closer to the border
 }
 
 .logoImg {
   transition: all 0.4s ease;
+  margin-left: 15px; // Shifted right for better alignment
+  margin-bottom: -25px; // Pull tagline up into the logo's whitespace
   
   &:hover {
     transform: scale(1.05);
   }
 }
 
-.brandName {
-  font-family: 'Inter', sans-serif;
-  font-size: 1.5rem;
-  font-weight: 850;
-  text-transform: uppercase;
-  letter-spacing: -0.02em;
-  margin: 0;
-  color: #000;
-}
-
 .tagline {
   color: var(--primary);
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.15em;
   margin: 0;
+  margin-left: 5px; // Aligning with the logo's shift
+  opacity: 0.9;
+  position: relative;
+  z-index: 10;
 }
 
 .description {
   font-size: 0.95rem;
-  line-height: 1.6;
+  line-height: 1.5;
   color: #000;
-  font-weight: 500;
+  font-weight: 700;
   margin: 0;
+  margin-top: -17px; // Pulling up closer to tagline
+  margin-bottom: -9px;
 }
 
 .contact {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-top: 10px;
+  gap: 3px;
+  margin-top: -5px;
 }
 
 .contactItem {
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  color: #000;
+  color: #000000;
   text-decoration: none;
   font-size: 0.9rem;
-  font-weight: 500;
+  font-weight: 600;
   transition: all 0.2s;
 
   &:hover {
@@ -109,7 +109,7 @@
   letter-spacing: 0.05em;
   margin: 0;
   position: relative;
-  padding-bottom: 12px;
+  padding-bottom: 8px;
 
   &::after {
     content: '';
@@ -128,7 +128,7 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 9px;
 }
 
 .linkItem {
@@ -165,7 +165,7 @@
 }
 
 .socialSection {
-  padding: 3rem 0;
+  padding: 1rem 0;
   border-top: 1px solid var(--border);
   display: flex;
   justify-content: space-between;
@@ -218,44 +218,78 @@
 }
 
 .bottomBar {
-  padding: 2.5rem 0;
+  padding: 1rem 0;
   border-top: 1px solid var(--border);
   background: rgba(0,0,0,0.02);
 }
 
 .bottomContent {
   display: flex;
-  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.attributionBlock {
+  display: flex;
   align-items: center;
   gap: 20px;
+  background: #fff;
+  border: 1px solid var(--border);
+  padding: 10px 24px;
+  border-radius: 100px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s;
+
+  @media (max-width: 968px) {
+    flex-direction: column;
+    border-radius: 20px;
+    gap: 10px;
+    text-align: center;
+    padding: 15px 20px;
+    width: auto;
+    max-width: 90vw;
+  }
+
+  &:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    border-color: var(--primary);
+  }
+}
+
+.divider {
+  width: 1px;
+  height: 14px;
+  background: var(--border);
+
+  @media (max-width: 968px) {
+    display: none;
+  }
 }
 
 .copyright {
-  font-size: 0.85rem;
-  color: #888;
+  font-size: 0.8rem;
+  color: #666;
   margin: 0;
+  font-weight: 500;
+  white-space: nowrap;
+
+  @media (max-width: 968px) {
+    white-space: normal;
+  }
 }
 
-// Developer Badge Styling
 .developerBadge {
-  background: #fff;
-  border: 1px solid var(--border);
-  padding: 8px 20px;
-  border-radius: 100px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-  transition: all 0.3s;
-
-  &:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-    border-color: var(--primary);
-  }
-
   a {
     text-decoration: none;
     color: #444;
     font-size: 0.8rem;
     font-weight: 600;
+    white-space: nowrap;
+
+    @media (max-width: 968px) {
+      white-space: normal;
+    }
     
     span {
       color: #000;

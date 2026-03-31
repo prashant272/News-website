@@ -69,10 +69,10 @@ export default function WebStoryViewer({ story, onClose }: WebStoryViewerProps) 
                 <div className={styles.progressContainer}>
                     {story.slides.map((_, index) => (
                         <div key={index} className={styles.progressBarWrapper}>
-                            <div 
+                            <div
                                 className={styles.progressBarFill}
-                                style={{ 
-                                    width: index < currentIndex ? '100%' : index === currentIndex ? `${progress}%` : '0%' 
+                                style={{
+                                    width: index < currentIndex ? '100%' : index === currentIndex ? `${progress}%` : '0%'
                                 }}
                             ></div>
                         </div>
