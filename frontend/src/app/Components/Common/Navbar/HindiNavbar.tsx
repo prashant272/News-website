@@ -59,6 +59,8 @@ const HindiNavbar: React.FC = () => {
     };
 
     return (
+        <>
+        <div className={`${styles.navbarPlaceholder} ${scrolled ? styles.scrolled : ''}`}></div>
         <header className={`${styles.hindiNavbarWrapper} ${scrolled ? styles.scrolled : ''}`}>
             {/* Top Red Bar */}
             <div className={styles.topBar}>
@@ -172,6 +174,7 @@ const HindiNavbar: React.FC = () => {
                 </div>
             </div>
         </header>
+        </>
     );
 };
 

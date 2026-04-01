@@ -22,6 +22,24 @@
   }
 }
 
+.navbarPlaceholder {
+  width: 100%;
+  height: 125px; /* default desktop */
+  transition: height 0.3s ease;
+
+  @media (max-width: 1024px) {
+    height: 105px; /* mobile total */
+  }
+
+  &.scrolled {
+    height: 100px;
+    
+    @media (max-width: 1024px) {
+      height: 90px;
+    }
+  }
+}
+
 /* ── Top Red Bar ── */
 .topBar {
   background: #e31e26;
