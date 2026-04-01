@@ -19,7 +19,18 @@ const breakingNewsSchema = new mongoose.Schema(
         scheduledAt: {
             type: Date,
             default: Date.now
-        }
+        },
+        lang: {
+            type: String,
+            enum: ["en", "hi"],
+            default: "en",
+            index: true,
+        },
+        state: {
+            type: String,
+            default: "universal",
+            index: true,
+        },
     },
     {
         timestamps: true,

@@ -2,7 +2,8 @@
 import { useCallback, useEffect, useState, useMemo, useRef } from "react";
 import { newsService, NewsItem, NewsDocument, ApiResponse } from "../services/NewsService";
 import { baseURL } from "@/Utils/Utils";
-export { newsService };
+import { useLanguage } from "./useLanguage";
+export { newsService, useLanguage };
 export type { NewsItem, NewsDocument, ApiResponse };
 
 type UseApiResult<T> = {
@@ -72,20 +73,20 @@ export const useApiMutation = <T,>(mutateFn: (data?: any) => Promise<T>): UseApi
 
 const NEWS_CACHE_KEY = 'ptm_news_cache';
 const NEWS_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
-
 interface NewsCache {
   data: NewsItem[];
   timestamp: number;
 }
 
-function getCachedNews(): NewsItem[] | null {
+function getCachedNews(lang?: string): NewsItem[] | null {
   if (typeof window === 'undefined') return null;
   try {
-    const raw = localStorage.getItem(NEWS_CACHE_KEY);
+    const key = lang ? `${NEWS_CACHE_KEY}_${lang}` : NEWS_CACHE_KEY;
+    const raw = localStorage.getItem(key);
     if (!raw) return null;
     const cache: NewsCache = JSON.parse(raw);
     if (Date.now() - cache.timestamp > NEWS_CACHE_TTL) {
-      localStorage.removeItem(NEWS_CACHE_KEY);
+      localStorage.removeItem(key);
       return null;
     }
     return cache.data;
@@ -94,11 +95,12 @@ function getCachedNews(): NewsItem[] | null {
   }
 }
 
-function setCachedNews(data: NewsItem[]) {
+function setCachedNews(data: NewsItem[], lang?: string) {
   if (typeof window === 'undefined') return;
   try {
+    const key = lang ? `${NEWS_CACHE_KEY}_${lang}` : NEWS_CACHE_KEY;
     const cache: NewsCache = { data, timestamp: Date.now() };
-    localStorage.setItem(NEWS_CACHE_KEY, JSON.stringify(cache));
+    localStorage.setItem(key, JSON.stringify(cache));
   } catch {
     // ignore storage quota errors
   }
@@ -108,8 +110,8 @@ function setCachedNews(data: NewsItem[]) {
  * Hook for progressive streaming of news items via NDJSON.
  * Uses localStorage cache for instant first paint, then refreshes in background.
  */
-export const useStreamingNews = (section?: string, limit: number = 50) => {
-  const cached = typeof window !== 'undefined' ? getCachedNews() : null;
+export const useStreamingNews = (section?: string, limit: number = 50, lang?: string) => {
+  const cached = typeof window !== 'undefined' ? getCachedNews(lang) : null;
   const [news, setNews] = useState<NewsItem[]>(cached || []);
   const [loading, setLoading] = useState(false); // Start false, delay setting to true
   const [error, setError] = useState<string | null>(null);
@@ -134,7 +136,7 @@ export const useStreamingNews = (section?: string, limit: number = 50) => {
     const abortController = new AbortController();
 
     try {
-      const url = `${baseURL}/news/stream?limit=${limit}${section ? `&section=${section}` : ''}`;
+      const url = `${baseURL}/news/stream?limit=${limit}${section ? `&section=${section}` : ''}${lang ? `&lang=${lang}` : ''}`;
       const response = await fetch(url, { signal: abortController.signal });
 
       if (!response.body) throw new Error("ReadableStream not supported");
@@ -201,7 +203,7 @@ export const useStreamingNews = (section?: string, limit: number = 50) => {
 
       // Save fresh data to cache
       if (freshItems.length > 0) {
-        setCachedNews(freshItems);
+        setCachedNews(freshItems, lang);
       }
 
     } catch (err: any) {
@@ -216,7 +218,7 @@ export const useStreamingNews = (section?: string, limit: number = 50) => {
   }, [section, limit]);
 
   useEffect(() => {
-    const cached = getCachedNews();
+    const cached = getCachedNews(lang);
     if (cached && cached.length > 0) {
       // Cache hit: show instantly, refresh silently in background after 1s
       setNews(cached);
@@ -233,20 +235,25 @@ export const useStreamingNews = (section?: string, limit: number = 50) => {
         streamingRef.current = false;
       };
     }
-  }, [startStream, limit]);
+  }, [startStream, limit, lang]);
 
   return { news, loading, error, refetch: startStream };
 };
 
 
-export const useNewsBySection = (section: string, includeDrafts: boolean = false, page: number = 1, limit: number = 100, status?: string): UseApiResult<NewsItem[]> =>
-  useApi<NewsItem[]>(() => newsService.getNewsBySection(section, includeDrafts, page, limit, status), [section, includeDrafts, page, limit, status]);
+export const useNewsBySection = (section: string, includeDrafts: boolean = false, page: number = 1, limit: number = 100, status?: string, langOverride?: string): UseApiResult<NewsItem[]> => {
+  const { lang: globalLang } = useLanguage();
+  const lang = langOverride || globalLang;
+  return useApi<NewsItem[]>(() => newsService.getNewsBySection(section, includeDrafts, page, limit, status, lang), [section, includeDrafts, page, limit, status, lang]);
+};
 
 export const useNewsBySlug = (section: string, slug: string, includeDrafts: boolean = false): UseApiResult<NewsItem> =>
   useApi<NewsItem>(() => newsService.getNewsBySlug(section, slug, includeDrafts), [section, slug, includeDrafts]);
 
-export const useAllNews = (includeDrafts: boolean = false, page: number = 1, limit: number = 1000): UseApiResult<NewsItem[]> =>
-  useApi<NewsItem[]>(() => newsService.getAllNews(includeDrafts, page, limit), [includeDrafts, page, limit]);
+export const useAllNews = (includeDrafts: boolean = false, page: number = 1, limit: number = 1000): UseApiResult<NewsItem[]> => {
+  const { lang } = useLanguage();
+  return useApi<NewsItem[]>(() => newsService.getAllNews(includeDrafts, page, limit, undefined, lang), [includeDrafts, page, limit, lang]);
+};
 
 export const useAddNews = (): UseApiMutationResult<ApiResponse<NewsItem>> =>
   useApiMutation<ApiResponse<NewsItem>>(newsService.addNews);
@@ -263,7 +270,7 @@ export const useDeleteNews = (section: string): UseApiMutationResult<ApiResponse
 
 export const useSetNewsFlags = (section: string): UseApiMutationResult<ApiResponse<NewsItem>> =>
   useApiMutation<ApiResponse<NewsItem>>(
-    (payload: { slug: string; isLatest?: boolean; isTrending?: boolean; isHidden?: boolean; showInPopup?: boolean }) =>
+    (payload: { slug: string; isLatest?: boolean; isTrending?: boolean; isHidden?: boolean; showInPopup?: boolean; isFiftyWordEdit?: boolean }) =>
       newsService.setNewsFlags({
         section,
         slug: payload.slug,
@@ -272,6 +279,7 @@ export const useSetNewsFlags = (section: string): UseApiMutationResult<ApiRespon
           isTrending: payload.isTrending,
           isHidden: payload.isHidden,
           showInPopup: payload.showInPopup,
+          isFiftyWordEdit: payload.isFiftyWordEdit,
         },
       })
   );
@@ -339,6 +347,8 @@ export const useInfiniteNews = (section: string, initialData: NewsItem[] = [], l
     }
   }, [initialData, section]);
 
+  const { lang } = useLanguage();
+
   const fetchNextPage = useCallback(async () => {
     if (loading || !hasMore || !section) return;
 
@@ -347,8 +357,8 @@ export const useInfiniteNews = (section: string, initialData: NewsItem[] = [], l
 
     try {
       const res = section === 'all'
-        ? await newsService.getAllNews(false, nextPage, limit)
-        : await newsService.getNewsBySection(section, false, nextPage, limit);
+        ? await newsService.getAllNews(false, nextPage, limit, undefined, lang)
+        : await newsService.getNewsBySection(section, false, nextPage, limit, undefined, lang);
 
       if (res.success && res.news) {
         setItems(prev => {

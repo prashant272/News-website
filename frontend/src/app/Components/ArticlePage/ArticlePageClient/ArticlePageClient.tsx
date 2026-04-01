@@ -64,6 +64,15 @@ interface ArticlePageClientProps {
   recommendedStories: SidebarNewsItem[];
   section: string;
   category: string;
+  translations?: {
+    alsoRead?: string;
+    publishedBy?: string;
+    moreFrom?: string;
+    latestNews?: string;
+    mustRead?: string;
+    advertisement?: string;
+    trendingTags?: string;
+  };
 }
 
 const normalizeUrl = (url: string): string => {
@@ -80,7 +89,8 @@ export default function ArticlePageClient({
   topNews,
   recommendedStories,
   section,
-  category
+  category,
+  translations = {}
 }: ArticlePageClientProps) {
 
   const structuredData = {
@@ -184,7 +194,7 @@ export default function ArticlePageClient({
                     </div>
                   )}
 
-                  <div className={styles.authorBadgeSection}>
+                   <div className={styles.authorBadgeSection}>
                     {article.authorId ? (
                       <div className={styles.premiumAuthorCard}>
                         <div className={styles.authorImageContainer}>
@@ -195,7 +205,7 @@ export default function ArticlePageClient({
                           />
                         </div>
                         <div className={styles.authorInfo}>
-                          <div className={styles.publisherLabel}>This article published by:</div>
+                          <div className={styles.publisherLabel}>{translations.publishedBy || "This article published by"}:</div>
                           <div className={styles.authorNameWrapper}>
                             <h4 className={styles.authorNamePrimary}>{article.authorId.name}</h4>
                             <svg className={styles.verifiedBadge} viewBox="0 0 24 24" fill="none">
@@ -208,7 +218,7 @@ export default function ArticlePageClient({
                       </div>
                     ) : (
                       <div className={styles.authorAttribution}>
-                        <span className={styles.authorPrefix}>Published by:</span>
+                        <span className={styles.authorPrefix}>{translations.publishedBy || "Published by"}:</span>
                         <span className={styles.authorName}>{article.author || 'Prime Time News'}</span>
                       </div>
                     )}
@@ -216,7 +226,7 @@ export default function ArticlePageClient({
                </div>
             </div>
 
-            <RelatedArticles articles={relatedArticles} />
+            <RelatedArticles articles={relatedArticles} title={translations.alsoRead} />
           </div>
 
           <aside className={styles.sidebar}>
@@ -224,13 +234,13 @@ export default function ArticlePageClient({
               <TopNewsSidebar news={topNews} />
               
               <div className={styles.sidebarAd}>
-                 <span className={styles.adLabel}>ADVERTISEMENT</span>
+                 <span className={styles.adLabel}>{translations.advertisement || 'ADVERTISEMENT'}</span>
                  <SidebarAds />
               </div>
 
               {recommendedStories && recommendedStories.length > 0 && (
                 <div className={styles.sidebarRecommended}>
-                   <h3 className={styles.sidebarSubheading}>MUST READ</h3>
+                   <h3 className={styles.sidebarSubheading}>{translations.mustRead || 'MUST READ'}</h3>
                    <RecommendedStories stories={recommendedStories} />
                 </div>
               )}
@@ -239,10 +249,11 @@ export default function ArticlePageClient({
         </div>
 
         <MoreStoriesSection
-          sectionTitle={`MORE FROM ${section.toUpperCase()}`}
+          sectionTitle={translations.moreFrom || `MORE FROM ${section.toUpperCase()}`}
           overrideSection={section}
+          lang={section.toLowerCase() === 'bharat' || section.toLowerCase() === 'india' ? 'hi' : undefined} 
         />
       </div>
     </div>
   );
-}
+}

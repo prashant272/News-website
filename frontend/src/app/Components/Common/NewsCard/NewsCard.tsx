@@ -25,6 +25,7 @@ export interface NewsCardProps {
   nominationLink?: string;
   currentSection?: string;
   item?: SharedNewsItem; // Option 1: Support passing the whole item
+  lang?: string;
 }
 
 export const NewsCard: React.FC<NewsCardProps> = (props) => {
@@ -90,7 +91,7 @@ export const NewsCard: React.FC<NewsCardProps> = (props) => {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
               <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z" />
             </svg>
-            Trending
+            {props.lang === 'hi' ? 'ट्रेंडिंग' : 'Trending'}
           </span>
         )}
       </div>
@@ -128,8 +129,8 @@ export const NewsCard: React.FC<NewsCardProps> = (props) => {
           </div>
         )}
 
-        <div className={styles.readMore}>
-          <span>Read More</span>
+        <div className={`${styles.readMore} ${props.lang === 'hi' ? styles.hi : ''}`}>
+          <span>{props.lang === 'hi' ? 'पूरी खबर पढ़ें' : 'Read More'}</span>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M9 18l6-6-6-6" />
           </svg>
@@ -145,7 +146,7 @@ export const NewsCard: React.FC<NewsCardProps> = (props) => {
   return (
     <div
       onClick={handleCardClick}
-      className={styles.newsCard}
+      className={`${styles.newsCard} ${props.lang === 'hi' ? styles.premiumHindi : ''}`}
       style={{ cursor: 'pointer' }}
     >
       {cardContent}

@@ -43,7 +43,9 @@ const allowedOrigins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "http://10.40.0.231:3000",
-    "http://localhost:8086"
+    "http://localhost:8086",
+    "http://hindi.localhost:3000",
+    "https://hindi.primetimemedia.in",
 ];
 
 app.use(cors({

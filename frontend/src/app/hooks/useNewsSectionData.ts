@@ -109,6 +109,7 @@ interface UseNewsSectionDataOptions<T extends NewsItemVariant = NewsItemVariant>
   preferTrendingForTop?: boolean;
   topLimit?: number;
   providedItems?: any[];
+  lang?: string;
 }
 
 export function useNewsSectionData<T extends NewsItemVariant = NewsItemVariant>({
@@ -119,6 +120,7 @@ export function useNewsSectionData<T extends NewsItemVariant = NewsItemVariant>(
   preferTrendingForTop = true,
   topLimit = 5,
   providedItems,
+  lang,
 }: UseNewsSectionDataOptions<T> = {}) {
   const pathname = usePathname();
   const context = useNewsContext();
@@ -173,7 +175,7 @@ export function useNewsSectionData<T extends NewsItemVariant = NewsItemVariant>(
       console.log(`[useNewsSectionData] Cache insufficient for ${section} (have ${contextData.length}, need ${limit}), fetching fallback...`);
       setLocalLoading(true);
       setHasFetchedFallback(true); // Mark as fetched immediately to prevent loop
-      newsService.getNewsBySection(section, false, 1, Math.max(limit, 12))
+      newsService.getNewsBySection(section, false, 1, Math.max(limit, 12), undefined, lang)
         .then(res => {
           if (res.success && res.news) {
             setLocalItems(res.news);
@@ -193,6 +195,13 @@ export function useNewsSectionData<T extends NewsItemVariant = NewsItemVariant>(
     let data = [...rawData];
     if (excludeSlug) {
       data = data.filter((item: any) => item.slug !== excludeSlug);
+    }
+    if (lang) {
+      data = data.filter((item: any) => {
+        const itemLang = item.lang || item.language;
+        // If lang matches OR if item has no lang (legacy), we keep it
+        return !itemLang || itemLang === lang;
+      });
     }
     return data;
   }, [rawData, excludeSlug]);

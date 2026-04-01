@@ -1,0 +1,88 @@
+.trendingTicker {
+  width: 100%;
+  background: white;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+
+  .container {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .label {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: #000;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-right: 15px;
+
+    @media (max-width: 768px) {
+      font-size: 0.75rem;
+      margin-right: 5px;
+    }
+  }
+
+  .navBtn {
+    background: #f0f0f0;
+    border: none;
+    min-width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #999;
+    transition: all 0.2s;
+    flex-shrink: 0;
+
+    &:hover {
+      background: #e0e0e0;
+      color: #333;
+    }
+
+    @media (max-width: 600px) {
+      display: none; // Scroll gestures on mobile instead
+    }
+  }
+
+  .tagsContainer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding: 5px 0;
+    width: 100%;
+
+    &::-webkit-scrollbar {
+      display: none; // Hide scrollbar for a cleaner look
+    }
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .tag {
+    white-space: nowrap;
+    background: #f2f2f2;
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    text-decoration: none;
+    border: 1px solid #e0e0e0;
+    transition: all 0.2s;
+
+    &:hover {
+      background: #e8e8e8;
+      border-color: #ccc;
+    }
+  }
+}

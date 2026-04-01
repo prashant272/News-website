@@ -17,15 +17,16 @@ interface RelatedArticle {
 
 interface RelatedArticlesProps {
   articles: RelatedArticle[];
+  title?: string;
 }
 
-export default function RelatedArticles({ articles }: RelatedArticlesProps) {
+export default function RelatedArticles({ articles, title }: RelatedArticlesProps) {
   if (!articles || articles.length === 0) return null;
 
   return (
     <section className={styles.relatedArticles}>
       <h2 className={styles.heading}>
-        <span>Also Read</span>
+        <span>{title || 'Also Read'}</span>
       </h2>
       <div className={styles.articlesList}>
         {articles.slice(0, 16).map((article) => (

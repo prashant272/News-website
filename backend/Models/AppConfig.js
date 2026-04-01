@@ -26,6 +26,13 @@ const appConfigSchema = new mongoose.Schema(
             activeTournament: { type: String, default: "T20 World Cup" },
             activeSeriesId: { type: String, default: "bbcaa2ce-be45-4541-9eb3-9828d8b13197" },
             autoTrackEnabled: { type: Boolean, default: true },
+            headerMatch: {
+                team1Name: { type: String, default: "" },
+                team1Img: { type: String, default: "" },
+                team2Name: { type: String, default: "" },
+                team2Img: { type: String, default: "" },
+                isActive: { type: Boolean, default: false }
+            }
         },
         // OneSignal push notification settings
         onesignal: {

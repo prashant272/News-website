@@ -11,6 +11,8 @@ import Image from 'next/image';
 import logo from "@/assets/Logo/logo.png"
 import { useActiveAds } from '@/app/hooks/useAds';
 import { baseURL } from '@/Utils/Utils';
+import { useLanguage } from '@/app/hooks/useLanguage';
+import TodayIPLMatchWidget from './TodayIPLMatchWidget';
 
 interface SubMenuItem {
   label: string;
@@ -39,6 +41,24 @@ const SECTION_LABELS: Record<string, string> = {
   science: "Science",
   politics: "Politics",
   education: "Education",
+  regional: "Regional"
+};
+
+const SECTION_LABELS_HI: Record<string, string> = {
+  home: "होम",
+  india: "भारत",
+  world: "दुनिया",
+  sports: "खेल",
+  business: "बिजनेस",
+  lifestyle: "लाइफस्टाइल",
+  entertainment: "मनोरंजन",
+  technology: "टेक",
+  health: "स्वास्थ्य",
+  science: "विज्ञान",
+  politics: "राजनीति",
+  education: "शिक्षा",
+  awards: "अवॉर्ड्स",
+  regional: "राज्य समाचार"
 };
 
 const formatSectionName = (key: string): string => {
@@ -93,7 +113,7 @@ const Navbar: React.FC = () => {
 
   const { theme, toggleTheme } = useTheme();
   const newsContext = useNewsContext();
-  const sections = newsContext?.sections;
+  const { lang, isHindi } = useLanguage();
   const API_BASE = "http://localhost:8086";
 
   const [internationalPrograms, setInternationalPrograms] = useState<SubMenuItem[]>([]);
@@ -120,34 +140,43 @@ const Navbar: React.FC = () => {
   const { data: ads, loading: adsLoading } = useActiveAds();
 
   const navItems = useMemo<NavItem[]>(() => {
-    return [
-      { label: "Home", href: "/", key: "home" },
-      { label: "India", href: "/Pages/india", key: "india" },
-      { label: "World", href: "/Pages/world", key: "world" },
-      { label: "Sports", href: "/Pages/sports", key: "sports" },
-      { label: "Business", href: "/Pages/business", key: "business" },
-      { label: "Technology", href: "/Pages/technology", key: "technology" },
+    const labels = isHindi ? SECTION_LABELS_HI : SECTION_LABELS;
+    
+    const items: NavItem[] = [
+      { label: labels.home || "Home", href: "/", key: "home" },
+      { label: labels.india || "India", href: "/Pages/india", key: "india" },
+      { label: labels.world || "World", href: "/Pages/world", key: "world" },
+      { label: labels.sports || "Sports", href: "/Pages/sports", key: "sports" },
+      { label: labels.business || "Business", href: "/Pages/business", key: "business" },
+      { label: labels.technology || "Technology", href: "/Pages/technology", key: "technology" },
       {
-        label: "Awards",
+        label: labels.awards || "Awards",
         href: "/Pages/awards",
         key: "awards",
         submenu: [
-          { label: "Healthcare Awards", href: "https://healthcareawards.primetimemedia.in/" },
-          { label: "Education Awards", href: "https://education-awards.primetimemedia.in/" },
-          { label: "Business Awards", href: "https://business-leadership.primetimemedia.in/" },
-          { label: "Awards News", href: "/Pages/awards" },
+          { label: isHindi ? "हेल्थकेयर अवॉर्ड्स" : "Healthcare Awards", href: "https://healthcareawards.primetimemedia.in/" },
+          { label: isHindi ? "शिक्षा अवॉर्ड्स" : "Education Awards", href: "https://education-awards.primetimemedia.in/" },
+          { label: isHindi ? "बिजनेस अवॉर्ड्स" : "Business Awards", href: "https://business-leadership.primetimemedia.in/" },
+          { label: isHindi ? "अवॉर्ड्स न्यूज़" : "Awards News", href: "/Pages/awards" },
           ...(internationalPrograms.length > 0 ? [{
-            label: "International Program",
+            label: isHindi ? "इंटरनेशनल प्रोग्राम" : "International Program",
             href: "#",
             submenu: internationalPrograms
           }] : [])
         ]
       },
-      { label: "Entertainment", href: "/Pages/entertainment", key: "entertainment" },
-      { label: "Lifestyle", href: "/Pages/lifestyle", key: "lifestyle" },
-      { label: "Health", href: "/Pages/health", key: "health" },
+      { label: labels.entertainment || "Entertainment", href: "/Pages/entertainment", key: "entertainment" },
+      { label: labels.lifestyle || "Lifestyle", href: "/Pages/lifestyle", key: "lifestyle" },
+      { label: labels.health || "Health", href: "/Pages/health", key: "health" },
     ];
-  }, [internationalPrograms]);
+
+    if (isHindi) {
+      // Add Regional/State news specifically for Hindi
+      items.splice(1, 0, { label: labels.regional || "States", href: "/Pages/regional", key: "regional" });
+    }
+
+    return items;
+  }, [internationalPrograms, isHindi]);
 
   // First 7 items shown (including Awards), rest behind >> more
   const PRIMARY_COUNT = 7;
@@ -469,6 +498,15 @@ const Navbar: React.FC = () => {
             </ul>
 
             <div className={styles.rightSection}>
+
+              {/* Language Switcher */}
+              <div className={styles.langSwitcher}>
+                {isHindi ? (
+                  <a href="https://primetimemedia.in" className={styles.langBtn}>EN</a>
+                ) : (
+                  <a href="https://hindi.primetimemedia.in" className={styles.langBtn}>हिन्दी</a>
+                )}
+              </div>
 
               <button
                 className={styles.themeToggle}

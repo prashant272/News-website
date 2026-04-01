@@ -1,0 +1,79 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@100..900&display=swap');
+
+.stateHeaderWrapper {
+  width: 100%;
+  background: #fdfdfd;
+  border-bottom: 1px solid #f0f0f0;
+  padding: 15px 0;
+  margin-bottom: 30px;
+  font-family: 'Noto Sans Devanagari', sans-serif;
+
+  .container {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
+  }
+
+  .label {
+    font-size: 0.95rem;
+    font-weight: 950;
+    color: #e31e26;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .scrollArea {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    scroll-behavior: smooth;
+    -ms-overflow-style: none; /* IE/Edge */
+    scrollbar-width: none; /* Firefox */
+
+    &::-webkit-scrollbar {
+      display: none; /* Chrome/Safari */
+    }
+
+    @media (max-width: 768px) {
+      width: 100%;
+    }
+  }
+
+  .stateCapsule {
+    text-decoration: none;
+    color: #333;
+    background: #fff;
+    border: 2px solid #eee;
+    padding: 8px 22px;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 850;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+
+    &:hover {
+      background: #e31e26;
+      color: #fff;
+      border-color: #e31e26;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(227, 30, 38, 0.2);
+    }
+
+    &.active {
+      background: #e31e26;
+      color: #fff;
+      border-color: #e31e26;
+    }
+  }
+}

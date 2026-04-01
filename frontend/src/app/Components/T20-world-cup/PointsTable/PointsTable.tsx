@@ -4,9 +4,10 @@ import { cricketService } from "@/app/services/CricketService";
 
 interface PointsTableProps {
     seriesId: string;
+    lang?: string;
 }
 
-const CricketPointsTable: React.FC<PointsTableProps> = ({ seriesId }) => {
+const CricketPointsTable: React.FC<PointsTableProps> = ({ seriesId, lang = 'hi' }) => {
     const [pointsTable, setPointsTable] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
@@ -15,7 +16,7 @@ const CricketPointsTable: React.FC<PointsTableProps> = ({ seriesId }) => {
         const fetchPoints = async () => {
             try {
                 setLoading(true);
-                const res = await cricketService.getPointsTable(seriesId);
+                const res = await cricketService.getPointsTable(seriesId, lang);
                 if (res.success && res.data?.status === "success" && res.data.data) {
                     setPointsTable(res.data.data);
                 } else {

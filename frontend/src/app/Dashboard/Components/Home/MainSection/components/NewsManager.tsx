@@ -23,8 +23,20 @@ const CATEGORIES = [
     { id: 'lifestyle', label: 'Lifestyle', icon: '✨' },
     { id: 'world', label: 'World', icon: '🌍' },
     { id: 'health', label: 'Health', icon: '🏥' },
-    { id: 'regional', label: 'Regional', icon: '📍' },
     { id: 'awards', label: 'Awards', icon: '🏆' },
+    { id: 'regional', label: 'Regional', icon: '📍' },
+] as const;
+
+const STATES = [
+    { id: 'universal', label: 'Universal / National' },
+    { id: 'delhi', label: 'Delhi' },
+    { id: 'uttar-pradesh', label: 'Uttar Pradesh' },
+    { id: 'bihar', label: 'Bihar' },
+    { id: 'maharashtra', label: 'Maharashtra' },
+    { id: 'haryana', label: 'Haryana' },
+    { id: 'punjab', label: 'Punjab' },
+    { id: 'rajasthan', label: 'Rajasthan' },
+    { id: 'madhya-pradesh', label: 'Madhya Pradesh' },
 ] as const;
 
 type NewsCategory = typeof CATEGORIES[number]['id'];
@@ -52,6 +64,7 @@ const NewsManager: FC<NewsManagerProps> = ({
     const [selectedCategory, setSelectedCategory] = useState<NewsCategory>('india');
     const [page, setPage] = useState(1);
     const [filterStatus, setFilterStatus] = useState<"all" | "draft" | "published" | "archived" | "scheduled">("all");
+    const [langFilter, setLangFilter] = useState<"all" | "en" | "hi">("all");
     const limit = 20;
 
     // Only fetch news list if we are in 'previous_news' section or editing
@@ -61,7 +74,8 @@ const NewsManager: FC<NewsManagerProps> = ({
         true,
         page,
         shouldFetchList ? limit : 1,
-        filterStatus === 'all' ? undefined : filterStatus
+        filterStatus === 'all' ? undefined : filterStatus,
+        langFilter === 'all' ? undefined : langFilter
     );
 
     const { mutate: addNews, loading: addLoading } = useAddNews();
@@ -81,6 +95,8 @@ const NewsManager: FC<NewsManagerProps> = ({
         targetLink: "",
         nominationLink: "",
         moreInfoLink: "",
+        language: "en",
+        state: "universal",
     });
 
     const [tagsInput, setTagsInput] = useState("");
@@ -128,6 +144,8 @@ const NewsManager: FC<NewsManagerProps> = ({
             targetLink: "",
             nominationLink: "",
             moreInfoLink: "",
+            language: "en",
+            state: "universal",
         });
         setImagePreview(null);
         setShowImage(false);
@@ -340,7 +358,7 @@ const NewsManager: FC<NewsManagerProps> = ({
     );
 
     const handleToggleFlag = useCallback(
-        async (slug: string, field: "isLatest" | "isTrending" | "isHidden" | "showInPopup", newValue: boolean) => {
+        async (slug: string, field: "isLatest" | "isTrending" | "isHidden" | "showInPopup" | "isFiftyWordEdit", newValue: boolean) => {
             if (flagsLoading) return;
             try {
                 await setFlags({ slug, [field]: newValue });
@@ -348,6 +366,7 @@ const NewsManager: FC<NewsManagerProps> = ({
                     `Article ${newValue ? "marked as" : "removed from"} ${
                         field === "isLatest" ? "Latest" : 
                         field === "isTrending" ? "Trending" : 
+                        field === "isFiftyWordEdit" ? "50W Edit" : 
                         field === "isHidden" ? "Hidden" : "Popup Rotation"
                     }`,
                     "success"
@@ -484,6 +503,29 @@ const NewsManager: FC<NewsManagerProps> = ({
                             >
                                 {CATEGORIES.map(cat => (
                                     <option key={cat.id} value={cat.id}>{cat.icon} {cat.label}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className={styles.formGroup}>
+                            <label className={styles.label}>Language <span className={styles.required}>*</span></label>
+                            <select
+                                className={styles.select}
+                                value={formState.language ?? "en"}
+                                onChange={handleChange("language")}
+                            >
+                                <option value="en">🇺🇸 English</option>
+                                <option value="hi">🇮🇳 Hindi</option>
+                            </select>
+                        </div>
+                        <div className={styles.formGroup}>
+                            <label className={styles.label}>State / Region</label>
+                            <select
+                                className={styles.select}
+                                value={formState.state ?? "universal"}
+                                onChange={handleChange("state")}
+                            >
+                                {STATES.map(s => (
+                                    <option key={s.id} value={s.id}>{s.label}</option>
                                 ))}
                             </select>
                         </div>
@@ -763,6 +805,11 @@ const NewsManager: FC<NewsManagerProps> = ({
                                     <option value="scheduled">Scheduled</option>
                                     <option value="draft">Draft</option>
                                 </select>
+                                <select className={styles.filterSelect} value={langFilter} onChange={(e) => setLangFilter(e.target.value as any)}>
+                                    <option value="all">🌐 All Languages</option>
+                                    <option value="en">🇺🇸 English</option>
+                                    <option value="hi">🇮🇳 Hindi</option>
+                                </select>
                                 <select className={styles.filterSelect} value={sortBy} onChange={(e) => setSortBy(e.target.value as any)}>
                                     <option value="newest">Newest First</option>
                                     <option value="oldest">Oldest First</option>
@@ -848,6 +895,12 @@ const NewsManager: FC<NewsManagerProps> = ({
                                                     className={`${styles.flagBtn} ${item.isTrending ? styles.flagActive : ""}`}
                                                     disabled={!canUpdate || flagsLoading}
                                                 >🔥 {item.isTrending ? "Trending" : "Mark Trending"}</button>
+                                                <button
+                                                    onClick={() => handleToggleFlag(item.slug, "isFiftyWordEdit", !item.isFiftyWordEdit)}
+                                                    className={`${styles.flagBtn} ${item.isFiftyWordEdit ? styles.flagActive : ""}`}
+                                                    disabled={!canUpdate || flagsLoading}
+                                                    title={item.isFiftyWordEdit ? "Remove from 50W Edit" : "Add to 50W Edit"}
+                                                >📝 {item.isFiftyWordEdit ? "Remove 50W" : "Mark 50W"}</button>
                                                  {(item.category?.toLowerCase().includes('award')) && (
                                                      <button
                                                          onClick={(e) => {

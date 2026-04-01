@@ -50,6 +50,7 @@ const newsArticleSchema = new mongoose.Schema(
         ],
         isLatest: { type: Boolean, default: false },
         isTrending: { type: Boolean, default: false },
+        isFiftyWordEdit: { type: Boolean, default: false },
         isHidden: { type: Boolean, default: false },
         showInPopup: { type: Boolean, default: false },
         targetLink: { type: String, trim: true, default: null },
@@ -85,6 +86,17 @@ const newsArticleSchema = new mongoose.Schema(
             type: Date,
             default: null,
         },
+        lang: {
+            type: String,
+            enum: ["en", "hi"],
+            default: "en",
+            index: true,
+        },
+        state: {
+            type: String,
+            default: "universal",
+            index: true,
+        },
     },
     {
         timestamps: true,
@@ -111,7 +123,8 @@ newsArticleSchema.index(
             summary: 5,
             content: 1,
         },
-        name: "NewsTextSearchIndex",
+        name: "NewsTextSearchIndex_v2",
+        language_override: "none"
     }
 );
 

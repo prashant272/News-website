@@ -21,6 +21,7 @@ const BreakingNewsManager: React.FC = () => {
     const [title, setTitle] = useState("");
     const [link, setLink] = useState("");
     const [loading, setLoading] = useState(false);
+    const [language, setLanguage] = useState<"en" | "hi">("en");
 
     const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://api.primetimemedia.in";
 
@@ -48,7 +49,8 @@ const BreakingNewsManager: React.FC = () => {
         try {
             const response = await axios.post(`${API_BASE}/api/breaking-news`, {
                 title: title.trim(),
-                link: link.trim() || null
+                link: link.trim() || null,
+                language
             });
 
             if (response.data.success) {
@@ -138,6 +140,17 @@ const BreakingNewsManager: React.FC = () => {
                             value={link}
                             onChange={(e) => setLink(e.target.value)}
                         />
+                    </div>
+                    <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+                        <label className={styles.label}>Language</label>
+                        <select
+                            className={styles.select}
+                            value={language}
+                            onChange={(e) => setLanguage(e.target.value as any)}
+                        >
+                            <option value="en">🇺🇸 English</option>
+                            <option value="hi">🇮🇳 Hindi</option>
+                        </select>
                     </div>
                     <div className={styles.formActions}>
                         <button type="submit" className={styles.primaryBtn} disabled={loading}>

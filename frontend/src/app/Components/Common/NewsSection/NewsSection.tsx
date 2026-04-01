@@ -44,6 +44,7 @@ interface NewsSectionProps {
   showSidebar?: boolean;
   gridColumns?: 2 | 3 | 4;
   currentSection?: string;
+  lang?: string;
 }
 
 const CATEGORY_TO_SECTION_MAP: Record<string, string> = {
@@ -97,6 +98,7 @@ const NewsSection: React.FC<NewsSectionProps> = ({
   topNews: providedTopNews,
   showSidebar = true,
   gridColumns = 3,
+  lang = 'en',
 }) => {
   const pathname = usePathname();
   const section = getSectionFromUrl(pathname);
@@ -216,6 +218,7 @@ const NewsSection: React.FC<NewsSectionProps> = ({
               <NewsCard
                 key={news.id}
                 currentSection={section}
+                lang={lang}
                 {...news}
               />
             ))}
@@ -228,7 +231,7 @@ const NewsSection: React.FC<NewsSectionProps> = ({
               {topNews.length > 0 && (
                 <>
                   <h3 className={styles.topNewsTitle}>
-                    {hasTrendingNews ? 'Trending News' : 'Top News'}
+                    {lang === 'hi' ? (hasTrendingNews ? 'ट्रेंडिंग न्यूज़' : 'टॉप न्यूज़') : (hasTrendingNews ? 'Trending News' : 'Top News')}
                   </h3>
                   <div className={styles.topNewsList}>
                     {topNews.map((news) => (

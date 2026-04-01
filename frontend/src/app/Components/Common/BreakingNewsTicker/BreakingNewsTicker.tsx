@@ -5,6 +5,7 @@ import styles from './BreakingNewsTicker.module.scss';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import { useLanguage } from '@/app/hooks/useLanguage';
 
 interface BreakingNewsItem {
     _id: string;
@@ -35,13 +36,14 @@ const BreakingNewsTicker: React.FC = () => {
     const [liveScores, setLiveScores] = useState<any>({ live: [], upcoming: [], recent: [] });
     const [currentIndex, setCurrentIndex] = useState(0);
     const [loading, setLoading] = useState(true);
+    const { lang, isHindi } = useLanguage();
 
     const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://api.primetimemedia.in";
 
     useEffect(() => {
         const fetchNews = async () => {
             try {
-                const response = await axios.get(`${API_BASE}/api/breaking-news`);
+                const response = await axios.get(`${API_BASE}/api/breaking-news?lang=${lang}`);
                 if (response.data.success) {
                     setNews(response.data.data);
                 }
@@ -99,12 +101,12 @@ const BreakingNewsTicker: React.FC = () => {
         <div className={styles.tickerWrapper}>
             <div className={styles.mobileTitle}>
                 <span className={styles.liveDot}></span>
-                {currentItem.isLive ? "LIVE SCORE" : "BREAKING NEWS"}
+                {currentItem.isLive ? (isHindi ? "लाइव स्कोर" : "LIVE SCORE") : (isHindi ? "ताज़ा खबर" : "BREAKING NEWS")}
             </div>
             <div className={styles.container} onClick={() => router.push(currentItem.isLive ? "/sports/live" : "/breaking-news")}>
                 <div className={styles.label}>
                     <span className={styles.liveDot}></span>
-                    {currentItem.isLive ? "LIVE SCORE" : "BREAKING NEWS"}
+                    {currentItem.isLive ? (isHindi ? "लाइव स्कोर" : "LIVE SCORE") : (isHindi ? "ताज़ा खबर" : "BREAKING NEWS")}
                 </div>
                 <div className={styles.separator}></div>
                 <div className={styles.newsTrack}>

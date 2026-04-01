@@ -76,8 +76,17 @@ exports.scrapeBreakingNews = async (req, res) => {
 
 exports.getBreakingNews = async (req, res) => {
     try {
-        const { all, showAll } = req.query;
+        const { all, showAll, lang, state } = req.query;
         let query = { isActive: true };
+
+        if (lang) {
+            if (lang === 'en') {
+                query.$or = [{ lang: 'en' }, { lang: { $exists: false } }, { lang: null }];
+            } else {
+                query.lang = lang;
+            }
+        }
+        if (state) query.state = state;
 
         // Start of today
         const today = new Date();
@@ -115,12 +124,18 @@ exports.getBreakingNews = async (req, res) => {
 // Add new breaking news
 exports.addBreakingNews = async (req, res) => {
     try {
-        const { title, link, priority } = req.body;
+        const { title, link, priority, language, state } = req.body;
         if (!title) {
             return res.status(400).json({ success: false, msg: "Title is required" });
         }
 
-        const news = await BreakingNews.create({ title, link, priority });
+        const news = await BreakingNews.create({ 
+            title, 
+            link, 
+            priority,
+            lang: language || "en",
+            state: state || "universal"
+        });
         res.status(201).json({ success: true, data: news });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });

@@ -97,7 +97,8 @@ router.get('/scorecard/:id', async (req, res) => {
 
 router.get('/points/:id', async (req, res) => {
     try {
-        const data = await cricketService.getSeriesPoints(req.params.id);
+        const lang = req.query.lang || 'en';
+        const data = await cricketService.getSeriesPoints(req.params.id, lang);
         res.status(200).json({ success: true, data });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
@@ -160,11 +161,11 @@ router.post('/add-match', async (req, res) => {
 // Admin Route: Save Manual Points Table
 router.post('/points/manual', async (req, res) => {
     try {
-        const { seriesId, seriesName, tableData } = req.body;
+        const { seriesId, seriesName, tableData, lang } = req.body;
         if (!seriesId || !tableData) {
             return res.status(400).json({ success: false, error: "Series ID and table data required" });
         }
-        const result = await cricketService.saveManualPointsTable(seriesId, seriesName, tableData);
+        const result = await cricketService.saveManualPointsTable(seriesId, seriesName, tableData, lang || 'en');
         res.status(200).json(result);
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });

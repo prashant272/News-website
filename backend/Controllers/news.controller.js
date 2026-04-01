@@ -154,7 +154,7 @@ exports.AddNews = async (req, res) => {
     const {
       title, slug, category, subCategory, summary, content,
       image, tags = [], section, targetLink, nominationLink, moreInfoLink,
-      author, status, authorId, scheduledAt, showInPopup
+      author, status, authorId, scheduledAt, showInPopup, isFiftyWordEdit, language, state
     } = req.body;
 
     const finalCategory = (category || section)?.toLowerCase();
@@ -190,6 +190,16 @@ exports.AddNews = async (req, res) => {
       }
     }
 
+    // Auto-detect language if not provided
+    let finalLanguage = language || "en";
+    const fullContent = (title || '') + (content || '') + (summary || '');
+    const hasHindiChars = /[\u0900-\u097F]/.test(fullContent);
+
+    if (!language && hasHindiChars) {
+      finalLanguage = "hi";
+      console.log(`[News] Auto-detected Hindi language for article: ${title}`);
+    }
+
     const newItem = new NewsArticle({
       title, slug, category: finalCategory, subCategory: subCategory || null,
       summary: summary || null, content, image: imageUrl, tags,
@@ -200,7 +210,10 @@ exports.AddNews = async (req, res) => {
       status: status || "draft",
       scheduledAt: status === "scheduled" ? scheduledAt : null,
       publishedAt: status === "published" ? new Date() : null,
-      showInPopup: !!showInPopup
+      showInPopup: !!showInPopup,
+      isFiftyWordEdit: !!isFiftyWordEdit,
+      lang: finalLanguage,
+      state: state || "universal"
     });
 
     await newItem.save();
@@ -227,8 +240,17 @@ exports.AddNews = async (req, res) => {
 
 exports.getAllNews = async (req, res) => {
   try {
-    const { includeDrafts, page = 1, limit = 10, status } = req.query;
+    const { includeDrafts, page = 1, limit = 10, status, lang, state } = req.query;
     const query = {};
+
+    if (lang) {
+      if (lang === 'en') {
+        query.$or = [{ lang: 'en' }, { lang: { $exists: false } }, { lang: null }];
+      } else {
+        query.lang = lang;
+      }
+    }
+    if (state) query.state = state;
 
     if (status) {
       query.status = status;
@@ -271,11 +293,33 @@ exports.getAllNews = async (req, res) => {
  */
 exports.streamNews = async (req, res) => {
   try {
-    const { includeDrafts, section, limit = 50 } = req.query;
+    const { includeDrafts, section, limit = 50, lang, state, category } = req.query;
     const query = {};
 
+    if (lang) {
+      if (lang === 'hi') {
+        query.$or = [{ lang: 'hi' }, { title: /[ऀ-ॿ]/ }];
+      } else if (lang === 'en') {
+        query.$or = [{ lang: 'en' }, { lang: { $exists: false } }, { lang: null }];
+        query.title = { $not: /[ऀ-ॿ]/ };
+      } else {
+        query.lang = lang;
+      }
+    }
+
+    if (category || section) {
+      const catToUse = (category || section).toLowerCase();
+      if (catToUse === 'regional' || catToUse === 'state' || catToUse === 'राज्य') {
+        query.category = { $in: ['regional', 'state', 'राज्य', 'राज्य समाचार'] };
+      } else if (catToUse === 'india' || catToUse === 'national' || catToUse === 'भारत') {
+        query.category = { $in: ['india', 'national', 'भारत', 'देश-विदेश', 'india'] };
+      } else {
+        query.category = catToUse;
+      }
+    }
+    if (state) query.state = state;
+
     if (includeDrafts !== 'true') query.status = 'published';
-    if (section) query.category = section;
 
     res.setHeader('Content-Type', 'application/x-ndjson');
     res.setHeader('Transfer-Encoding', 'chunked');
@@ -283,7 +327,7 @@ exports.streamNews = async (req, res) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
 
     const cursor = NewsArticle.find(query)
-      .select('title slug category subCategory summary image tags isLatest isTrending isHidden showInPopup targetLink nominationLink moreInfoLink author publishedAt _id')
+      .select('title slug category subCategory summary image tags isLatest isTrending isFiftyWordEdit isHidden showInPopup targetLink nominationLink moreInfoLink author publishedAt _id')
       .sort({ publishedAt: -1, createdAt: -1 })
       .limit(parseInt(limit))
       .lean()
@@ -339,9 +383,28 @@ exports.getNewsBySlug = async (req, res) => {
 exports.getSectionNews = async (req, res) => {
   try {
     const { section } = req.params;
-    const { includeDrafts, page = 1, limit = 10, status } = req.query;
+    const { includeDrafts, page = 1, limit = 10, status, lang, state } = req.query;
 
-    const query = { category: section };
+    const query = {};
+    if (section) {
+      const lowerCat = section.toLowerCase();
+      if (lowerCat === 'regional' || lowerCat === 'state' || lowerCat === 'राज्य') {
+        query.category = { $in: ['regional', 'state', 'राज्य', 'राज्य समाचार'] };
+      } else if (lowerCat === 'india' || lowerCat === 'national' || lowerCat === 'भारत') {
+        query.category = { $in: ['india', 'national', 'भारत', 'देश-विदेश'] };
+      } else {
+        query.category = lowerCat;
+      }
+    }
+
+    if (lang) {
+      if (lang === 'en') {
+        query.$or = [{ lang: 'en' }, { lang: { $exists: false } }, { lang: null }];
+      } else {
+        query.lang = lang;
+      }
+    }
+    if (state) query.state = state;
     if (status) {
       query.status = status;
     } else if (includeDrafts !== 'true') {
@@ -416,6 +479,15 @@ exports.updateNewsBySlug = async (req, res) => {
     }
 
     // Normalize category if provided
+    // Auto-detect language if currently 'en' or missing but has Hindi characters
+    const fullContent = (updateData.title || item.title || '') + (updateData.content || item.content || '') + (updateData.summary || item.summary || '');
+    const hasHindiChars = /[\u0900-\u097F]/.test(fullContent);
+
+    if (hasHindiChars && (updateData.language === 'en' || !updateData.language)) {
+      updateData.lang = 'hi';
+      console.log(`[News] Auto-corrected Language to Hindi for existing article: ${item.title}`);
+    }
+
     if (updateData.category) {
       updateData.category = updateData.category.toLowerCase();
     }
@@ -440,12 +512,13 @@ exports.updateNewsBySlug = async (req, res) => {
 exports.setNewsFlags = async (req, res) => {
   try {
     const { section, slug } = req.params;
-    const { isLatest, isTrending, isHidden, showInPopup } = req.body;
+    const { isLatest, isTrending, isHidden, showInPopup, isFiftyWordEdit } = req.body;
     const updateFields = {};
     if (typeof isLatest !== "undefined") updateFields.isLatest = !!isLatest;
     if (typeof isTrending !== "undefined") updateFields.isTrending = !!isTrending;
     if (typeof isHidden !== "undefined") updateFields.isHidden = !!isHidden;
     if (typeof showInPopup !== "undefined") updateFields.showInPopup = !!showInPopup;
+    if (typeof isFiftyWordEdit !== "undefined") updateFields.isFiftyWordEdit = !!isFiftyWordEdit;
 
     const updatedItem = await NewsArticle.findOneAndUpdate({ slug }, { $set: updateFields }, { new: true });
     if (!updatedItem) return res.status(404).json({ success: false, msg: "Not found" });
@@ -565,7 +638,7 @@ exports.getEmployeeReport = async (req, res) => {
 
 exports.searchNews = async (req, res) => {
   try {
-    const { q, page = 1, limit = 10 } = req.query;
+    const { q, page = 1, limit = 10, lang, state } = req.query;
     if (!q) return res.status(400).json({ success: false, msg: "Search query required" });
 
     const pageNum = parseInt(page);
@@ -573,6 +646,14 @@ exports.searchNews = async (req, res) => {
     const skip = (pageNum - 1) * limitNum;
 
     const query = { $text: { $search: q }, status: 'published' };
+    if (lang) {
+      if (lang === 'en') {
+        query.$or = [{ lang: 'en' }, { lang: { $exists: false } }, { lang: null }];
+      } else {
+        query.lang = lang;
+      }
+    }
+    if (state) query.state = state;
 
     const results = await NewsArticle.find(query, { score: { $meta: "textScore" } })
       .sort({ score: { $meta: "textScore" }, publishedAt: -1 })

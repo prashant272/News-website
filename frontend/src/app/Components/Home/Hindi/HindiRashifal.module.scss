@@ -1,0 +1,176 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@100..900&family=Outfit:wght@100..900&display=swap');
+
+.hindiRashifal {
+  width: 100%;
+  padding: 60px 0;
+  background: #fdfdfd;
+  font-family: 'Noto Sans Devanagari', 'Outfit', sans-serif;
+
+  .container {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  /* ── Section Header (Uniform with Latest Section) ── */
+  .sectionHeader {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 40px;
+
+    .headerTitle {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: #1a1a1a;
+      margin: 0;
+    }
+
+    .headerLine {
+      flex: 1;
+      height: 3px;
+      background: #e31e26;
+      border-radius: 2px;
+    }
+  }
+
+  /* ── 12 Zodiac Grid ── */
+  .zodiacGrid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 20px;
+    
+    @media (max-width: 1100px) { grid-template-columns: repeat(4, 1fr); }
+    @media (max-width: 768px) { grid-template-columns: repeat(3, 1fr); }
+    @media (max-width: 480px) { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .zodiacCard {
+    background: white;
+    border: 1px solid #eeeeee;
+    border-radius: 12px;
+    padding: 25px 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    position: relative;
+    overflow: hidden;
+
+    .cardInner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .icon {
+      font-size: 2.8rem;
+      filter: drop-shadow(0 5px 10px rgba(0,0,0,0.08));
+      transition: transform 0.3s;
+    }
+
+    .name {
+      font-size: 1.25rem;
+      font-weight: 900;
+      color: #1a1a1a;
+    }
+
+    .type {
+      font-size: 0.7rem;
+      color: #888;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    &:hover {
+      border-color: #e31e26;
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(227, 30, 38, 0.1);
+
+      .icon { transform: scale(1.15); }
+      .name { color: #e31e26; }
+    }
+  }
+}
+
+/* ── Glassmorphism Popup ── */
+.popupOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(10px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.popupContent {
+  background: white;
+  width: 100%;
+  max-width: 500px;
+  border-radius: 20px;
+  padding: 40px;
+  position: relative;
+  text-align: center;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+
+  .closeBtn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: #f5f5f5;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    color: #999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+
+    &:hover { background: #e31e26; color: white; }
+  }
+
+  .popupIcon { 
+    font-size: 5rem; 
+    margin-bottom: 20px; 
+    display: block; 
+  }
+  
+  .popupTitle { 
+    font-size: 2rem; 
+    font-weight: 900; 
+    color: #e31e26; 
+    margin-bottom: 20px; 
+  }
+  
+  .popupText { 
+    font-size: 1.15rem; 
+    line-height: 1.7; 
+    color: #333; 
+    margin-bottom: 30px; 
+    font-weight: 500;
+  }
+  
+  .btn {
+    background: #1a1a1a;
+    color: #fff;
+    padding: 14px 40px;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: 800;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s;
+
+    &:hover { 
+      background: #e31e26; 
+      transform: scale(1.02);
+    }
+  }
+}

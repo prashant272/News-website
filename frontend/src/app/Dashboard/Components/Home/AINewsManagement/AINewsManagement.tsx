@@ -6,6 +6,7 @@ import styles from "./AINewsManagement.module.scss";
 
 interface AIDraft extends NewsItem {
     category: string;
+    lang: "en" | "hi";
 }
 
 interface AINewsManagementProps {
@@ -18,6 +19,7 @@ export default function AINewsManagement({ onEdit, isSuperAdmin }: AINewsManagem
     const [loading, setLoading] = useState(true);
 
     const [scraping, setScraping] = useState(false);
+    const [langFilter, setLangFilter] = useState<"all" | "en" | "hi">("all");
 
     const fetchDrafts = useCallback(async () => {
         setLoading(true);
@@ -97,12 +99,23 @@ export default function AINewsManagement({ onEdit, isSuperAdmin }: AINewsManagem
                             {scraping ? "Scraping..." : "Scrap News"}
                         </button>
                     )}
+                    <select 
+                        className={styles.langFilter} 
+                        value={langFilter} 
+                        onChange={(e) => setLangFilter(e.target.value as any)}
+                    >
+                        <option value="all">🌐 All Languages</option>
+                        <option value="en">🇺🇸 English</option>
+                        <option value="hi">🇮🇳 Hindi</option>
+                    </select>
                     <button onClick={fetchDrafts} className={styles.refreshBtn}>Refresh</button>
                 </div>
             </div>
 
             <div className={styles.grid}>
-                {drafts.map((draft, index) => (
+                {drafts
+                    .filter(d => langFilter === "all" || d.lang === langFilter)
+                    .map((draft, index) => (
                     <div key={`${draft.slug}-${index}`} className={styles.card}>
                         {/* Article Image */}
                         <div className={styles.cardImage}>
@@ -116,6 +129,9 @@ export default function AINewsManagement({ onEdit, isSuperAdmin }: AINewsManagem
                         </div>
                         <div className={styles.cardHeader}>
                             <span className={styles.badge}>{draft.category}</span>
+                            <span className={`${styles.langBadge} ${styles[draft.lang || 'en']}`}>
+                                {draft.lang === 'hi' ? '🇮🇳 HI' : '🇺🇸 EN'}
+                            </span>
                             <span className={styles.badgeSource}>{draft.source || "AI"}</span>
                         </div>
                         <h3>{draft.title}</h3>

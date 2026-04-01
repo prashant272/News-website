@@ -1,0 +1,347 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@100..900&family=Outfit:wght@100..900&display=swap');
+
+.hindiNavbarWrapper {
+  width: 100%;
+  position: fixed;
+  top: 0;
+  z-index: 1000;
+  background: #ffffff;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  font-family: 'Noto Sans Devanagari', 'Outfit', sans-serif;
+  transition: all 0.3s ease;
+
+  &.scrolled {
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+
+    .topBar {
+      max-height: 0;
+      padding-top: 0;
+      padding-bottom: 0;
+      opacity: 0;
+    }
+  }
+}
+
+/* ── Top Red Bar ── */
+.topBar {
+  background: #e31e26;
+  color: #fff;
+  padding: 6px 0;
+  font-size: 0.75rem;
+  max-height: 50px;
+  overflow: hidden;
+  transition: max-height 0.3s ease, padding 0.3s ease, opacity 0.3s ease;
+
+  .container {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .breakingLabel {
+    background: #ffd700;
+    color: #e31e26;
+    padding: 2px 10px;
+    border-radius: 4px;
+    font-weight: 950;
+    margin-right: 12px;
+    text-transform: uppercase;
+  }
+}
+
+/* ── Main Header ── */
+.mainHeader {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  height: 70px;
+
+  @media (max-width: 1024px) {
+    height: 60px;
+  }
+}
+
+/* ── Logo Area ── */
+.logoArea {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+
+  .mobileMenuBtn {
+    display: none;
+    @media (max-width: 1024px) {
+      display: block;
+      color: #1a1a1a;
+    }
+  }
+
+  .logoImg {
+    border-radius: 50%;
+    @media (max-width: 768px) { width: 35px; height: 35px; }
+  }
+
+  .brand {
+    font-size: 1.6rem;
+    font-weight: 950;
+    color: #1a1a1a;
+    font-family: 'Outfit', sans-serif;
+    letter-spacing: -1px;
+    position: relative;
+
+    @media (max-width: 1200px) { font-size: 1.3rem; }
+    
+    &::after {
+      content: 'हिन्दी';
+      position: absolute;
+      right: -45px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #ffd700;
+      color: #1a1a1a;
+      font-size: 0.65rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+  }
+}
+
+/* ── Navigation Links ── */
+.navLinks {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  list-style: none;
+  flex: 1;
+  justify-content: center;
+
+  @media (max-width: 1024px) {
+    display: none;
+  }
+}
+
+.navItem {
+  position: relative;
+  padding: 10px 0;
+}
+
+.navLink {
+  text-decoration: none;
+  color: #1a1a1a;
+  font-size: 1rem;
+  font-weight: 850;
+  padding: 8px 12px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+
+  @media (max-width: 1250px) {
+    font-size: 0.9rem;
+    padding: 6px 8px;
+  }
+
+  &:hover {
+    background: #f8f8f8;
+    color: #e31e26;
+  }
+
+  &.active {
+    color: #e31e26;
+    background: rgba(227, 30, 38, 0.05);
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 12px;
+      right: 12px;
+      height: 3px;
+      background: #e31e26;
+      border-radius: 10px;
+    }
+  }
+}
+
+.chevron {
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid currentColor;
+  opacity: 0.5;
+  transition: transform 0.3s ease;
+}
+
+.navItem:hover .chevron {
+  transform: rotate(180deg);
+}
+
+/* ── Dropdown (States Menu) ── */
+.dropdown {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 250px;
+  background: #ffffff;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+  border-radius: 16px;
+  padding: 15px;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+  margin-top: 10px;
+}
+
+.navItem:hover .dropdown {
+  opacity: 1;
+  visibility: visible;
+  margin-top: 0;
+}
+
+.dropdownGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 5px;
+}
+
+.dropdownItem {
+  text-decoration: none;
+  color: #444;
+  font-size: 0.95rem;
+  font-weight: 700;
+  padding: 10px 15px;
+  border-radius: 10px;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #fdf2f2;
+    color: #e31e26;
+    padding-left: 20px;
+  }
+}
+
+/* ── Right Actions ── */
+.rightActions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+
+  .liveBtn {
+    background: #e31e26;
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 850;
+    padding: 8px 18px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+    box-shadow: 0 4px 15px rgba(227, 30, 38, 0.3);
+    transition: all 0.3s;
+
+    @media (max-width: 600px) { display: none; }
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(227, 30, 38, 0.4);
+    }
+
+    .pulse {
+      width: 8px;
+      height: 8px;
+      background: #fff;
+      border-radius: 50%;
+      animation: livePulse 1.5s infinite;
+    }
+  }
+
+  .langSwitch {
+    width: 40px;
+    height: 40px;
+    background: #000;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    border-radius: 12px;
+    font-weight: 900;
+    font-size: 0.8rem;
+    transition: all 0.3s;
+
+    &:hover {
+      background: #e31e26;
+      border-radius: 50%;
+    }
+  }
+}
+
+@keyframes livePulse {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+/* ── Mobile Menu ── */
+.mobileMenu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: #fff;
+  z-index: 1100;
+  transform: translateX(-100%);
+  transition: transform 0.4s cubic-bezier(0.77, 0, 0.175, 1);
+  padding: 80px 20px;
+
+  &.open {
+    transform: translateX(0);
+  }
+}
+
+.mobileContent {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.mobileLink {
+  text-decoration: none;
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #1a1a1a;
+  display: block;
+
+  &.active { color: #e31e26; }
+}
+
+.mobileSubMenu {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 10px;
+  background: #f9f9f9;
+  padding: 15px;
+  border-radius: 15px;
+}
+
+.mobileSubLink {
+  text-decoration: none;
+  font-size: 0.9rem;
+  color: #555;
+  font-weight: 700;
+}

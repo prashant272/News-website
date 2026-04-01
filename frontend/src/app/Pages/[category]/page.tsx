@@ -12,21 +12,24 @@ import { PhotosSection } from '@/app/Components/Common/PhotosSection/Photos';
 import { VideosSection } from '@/app/Components/Common/VideosSection/VideosSection';
 import SocialShare from '@/app/Components/Common/SocialShare/SocialShare';
 import BreadcrumbSchema from '@/app/Components/Common/JSONLD/BreadcrumbSchema';
+import { getEnglishCategory, getHindiCategory } from '@/Utils/categoryMapping';
+import StateNewsHeader from '@/app/Components/Common/StateNewsHeader/StateNewsHeader';
 
 export default function CategoryPage() {
   const params = useParams();
   const context = useNewsContext();
   const [currentUrl, setCurrentUrl] = useState<string>('');
   const category = params?.category as string;
-  const urlCategory = category?.toLowerCase();
+  const decodedCategory = decodeURIComponent(category || '');
+  const urlCategory = getEnglishCategory(decodedCategory).toLowerCase();
 
   const categoryTitle = useMemo(() => {
     if (!category) return '';
-    return category
+    return urlCategory
       .split('-')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
-  }, [category]);
+  }, [urlCategory, category]);
 
   const mappedSection = useMemo(() => {
     if (!urlCategory) return '';
@@ -174,22 +177,6 @@ export default function CategoryPage() {
   }
 
 
-  // Final check: If we've finished all loading and checking, and still have 0 news, it's truly empty
-  if (hasDataChecked && infiniteNews.length === 0 && !infiniteLoading && !context.loading) {
-    return (
-      <div className="py-20 text-center flex flex-col items-center justify-center min-h-[400px]">
-        <h2 className="text-3xl font-bold mb-4">No Stories Found</h2>
-        <p className="text-gray-500 max-w-md">We couldn't find any news in the {categoryTitle} section right now. Please check back later or try another category.</p>
-        <button
-          onClick={() => window.location.reload()}
-          className="mt-8 px-6 py-2 bg-primary text-white rounded-full hover:bg-opacity-90 transition-all font-semibold"
-        >
-          Refresh Page
-        </button>
-      </div>
-    );
-  }
-
   return (
     <>
       <BreadcrumbSchema
@@ -198,27 +185,48 @@ export default function CategoryPage() {
           { name: categoryTitle, item: `/Pages/${category}` }
         ]}
       />
-      <NewsSection
-        sectionTitle={categoryTitle}
-        subCategories={subCategories}
-        mainNews={transformedNews}
-        topNews={transformedTrendingNews}
-        showSidebar={true}
-        gridColumns={3}
-      />
+      
+      {(decodedCategory === 'राज्य' || decodedCategory === 'राज्य समाचार') && (
+        <StateNewsHeader />
+      )}
 
-      {/* Infinite Scroll Trigger & Loading Indicator */}
-      <div ref={lastElementRef} style={{ height: '40px', margin: '20px 0', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        {infiniteLoading && (
-          <div className="flex items-center gap-2 text-primary font-semibold">
-            <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-            Loading more stories...
+      {hasDataChecked && infiniteNews.length === 0 && !infiniteLoading && !context.loading ? (
+        <div className="py-20 text-center flex flex-col items-center justify-center min-h-[400px]">
+          <h2 className="text-3xl font-bold mb-4">No Stories Found</h2>
+          <p className="text-gray-500 max-w-md">We couldn't find any news in the {categoryTitle} section right now. Please check back later or try another category.</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-8 px-6 py-2 bg-primary text-white rounded-full hover:bg-opacity-90 transition-all font-semibold"
+          >
+            Refresh Page
+          </button>
+        </div>
+      ) : (
+        <>
+          <NewsSection
+            sectionTitle={categoryTitle}
+            subCategories={subCategories}
+            mainNews={transformedNews}
+            topNews={transformedTrendingNews}
+            showSidebar={true}
+            gridColumns={3}
+            lang="hi"
+          />
+
+          {/* Infinite Scroll Trigger & Loading Indicator */}
+          <div ref={lastElementRef} style={{ height: '40px', margin: '20px 0', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            {infiniteLoading && (
+              <div className="flex items-center gap-2 text-primary font-semibold">
+                <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                Loading more stories...
+              </div>
+            )}
+            {!hasMore && infiniteNews.length > 0 && (
+              <p className="text-gray-500 text-sm italic">You've reached the end of {categoryTitle} news.</p>
+            )}
           </div>
-        )}
-        {!hasMore && infiniteNews.length > 0 && (
-          <p className="text-gray-500 text-sm italic">You've reached the end of {categoryTitle} news.</p>
-        )}
-      </div>
+        </>
+      )}
 
       <SocialShare
         url={currentUrl || `https://www.primetimemedia.in/Pages/${category}`}
@@ -229,10 +237,10 @@ export default function CategoryPage() {
       />
 
       <LatestNewsSection
-        sectionTitle={`Latest ${categoryTitle} News`}
-        overrideSection={category}
+        sectionTitle={`ताज़ा ${getHindiCategory(urlCategory)} समाचार`}
+        overrideSection={urlCategory}
         showReadMore={true}
-        readMoreLink={`/Pages/${category}`}
+        readMoreLink={`/Pages/${decodedCategory}`}
         columns={3}
       />
 
@@ -240,9 +248,10 @@ export default function CategoryPage() {
 
       <MoreFromSection
         sectionTitle={`More From ${categoryTitle}`}
-        overrideSection={category as any}
+        overrideSection={urlCategory}
         columns={2}
         limit={8}
+        lang="hi"
       />
 
       <SocialShare
@@ -252,7 +261,6 @@ export default function CategoryPage() {
         image={infiniteNews[0]?.image || ''}
         isArticle={false}
       />
-
     </>
   );
 }

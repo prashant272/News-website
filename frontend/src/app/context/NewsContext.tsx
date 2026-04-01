@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useEffect, useState, useMemo, ReactNode, useRef, useCallback } from "react";
 import { usePathname } from "next/navigation";
 import { NewsItem, NewsDocument } from "@/app/services/NewsService";
-import { useStreamingNews } from "@/app/hooks/NewsApi";
+import { useStreamingNews, useLanguage } from "@/app/hooks/NewsApi";
 
 interface NewsContextType {
   allNews: NewsItem[] | null;
@@ -54,14 +54,15 @@ const filterVisibleNews = (newsArray: NewsItem[] | undefined): NewsItem[] | null
 
 export const NewsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const pathname = usePathname();
+  const { lang } = useLanguage();
   
-  // Determine if we need the full heavy stream or just essential navbar news
   const isHomePage = pathname === '/';
   
   // Use a smaller limit for non-home pages (Articles, etc.) to save resources
   const streamLimit = isHomePage ? 120 : 10;
   
-  const { news: rawData, loading, error, refetch } = useStreamingNews(undefined, streamLimit);
+  // We MUST respect 'lang' strictly to avoid mixing English and Hindi
+  const { news: rawData, loading, error, refetch } = useStreamingNews(undefined, streamLimit, lang);
   
   // Use a throttle mechanism for context updates? 
   // No, let's just make the processing extremely efficient.
@@ -77,11 +78,25 @@ export const NewsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       };
     }
 
-    // Step 1: Deduplicate and Sort ALL News ONCE
+    // Step 1: Deduplicate, Sort AND Filter by current language strictly
     const seenSlugs = new Set<string>();
     const uniqueSortedAll = sortNewsByDate(rawData.filter(item => {
       const key = item._id || item.slug;
       if (!key || seenSlugs.has(key)) return false;
+      
+      // Secondary safety: Ensure item language matches current context language
+      const itemLang = (item.lang || item.language || '').toLowerCase();
+      const content = (item.title || '') + (item.summary || '') + (item.content || '');
+      const hasHindiChars = /[\u0900-\u097F]/.test(content);
+      
+      if (lang === 'hi') {
+        // If we are on Hindi portal, allow if tag is 'hi' OR if it has Hindi characters
+        if (itemLang !== 'hi' && !hasHindiChars) return false;
+      } else {
+        // If we are on English portal, strictly exclude Hindi content to keep it clean
+        if (itemLang === 'hi' || hasHindiChars) return false;
+      }
+      
       seenSlugs.add(key);
       return true;
     }));

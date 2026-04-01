@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import { useParams, notFound } from 'next/navigation';
 import { useNewsContext } from '@/app/context/NewsContext';
 import { useInfiniteNews } from '@/app/hooks/NewsApi';
+import { getEnglishCategory, slugify } from '@/Utils/categoryMapping';
 import LatestNewsSection from '@/app/Components/Common/LatestNewsSection/LatestNewsSection';
 import MoreFromSection from '@/app/Components/Common/MoreFromSection/MoreFromSection';
 import NewsSection from '@/app/Components/Common/NewsSection/NewsSection';
@@ -36,20 +37,10 @@ export default function SubCategoryPage() {
   const category = params?.category as string;
   const subCategory = params?.subCategory as string;
 
-  const normalize = (str: string | undefined) =>
-    str
-      ? decodeURIComponent(str)
-        .toLowerCase()
-        .replace(/&/g, 'and')
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/-+/g, '-')
-        .replace(/^-|-$/g, '')
-        .trim()
-      : '';
-
   const cleanDisplay = (text: string | undefined): string => {
     if (!text) return '';
     return decodeURIComponent(text)
+      .replace(/-/g, ' ') // Replace dashes with spaces for display titles
       .replace(/%26/g, '&')
       .replace(/%20/g, ' ')
       .replace(/%2B/g, '+')
@@ -65,15 +56,18 @@ export default function SubCategoryPage() {
 
   const pageTitle = useMemo(() => {
     if (!category) return '';
-    return toTitleCase(cleanDisplay(category));
+    return cleanDisplay(category);
   }, [category]);
 
   const subPageTitle = useMemo(() => {
     if (!subCategory) return '';
-    return toTitleCase(cleanDisplay(subCategory));
+    return cleanDisplay(subCategory);
   }, [subCategory]);
 
-  const urlSection = useMemo(() => decodeURIComponent(category || '').toLowerCase(), [category]);
+  const urlSection = useMemo(() => {
+    // Correctly translate 'राज्य' or 'राज्य समाचार' to 'regional' for the API fetch
+    return getEnglishCategory(category);
+  }, [category]);
 
   // Infinite Scroll Logic
   const {
@@ -87,29 +81,36 @@ export default function SubCategoryPage() {
 
   // Filter the infiniteNews stream for our specific subcategory
   const subFilteredNews = useMemo(() => {
-    const normCategory = normalize(category);
-    const normSubCategory = normalize(subCategory);
+    const engCategorySlug = slugify(urlSection);
+    const engSubCategorySlug = getEnglishCategory(subCategory);
 
     return infiniteNews.filter((news) => {
-      const newsCat = normalize(news.category);
-      const newsSub = normalize(news.subCategory);
-      const newsSection = normalize((news as any).section);
+      // Use slugify for ROBUST matching across languages and formatting
+      const newsCatSlug = getEnglishCategory(news.category || '');
+      const newsSubSlug = getEnglishCategory(news.subCategory || '');
+      const newsSectionSlug = getEnglishCategory((news as any).section || '');
+      
+      // NEW: Also check for potential 'state' or 'hindiState' fields from DB
+      const newsStateSlug = getEnglishCategory((news as any).state || '');
+      const newsHindiStateSlug = getEnglishCategory((news as any).hindiState || '');
 
-      return (
-        (newsCat === normCategory && newsSub === normSubCategory) ||
-        (newsSection === normCategory && newsCat === normSubCategory)
-      );
+      const isCategoryMatch = (newsCatSlug === engCategorySlug || newsSectionSlug === engCategorySlug);
+      const isSubMatch = (newsSubSlug === engSubCategorySlug || 
+                         newsSubSlug === slugify(subCategory) ||
+                         newsStateSlug === engSubCategorySlug ||
+                         newsHindiStateSlug === engSubCategorySlug ||
+                         newsStateSlug === slugify(subCategory));
+
+      // Check for any match that indicates this item belongs to our current localized section/subcat
+      return isCategoryMatch && isSubMatch;
     });
-  }, [infiniteNews, category, subCategory]);
+  }, [infiniteNews, urlSection, subCategory]);
 
   const observer = useRef<IntersectionObserver | null>(null);
   const lastElementRef = useCallback((node: HTMLDivElement) => {
     if (infiniteLoading) return;
     if (observer.current) observer.current.disconnect();
     observer.current = new IntersectionObserver(entries => {
-      // If we are intersecting and there's more data, fetch it.
-      // We also fetch more if we have very FEW items matching our subcategory, 
-      // even if we are at the bottom, to ensure the user isn't stuck with empty results while more exist deep in the section.
       if (entries[0].isIntersecting && hasMore) {
         fetchNextPage();
       }
@@ -117,7 +118,7 @@ export default function SubCategoryPage() {
     if (node) observer.current.observe(node);
   }, [infiniteLoading, hasMore, fetchNextPage]);
 
-  // If we have very few results but the section has more pages, auto-fetch next page to fill the view
+  // Handle case where specific subcat news is deeply nested in the broader section
   useEffect(() => {
     if (!infiniteLoading && hasMore && subFilteredNews.length < 6 && infiniteNews.length > 0) {
       const timer = setTimeout(() => {
@@ -133,8 +134,7 @@ export default function SubCategoryPage() {
     }
   }, []);
 
-  const latestNews = useMemo(() => subFilteredNews.filter(news => news.isLatest === true), [subFilteredNews]);
-  const trendingNews = useMemo(() => subFilteredNews.filter(news => news.isTrending === true), [subFilteredNews]);
+  const trendingNews = useMemo(() => subFilteredNews.filter(news => (news as any).isTrending === true), [subFilteredNews]);
 
   const topTags = useMemo(() => {
     const tagCount: Record<string, number> = {};
@@ -168,16 +168,6 @@ export default function SubCategoryPage() {
 
   if (!context) return <div className="p-20 text-center"><h2>Context not available</h2></div>;
 
-  if (context.error) {
-    return (
-      <div className="p-20 text-center">
-        <h2>Error: {context.error}</h2>
-        <button onClick={context.refetch} className="mt-4 px-4 py-2 bg-primary text-white rounded">Retry</button>
-      </div>
-    );
-  }
-
-  // Truly loading state
   if (isInitialLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -192,17 +182,23 @@ export default function SubCategoryPage() {
             </div>
           ))}
         </div>
-        <div className="flex flex-col items-center gap-3 mt-12">
+        <div className="flex flex-col items-center gap-3 mt-12 text-center">
           <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-gray-600">Searching in {pageTitle} for {subPageTitle} news...</p>
+          <p className="text-gray-600 font-bold uppercase tracking-widest">{subPageTitle} न्यूज़ लोड हो रही है...</p>
         </div>
       </div>
     );
   }
 
-  // If we finished loading all pages and still found nothing
+  // Final 404 Trigger: Only if we Checked everything and found NOTHING
   if (hasDataChecked && subFilteredNews.length === 0 && !infiniteLoading) {
-    notFound();
+    return (
+      <div className="py-20 text-center flex flex-col items-center justify-center min-h-[400px]">
+        <h2 className="text-3xl font-bold mb-4">खबरें अभी उपलब्ध नहीं हैं</h2>
+        <p className="text-gray-500 max-w-md">{subPageTitle} के लिए फिलहाल कोई खबर उपलब्ध नहीं है। कृपया थोड़ी देर बाद फिर से जांचें।</p>
+        <button onClick={() => window.location.reload()} className="mt-8 px-8 py-3 bg-red-600 text-white rounded-full font-bold shadow-lg">Refresh Karein</button>
+      </div>
+    );
   }
 
   return (
@@ -220,6 +216,7 @@ export default function SubCategoryPage() {
         }))}
         showSidebar={true}
         gridColumns={3}
+        lang="hi"
       />
 
       <div ref={lastElementRef} className="py-10 text-center flex flex-col items-center justify-center">
@@ -230,39 +227,26 @@ export default function SubCategoryPage() {
           </div>
         )}
         {!hasMore && subFilteredNews.length > 0 && (
-          <p className="text-gray-500 italic">No more stories in this subcategory.</p>
-        )}
-        {hasMore && !infiniteLoading && subFilteredNews.length > 0 && (
-          <button onClick={() => fetchNextPage()} className="px-6 py-2 border border-primary text-primary rounded-full hover:bg-primary hover:text-white transition-all">
-            Load More Stories
-          </button>
+          <p className="text-gray-500 italic">धन्यवाद! आपने सारी खबरें पढ़ ली हैं।</p>
         )}
       </div>
 
       <SocialShare
         url={currentUrl || `https://www.primetimemedia.in/Pages/${category}/${subCategory}`}
         title={`${subPageTitle} - ${pageTitle} | Latest News`}
-        description={`Explore the latest ${subPageTitle} news from ${pageTitle} section. Trending stories and updates.`}
+        description={`Explore the latest ${subPageTitle} news from ${pageTitle} section.`}
         image={subFilteredNews[0]?.image || ''}
         isArticle={false}
       />
-
-      {category?.toLowerCase() !== 'awards' && (
-        <LatestNewsSection
-          sectionTitle={`Latest ${subPageTitle} News`}
-          showReadMore={true}
-          readMoreLink={`/Pages/${category}/${subCategory}`}
-          columns={3}
-        />
-      )}
 
       <VideosSection />
 
       <MoreFromSection
         sectionTitle={`More From ${pageTitle}`}
-        overrideSection={category as any}
+        overrideSection={urlSection as any}
         columns={2}
         limit={8}
+        lang="hi"
       />
     </>
   );

@@ -10,6 +10,8 @@ const LiveMatchSchema = new mongoose.Schema({
     startTime: { type: String },
     dateTimeGMT: { type: Date },
     teams: [{ type: String }],
+    team1CaptainImg: { type: String },
+    team2CaptainImg: { type: String },
     teamInfo: [mongoose.Schema.Types.Mixed],
     score: [mongoose.Schema.Types.Mixed],
     metaText: { type: String },

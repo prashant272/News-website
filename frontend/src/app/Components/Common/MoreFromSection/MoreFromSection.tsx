@@ -13,6 +13,7 @@ interface MoreFromSectionProps {
   excludeSlug?: string;
   columns?: number;
   limit?: number;
+  lang?: string;
 }
 
 export default function MoreFromSection({
@@ -21,6 +22,7 @@ export default function MoreFromSection({
   excludeSlug,
   columns = 3,
   limit = 9,
+  lang,
 }: MoreFromSectionProps) {
   const [visibleCount, setVisibleCount] = useState(limit);
   
@@ -29,6 +31,7 @@ export default function MoreFromSection({
     overrideSection,
     limit: 50, // Fetch more in background to support "Read More"
     excludeSlug,
+    lang,
   });
 
   const handleReadMore = () => {

@@ -1,0 +1,256 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@100..900&family=Outfit:wght@100..900&display=swap');
+
+.hindiTrending {
+  width: 100%;
+  padding: 10px 0 40px;
+  background: white;
+  font-family: 'Noto Sans Devanagari', 'Outfit', sans-serif;
+
+  .container {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+}
+
+/* ── 1. TICKER BAR (Top) ── */
+.tickerBar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #eeeeee;
+  margin-bottom: 25px;
+
+  .label {
+    font-size: 0.85rem;
+    font-weight: 850;
+    color: #000;
+    white-space: nowrap;
+    text-transform: uppercase;
+    margin-right: 15px;
+  }
+
+  .navBtn {
+    background: #f0f0f0;
+    border: none;
+    min-width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #999;
+    &:hover { background: #e0e0e0; color: #333; }
+  }
+
+  .tagsContainer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    &::-webkit-scrollbar { display: none; }
+  }
+
+  .tag {
+    white-space: nowrap;
+    background: #f2f2f2;
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    text-decoration: none;
+    border: 1px solid #e0e0e0;
+    &:hover { border-color: #ccc; background: #e8e8e8; }
+  }
+}
+
+/* ── 2. DATA GRID (Main Content) ── */
+.gridHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+
+  .redDot {
+    width: 6px;
+    height: 30px;
+    background: #e31e26;
+    border-radius: 2px;
+    position: relative;
+    
+    &::before {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: #e31e26;
+        opacity: 0.4;
+    }
+  }
+
+  h2 {
+    font-size: 1.8rem;
+    font-weight: 950;
+    color: #1a1a1a;
+    margin: 0;
+    letter-spacing: -0.5px;
+  }
+}
+
+.innerLayout {
+  display: grid;
+  grid-template-columns: 1fr 1.6fr 1fr;
+  gap: 30px;
+  align-items: start;
+
+  @media (max-width: 1024px) { grid-template-columns: 1fr 1.2fr; }
+  @media (max-width: 768px) { grid-template-columns: 1fr; }
+}
+
+/* Column 1: Text List */
+.colLeft {
+  .textList {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .listItem {
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eeeeee;
+    text-decoration: none;
+    
+    p {
+      font-size: 1.15rem;
+      font-weight: 850;
+      line-height: 1.4;
+      color: #333;
+      margin: 0;
+      &:hover { color: #e31e26; }
+    }
+  }
+}
+
+/* Column 2: Vertical Cards */
+.colMiddle {
+  .cardGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    @media (max-width: 600px) { grid-template-columns: 1fr; }
+  }
+
+  .verticalCard {
+    display: flex;
+    flex-direction: column;
+    background: #f1f6ff; // Light blue-gray background as in screenshot
+    border-radius: 4px;
+    overflow: hidden;
+    text-decoration: none;
+    height: 100%;
+
+    .cardImg {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      overflow: hidden;
+      img { object-fit: cover; }
+      
+      .videoIcon {
+         position: absolute;
+         top: 10px;
+         right: 10px;
+         background: rgba(0,0,0,0.6);
+         width: 24px;
+         height: 24px;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         border-radius: 50%;
+      }
+    }
+
+    .cardInfo {
+      padding: 15px;
+      h3 {
+        font-size: 1.25rem;
+        font-weight: 850;
+        line-height: 1.25;
+        color: #000;
+        margin: 0;
+        &:hover { color: #e31e26; }
+      }
+    }
+  }
+}
+
+/* Column 3: Sidebar Box */
+.sidebarBox {
+  background: white;
+  border-radius: 20px;
+  padding: 25px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  border: 1px solid #f0f0f0;
+
+  .sidebarHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    border-bottom: 3px solid #e31e26;
+    padding-bottom: 12px;
+
+    h3 {
+      font-size: 1.5rem;
+      font-weight: 950;
+      color: #1a1a1a;
+      margin: 0;
+    }
+    
+    .moreLink {
+      color: #e31e26;
+      font-weight: 850;
+      font-size: 0.9rem;
+      text-decoration: none;
+      &::after { content: ' \25B6'; font-size: 0.7rem; }
+    }
+  }
+
+  .sidebarList {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+  }
+
+  .sidebarItem {
+    display: grid;
+    grid-template-columns: 85px 1fr;
+    gap: 15px;
+    text-decoration: none;
+    align-items: center;
+
+    .sbImg {
+      position: relative;
+      width: 85px;
+      height: 60px;
+      border-radius: 4px;
+      overflow: hidden;
+      img { object-fit: cover; }
+    }
+
+    p {
+      font-size: 1.05rem;
+      font-weight: 850;
+      line-height: 1.35;
+      color: #000;
+      margin: 0;
+      &:hover { color: #e31e26; }
+    }
+  }
+}

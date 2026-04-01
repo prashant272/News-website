@@ -1,7 +1,9 @@
 import { notFound } from 'next/navigation';
 import { newsService, NewsItem } from '@/app/services/NewsService';
 import ArticlePageClient from '@/app/Components/ArticlePage/ArticlePageClient/ArticlePageClient';
+import HindiArticlePage from '@/app/Components/ArticlePage/HindiArticlePage/HindiArticlePage';
 import { Metadata } from 'next';
+import { getEnglishCategory, getHindiCategory } from '@/Utils/categoryMapping';
 
 interface PageProps {
   params: Promise<{
@@ -17,7 +19,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug, category } = await params;
 
   try {
-    const sectionKey = category.toLowerCase();
+    const decodedCategory = decodeURIComponent(category || '');
+    const sectionKey = getEnglishCategory(decodedCategory).toLowerCase();
     const res = await newsService.getNewsBySlug(sectionKey, slug).catch(() => null);
     if (!res) return { title: "News | Prime Time Media" };
     const news = res.news || res.data;
@@ -81,31 +84,32 @@ export default async function ArticleDetailPage({ params }: PageProps) {
 
   const category = decodeURIComponent(catParam).toLowerCase().replace(/-/g, ' ');
   const subCategory = decodeURIComponent(subCatParam).toLowerCase().replace(/-/g, ' ');
-  const sectionKey = catParam.toLowerCase(); // Use raw param for API
+  const sectionKey = getEnglishCategory(decodeURIComponent(catParam)).toLowerCase(); // Map back to English for API
 
   try {
-    // 1. Parallelize fetching: Get article AND category news concurrently
-    const [newsRes, sectionRes] = await Promise.all([
-      newsService.getNewsBySlug(sectionKey, slug).catch(err => {
-        console.warn(`Initial fetch failed for ${slug} in ${sectionKey}`, err.message);
-        return null;
-      }),
-      // We don't know the exact articleCategory yet, so we use sectionKey as first guess
-      // Most of the time they match. If not, we still get some good context news.
-      newsService.getNewsBySection(sectionKey).catch(() => ({ news: [], data: [] }))
-    ]);
+    // 1. Fetch the specific article first to determine its language
+    const newsRes = await newsService.getNewsBySlug(sectionKey, slug).catch(err => {
+      console.warn(`Initial fetch failed for ${slug} in ${sectionKey}`, err.message);
+      return null;
+    });
 
     let foundArticle = newsRes?.news || newsRes?.data;
 
-    // 2. If article still not found, it might be truly missing
+    // 2. If article not found, 404
     if (!foundArticle) {
       notFound();
     }
 
+    // 3. Detect language from the article itself
+    const articleLang = foundArticle.lang || foundArticle.language || 'en';
+
+    // 4. Fetch related category news using the same language
+    const sectionRes = await newsService.getNewsBySection(sectionKey, false, 1, 30, undefined, articleLang).catch(() => ({ news: [], data: [] }));
+
     const relatedNews = ((sectionRes as any).news || (sectionRes as any).data || []) as NewsItem[];
 
     // 3. Render
-    return renderArticle(foundArticle!, relatedNews, category, subCategory, slug);
+    return renderArticle(foundArticle!, relatedNews, category, subCategory, slug, sectionKey, articleLang);
 
   } catch (error) {
     console.error("Article Detail server-side error:", error);
@@ -113,7 +117,7 @@ export default async function ArticleDetailPage({ params }: PageProps) {
   }
 }
 
-function renderArticle(foundArticle: any, categoryNews: any[], category: string, subCategory: string, slug: string) {
+function renderArticle(foundArticle: any, categoryNews: any[], category: string, subCategory: string, slug: string, sectionKey: string, lang: string) {
   console.log(`[DEBUG] Article ${slug} authorId:`, foundArticle.authorId);
 
   const articleData = {
@@ -216,6 +220,28 @@ function renderArticle(foundArticle: any, categoryNews: any[], category: string,
     }
   };
 
+  // 3. Render
+  const sectionTitle = lang === 'hi' ? getHindiCategory(sectionKey) : sectionKey;
+  
+  if (lang === 'hi') {
+    return (
+      <>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        <HindiArticlePage
+          article={articleData}
+          relatedArticles={related}
+          topNews={topNews}
+          recommendedStories={recommendedStories}
+          section={sectionTitle}
+          category={foundArticle.subCategory || subCategory}
+        />
+      </>
+    );
+  }
+
   return (
     <>
       <script
@@ -227,8 +253,17 @@ function renderArticle(foundArticle: any, categoryNews: any[], category: string,
         relatedArticles={related}
         topNews={topNews}
         recommendedStories={recommendedStories}
-        section={category}
-        category={subCategory}
+        section={sectionTitle}
+        category={foundArticle.subCategory || subCategory}
+        translations={{
+          alsoRead: "Also Read",
+          trendingTags: "Trending Tags",
+          publishedBy: "Published by",
+          moreFrom: `More From ${sectionKey.toUpperCase()}`,
+          latestNews: `Latest ${sectionKey.toUpperCase()} News`,
+          mustRead: "MUST READ",
+          advertisement: "ADVERTISEMENT"
+        }}
       />
     </>
   );

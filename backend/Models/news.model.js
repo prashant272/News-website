@@ -52,6 +52,7 @@ const newsItemSchema = new mongoose.Schema({
   ],
   isLatest: { type: Boolean, default: false },
   isTrending: { type: Boolean, default: false },
+  isFiftyWordEdit: { type: Boolean, default: false },
   isHidden: { type: Boolean, default: false },
   targetLink: { type: String, trim: true, default: null },
   nominationLink: { type: String, trim: true, default: null },

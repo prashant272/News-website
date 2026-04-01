@@ -17,6 +17,8 @@ export interface LiveMatch {
     date: string;
     startTime?: string;
     teams: string[];
+    team1CaptainImg?: string;
+    team2CaptainImg?: string;
     score: Score[];
     category: 'live' | 'upcoming' | 'recent';
     isLiveTracked: boolean;
@@ -79,8 +81,8 @@ class CricketService {
     getScorecard = (matchId: string): Promise<CricketApiResponse<any>> =>
         this.request(`/scorecard/${matchId}`);
 
-    getPointsTable = (seriesId: string): Promise<CricketApiResponse<any>> =>
-        this.request(`/points/${seriesId}`);
+    getPointsTable = (seriesId: string, lang: string = 'en'): Promise<CricketApiResponse<any>> =>
+        this.request(`/points/${seriesId}?lang=${lang}`);
 
     getSquad = (matchId: string): Promise<CricketApiResponse<any>> =>
         this.request(`/squad/${matchId}`);
@@ -88,7 +90,7 @@ class CricketService {
     getPlayerInfo = (playerId: string): Promise<CricketApiResponse<any>> =>
         this.request(`/player/${playerId}`);
 
-    getSettings = (): Promise<CricketApiResponse<{ activeTournament: string, activeSeriesId: string, autoTrackEnabled: boolean }>> =>
+    getSettings = (): Promise<CricketApiResponse<{ activeTournament: string, activeSeriesId: string, autoTrackEnabled: boolean, headerMatch?: any }>> =>
         this.request("/settings");
 
     async updateSettings(settings: any) {
@@ -103,10 +105,10 @@ class CricketService {
         return res.data;
     }
 
-    saveManualPoints = (seriesId: string, seriesName: string, tableData: any[]): Promise<CricketApiResponse<any>> =>
+    saveManualPoints = (seriesId: string, seriesName: string, tableData: any[], lang: string = 'en'): Promise<CricketApiResponse<any>> =>
         this.request("/points/manual", {
             method: "POST",
-            body: JSON.stringify({ seriesId, seriesName, tableData }),
+            body: JSON.stringify({ seriesId, seriesName, tableData, lang }),
         });
 
     createManualMatch = (matchData: any): Promise<CricketApiResponse<LiveMatch>> =>

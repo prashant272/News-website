@@ -383,19 +383,28 @@ const getMatchScorecard = async (id) => {
     }
 };
 
-const getSeriesPoints = async (id) => {
+const getSeriesPoints = async (id, lang = 'en') => {
     try {
         // Check for manual points table first
         const manualTable = await SeriesPoints.findOne({ seriesId: id });
         if (manualTable) {
-            console.log(`[SERIES] Returning manual points table for: ${id}`);
+            console.log(`[SERIES] Returning manual points table for: ${id} (Lang: ${lang})`);
+            
+            // Select correct language arrays
+            const selectedGroups = lang === 'hi' && manualTable.groups_hi && manualTable.groups_hi.length > 0 
+                ? manualTable.groups_hi 
+                : manualTable.groups;
+                
+            const selectedData = lang === 'hi' && manualTable.data_hi && manualTable.data_hi.length > 0
+                ? manualTable.data_hi
+                : manualTable.data;
+
             return {
                 status: "success",
                 isManual: true,
                 seriesName: manualTable.seriesName,
-                // Support both old flat `data` and new `groups` format
-                groups: manualTable.groups || [{ groupName: 'Group 1', rows: manualTable.data || [] }],
-                data: manualTable.data || []
+                groups: selectedGroups || [{ groupName: 'Group 1', rows: selectedData || [] }],
+                data: selectedData || []
             };
         }
 
@@ -411,19 +420,30 @@ const getSeriesPoints = async (id) => {
     }
 };
 
-const saveManualPointsTable = async (seriesId, seriesName, groups) => {
+const saveManualPointsTable = async (seriesId, seriesName, groups, lang = 'en') => {
     try {
         // groups is an array of { groupName, rows }
         // Also keep a flat `data` for backward compatibility with old display code
         const flatData = groups.flatMap(g => g.rows || []);
+        
+        const updateFields = {
+            seriesName,
+            isManual: true,
+            lastUpdated: new Date()
+        };
+        
+        if (lang === 'hi') {
+            updateFields.groups_hi = groups;
+            updateFields.data_hi = flatData;
+        } else {
+            updateFields.groups = groups;
+            updateFields.data = flatData;
+        }
+
         const updated = await SeriesPoints.findOneAndUpdate(
             { seriesId },
             {
-                seriesName,
-                groups,
-                data: flatData,
-                isManual: true,
-                lastUpdated: new Date()
+                $set: updateFields
             },
             { upsert: true, new: true }
         );

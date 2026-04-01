@@ -18,6 +18,9 @@ const CricketManager: React.FC = () => {
     const [tournament, setTournament] = useState('T20 World Cup');
     const [seriesId, setSeriesId] = useState('');
     const [autoTrack, setAutoTrack] = useState(true);
+    const [headerMatch, setHeaderMatch] = useState({
+        team1Name: '', team1Img: '', team2Name: '', team2Img: '', isActive: false
+    });
     const [updatingSettings, setUpdatingSettings] = useState(false);
 
     const [searching, setSearching] = useState(false);
@@ -32,7 +35,12 @@ const CricketManager: React.FC = () => {
         startTime: '14:30',
         venue: '',
         category: 'upcoming' as 'live' | 'upcoming' | 'recent',
-        matchType: 'T20'
+        matchType: 'T20',
+        score1: '',
+        score2: '',
+        winnerStatus: '',
+        team1CaptainImg: '',
+        team2CaptainImg: ''
     });
     const [creatingManual, setCreatingManual] = useState(false);
     const [editingMatchId, setEditingMatchId] = useState<string | null>(null);
@@ -46,6 +54,7 @@ const CricketManager: React.FC = () => {
     const [isManualPoints, setIsManualPoints] = useState(false);
     const [savingPoints, setSavingPoints] = useState(false);
     const [hasFetchedPoints, setHasFetchedPoints] = useState(false);
+    const [tableLanguage, setTableLanguage] = useState<'en' | 'hi'>('hi');
 
     const [listSearchQuery, setListSearchQuery] = useState('');
 
@@ -71,9 +80,12 @@ const CricketManager: React.FC = () => {
         try {
             const res = await cricketService.getSettings();
             if (res.success) {
-                setTournament(res.data.activeTournament);
-                setSeriesId(res.data.activeSeriesId);
-                setAutoTrack(res.data.autoTrackEnabled);
+                setTournament(res.data.activeTournament || '');
+                setSeriesId(res.data.activeSeriesId || '');
+                setAutoTrack(res.data.autoTrackEnabled ?? true);
+                if (res.data.headerMatch) {
+                    setHeaderMatch(res.data.headerMatch);
+                }
             }
         } catch (err) {
             console.error("Failed to fetch cricket settings", err);
@@ -91,7 +103,8 @@ const CricketManager: React.FC = () => {
             const res = await cricketService.updateSettings({
                 activeTournament: tournament,
                 activeSeriesId: seriesId,
-                autoTrackEnabled: autoTrack
+                autoTrackEnabled: autoTrack,
+                headerMatch
             });
             if (res.success) {
                 alert("Settings updated successfully! New matches will be filtered by: " + tournament);
@@ -169,9 +182,13 @@ const CricketManager: React.FC = () => {
         try {
             const matchData = {
                 ...manualMatch,
-                id: editingMatchId || undefined, // Use existing ID if editing
+                id: editingMatchId || undefined,
                 dateTimeGMT: dateTimeGMT,
-                status: manualMatch.category === 'upcoming' ? 'Upcoming' : (manualMatch.category === 'live' ? 'Live' : 'Match Finished')
+                score: [
+                    { inning: 'Team 1', raw: manualMatch.score1 },
+                    { inning: 'Team 2', raw: manualMatch.score2 }
+                ],
+                status: manualMatch.winnerStatus || (manualMatch.category === 'upcoming' ? 'Upcoming' : (manualMatch.category === 'live' ? 'Live' : 'Match Finished'))
             };
 
             const res = await cricketService.createManualMatch(matchData);
@@ -186,7 +203,12 @@ const CricketManager: React.FC = () => {
                     startTime: '14:30',
                     venue: '',
                     category: 'upcoming',
-                    matchType: 'T20'
+                    matchType: 'T20',
+                    score1: '',
+                    score2: '',
+                    winnerStatus: '',
+                    team1CaptainImg: '',
+                    team2CaptainImg: ''
                 });
             }
         } catch (err: any) {
@@ -228,7 +250,12 @@ const CricketManager: React.FC = () => {
             startTime: t,
             venue: match.venue || '',
             category: match.category,
-            matchType: match.matchType || 'T20'
+            matchType: match.matchType || 'T20',
+            score1: match.score?.[0]?.raw || '',
+            score2: match.score?.[1]?.raw || '',
+            winnerStatus: match.status || '',
+            team1CaptainImg: match.team1CaptainImg || '',
+            team2CaptainImg: match.team2CaptainImg || ''
         });
         // Scroll to form
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -237,7 +264,7 @@ const CricketManager: React.FC = () => {
     const fetchPointsTable = async () => {
         if (!seriesId) return;
         try {
-            const res = await cricketService.getPointsTable(seriesId);
+            const res = await cricketService.getPointsTable(seriesId, tableLanguage);
             if (res.success) {
                 // If manual data: { isManual: true, groups: [...] }
                 if (res.data?.isManual && Array.isArray(res.data?.groups)) {
@@ -257,19 +284,19 @@ const CricketManager: React.FC = () => {
         }
     };
 
-    // Only auto-fetch once when seriesId is first loaded from settings
+    // Fetch when seriesId or language changes
     useEffect(() => {
-        if (seriesId && !hasFetchedPoints) {
+        if (seriesId) {
             fetchPointsTable();
             setHasFetchedPoints(true);
         }
-    }, [seriesId]);
+    }, [seriesId, tableLanguage]);
 
     const handleSavePoints = async () => {
         if (!seriesId) return;
         setSavingPoints(true);
         try {
-            const res = await cricketService.saveManualPoints(seriesId, tournament, pointsGroups as any);
+            const res = await cricketService.saveManualPoints(seriesId, tournament, pointsGroups as any, tableLanguage);
             if (res.success) {
                 alert("Points Table saved!");
                 setIsManualPoints(true);
@@ -383,6 +410,33 @@ const CricketManager: React.FC = () => {
                         </div>
                     </div>
 
+                    {/* Navbar Header Match Control */}
+                    <div style={{ flex: 1, minWidth: '350px', background: '#333', padding: '15px', borderRadius: '8px', border: '1px solid #444' }}>
+                        <h4 style={{ color: '#fbbf24', marginBottom: '10px', fontSize: '14px' }}>Navbar Header Widget (Manual Override)</h4>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
+                            <div>
+                                <label style={{ color: '#aaa', fontSize: '12px', display: 'block', marginBottom: '4px' }}>Team 1 Name</label>
+                                <input type="text" value={headerMatch.team1Name} onChange={e => setHeaderMatch({ ...headerMatch, team1Name: e.target.value })} style={{ width: '100%', padding: '8px', borderRadius: '4px', background: '#000', border: '1px solid #444', color: '#fff' }} />
+                            </div>
+                            <div>
+                                <label style={{ color: '#aaa', fontSize: '12px', display: 'block', marginBottom: '4px' }}>Team 2 Name</label>
+                                <input type="text" value={headerMatch.team2Name} onChange={e => setHeaderMatch({ ...headerMatch, team2Name: e.target.value })} style={{ width: '100%', padding: '8px', borderRadius: '4px', background: '#000', border: '1px solid #444', color: '#fff' }} />
+                            </div>
+                            <div>
+                                <label style={{ color: '#aaa', fontSize: '12px', display: 'block', marginBottom: '4px' }}>Team 1 Image URL</label>
+                                <input type="text" value={headerMatch.team1Img} onChange={e => setHeaderMatch({ ...headerMatch, team1Img: e.target.value })} style={{ width: '100%', padding: '8px', borderRadius: '4px', background: '#000', border: '1px solid #444', color: '#fff' }} />
+                            </div>
+                            <div>
+                                <label style={{ color: '#aaa', fontSize: '12px', display: 'block', marginBottom: '4px' }}>Team 2 Image URL</label>
+                                <input type="text" value={headerMatch.team2Img} onChange={e => setHeaderMatch({ ...headerMatch, team2Img: e.target.value })} style={{ width: '100%', padding: '8px', borderRadius: '4px', background: '#000', border: '1px solid #444', color: '#fff' }} />
+                            </div>
+                        </div>
+                        <label style={{ color: '#fff', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 'bold' }}>
+                            <input type="checkbox" checked={headerMatch.isActive} onChange={(e) => setHeaderMatch({ ...headerMatch, isActive: e.target.checked })} style={{ width: '16px', height: '16px' }} />
+                            Show Manual Match Widget in Navbar
+                        </label>
+                    </div>
+
                     {/* Series Discovery Column */}
                     <div style={{ flex: 1, minWidth: '300px', borderLeft: '1px solid #444', paddingLeft: '20px' }}>
                         <h4 style={{ color: '#fff', fontSize: '14px', marginBottom: '10px' }}>Series Discovery (Find IDs)</h4>
@@ -487,7 +541,7 @@ const CricketManager: React.FC = () => {
                 {/* Manual Match Creation Form */}
                 <div style={{ flex: 1, minWidth: '400px', background: '#1a1a1a', padding: '20px', borderRadius: '8px', border: '1px solid #333' }}>
                     <h3 style={{ color: '#fff', marginBottom: '15px', fontSize: '18px' }}>🔨 Create Manual Match</h3>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'minmax(200px, 1fr) 1fr', gap: '15px' }}>
                         <div style={{ gridColumn: 'span 2' }}>
                             <label style={{ color: '#aaa', fontSize: '12px' }}>Match Name</label>
                             <input
@@ -510,6 +564,24 @@ const CricketManager: React.FC = () => {
                             <input
                                 type="text" value={manualMatch.teams[1]}
                                 onChange={(e) => setManualMatch({ ...manualMatch, teams: [manualMatch.teams[0], e.target.value] })}
+                                style={{ width: '100%', padding: '8px', borderRadius: '4px', background: '#000', border: '1px solid #444', color: '#fff' }}
+                            />
+                        </div>
+                        <div>
+                            <label style={{ color: '#aaa', fontSize: '12px' }}>Team 1 Captain Image URL</label>
+                            <input
+                                type="text" value={manualMatch.team1CaptainImg}
+                                onChange={(e) => setManualMatch({ ...manualMatch, team1CaptainImg: e.target.value })}
+                                placeholder="https://..."
+                                style={{ width: '100%', padding: '8px', borderRadius: '4px', background: '#000', border: '1px solid #444', color: '#fff' }}
+                            />
+                        </div>
+                        <div>
+                            <label style={{ color: '#aaa', fontSize: '12px' }}>Team 2 Captain Image URL</label>
+                            <input
+                                type="text" value={manualMatch.team2CaptainImg}
+                                onChange={(e) => setManualMatch({ ...manualMatch, team2CaptainImg: e.target.value })}
+                                placeholder="https://..."
                                 style={{ width: '100%', padding: '8px', borderRadius: '4px', background: '#000', border: '1px solid #444', color: '#fff' }}
                             />
                         </div>
@@ -550,6 +622,33 @@ const CricketManager: React.FC = () => {
                                 style={{ width: '100%', padding: '8px', borderRadius: '4px', background: '#000', border: '1px solid #444', color: '#fff' }}
                             />
                         </div>
+                        
+                        {/* MANUAL SCORE FIELDS */}
+                        <div>
+                            <label style={{ color: '#aaa', fontSize: '12px' }}>Team 1 Score (e.g. 180/5)</label>
+                            <input
+                                type="text" value={manualMatch.score1}
+                                onChange={(e) => setManualMatch({ ...manualMatch, score1: e.target.value })}
+                                style={{ width: '100%', padding: '8px', borderRadius: '4px', background: '#000', border: '1px solid #444', color: '#fff' }}
+                            />
+                        </div>
+                        <div>
+                            <label style={{ color: '#aaa', fontSize: '12px' }}>Team 2 Score (e.g. 165/8)</label>
+                            <input
+                                type="text" value={manualMatch.score2}
+                                onChange={(e) => setManualMatch({ ...manualMatch, score2: e.target.value })}
+                                style={{ width: '100%', padding: '8px', borderRadius: '4px', background: '#000', border: '1px solid #444', color: '#fff' }}
+                            />
+                        </div>
+                        <div style={{ gridColumn: 'span 2' }}>
+                            <label style={{ color: '#aaa', fontSize: '12px' }}>Match Result/Status (e.g. MI won by 15 runs)</label>
+                            <input
+                                type="text" value={manualMatch.winnerStatus}
+                                onChange={(e) => setManualMatch({ ...manualMatch, winnerStatus: e.target.value })}
+                                style={{ width: '100%', padding: '8px', borderRadius: '4px', background: '#000', border: '1px solid #444', color: '#fff' }}
+                            />
+                        </div>
+
                         <div style={{ gridColumn: 'span 2', display: 'flex', gap: '10px' }}>
                             <button
                                 onClick={handleCreateManualMatch}
@@ -569,7 +668,12 @@ const CricketManager: React.FC = () => {
                                             startTime: '14:30',
                                             venue: '',
                                             category: 'upcoming',
-                                            matchType: 'T20'
+                                            matchType: 'T20',
+                                            score1: '',
+                                            score2: '',
+                                            winnerStatus: '',
+                                            team1CaptainImg: '',
+                                            team2CaptainImg: ''
                                         });
                                     }}
                                     style={{ padding: '10px 20px', background: '#6c757d', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
@@ -586,6 +690,14 @@ const CricketManager: React.FC = () => {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                         <h3 style={{ color: '#fff', margin: 0, fontSize: '18px' }}>📝 Manual Points Table</h3>
                         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                            <select 
+                                value={tableLanguage} 
+                                onChange={(e) => setTableLanguage(e.target.value as 'en'|'hi')}
+                                style={{ padding: '3px', background: '#333', color: '#fff', border: '1px solid #666', borderRadius: '4px', fontSize: '12px' }}
+                            >
+                                <option value="hi">Hindi Table</option>
+                                <option value="en">English Table</option>
+                            </select>
                             {isManualPoints && <span style={{ fontSize: '10px', background: '#28a745', color: '#fff', padding: '2px 6px', borderRadius: '10px' }}>MANUAL MODE</span>}
                             <button
                                 onClick={() => { setHasFetchedPoints(false); fetchPointsTable(); setHasFetchedPoints(true); }}
@@ -702,7 +814,7 @@ const CricketManager: React.FC = () => {
                         <h3 style={{ color: '#000', margin: 0 }}>Points Table Preview</h3>
                         <span style={{ fontSize: '12px', background: '#007bff', color: '#fff', padding: '2px 8px', borderRadius: '10px' }}>ID: {seriesId}</span>
                     </div>
-                    <CricketPointsTable seriesId={seriesId} />
+                    <CricketPointsTable seriesId={seriesId} lang={tableLanguage} />
                 </div>
             )}
 

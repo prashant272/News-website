@@ -1,0 +1,177 @@
+.hindiRegional {
+    width: 100%;
+    padding: 60px 0;
+    background: #fdfdfd;
+    font-family: 'Noto Sans Devanagari', sans-serif;
+
+    .container {
+        max-width: 1240px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .header {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        margin-bottom: 40px;
+        
+        .headerTop {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            
+            span.dot {
+                width: 14px;
+                height: 14px;
+                background: #cc0000;
+                border-radius: 50%;
+                box-shadow: 0 0 10px rgba(204, 0, 0, 0.4);
+            }
+            
+            h2 {
+                font-size: 2.2rem;
+                font-weight: 900;
+                color: #111;
+                margin: 0;
+            }
+        }
+
+        .stateFilter {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            
+            &::-webkit-scrollbar { height: 4px; }
+            &::-webkit-scrollbar-thumb { background: #eee; border-radius: 10px; }
+
+            .filterBtn {
+                padding: 10px 24px;
+                background: #fff;
+                border: 1px solid #eee;
+                border-radius: 50px;
+                font-size: 0.95rem;
+                font-weight: 700;
+                color: #555;
+                cursor: pointer;
+                transition: all 0.2s;
+                white-space: nowrap;
+
+                &:hover { border-color: #cc0000; color: #cc0000; }
+                &.active {
+                    background: #cc0000;
+                    color: #fff;
+                    border-color: #cc0000;
+                    box-shadow: 0 5px 15px rgba(204, 0, 0, 0.2);
+                }
+            }
+        }
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 30px;
+    }
+
+    .card {
+        background: #fff;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.03);
+        transition: transform 0.3s ease;
+        text-decoration: none;
+        display: flex;
+        flex-direction: column;
+
+        &:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+            .imgBox img { transform: scale(1.1); }
+        }
+
+        .imgBox {
+            height: 200px;
+            overflow: hidden;
+            position: relative;
+            
+            img {
+                object-fit: cover;
+                transition: transform 0.8s ease;
+            }
+            
+            .stateTag {
+                position: absolute;
+                top: 15px;
+                left: 15px;
+                background: #cc0000;
+                color: #fff;
+                padding: 4px 12px;
+                border-radius: 4px;
+                font-size: 0.75rem;
+                font-weight: 800;
+                z-index: 2;
+            }
+        }
+
+        .info {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            
+            h3 {
+                font-size: 1.25rem;
+                font-weight: 800;
+                color: #111;
+                line-height: 1.4;
+                margin-bottom: 12px;
+                display: -webkit-box;
+                line-clamp: 2;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+            
+            .date {
+                font-size: 0.8rem;
+                color: #888;
+                margin-top: auto;
+            }
+        }
+    }
+
+    .footer {
+        margin-top: 50px;
+        display: flex;
+        justify-content: center;
+        
+        .viewMore {
+            background: #fff;
+            color: #cc0000;
+            border: 2px solid #cc0000;
+            padding: 12px 35px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+
+            &:hover {
+                background: #cc0000;
+                color: #fff;
+            }
+        }
+    }
+}
+
+.noNews {
+    width: 100%;
+    padding: 100px 0;
+    text-align: center;
+    color: #888;
+    background: #fafafa;
+    border-radius: 20px;
+}
