@@ -7,7 +7,7 @@ import { useNewsSectionData } from '@/app/hooks/useNewsSectionData';
 import { useNewsContext } from '@/app/context/NewsContext';
 
 const SHOW_INTERVAL_MS = 2 * 60 * 1000;
-const FIRST_SHOW_DELAY_MS = 5000; // Increased delay for better UX
+const FIRST_SHOW_DELAY_MS = 300; // Decreased delay for faster popup appearance
 
 const FALLBACK_AWARDS = [
     {
@@ -61,7 +61,8 @@ const AwardsPopup: React.FC = () => {
         if (isAdmin || selectedAward) return;
 
         timerRef.current = setTimeout(() => {
-            const startingIndex = Math.floor(Math.random() * 10);
+            const currentCount = (liveAwards && liveAwards.length > 0) ? liveAwards.length : FALLBACK_AWARDS.length;
+            const startingIndex = Math.floor(Math.random() * currentCount);
             setAwardIndex(startingIndex);
             indexRef.current = startingIndex;
             setVisible(true);
@@ -77,7 +78,7 @@ const AwardsPopup: React.FC = () => {
             clearTimeout(timerRef.current);
             clearInterval(intervalRef.current);
         };
-    }, [isAdmin, selectedAward]);
+    }, [isAdmin, selectedAward, liveAwards.length]);
 
     // If an award is selected manually, show the popup
     const isPopupOpen = visible || !!selectedAward;
@@ -175,9 +176,9 @@ const AwardsPopup: React.FC = () => {
                         <>
                             <div className={styles.dots}>
                                 {Array.from({ length: Math.min(totalCount, 12) }).map((_, i) => (
-                                    <span 
-                                        key={i} 
-                                        className={`${styles.dot} ${i === currentPos % Math.min(totalCount, 12) ? styles.activeDot : ''}`} 
+                                    <span
+                                        key={i}
+                                        className={`${styles.dot} ${i === currentPos ? styles.activeDot : ''}`}
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             setAwardIndex(i);

@@ -1,21 +1,5 @@
 const newsSources = [
-    // --- HOME (Top Stories) ---
-    {
-        name: "Aaj Tak",
-        url: "https://www.aajtak.in/rssfeeds/?id=home",
-        category: "home",
-    },
-    {
-        name: "ABP News",
-        url: "https://www.abplive.com/home/feed",
-        category: "home",
-    },
-    {
-        name: "The Hindu - Front Page",
-        url: "https://www.thehindu.com/feeder/default.rss",
-        category: "home",
-    },
-
+ 
     // --- INDIA (National) ---
     {
         name: "Aaj Tak - India",
@@ -54,16 +38,7 @@ const newsSources = [
     },
 
     // --- SPORTS ---
-    {
-        name: "Cricbuzz - Cricket News",
-        url: "https://news.google.com/rss/search?q=cricket+bcci+icc+ipl+site:cricbuzz.com",
-        category: "sports",
-    },
-    {
-        name: "ESPN Sports News",
-        url: "https://www.espn.com/espn/rss/news",
-        category: "sports",
-    },
+
     {
         name: "News18 Sports",
         url: "https://www.news18.com/rss/sports.xml",
@@ -77,16 +52,6 @@ const newsSources = [
         url: "http://rss.cnn.com/rss/money_latest.rss",
         category: "business",
     },
-    {
-        name: "Government Business News",
-        url: "https://news.google.com/rss/search?q=government+business+finance+news",
-        category: "business",
-    },
-    {
-        name: "Ministry of Finance - India",
-        url: "https://news.google.com/rss/search?q=site:finmin.nic.in+news",
-        category: "business",
-    },
 
     // --- TECHNOLOGY ---
     {
@@ -97,16 +62,6 @@ const newsSources = [
     {
         name: "HT Tech",
         url: "https://tech.hindustantimes.com/rss/tech",
-        category: "technology",
-    },
-    {
-        name: "TechCrunch",
-        url: "https://techcrunch.com/feed/",
-        category: "technology",
-    },
-    {
-        name: "The Verge",
-        url: "https://www.theverge.com/rss/index.xml",
         category: "technology",
     },
 
@@ -144,11 +99,6 @@ const newsSources = [
         category: "lifestyle",
     },
     {
-        name: "Vogue",
-        url: "https://www.vogue.com/feed/rss",
-        category: "lifestyle",
-    },
-    {
         name: "GQ",
         url: "https://www.gq.com/feed/rss",
         category: "lifestyle",
@@ -170,16 +120,6 @@ const newsSources = [
         url: "https://rss.cnn.com/rss/edition_world.rss",
         category: "world",
     },
-    {
-        name: "The Guardian - World",
-        url: "https://www.theguardian.com/world/rss",
-        category: "world",
-    },
-    {
-        name: "United Nations News",
-        url: "https://news.un.org/feed/subscribe/en/news/all/rss.xml",
-        category: "world",
-    },
 
     // --- HEALTH ---
     {
@@ -196,17 +136,7 @@ const newsSources = [
         name: "World Health Organization (WHO)",
         url: "https://news.google.com/rss/search?q=site:who.int+health",
         category: "health",
-    },
-    {
-        name: "WebMD",
-        url: "https://rssfeeds.webmd.com/rss/rss.aspx?RSSSource=RSS_PUBLIC",
-        category: "health",
-    },
-    {
-        name: "National Institutes of Health (NIH)",
-        url: "https://www.nih.gov/news-events/news-releases/rss.xml",
-        category: "health",
-    },
+    },,
     // --- STATE NEWS (Regional) ---
     {
         name: "ABP News - Bihar",

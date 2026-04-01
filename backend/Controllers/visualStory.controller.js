@@ -16,7 +16,9 @@ const uploadToCloudinary = async (image, folder = "visual_stories") => {
     try {
         const res = await cloudinary.uploader.upload(image, {
             folder,
-            timeout: 120000 // Increase timeout to 120 seconds
+            quality: "auto:best", // Optimized: Store best quality
+            fetch_format: "auto", // Optimized: Better format like webp/avif
+            timeout: 120000 
         });
         return res.secure_url;
     } catch (err) {
@@ -164,8 +166,11 @@ exports.getStoryBySlug = async (req, res) => {
     try {
         const story = await VisualStory.findOne({ slug: req.params.slug });
         if (!story) return res.status(404).json({ success: false, message: "Story not found" });
+        
+        // Update view count and wait for save to ensure stability
         story.viewCount += 1;
         await story.save();
+
         res.status(200).json({ success: true, data: story });
     } catch (error) {
         res.status(500).json({ success: false, message: "Error fetching story", error: error.message });

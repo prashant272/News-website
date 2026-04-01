@@ -51,6 +51,7 @@ const newsArticleSchema = new mongoose.Schema(
         isLatest: { type: Boolean, default: false },
         isTrending: { type: Boolean, default: false },
         isHidden: { type: Boolean, default: false },
+        showInPopup: { type: Boolean, default: false },
         targetLink: { type: String, trim: true, default: null },
         urlHash: { type: String, trim: true, index: true, unique: true, sparse: true },
         nominationLink: { type: String, trim: true, default: null },

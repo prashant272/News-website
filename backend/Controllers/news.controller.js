@@ -154,7 +154,7 @@ exports.AddNews = async (req, res) => {
     const {
       title, slug, category, subCategory, summary, content,
       image, tags = [], section, targetLink, nominationLink, moreInfoLink,
-      author, status, authorId, scheduledAt
+      author, status, authorId, scheduledAt, showInPopup
     } = req.body;
 
     const finalCategory = (category || section)?.toLowerCase();
@@ -199,7 +199,8 @@ exports.AddNews = async (req, res) => {
       authorId: authorId || null,
       status: status || "draft",
       scheduledAt: status === "scheduled" ? scheduledAt : null,
-      publishedAt: status === "published" ? new Date() : null
+      publishedAt: status === "published" ? new Date() : null,
+      showInPopup: !!showInPopup
     });
 
     await newItem.save();
@@ -282,7 +283,7 @@ exports.streamNews = async (req, res) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
 
     const cursor = NewsArticle.find(query)
-      .select('title slug category subCategory summary image tags isLatest isTrending isHidden targetLink nominationLink moreInfoLink author publishedAt _id')
+      .select('title slug category subCategory summary image tags isLatest isTrending isHidden showInPopup targetLink nominationLink moreInfoLink author publishedAt _id')
       .sort({ publishedAt: -1, createdAt: -1 })
       .limit(parseInt(limit))
       .lean()
@@ -439,11 +440,12 @@ exports.updateNewsBySlug = async (req, res) => {
 exports.setNewsFlags = async (req, res) => {
   try {
     const { section, slug } = req.params;
-    const { isLatest, isTrending, isHidden } = req.body;
+    const { isLatest, isTrending, isHidden, showInPopup } = req.body;
     const updateFields = {};
     if (typeof isLatest !== "undefined") updateFields.isLatest = !!isLatest;
     if (typeof isTrending !== "undefined") updateFields.isTrending = !!isTrending;
     if (typeof isHidden !== "undefined") updateFields.isHidden = !!isHidden;
+    if (typeof showInPopup !== "undefined") updateFields.showInPopup = !!showInPopup;
 
     const updatedItem = await NewsArticle.findOneAndUpdate({ slug }, { $set: updateFields }, { new: true });
     if (!updatedItem) return res.status(404).json({ success: false, msg: "Not found" });

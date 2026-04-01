@@ -62,6 +62,10 @@ const visualStorySchema = new mongoose.Schema({
     timestamps: true
 });
 
+// Optimization: Add Index for fast lookups by slug and filtering by status
+visualStorySchema.index({ slug: 1 });
+visualStorySchema.index({ isActive: 1 });
+
 visualStorySchema.pre("validate", function () {
     if (this.title) {
         this.slug = this.title
