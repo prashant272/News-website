@@ -27,6 +27,8 @@ import HindiRashifal from "./Components/Home/Hindi/HindiRashifal";
 import HindiPoliticsSection from "./Components/Home/Hindi/HindiPoliticsSection";
 import HindiEntertainmentNews from "./Components/Home/Hindi/HindiEntertainmentNews";
 import HindiCricketSection from "./Components/Home/Hindi/HindiCricketSection";
+import HindiFeaturedSubcategories from "./Components/Home/Hindi/HindiFeaturedSubcategories";
+import HindiEducationScience from "./Components/Home/Hindi/HindiEducationScience";
 
 // Lazy-load heavy sections
 const VideosSection = dynamic(() => import("./Components/Common/VideosSection/VideosSection").then(mod => mod.VideosSection), {
@@ -83,6 +85,12 @@ const HindiHome = () => (
 
     {/* Daily Cricket Updates */}
     <HindiCricketSection />
+
+    {/* Featured Subcategories: Economy, Governance, Environment */}
+    <HindiFeaturedSubcategories />
+
+    {/* Featured Subcategories: Education, Careers, Science */}
+    <HindiEducationScience />
 
     {/* Daily Horoscope */}
     <HindiRashifal />

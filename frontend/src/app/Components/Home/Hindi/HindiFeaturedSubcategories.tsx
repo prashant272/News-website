@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useMemo } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-// Reuse the common layout styles built for Featured Subcategories
 import styles from './HindiFeaturedSubcategories.module.scss';
-import { useNewsContext } from '@/app/context/NewsContext';
+import { useNewsBySection } from '@/app/hooks/NewsApi';
 import { getLocalizedHref } from '@/Utils/navigation';
 import { useLanguage } from '@/app/hooks/useLanguage';
 
@@ -20,8 +19,9 @@ const formatDate = (dateString?: string) => {
     });
 };
 
-const ColumnList = ({ title, news, loading }: { title: string, news: any[], loading: boolean }) => {
+const ColumnList = ({ title, section }: { title: string, section: string }) => {
     const { lang } = useLanguage();
+    const { data: news, loading } = useNewsBySection(section, false, 1, 5, "published", lang);
 
     return (
         <div className={styles.column}>
@@ -40,10 +40,10 @@ const ColumnList = ({ title, news, loading }: { title: string, news: any[], load
                     ))
                 ) : news && news.length > 0 ? (
                     news.slice(0, 5).map(item => {
-                        const cat = (item.category || 'sports').toLowerCase();
+                        const cat = (item.category || section).toLowerCase();
                         const sub = (item.subCategory || 'general').toLowerCase();
                         return (
-                        <Link key={item._id || item.slug} href={getLocalizedHref(`/Pages/${cat}/${sub}/${item.slug}`, lang)} className={styles.listItem}>
+                        <Link key={item._id} href={getLocalizedHref(`/Pages/${cat}/${sub}/${item.slug}`, lang)} className={styles.listItem}>
                             <div className={styles.imgWrapper}>
                                 <Image
                                     src={item.image || '/placeholder.jpg'}
@@ -70,9 +70,10 @@ const ColumnList = ({ title, news, loading }: { title: string, news: any[], load
     );
 };
 
-// Big single card for Football
-const ColumnBig = ({ title, news, loading }: { title: string, news: any[], loading: boolean }) => {
+// Big single card for environment
+const ColumnBig = ({ title, section }: { title: string, section: string }) => {
     const { lang } = useLanguage();
+    const { data: news, loading } = useNewsBySection(section, false, 1, 1, "published", lang);
 
     return (
         <div className={styles.column}>
@@ -87,22 +88,22 @@ const ColumnBig = ({ title, news, loading }: { title: string, news: any[], loadi
             ) : news && news.length > 0 ? (
                 (() => {
                     const item = news[0];
-                    const cat = (item.category || 'sports').toLowerCase();
+                    const cat = (item.category || section).toLowerCase();
                     const sub = (item.subCategory || 'general').toLowerCase();
                     return (
                 <Link href={getLocalizedHref(`/Pages/${cat}/${sub}/${item.slug}`, lang)} className={styles.bigCard}>
                     <div className={styles.bigImgWrapper}>
                         <Image
-                            src={item.image || '/placeholder.jpg'}
-                            alt={item.title}
+                            src={news[0].image || '/placeholder.jpg'}
+                            alt={news[0].title}
                             fill
                             sizes="(max-width: 768px) 100vw, 33vw"
                         />
                     </div>
-                    <h3 className={styles.bigTitle}>{item.title}</h3>
+                    <h3 className={styles.bigTitle}>{news[0].title}</h3>
                     <div className={styles.bigMeta}>
-                         {item.author ? `${item.author} • ` : ''}
-                         {formatDate(item.createdAt)}
+                         {news[0].author ? `${news[0].author} • ` : ''}
+                         {formatDate(news[0].createdAt)}
                     </div>
                 </Link>
                 );
@@ -114,28 +115,16 @@ const ColumnBig = ({ title, news, loading }: { title: string, news: any[], loadi
     );
 };
 
-const HindiSportsNews = () => {
-    const { sportsNews, loading } = useNewsContext();
-
-    const lists = useMemo(() => {
-        if (!sportsNews) return { all: [], ipl: [], football: [] };
-        
-        const all = sportsNews.slice(0, 5);
-        const ipl = sportsNews.filter((i: any) => (i.subCategory || '').toLowerCase().includes('ipl')).slice(0, 5);
-        const football = sportsNews.filter((i: any) => (i.subCategory || '').toLowerCase().includes('football')).slice(0, 1);
-
-        return { all, ipl, football };
-    }, [sportsNews]);
-
+const HindiFeaturedSubcategories = () => {
     return (
         <section className={styles.featuredSection}>
             <div className={styles.grid}>
-                <ColumnList title="मुख्य खेल (All)" news={lists.all} loading={loading && lists.all.length === 0} />
-                <ColumnList title="आईपीएल 2026 (IPL 2026)" news={lists.ipl} loading={loading && lists.ipl.length === 0} />
-                <ColumnBig title="फुटबॉल (Football)" news={lists.football} loading={loading && lists.football.length === 0} />
+                <ColumnList title="अर्थव्यवस्था (Economy)" section="economy" />
+                <ColumnList title="शासन (Governance)" section="governance" />
+                <ColumnBig title="पर्यावरण (Environment)" section="environment" />
             </div>
         </section>
     );
 };
 
-export default HindiSportsNews;
+export default HindiFeaturedSubcategories;
