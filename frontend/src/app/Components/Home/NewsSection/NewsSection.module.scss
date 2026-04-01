@@ -526,7 +526,7 @@
   z-index: 5;
   position: relative;
 
-  .moreInfoBtn, .nominationBtn {
+  .moreInfoBtn, .nominationBtn, .viewAwardBtn {
     padding: 10px 20px;
     border-radius: 8px;
     font-family: 'Inter', sans-serif;
@@ -540,6 +540,20 @@
     align-items: center;
     justify-content: center;
     flex: 1;
+    cursor: pointer;
+  }
+
+  .viewAwardBtn {
+    background: linear-gradient(135deg, #d4af37 0%, #b8860b 100%);
+    color: #ffffff;
+    border: none;
+    box-shadow: 0 4px 12px rgba(184, 134, 11, 0.3);
+
+    &:hover {
+      background: linear-gradient(135deg, #b8860b 0%, #d4af37 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(184, 134, 11, 0.4);
+    }
   }
 
   .moreInfoBtn {
@@ -574,10 +588,16 @@
   margin-bottom: 0;
   gap: 8px;
 
-  .moreInfoBtn, .nominationBtn {
+  .moreInfoBtn, .nominationBtn, .viewAwardBtn {
     padding: 7px 12px;
     font-size: 0.75rem;
     border-radius: 6px;
+  }
+
+  .viewAwardBtn {
+    &:hover {
+      transform: scale(1.05);
+    }
   }
 
   .moreInfoBtn {
@@ -591,3 +611,4 @@
     }
   }
 }
+

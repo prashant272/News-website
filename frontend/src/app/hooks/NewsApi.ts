@@ -263,7 +263,7 @@ export const useDeleteNews = (section: string): UseApiMutationResult<ApiResponse
 
 export const useSetNewsFlags = (section: string): UseApiMutationResult<ApiResponse<NewsItem>> =>
   useApiMutation<ApiResponse<NewsItem>>(
-    (payload: { slug: string; isLatest?: boolean; isTrending?: boolean; isHidden?: boolean }) =>
+    (payload: { slug: string; isLatest?: boolean; isTrending?: boolean; isHidden?: boolean; showInPopup?: boolean }) =>
       newsService.setNewsFlags({
         section,
         slug: payload.slug,
@@ -271,6 +271,7 @@ export const useSetNewsFlags = (section: string): UseApiMutationResult<ApiRespon
           isLatest: payload.isLatest,
           isTrending: payload.isTrending,
           isHidden: payload.isHidden,
+          showInPopup: payload.showInPopup,
         },
       })
   );

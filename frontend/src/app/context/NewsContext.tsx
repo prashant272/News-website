@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState, useMemo, ReactNode, useRef } from "react";
+import React, { createContext, useContext, useEffect, useState, useMemo, ReactNode, useRef, useCallback } from "react";
 import { usePathname } from "next/navigation";
 import { NewsItem, NewsDocument } from "@/app/services/NewsService";
 import { useStreamingNews } from "@/app/hooks/NewsApi";
@@ -28,6 +28,9 @@ interface NewsContextType {
   loading: boolean;
   error: string | null;
   refetch: () => void;
+  selectedAward: NewsItem | null;
+  openAwardPopup: (item: NewsItem) => void;
+  closeAwardPopup: () => void;
 }
 
 const NewsContext = createContext<NewsContextType | undefined>(undefined);
@@ -125,12 +128,25 @@ export const NewsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
   }, [rawData]);
 
+  const [selectedAward, setSelectedAward] = useState<NewsItem | null>(null);
+
+  const openAwardPopup = useCallback((item: NewsItem) => {
+    setSelectedAward(item);
+  }, []);
+
+  const closeAwardPopup = useCallback(() => {
+    setSelectedAward(null);
+  }, []);
+
   const value: NewsContextType = useMemo(() => ({
     ...newsState,
     loading,
     error,
     refetch,
-  }), [newsState, loading, error, refetch]);
+    selectedAward,
+    openAwardPopup,
+    closeAwardPopup
+  }), [newsState, loading, error, refetch, selectedAward, openAwardPopup, closeAwardPopup]);
 
   return <NewsContext.Provider value={value}>{children}</NewsContext.Provider>;
 };

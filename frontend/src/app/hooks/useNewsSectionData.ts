@@ -36,6 +36,7 @@ export interface BaseNewsItem {
   href: string;
   isTrending?: boolean;
   isLatest?: boolean;
+  showInPopup?: boolean;
   targetLink?: string;
   nominationLink?: string;
   date?: string;
@@ -217,6 +218,7 @@ export function useNewsSectionData<T extends NewsItemVariant = NewsItemVariant>(
         href: raw.slug ? `/Pages/${section}/${catSlug}/${raw.slug}` : '#',
         isTrending: !!raw.isTrending,
         isLatest: !!raw.isLatest,
+        showInPopup: !!raw.showInPopup,
         targetLink: raw.targetLink,
         nominationLink: raw.nominationLink,
         date: raw.publishedAt || raw.date || raw.createdAt,
@@ -257,6 +259,7 @@ export function useNewsSectionData<T extends NewsItemVariant = NewsItemVariant>(
         href: raw.slug ? `/Pages/${section}/${catSlug}/${raw.slug}` : '#',
         isTrending: !!raw.isTrending,
         isLatest: !!raw.isLatest,
+        showInPopup: !!raw.showInPopup,
         targetLink: raw.targetLink,
         nominationLink: raw.nominationLink,
         date: raw.publishedAt || raw.date || raw.createdAt,

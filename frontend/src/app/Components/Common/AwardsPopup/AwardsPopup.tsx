@@ -4,12 +4,11 @@ import styles from './AwardsPopup.module.scss';
 import { X, ExternalLink } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { useNewsSectionData } from '@/app/hooks/useNewsSectionData';
-import { getImageSrc } from '@/Utils/imageUtils';
+import { useNewsContext } from '@/app/context/NewsContext';
 
 const SHOW_INTERVAL_MS = 2 * 60 * 1000;
-const FIRST_SHOW_DELAY_MS = 1000;
+const FIRST_SHOW_DELAY_MS = 5000; // Increased delay for better UX
 
-// Fallback data shown if no awards in DB
 const FALLBACK_AWARDS = [
     {
         _id: 'f1',
@@ -39,11 +38,16 @@ const FALLBACK_AWARDS = [
 
 const AwardsPopup: React.FC = () => {
     const pathname = usePathname();
-    const { items: liveAwards, isLoading: liveLoading } = useNewsSectionData({
+    const { items: allAwards } = useNewsSectionData({
         variant: 'grid',
         overrideSection: 'awards',
         limit: 15
     });
+    const { selectedAward, closeAwardPopup } = useNewsContext();
+
+    // Filter awards that are marked for popup rotation
+    const liveAwards = allAwards?.filter(item => item.showInPopup === true) || [];
+
     const [visible, setVisible] = useState(false);
     const [awardIndex, setAwardIndex] = useState(0);
     const indexRef = useRef(0);
@@ -52,18 +56,16 @@ const AwardsPopup: React.FC = () => {
 
     const isAdmin = pathname?.startsWith('/Dashboard');
 
+    // Handle auto-show logic (only if NOT on admin and NO specific award is selected)
     useEffect(() => {
-        if (isAdmin) return;
+        if (isAdmin || selectedAward) return;
 
-        // Show first popup
         timerRef.current = setTimeout(() => {
-            // Randomize starting index if live awards exist
             const startingIndex = Math.floor(Math.random() * 10);
             setAwardIndex(startingIndex);
             indexRef.current = startingIndex;
             setVisible(true);
 
-            // Then cycle every 2 mins
             intervalRef.current = setInterval(() => {
                 indexRef.current = indexRef.current + 1;
                 setAwardIndex(indexRef.current);
@@ -75,16 +77,17 @@ const AwardsPopup: React.FC = () => {
             clearTimeout(timerRef.current);
             clearInterval(intervalRef.current);
         };
-        // Only run once on mount
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isAdmin]);
+    }, [isAdmin, selectedAward]);
 
-    if (isAdmin || !visible) return null;
+    // If an award is selected manually, show the popup
+    const isPopupOpen = visible || !!selectedAward;
 
-    // Build awards list
-    const hasLiveAwards = liveAwards && liveAwards.length > 0;
-    const totalCount = hasLiveAwards ? liveAwards.length : FALLBACK_AWARDS.length;
-    const currentPos = awardIndex % totalCount;
+    if (!isPopupOpen) return null;
+
+    const handleClose = () => {
+        setVisible(false);
+        closeAwardPopup();
+    };
 
     let nominateUrl: string;
     let articleUrl: string;
@@ -92,40 +95,59 @@ const AwardsPopup: React.FC = () => {
     let titleText: string;
     let descText: string;
     let imageUrl: string | undefined;
+    let showDots = false;
+    let totalCount = 0;
+    let currentPos = 0;
 
-    if (hasLiveAwards) {
-        const item = liveAwards[currentPos];
-        articleUrl = item.targetLink || item.href;
-        nominateUrl = item.nominationLink || articleUrl;
-        badgeLabel = `🏆 ${item.displaySubCategory || item.category || 'Awards'}`;
-        titleText = item.title;
-        descText = "Recognizing excellence and leadership in India.";
-        imageUrl = item.image;
+    if (selectedAward) {
+        // Specific Award View
+        articleUrl = (selectedAward as any).moreInfoLink || (selectedAward as any).targetLink || `/Pages/${selectedAward.category}/${selectedAward.subCategory}/${selectedAward.slug}`;
+        nominateUrl = (selectedAward as any).nominationLink || articleUrl;
+        badgeLabel = `🏆 ${(selectedAward as any).displaySubCategory || selectedAward.category || 'Awards'}`;
+        titleText = selectedAward.title;
+        descText = selectedAward.summary || "Recognizing excellence and leadership in India.";
+        imageUrl = selectedAward.image;
+        showDots = false;
     } else {
-        const idx = awardIndex % FALLBACK_AWARDS.length;
-        const fb = FALLBACK_AWARDS[idx];
-        nominateUrl = fb.nominateUrl;
-        articleUrl = fb.articleUrl;
-        badgeLabel = fb.badge;
-        titleText = fb.title;
-        descText = fb.subtitle;
-        imageUrl = undefined;
+        // Auto-rotation View
+        const hasLiveAwards = liveAwards && liveAwards.length > 0;
+        totalCount = hasLiveAwards ? liveAwards.length : FALLBACK_AWARDS.length;
+        currentPos = awardIndex % totalCount;
+        showDots = true;
+
+        if (hasLiveAwards) {
+            const item = liveAwards[currentPos];
+            articleUrl = item.targetLink || item.href;
+            nominateUrl = item.nominationLink || articleUrl;
+            badgeLabel = `🏆 ${item.displaySubCategory || item.category || 'Awards'}`;
+            titleText = item.title;
+            descText = "Recognizing excellence and leadership in India.";
+            imageUrl = item.image;
+        } else {
+            const fb = FALLBACK_AWARDS[currentPos];
+            nominateUrl = fb.nominateUrl;
+            articleUrl = fb.articleUrl;
+            badgeLabel = fb.badge;
+            titleText = fb.title;
+            descText = fb.subtitle;
+            imageUrl = undefined;
+        }
     }
 
     return (
-        <div className={styles.overlay} onClick={() => setVisible(false)}>
+        <div className={styles.overlay} onClick={handleClose}>
             <div className={styles.popup} onClick={(e) => e.stopPropagation()}>
 
                 {imageUrl ? (
                     <div className={styles.imageWrapper}>
                         <img src={imageUrl} alt={titleText} className={styles.newsImage} />
                         <div className={styles.imageOverlay} />
-                        <button className={styles.closeBtn} onClick={() => setVisible(false)} aria-label="Close">
+                        <button className={styles.closeBtn} onClick={handleClose} aria-label="Close">
                             <X size={18} />
                         </button>
                     </div>
                 ) : (
-                    <button className={styles.closeBtn} onClick={() => setVisible(false)} aria-label="Close">
+                    <button className={styles.closeBtn} onClick={handleClose} aria-label="Close">
                         <X size={18} />
                     </button>
                 )}
@@ -140,29 +162,33 @@ const AwardsPopup: React.FC = () => {
 
                     <div className={styles.actions}>
                         <a href={nominateUrl} target="_blank" rel="noopener noreferrer"
-                            className={styles.nominateBtn} onClick={() => setVisible(false)}>
+                            className={styles.nominateBtn} onClick={handleClose}>
                             🏆 Nominate Now
                         </a>
                         <a href={articleUrl} target="_blank" rel="noopener noreferrer"
-                            className={styles.infoBtn} onClick={() => setVisible(false)}>
+                            className={styles.infoBtn} onClick={handleClose}>
                             <ExternalLink size={14} /> More Info
                         </a>
                     </div>
 
-                    <div className={styles.dots}>
-                        {Array.from({ length: Math.min(totalCount, 12) }).map((_, i) => (
-                            <span 
-                                key={i} 
-                                className={`${styles.dot} ${i === currentPos % Math.min(totalCount, 12) ? styles.activeDot : ''}`} 
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setAwardIndex(i);
-                                    indexRef.current = i;
-                                }}
-                            />
-                        ))}
-                    </div>
-                    <p className={styles.counter}>{currentPos + 1} of {totalCount}</p>
+                    {showDots && (
+                        <>
+                            <div className={styles.dots}>
+                                {Array.from({ length: Math.min(totalCount, 12) }).map((_, i) => (
+                                    <span 
+                                        key={i} 
+                                        className={`${styles.dot} ${i === currentPos % Math.min(totalCount, 12) ? styles.activeDot : ''}`} 
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setAwardIndex(i);
+                                            indexRef.current = i;
+                                        }}
+                                    />
+                                ))}
+                            </div>
+                            <p className={styles.counter}>{currentPos + 1} of {totalCount}</p>
+                        </>
+                    )}
                 </div>
             </div>
         </div>

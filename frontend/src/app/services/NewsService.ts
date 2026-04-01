@@ -17,6 +17,7 @@ export interface NewsItem {
     isLatest?: boolean;
     isTrending?: boolean;
     isHidden?: boolean;
+    showInPopup?: boolean;
     isOpinion?: boolean;
     targetLink?: string;
     nominationLink?: string;
@@ -125,7 +126,7 @@ class NewsService {
     setNewsFlags = (params: {
         section: string;
         slug: string;
-        flags: Partial<Pick<NewsItem, "isLatest" | "isTrending" | "isHidden">>;
+        flags: Partial<Pick<NewsItem, "isLatest" | "isTrending" | "isHidden" | "showInPopup">>;
     }): Promise<ApiResponse<NewsItem>> =>
         this.request(`/flags/${params.section}/${params.slug}`, {
             method: "PATCH",

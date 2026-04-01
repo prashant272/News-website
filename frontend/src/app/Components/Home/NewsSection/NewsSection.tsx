@@ -38,7 +38,7 @@ interface DisplayNewsItem {
 }
 
 const NewsSection: React.FC = () => {
-  const { allNews, loading } = useNewsContext();
+  const { allNews, loading, openAwardPopup } = useNewsContext();
   const router = useRouter();
 
   const getImageSrc = (img?: string): string => {
@@ -160,6 +160,17 @@ const NewsSection: React.FC = () => {
 
               {(featuredArticle.category?.toUpperCase() === "AWARDS" || featuredArticle.category?.toLowerCase() === "awards") && (
                 <div className={styles.awardActions}>
+                  <button
+                    className={styles.viewAwardBtn}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const originalItem = allNews?.find(n => n.slug === featuredArticle.slug);
+                      if (originalItem) openAwardPopup(originalItem);
+                    }}
+                    title="View Award Details"
+                  >
+                    🏆 View Details
+                  </button>
                   {featuredArticle.targetLink && (
                     <a
                       href={featuredArticle.targetLink.startsWith('http') ? featuredArticle.targetLink : `https://${featuredArticle.targetLink}`}
@@ -231,6 +242,18 @@ const NewsSection: React.FC = () => {
 
                 {(item.category?.toUpperCase() === "AWARDS" || item.category?.toLowerCase() === "awards") && (
                   <div className={styles.awardActions}>
+                    <button
+                      className={styles.viewAwardBtn}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        // Find the original news item from allNews to pass to popup
+                        const originalItem = allNews?.find(n => n.slug === item.slug);
+                        if (originalItem) openAwardPopup(originalItem);
+                      }}
+                      title="View Award Details"
+                    >
+                      🏆 View Details
+                    </button>
                     {item.targetLink && (
                       <a
                         href={item.targetLink.startsWith('http') ? item.targetLink : `https://${item.targetLink}`}

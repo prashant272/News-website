@@ -10,6 +10,7 @@ import {
     useSetNewsFlags
 } from "@/app/hooks/NewsApi";
 import { compressImage } from "@/Utils/Utils";
+import { useNewsContext } from "@/app/context/NewsContext";
 import styles from "../Main.module.scss";
 
 const CATEGORIES = [
@@ -47,6 +48,7 @@ const NewsManager: FC<NewsManagerProps> = ({
     userAuthData,
     showNotification
 }) => {
+    const { openAwardPopup } = useNewsContext();
     const [selectedCategory, setSelectedCategory] = useState<NewsCategory>('india');
     const [page, setPage] = useState(1);
     const [filterStatus, setFilterStatus] = useState<"all" | "draft" | "published" | "archived" | "scheduled">("all");
@@ -338,12 +340,15 @@ const NewsManager: FC<NewsManagerProps> = ({
     );
 
     const handleToggleFlag = useCallback(
-        async (slug: string, field: "isLatest" | "isTrending" | "isHidden", newValue: boolean) => {
+        async (slug: string, field: "isLatest" | "isTrending" | "isHidden" | "showInPopup", newValue: boolean) => {
             if (flagsLoading) return;
             try {
                 await setFlags({ slug, [field]: newValue });
                 showNotification(
-                    `Article ${newValue ? "marked as" : "removed from"} ${field === "isLatest" ? "Latest" : field === "isTrending" ? "Trending" : "Hidden"
+                    `Article ${newValue ? "marked as" : "removed from"} ${
+                        field === "isLatest" ? "Latest" : 
+                        field === "isTrending" ? "Trending" : 
+                        field === "isHidden" ? "Hidden" : "Popup Rotation"
                     }`,
                     "success"
                 );
@@ -810,6 +815,26 @@ const NewsManager: FC<NewsManagerProps> = ({
                                                     </button>
                                                     <button onClick={() => startEdit(item)} className={styles.editBtn} disabled={!canUpdate} title="Edit">✏️</button>
                                                     <button onClick={() => handleDelete(item.slug)} className={styles.deleteBtn} disabled={!canDelete} title="Delete">🗑️</button>
+                                                    {(item.category?.toLowerCase().includes('award')) && (
+                                                        <button 
+                                                            onClick={() => openAwardPopup(item)} 
+                                                            style={{
+                                                                background: 'linear-gradient(135deg, #d4af37 0%, #b8860b 100%)',
+                                                                color: 'white',
+                                                                border: 'none',
+                                                                borderRadius: '4px',
+                                                                padding: '4px 8px',
+                                                                fontSize: '0.75rem',
+                                                                fontWeight: '800',
+                                                                cursor: 'pointer',
+                                                                marginLeft: '8px',
+                                                                boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                                                            }}
+                                                            title="View Award Popup"
+                                                        >
+                                                            🏆 Popup
+                                                        </button>
+                                                    )}
                                                 </div>
                                             </div>
                                             <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.75rem" }}>
@@ -823,6 +848,29 @@ const NewsManager: FC<NewsManagerProps> = ({
                                                     className={`${styles.flagBtn} ${item.isTrending ? styles.flagActive : ""}`}
                                                     disabled={!canUpdate || flagsLoading}
                                                 >🔥 {item.isTrending ? "Trending" : "Mark Trending"}</button>
+                                                 {(item.category?.toLowerCase().includes('award')) && (
+                                                     <button
+                                                         onClick={(e) => {
+                                                             e.stopPropagation();
+                                                             handleToggleFlag(item.slug, "showInPopup", !item.showInPopup);
+                                                         }}
+                                                         className={`${styles.flagBtn} ${item.showInPopup ? styles.flagActive : ""}`}
+                                                         disabled={!canUpdate || flagsLoading}
+                                                         style={{
+                                                             marginLeft: '0.5rem',
+                                                             background: item.showInPopup ? 'linear-gradient(135deg, #d4af37 0%, #b8860b 100%)' : '',
+                                                             color: item.showInPopup ? 'white' : '',
+                                                             borderColor: item.showInPopup ? '#b8860b' : '',
+                                                             fontWeight: item.showInPopup ? 'bold' : 'normal',
+                                                             padding: '2px 8px',
+                                                             borderRadius: '4px',
+                                                             fontSize: '0.75rem'
+                                                         }}
+                                                         title={item.showInPopup ? "Remove from Popup Rotation" : "Add to Popup Rotation"}
+                                                     >
+                                                         🏆 {item.showInPopup ? "In Popup" : "Add to Popup"}
+                                                     </button>
+                                                 )}
                                             </div>
                                         </div>
                                     </article>

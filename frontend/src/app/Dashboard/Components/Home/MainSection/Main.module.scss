@@ -5,10 +5,10 @@ $bg-elevated-dark: #334155;
 $border-subtle-dark: #334155;
 $border-medium-dark: #475569;
 
-$text-primary-dark: #f1f5f9;
+$text-primary-dark: hsl(0, 0%, 99%);
 $text-secondary-dark: #cbd5e1;
 $text-muted-dark: #94a3b8;
-$text-dim-dark: #64748b;
+$text-dim-dark: #fdf9f8;
 
 $bg-primary-light: #ffffff;
 $bg-secondary-light: #f8fafc;
@@ -435,13 +435,19 @@ $duration-slow: 300ms;
 .select {
   width: 100%;
   padding: $s-3 $s-4;
-  background: var(--input-bg);
+  background: $bg-primary-dark;
   border: 1.5px solid var(--border-subtle);
   border-radius: $rounded-lg;
   color: var(--text-primary);
   font-size: 0.95rem;
   font-family: inherit;
   transition: all $duration-base $ease-smooth;
+
+  option {
+    background-color: $bg-primary-dark;
+    color: var(--text-primary);
+    padding: $s-2;
+  }
 
   &:hover {
     border-color: var(--border-medium);
@@ -468,7 +474,8 @@ $duration-slow: 300ms;
 .select {
   cursor: pointer;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4 6L8 10L12 6' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4 6L8 10L12 6' stroke='%233b82f6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-size: 14px;
   background-repeat: no-repeat;
   background-position: right $s-4 center;
   padding-right: $s-10;
@@ -668,7 +675,7 @@ $duration-slow: 300ms;
 .searchInput {
   width: 100%;
   padding: $s-3 $s-4 $s-3 3rem;
-  background: var(--input-bg);
+  background: $bg-primary-dark;
   border: 1.5px solid var(--border-subtle);
   border-radius: $rounded-lg;
   color: var(--text-primary);
@@ -703,7 +710,7 @@ $duration-slow: 300ms;
 
 .filterSelect {
   padding: $s-3 $s-10 $s-3 $s-4;
-  background: var(--input-bg);
+  background: $bg-primary-dark;
   border: 1.5px solid var(--border-subtle);
   border-radius: $rounded-lg;
   color: var(--text-primary);
@@ -711,9 +718,15 @@ $duration-slow: 300ms;
   cursor: pointer;
   transition: all $duration-base $ease-smooth;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4 6L8 10L12 6' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4 6L8 10L12 6' stroke='%233b82f6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-size: 14px;
   background-repeat: no-repeat;
   background-position: right $s-3 center;
+
+  option {
+    background-color: $bg-primary-dark;
+    color: var(--text-primary);
+  }
 
   &:hover {
     border-color: var(--border-medium);
@@ -914,7 +927,7 @@ $duration-slow: 300ms;
 
 .categoryBadge {
   background: linear-gradient(135deg, $primary, $primary-hover);
-  color: white;
+  color: rgb(255, 188, 3);
   box-shadow: 0 2px 8px rgba($primary, 0.3);
 }
 
