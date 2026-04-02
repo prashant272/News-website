@@ -6,12 +6,12 @@
   top: 0;
   z-index: 1000;
   background: #ffffff;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
   font-family: 'Noto Sans Devanagari', 'Outfit', sans-serif;
   transition: all 0.3s ease;
 
   &.scrolled {
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 
     .topBar {
       max-height: 0;
@@ -24,16 +24,18 @@
 
 .navbarPlaceholder {
   width: 100%;
-  height: 130px; /* default desktop */
+  height: 130px;
+  /* default desktop */
   transition: height 0.3s ease;
 
   @media (max-width: 1024px) {
-    height: 105px; /* mobile total */
+    height: 105px;
+    /* mobile total */
   }
 
   &.scrolled {
     height: 100px;
-    
+
     @media (max-width: 1024px) {
       height: 90px;
     }
@@ -42,32 +44,91 @@
 
 /* ── Top Red Bar ── */
 .topBar {
-  background: #e31e26;
-  color: #fff;
-  padding: 6px 0;
-  font-size: 0.75rem;
-  max-height: 50px;
-  overflow: hidden;
-  transition: max-height 0.3s ease, padding 0.3s ease, opacity 0.3s ease;
-
-  .container {
-    max-width: 1440px;
-    margin: 0 auto;
-    padding: 0 20px;
+    background: #e31e26;
+    color: #fff;
+    padding: 8px 0;
+    font-size: 0.85rem;
+    max-height: 60px;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-  }
 
-  .breakingLabel {
-    background: #ffd700;
-    color: #e31e26;
-    padding: 2px 10px;
-    border-radius: 4px;
-    font-weight: 950;
-    margin-right: 12px;
-    text-transform: uppercase;
-  }
+    .container {
+        max-width: 1440px;
+        margin: 0 auto;
+        padding: 0 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+    }
+
+    .breakingLabel {
+        background: #ffd700;
+        color: #e31e26;
+        padding: 3px 12px;
+        border-radius: 4px;
+        font-weight: 950;
+        margin-right: 15px;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+    }
+
+    .topSlogan {
+        color: #ffffff;
+        font-weight: 600;
+        font-size: 0.85rem;
+        margin: 0;
+        letter-spacing: 0.2px;
+        opacity: 1;
+        
+        @media (max-width: 768px) {
+            font-size: 0.7rem;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+
+    .topSocials {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .topSocialIcon {
+        width: 26px;
+        height: 26px;
+        background: #ffffff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+
+        &[data-platform="facebook"] { color: #1877F2; }
+        &[data-platform="instagram"] { color: #E4405F; }
+        &[data-platform="youtube"] { color: #FF0000; }
+        &[data-platform="x"] { color: #000000; }
+        &[data-platform="whatsapp"] { color: #25D366; }
+
+        &:hover {
+            transform: translateY(-3px) rotate(8deg);
+            box-shadow: 0 5px 12px rgba(255, 215, 0, 0.4);
+            background: #ffd700;
+            color: #1a1a1a !important;
+        }
+    }
+
+    .divider {
+        width: 1px;
+        height: 15px;
+        background: rgba(255, 255, 255, 0.3);
+    }
 }
 
 /* ── Main Header ── */
@@ -94,6 +155,7 @@
 
   .mobileMenuBtn {
     display: none;
+
     @media (max-width: 1024px) {
       display: block;
       color: #1a1a1a;
@@ -102,7 +164,11 @@
 
   .logoImg {
     border-radius: 50%;
-    @media (max-width: 768px) { width: 35px; height: 35px; }
+
+    @media (max-width: 768px) {
+      width: 35px;
+      height: 35px;
+    }
   }
 
   .brand {
@@ -113,8 +179,10 @@
     letter-spacing: -1px;
     position: relative;
 
-    @media (max-width: 1200px) { font-size: 1.3rem; }
-    
+    @media (max-width: 1200px) {
+      font-size: 1.3rem;
+    }
+
     &::after {
       content: 'हिन्दी';
       position: absolute;
@@ -213,7 +281,7 @@
   transform: translateX(-50%);
   width: 250px;
   background: #ffffff;
-  box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
   border-radius: 16px;
   padding: 15px;
   opacity: 0;
@@ -271,7 +339,9 @@
     box-shadow: 0 4px 15px rgba(227, 30, 38, 0.3);
     transition: all 0.3s;
 
-    @media (max-width: 600px) { display: none; }
+    @media (max-width: 600px) {
+      display: none;
+    }
 
     &:hover {
       transform: translateY(-2px);
@@ -309,8 +379,15 @@
 }
 
 @keyframes livePulse {
-  0% { transform: scale(1); opacity: 1; }
-  100% { transform: scale(2.5); opacity: 0; }
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
 }
 
 /* ── Mobile Menu ── */
@@ -344,7 +421,9 @@
   color: #1a1a1a;
   display: block;
 
-  &.active { color: #e31e26; }
+  &.active {
+    color: #e31e26;
+  }
 }
 
 .mobileSubMenu {

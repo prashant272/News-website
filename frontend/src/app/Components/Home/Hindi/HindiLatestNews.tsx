@@ -12,7 +12,7 @@ import { ChevronDown } from 'lucide-react';
 const HindiLatestNews: React.FC = () => {
     const { allNews, loading } = useNewsContext();
     const { lang } = useLanguage();
-    const [visibleCount, setVisibleCount] = useState(8);
+    const [visibleCount, setVisibleCount] = useState(10);
 
     const displayNews = useMemo(() => {
         if (!allNews) return [];
@@ -22,7 +22,7 @@ const HindiLatestNews: React.FC = () => {
     const hasMore = allNews ? visibleCount < allNews.length : false;
 
     const handleLoadMore = () => {
-        setVisibleCount(prev => prev + 8);
+        setVisibleCount(prev => prev + 10);
     };
 
     if (loading && displayNews.length === 0) return null;
@@ -37,7 +37,7 @@ const HindiLatestNews: React.FC = () => {
         <section className={styles.hindiLatest}>
             <div className={styles.container}>
                 <div className={styles.sectionHeader}>
-                    <h2 className={styles.headerTitle}>Latest</h2>
+                    <h2 className={styles.headerTitle}>ताज़ा खबरें</h2>
                     <div className={styles.headerLine}></div>
                 </div>
 
@@ -63,7 +63,10 @@ const HindiLatestNews: React.FC = () => {
                 {hasMore && (
                     <div className={styles.loadMoreContainer}>
                         <button className={styles.loadMoreButton} onClick={handleLoadMore}>
-                             More Results <ChevronDown size={18} />
+                             और खबरें देखें (Load More) 
+                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M12 5v14M5 12h14" />
+                            </svg>
                         </button>
                     </div>
                 )}

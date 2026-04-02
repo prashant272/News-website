@@ -116,6 +116,7 @@ const ColumnBig = ({ title, news, loading }: { title: string, news: any[], loadi
 
 const HindiSportsNews = () => {
     const { sportsNews, loading } = useNewsContext();
+    const { lang } = useLanguage();
 
     const lists = useMemo(() => {
         if (!sportsNews) return { all: [], ipl: [], football: [] };
@@ -133,6 +134,28 @@ const HindiSportsNews = () => {
                 <ColumnList title="मुख्य खेल (All)" news={lists.all} loading={loading && lists.all.length === 0} />
                 <ColumnList title="आईपीएल 2026 (IPL 2026)" news={lists.ipl} loading={loading && lists.ipl.length === 0} />
                 <ColumnBig title="फुटबॉल (Football)" news={lists.football} loading={loading && lists.football.length === 0} />
+            </div>
+
+            {/* View All Button */}
+            <div style={{ marginTop: '40px', display: 'flex', justifyContent: 'center' }}>
+                <Link 
+                    href={getLocalizedHref('/Pages/sports', lang)} 
+                    style={{
+                        padding: '12px 32px',
+                        background: '#e31e26',
+                        color: 'white',
+                        borderRadius: '50px',
+                        fontWeight: '800',
+                        fontSize: '1rem',
+                        textDecoration: 'none',
+                        transition: 'all 0.3s ease',
+                        boxShadow: '0 4px 15px rgba(227, 30, 38, 0.3)'
+                    }}
+                    onMouseOver={(e: any) => e.target.style.transform = 'translateY(-2px)'}
+                    onMouseOut={(e: any) => e.target.style.transform = 'translateY(0)'}
+                >
+                    सब देखें (View All)
+                </Link>
             </div>
         </section>
     );

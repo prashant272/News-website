@@ -1,124 +1,45 @@
-"use client";
+import { Metadata } from "next";
+import HomeClient from "./HomeClient";
+import { headers } from "next/headers";
 
-import { Suspense } from "react";
-import dynamic from "next/dynamic";
-import Navbar from "./Components/Common/Navbar/Navbar";
-import HeroSection from "./Components/Home/HeroSection/HeroSection";
-import NewsSection from "./Components/Common/NewsSection/NewsSection";
-import NewsList from "./Components/Home/Newslist/Newslist";
-import LatestNews from "./Components/Home/LatestNewsSection/LatestNews";
-import Sports from "./Components/Home/SportsNewsSection/SportsNews";
-import Entertainment from "./Components/Home/EntertainmentNewsSection/EntertainmentNews";
-import Footer from "./Components/Common/Footer/Footer";
-import NewsCards from "./Components/Common/NewsCard/NewsCard";
-import SocialShare from "./Components/Common/SocialShare/SocialShare";
-import WebStories from "./Components/Home/WebStories/WebStories";
-import GoogleAd from "./Components/Common/GoogleAd/GoogleAd";
-import { useLanguage } from "./hooks/useLanguage";
-import { useNewsBySection } from "./hooks/NewsApi";
+interface HomeProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
 
-// Hindi Components
-import HindiHeroSection from "./Components/Home/Hindi/HindiHeroSection";
-import HindiTrendingSection from "./Components/Home/Hindi/HindiTrendingSection";
-import HindiLatestNews from "./Components/Home/Hindi/HindiLatestNews";
-import HindiRegionalNews from "./Components/Home/Hindi/HindiRegionalNews";
-import HindiSportsNews from "./Components/Home/Hindi/HindiSportsNews";
-import HindiRashifal from "./Components/Home/Hindi/HindiRashifal";
-import HindiPoliticsSection from "./Components/Home/Hindi/HindiPoliticsSection";
-import HindiEntertainmentNews from "./Components/Home/Hindi/HindiEntertainmentNews";
-import HindiCricketSection from "./Components/Home/Hindi/HindiCricketSection";
-import HindiFeaturedSubcategories from "./Components/Home/Hindi/HindiFeaturedSubcategories";
-import HindiEducationScience from "./Components/Home/Hindi/HindiEducationScience";
+export async function generateMetadata({ searchParams }: HomeProps): Promise<Metadata> {
+  const sParams = await searchParams;
+  const headerList = await headers();
+  const host = headerList.get("host") || "";
+  
+  const isHindi = sParams.lang === 'hi' || host.startsWith('hindi.') || host.includes('.hindi.');
+  
+  const siteName = isHindi ? "प्राइम टाइम न्यूज़" : "Prime Time News";
+  const title = isHindi 
+    ? "प्राइम टाइम न्यूज़ | होम - एशिया का अग्रणी डिजिटल मीडिया हाउस" 
+    : "Prime Time | Asia Leading Media House - Breaking News, Politics, Sports";
+  
+  const description = isHindi 
+    ? "प्राइम टाइम न्यूज़ - राजनीति, खेल, मनोरंजन, व्यापार और विश्व समाचारों के लिए एशिया का अग्रणी डिजिटल मीडिया हाउस। 24/7 लाइव अपडेट प्राप्त करें।"
+    : "Prime Time News - Asia's leading digital media house for breaking news, politics, sports, entertainment, business and world events. Get live updates 24/7.";
 
-// Lazy-load heavy sections
-const VideosSection = dynamic(() => import("./Components/Common/VideosSection/VideosSection").then(mod => mod.VideosSection), {
-  loading: () => <div className="h-96 animate-pulse bg-gray-100 rounded-xl m-8" />,
-  ssr: false
-});
-
-const LifestyleSection = dynamic(() => import("./Components/Home/Lifestyle/LifestyleSection"), {
-  loading: () => <div className="h-96 animate-pulse bg-gray-100 rounded-xl m-8" />,
-  ssr: false
-});
-
-const EnglishHome = () => (
-  <>
-    <Suspense fallback={<div className="h-96 animate-pulse bg-gray-100 rounded-xl m-8" />}>
-      <HeroSection />
-    </Suspense>
-    
-    <GoogleAd slot="5006567326" format="horizontal" />
-
-    <NewsList />
-    <WebStories />
-
-    <LatestNews />
-    <Sports />
-    
-    <GoogleAd slot="5006567326" format="auto" />
-
-    <Entertainment />
-    <VideosSection />
-    
-    <GoogleAd slot="5006567326" format="horizontal" />
-
-    <LifestyleSection />
-  </>
-);
-
-const HindiHome = () => (
-  <>
-    {/* Hindi Hero Section - 3 Column Layout */}
-    <Suspense fallback={<div className="h-96 animate-pulse bg-gray-100 rounded-xl m-8" />}>
-      <HindiHeroSection />
-    </Suspense>
-
-    <HindiTrendingSection />
-
-    <GoogleAd slot="5006567326" format="horizontal" />
-
-    {/* Latest News - List Style */}
-    <HindiLatestNews />
-
-    {/* Politics Section - Editorial Layout */}
-    <HindiPoliticsSection />
-
-    {/* Daily Cricket Updates */}
-    <HindiCricketSection />
-
-    {/* Featured Subcategories: Economy, Governance, Environment */}
-    <HindiFeaturedSubcategories />
-
-    {/* Featured Subcategories: Education, Careers, Science */}
-    <HindiEducationScience />
-
-    {/* Daily Horoscope */}
-    <HindiRashifal />
-    
-    <GoogleAd slot="5006567326" format="auto" />
-
-    {/* Sports News - Specialized Grid */}
-    <HindiSportsNews />
-
-    {/* Entertainment - Glamour Style */}
-    <HindiEntertainmentNews />
-
-    <GoogleAd slot="5006567326" format="auto" />
-
-    {/* Shared components with English */}
-    <VideosSection />
-    <WebStories />
-    
-    <GoogleAd slot="5006567326" format="horizontal" />
-
-    <LifestyleSection />
-  </>
-);
+  return {
+    title: title,
+    description: description,
+    openGraph: {
+      title: title,
+      description: description,
+      url: "https://www.primetimemedia.in/",
+      siteName: siteName,
+      locale: isHindi ? 'hi_IN' : 'en_IN',
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: title,
+      description: description,
+    },
+  };
+}
 
 export default function Home() {
-  const { isHindi, isMounted } = useLanguage();
-  
-  if (!isMounted) return null;
-  
-  return isHindi ? <HindiHome /> : <EnglishHome />;
+  return <HomeClient />;
 }

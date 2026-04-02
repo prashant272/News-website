@@ -5,10 +5,9 @@ import Image from 'next/image';
 import { useNewsContext } from '@/app/context/NewsContext';
 import { useLanguage } from '@/app/hooks/useLanguage';
 import { getLocalizedHref } from '@/Utils/navigation';
-import styles from './HindiEntertainmentNews.module.scss';
+import styles from './HindiLifestyleSection.module.scss';
 import HindiNewsCard from '../../Common/HindiNewsCard/HindiNewsCard';
 
-// Column List sub-component for consistency
 const ColumnList = ({ title, news, loading, lang }: { title: string, news: any[], loading: boolean, lang: string }) => {
     return (
         <div className={styles.column}>
@@ -42,46 +41,46 @@ const ColumnList = ({ title, news, loading, lang }: { title: string, news: any[]
     );
 };
 
-const HindiEntertainmentNews: React.FC = () => {
-    const { entertainmentNews, loading } = useNewsContext();
+const HindiLifestyleSection: React.FC = () => {
+    const { lifestyleNews, loading } = useNewsContext();
     const { lang } = useLanguage();
 
     const lists = useMemo(() => {
-        if (!entertainmentNews) return { all: [], bollywood: [], hollywood: [] };
+        if (!lifestyleNews) return { main: [], fashion: [], culture: [] };
 
-        const bollywood = entertainmentNews.filter(n => n.subCategory?.toLowerCase() === 'bollywood');
-        const hollywood = entertainmentNews.filter(n => n.subCategory?.toLowerCase() === 'hollywood');
-        const all = entertainmentNews.filter(n => {
-            const sub = n.subCategory?.toLowerCase();
-            return sub !== 'bollywood' && sub !== 'hollywood';
+        const fashion = lifestyleNews.filter(n => n.subCategory?.toLowerCase().includes('fashion'));
+        const culture = lifestyleNews.filter(n => n.subCategory?.toLowerCase().includes('culture'));
+        const main = lifestyleNews.filter(n => {
+            const sub = n.subCategory?.toLowerCase() || '';
+            return !sub.includes('fashion') && !sub.includes('culture');
         });
 
-        return { all, bollywood, hollywood };
-    }, [entertainmentNews]);
+        return { main, fashion, culture };
+    }, [lifestyleNews]);
 
     return (
         <section className={styles.featuredSection}>
             <div className={styles.sectionHeader}>
-                <h2>मनोरंजन (Entertainment)</h2>
+                <h2>जीवनशैली एवं संस्कृति (Lifestyle & Culture)</h2>
             </div>
 
             <div className={styles.grid}>
                 <ColumnList 
-                    title="मुख्य खबरें (All)" 
-                    news={lists.all} 
-                    loading={loading && lists.all.length === 0} 
+                    title="मुख्य जीवनशैली (Lifestyle)" 
+                    news={lists.main} 
+                    loading={loading && lists.main.length === 0} 
                     lang={lang} 
                 />
                 <ColumnList 
-                    title="बॉलीवुड (Bollywood)" 
-                    news={lists.bollywood} 
-                    loading={loading && lists.bollywood.length === 0} 
+                    title="फैशन (Fashion)" 
+                    news={lists.fashion} 
+                    loading={loading && lists.fashion.length === 0} 
                     lang={lang} 
                 />
                 <ColumnList 
-                    title="हॉलीवुड (Hollywood)" 
-                    news={lists.hollywood} 
-                    loading={loading && lists.hollywood.length === 0} 
+                    title="संस्कृति (Culture)" 
+                    news={lists.culture} 
+                    loading={loading && lists.culture.length === 0} 
                     lang={lang} 
                 />
             </div>
@@ -89,26 +88,26 @@ const HindiEntertainmentNews: React.FC = () => {
             {/* View All Row */}
             <div className={styles.viewMoreContainer}>
                 <Link 
-                    href={getLocalizedHref('/Pages/entertainment', lang)} 
+                    href={getLocalizedHref('/Pages/lifestyle', lang)} 
                     className={styles.viewAllBtn}
                 >
-                    मुख्य खबरें देखें
+                    जीवनशैली देखें
                 </Link>
                 <Link 
-                    href={getLocalizedHref('/Pages/entertainment/bollywood', lang)} 
+                    href={getLocalizedHref('/Pages/lifestyle/fashion', lang)} 
                     className={styles.viewAllBtn}
                 >
-                    बॉलीवुड देखें
+                    फैशन जगत देखें
                 </Link>
                 <Link 
-                    href={getLocalizedHref('/Pages/entertainment/hollywood', lang)} 
+                    href={getLocalizedHref('/Pages/lifestyle/culture', lang)} 
                     className={styles.viewAllBtn}
                 >
-                    हॉलीवुड देखें
+                    संस्कृति देखें
                 </Link>
             </div>
         </section>
     );
 };
 
-export default HindiEntertainmentNews;
+export default HindiLifestyleSection;

@@ -116,12 +116,36 @@ const ColumnBig = ({ title, section }: { title: string, section: string }) => {
 };
 
 const HindiEducationScience = () => {
+    const { lang } = useLanguage();
+    
     return (
         <section className={styles.featuredSection}>
             <div className={styles.grid}>
                 <ColumnList title="शिक्षा (Education)" section="education" />
                 <ColumnList title="करियर (Careers)" section="careers" />
                 <ColumnBig title="विज्ञान (Science)" section="science" />
+            </div>
+
+            {/* Common View All Row */}
+            <div style={{ marginTop: '40px', display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
+                <Link 
+                    href={getLocalizedHref('/Pages/education', lang)} 
+                    className={styles.viewAllBtn}
+                >
+                    शिक्षा समाचार देखें
+                </Link>
+                <Link 
+                    href={getLocalizedHref('/Pages/careers', lang)} 
+                    className={styles.viewAllBtn}
+                >
+                    करियर गाइड देखें
+                </Link>
+                <Link 
+                    href={getLocalizedHref('/Pages/science', lang)} 
+                    className={styles.viewAllBtn}
+                >
+                    विज्ञान समाचार देखें
+                </Link>
             </div>
         </section>
     );

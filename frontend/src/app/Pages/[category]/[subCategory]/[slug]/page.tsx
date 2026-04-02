@@ -4,6 +4,7 @@ import ArticlePageClient from '@/app/Components/ArticlePage/ArticlePageClient/Ar
 import HindiArticlePage from '@/app/Components/ArticlePage/HindiArticlePage/HindiArticlePage';
 import { Metadata } from 'next';
 import { getEnglishCategory, getHindiCategory } from '@/Utils/categoryMapping';
+import { headers } from 'next/headers';
 
 interface PageProps {
   params: Promise<{
@@ -17,12 +18,16 @@ const siteUrl = "https://www.primetimemedia.in";
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug, category } = await params;
+  const headerList = await headers();
+  const host = headerList.get("host") || "";
+  const isHindi = host.startsWith('hindi.') || host.includes('.hindi.');
+  const siteName = isHindi ? "प्राइम टाइम न्यूज़" : "Prime Time News";
 
   try {
     const decodedCategory = decodeURIComponent(category || '');
     const sectionKey = getEnglishCategory(decodedCategory).toLowerCase();
     const res = await newsService.getNewsBySlug(sectionKey, slug).catch(() => null);
-    if (!res) return { title: "News | Prime Time Media" };
+    if (!res) return { title: `News | ${siteName}` };
     const news = res.news || res.data;
 
     if (news) {
@@ -32,7 +37,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       }
 
       const descriptionSnippet = news.summary || news.content?.substring(0, 150) || "";
-      const fullDescription = `${descriptionSnippet.replace(/[#*]/g, '')}... | Click to read full news and view more updates on Prime Time Media`;
+      const fullDescription = `${descriptionSnippet.replace(/[#*]/g, '')}... | ${isHindi ? 'पूरी खबर पढ़ें और प्राइम टाइम न्यूज़ पर और अपडेट देखें' : 'Click to read full news and view more updates on Prime Time News'}`;
 
       const { subCategory } = await params;
       const articleUrl = `${siteUrl}/Pages/${category}/${subCategory}/${slug}`;
@@ -40,7 +45,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       return {
         title: news.title,
         description: fullDescription,
-        keywords: news.tags?.length > 0 ? news.tags.filter(Boolean) : ["Prime Time News", news.category || "", news.subCategory || ""],
+        keywords: news.tags?.length > 0 ? news.tags.filter(Boolean) : [siteName, news.category || "", news.subCategory || ""],
         alternates: {
           canonical: articleUrl,
         },
@@ -48,7 +53,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
           title: news.title,
           description: fullDescription,
           url: articleUrl,
-          siteName: 'Prime Time News',
+          siteName: siteName,
           images: [
             {
               url: imageUrl,

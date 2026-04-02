@@ -50,6 +50,13 @@
     background: linear-gradient(90deg, var(--primary), var(--accent));
     border-radius: 10px;
   }
+
+  &.hindiTitle {
+    font-family: 'Noto Sans Devanagari', 'Inter', sans-serif;
+    font-weight: 900;
+    line-height: 1.4;
+    letter-spacing: 0;
+  }
 }
 
 .subCategoryNav {
@@ -133,6 +140,16 @@
 
     @media (min-width: 1280px) {
       grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  &.hindiGrid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+
+    @media (min-width: 1280px) {
+      grid-template-columns: 1fr 1fr; // Show 2 columns on extra large screens for horizontal cards
+      gap: 2rem;
     }
   }
 }

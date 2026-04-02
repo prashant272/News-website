@@ -36,22 +36,36 @@ const notoHindi = Noto_Sans_Devanagari({
   weight: ["400", "500", "600", "700", "800", "900"],
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL("https://www.primetimemedia.in"),
-  title: {
-    default: "Prime Time | Asia Leading Media House",
-    template: "%s | Prime Time News",
-  },
-  description: "Prime Time News — Asia Leading Media House for breaking news, politics, sports, entertainment, technology, business and world news. Get live updates 24/7.",
-  keywords: [
-    "Asia Leading Media House",
-    "Prime Time News",
-    "प्राइम टाइम न्यूज़",
-    "Asia Breaking News",
+import { headers } from "next/headers";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const headerList = await headers();
+  const host = headerList.get("host") || "";
+  const isHindi = host.startsWith('hindi.') || host.includes('.hindi.');
+  
+  const siteName = isHindi ? "प्राइम टाइम न्यूज़" : "Prime Time News";
+  const defaultTitle = isHindi 
+    ? "प्राइम टाइम न्यूज़ | होम - एशिया का अग्रणी डिजिटल मीडिया हाउस" 
+    : "Prime Time | Asia Leading Media House";
+
+  return {
+    metadataBase: new URL("https://www.primetimemedia.in"),
+    title: {
+      default: defaultTitle,
+      template: `%s | ${siteName}`,
+    },
+    description: isHindi 
+      ? "प्राइम टाइम न्यूज़ - राजनीति, खेल, मनोरंजन, व्यापार और विश्व समाचारों के लिए एशिया का अग्रणी डिजिटल मीडिया हाउस।"
+      : "Prime Time News — Asia Leading Media House for breaking news, politics, sports, entertainment, technology, business and world news. Get live updates 24/7.",
+    keywords: [
+      "Asia Leading Media House",
+      "Prime Time News",
+      "प्राइम टाइम न्यूज़",
+      "Asia Breaking News",
     "Prime Time Media Asia",
-    "Latest India News",
+      "Latest India News",
     "Asia News Portal",
-    "Hindi news Asia",
+      "Hindi news Asia",
     "Breaking news Asia",
     "India news Asia",
     "Politics news Asia",
@@ -61,18 +75,18 @@ export const metadata: Metadata = {
     "Stock market news Asia",
     "Prime Time Asia News Portal",
     "Hindi English News Asia",
-    "primetimemedia.in",
+      "primetimemedia.in",
     "Global News",
     "International Media House Asia",
     "Leading Asia News Network",
     "Worldwide Breaking News"
-  ],
-  authors: [{ name: "Prime Time News Editorial Team" }],
+    ],
+    authors: [{ name: "Prime Time News Editorial Team" }],
   publisher: "Prime Time News",
-  category: "news",
-  robots: {
-    index: true,
-    follow: true,
+    category: "news",
+    robots: {
+      index: true,
+      follow: true,
     googleBot: {
       index: true,
       follow: true,
@@ -80,34 +94,39 @@ export const metadata: Metadata = {
       "max-image-preview": "large",
       "max-snippet": -1,
     },
-  },
-  openGraph: {
-    title: "Prime Time | Asia Leading Media House",
-    description: "Asia Leading Media House for breaking news, politics, sports, and world events. Get the most accurate and fastest live updates.",
-    url: "https://www.primetimemedia.in/",
-    siteName: "Prime Time | Asia Leading Media House",
-    images: [
-      {
-        url: "/og-image.jpg",
-        width: 1200,
-        height: 630,
-        alt: "Prime Time News - Asia Leading Media House",
-      },
-    ],
-    locale: "en_IN",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Prime Time News | Asia Leading Media House",
-    description: "Asia Leading Media House for breaking news, politics, sports, and world events. Get the most accurate and fastest live updates.",
-    images: ["/og-image.jpg"],
-    site: "@PrimeTimeNews",
-  },
-  alternates: {
-    canonical: "https://www.primetimemedia.in",
-  },
-};
+    },
+    openGraph: {
+      title: defaultTitle,
+      description: isHindi 
+        ? "एशिया का अग्रणी मीडिया हाउस - ताज़ा खबरों के लिए।"
+        : "Asia Leading Media House for breaking news, politics, sports, and world events.",
+      url: "https://www.primetimemedia.in/",
+      siteName: siteName,
+      images: [
+        {
+          url: "/og-image.jpg",
+          width: 1200,
+          height: 630,
+          alt: siteName,
+        },
+      ],
+      locale: isHindi ? "hi_IN" : "en_IN",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: defaultTitle,
+      description: isHindi 
+        ? "एशिया का अग्रणी मीडिया हाउस - ताज़ा खबरों के लिए।"
+        : "Asia Leading Media House for breaking news, politics, sports, and world events.",
+      images: ["/og-image.jpg"],
+      site: "@PrimeTimeNews",
+    },
+    alternates: {
+      canonical: "https://www.primetimemedia.in",
+    },
+  };
+}
 
 export default function RootLayout({
   children,

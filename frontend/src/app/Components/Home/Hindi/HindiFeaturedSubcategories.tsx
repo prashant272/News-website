@@ -7,6 +7,7 @@ import styles from './HindiFeaturedSubcategories.module.scss';
 import { useNewsBySection } from '@/app/hooks/NewsApi';
 import { getLocalizedHref } from '@/Utils/navigation';
 import { useLanguage } from '@/app/hooks/useLanguage';
+import HindiNewsCard from '../../Common/HindiNewsCard/HindiNewsCard';
 
 // Helper to format date
 const formatDate = (dateString?: string) => {
@@ -39,29 +40,15 @@ const ColumnList = ({ title, section }: { title: string, section: string }) => {
                         </div>
                     ))
                 ) : news && news.length > 0 ? (
-                    news.slice(0, 5).map(item => {
-                        const cat = (item.category || section).toLowerCase();
-                        const sub = (item.subCategory || 'general').toLowerCase();
-                        return (
-                        <Link key={item._id} href={getLocalizedHref(`/Pages/${cat}/${sub}/${item.slug}`, lang)} className={styles.listItem}>
-                            <div className={styles.imgWrapper}>
-                                <Image
-                                    src={item.image || '/placeholder.jpg'}
-                                    alt={item.title}
-                                    fill
-                                    sizes="110px"
-                                />
-                            </div>
-                            <div className={styles.content}>
-                                <h3 className={styles.title}>{item.title}</h3>
-                                <div className={styles.meta}>
-                                    {item.author ? `${item.author} • ` : ''}
-                                    {formatDate(item.createdAt)}
-                                </div>
-                            </div>
-                        </Link>
-                        );
-                    })
+                    news.slice(0, 5).map(item => (
+                        <HindiNewsCard 
+                            key={item._id} 
+                            item={item} 
+                            lang={lang} 
+                            orientation="horizontal" 
+                            compact={true} 
+                        />
+                    ))
                 ) : (
                     <div style={{ color: '#888', fontSize: '14px', fontStyle: 'italic' }}>कोई समाचार नहीं मिला</div>
                 )}
@@ -86,28 +73,11 @@ const ColumnBig = ({ title, section }: { title: string, section: string }) => {
                      <div className={`${styles.shimmer}`} style={{ width: '40%', height: '16px' }}></div>
                 </div>
             ) : news && news.length > 0 ? (
-                (() => {
-                    const item = news[0];
-                    const cat = (item.category || section).toLowerCase();
-                    const sub = (item.subCategory || 'general').toLowerCase();
-                    return (
-                <Link href={getLocalizedHref(`/Pages/${cat}/${sub}/${item.slug}`, lang)} className={styles.bigCard}>
-                    <div className={styles.bigImgWrapper}>
-                        <Image
-                            src={news[0].image || '/placeholder.jpg'}
-                            alt={news[0].title}
-                            fill
-                            sizes="(max-width: 768px) 100vw, 33vw"
-                        />
-                    </div>
-                    <h3 className={styles.bigTitle}>{news[0].title}</h3>
-                    <div className={styles.bigMeta}>
-                         {news[0].author ? `${news[0].author} • ` : ''}
-                         {formatDate(news[0].createdAt)}
-                    </div>
-                </Link>
-                );
-                })()
+                <HindiNewsCard 
+                    item={news[0]} 
+                    lang={lang} 
+                    orientation="vertical" 
+                />
             ) : (
                  <div style={{ color: '#888', fontSize: '14px', fontStyle: 'italic' }}>कोई समाचार नहीं मिला</div>
             )}
@@ -116,12 +86,36 @@ const ColumnBig = ({ title, section }: { title: string, section: string }) => {
 };
 
 const HindiFeaturedSubcategories = () => {
+    const { lang } = useLanguage();
+    
     return (
         <section className={styles.featuredSection}>
             <div className={styles.grid}>
                 <ColumnList title="अर्थव्यवस्था (Economy)" section="economy" />
                 <ColumnList title="शासन (Governance)" section="governance" />
                 <ColumnBig title="पर्यावरण (Environment)" section="environment" />
+            </div>
+
+            {/* Common View All Row */}
+            <div style={{ marginTop: '40px', display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
+                <Link 
+                    href={getLocalizedHref('/Pages/economy', lang)} 
+                    className={styles.viewAllBtn}
+                >
+                    अर्थव्यवस्था देखें
+                </Link>
+                <Link 
+                    href={getLocalizedHref('/Pages/governance', lang)} 
+                    className={styles.viewAllBtn}
+                >
+                    शासन समाचार देखें
+                </Link>
+                <Link 
+                    href={getLocalizedHref('/Pages/environment', lang)} 
+                    className={styles.viewAllBtn}
+                >
+                    पर्यावरण देखें
+                </Link>
             </div>
         </section>
     );

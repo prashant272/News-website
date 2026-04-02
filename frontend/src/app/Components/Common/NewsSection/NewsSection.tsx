@@ -9,6 +9,7 @@ import { formatDateTime } from '@/Utils/Utils';
 import { useState, useEffect, useMemo } from 'react';
 import SidebarAds from '../SidebarAds/SidebarAds';
 import { NewsCard } from '../NewsCard/NewsCard';
+import HindiNewsCard from '../HindiNewsCard/HindiNewsCard';
 
 export interface NewsGridItem {
   id: string | number;
@@ -125,8 +126,9 @@ const NewsSection: React.FC<NewsSectionProps> = ({
       category: item.category,
       subCategory: item.subCategory || '',
       displaySubCategory: cleanDisplayText(item.subCategory || ''),
-      isTrending: item.isTrending,
-      date: item.date,
+      isTrending: (item as any).isTrending,
+      isLive: (item as any).isLive,
+      date: item.date || (item as any).publishedAt || (item as any).createdAt,
       targetLink: (item as any).targetLink,
       nominationLink: (item as any).nominationLink
     }));
@@ -177,7 +179,7 @@ const NewsSection: React.FC<NewsSectionProps> = ({
     <div className={styles.pageWrapper}>
       <section className={styles.sectionContainer}>
         <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>{sectionTitle}</h2>
+          <h2 className={`${styles.sectionTitle} ${lang === 'hi' ? styles.hindiTitle : ''}`}>{sectionTitle}</h2>
           {subCategories.length > 0 && (
             <nav className={styles.subCategoryNav}>
               {subCategories.map((cat) => {
@@ -213,14 +215,23 @@ const NewsSection: React.FC<NewsSectionProps> = ({
         </div>
 
         <div className={showSidebar ? styles.layoutWithSidebar : styles.layoutFullWidth}>
-          <div className={`${styles.mainGrid} ${styles[`cols${gridColumns}`]}`}>
+          <div className={`${styles.mainGrid} ${lang === 'hi' ? styles.hindiGrid : styles[`cols${gridColumns}`]}`}>
             {mainNews.map((news) => (
-              <NewsCard
-                key={news.id}
-                currentSection={section}
-                lang={lang}
-                {...news}
-              />
+              lang === 'hi' ? (
+                <HindiNewsCard 
+                  key={news.id} 
+                  item={news} 
+                  lang={lang} 
+                  orientation="horizontal" 
+                />
+              ) : (
+                <NewsCard
+                  key={news.id}
+                  currentSection={section}
+                  lang={lang}
+                  {...news}
+                />
+              )
             ))}
           </div>
 

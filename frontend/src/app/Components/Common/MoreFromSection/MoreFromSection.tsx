@@ -6,6 +6,7 @@ import { useNewsSectionData, MoreFromItem } from '@/app/hooks/useNewsSectionData
 import { formatDateTime } from '@/Utils/Utils';
 import styles from './MoreFromSection.module.scss';
 import Image from 'next/image';
+import HindiNewsCard from '../HindiNewsCard/HindiNewsCard';
 
 interface MoreFromSectionProps {
   sectionTitle: string;
@@ -66,10 +67,21 @@ export default function MoreFromSection({
         <div className={styles.titleUnderline}></div>
       </div>
 
-      <div className={styles.itemsGrid}>
+      <div className={`${styles.itemsGrid} ${lang === 'hi' ? styles.hindiGrid : ''}`}>
         {visibleItems.map((item) => {
-          const href = item.href || '#';
+          if (lang === 'hi') {
+            return (
+              <HindiNewsCard 
+                key={item.id} 
+                item={item} 
+                lang={lang} 
+                orientation="horizontal" 
+                compact={true} 
+              />
+            );
+          }
 
+          const href = item.href || '#';
           return (
             <Link
               key={item.id}

@@ -2,36 +2,42 @@
   display: flex;
   align-items: center;
   text-decoration: none;
-  border-radius: 40px;
-  background: linear-gradient(135deg, #1e3a8a 0%, #0c1a4b 100%);
-  padding: 4px 6px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 4px 15px rgba(30, 58, 138, 0.4);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 0;
+  border: 1px solid #ddd;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transition: all 0.3s ease;
   position: relative;
-  overflow: hidden;
-
-  /* Subtle shine effect */
-  &::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 60%);
-    animation: rotate 10s linear infinite;
-  }
+  min-width: 250px;
+  margin: 0 10px;
+  overflow: visible;
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(30, 58, 138, 0.6);
-    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 20px rgba(227, 30, 38, 0.15);
+    border-color: #e31e26;
+  }
+
+  @media (max-width: 1200px) {
+    min-width: 200px;
   }
 
   @media (max-width: 600px) {
-    display: none; // It might crowd the mobile navbar unless we shrink it a lot. 
+    display: none;
   }
+}
+
+.bgSplit {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 45%;
+  height: 100%;
+  background: #e31e26;
+  z-index: 1;
+  border-radius: 10px 0 0 10px;
+  clip-path: polygon(0 0, 100% 0, 85% 100%, 0% 100%);
 }
 
 .widgetContainer {

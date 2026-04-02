@@ -49,6 +49,7 @@ const TodayIPLMatchWidget: React.FC = () => {
 
     return (
         <Link href="/sports/cricket" className={styles.widgetWrapper}>
+            <div className={styles.bgSplit}></div>
             <div className={styles.widgetContainer}>
                 <div className={styles.badge}>TODAY MATCH</div>
                 <div className={styles.competitors}>

@@ -172,3 +172,23 @@
   0% { background-position: -100% 0; }
   100% { background-position: 100% 0; }
 }
+
+.viewAllBtn {
+  padding: 10px 24px;
+  background: white;
+  color: #e31e26;
+  border: 2px solid #e31e26;
+  border-radius: 50px;
+  font-weight: 800;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  font-family: 'Outfit', sans-serif;
+
+  &:hover {
+    background: #e31e26;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(227, 30, 38, 0.2);
+  }
+}

@@ -107,22 +107,28 @@
     justify-content: center;
 
     .loadMoreButton {
-      background: transparent;
-      color: #1a1a1a;
-      border: 2px solid #1a1a1a;
-      padding: 12px 40px;
-      border-radius: 4px;
-      font-size: 1rem;
-      font-weight: 800;
+      background: #e31e26;
+      color: #fff;
+      border: none;
+      padding: 14px 45px;
+      border-radius: 50px;
+      font-size: 1.1rem;
+      font-weight: 900;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 10px;
-      transition: all 0.3s;
+      gap: 12px;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 10px 20px rgba(227, 30, 38, 0.3);
 
       &:hover {
-        background: #1a1a1a;
-        color: #fff;
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 15px 30px rgba(227, 30, 38, 0.4);
+        background: #ff2a32;
+      }
+
+      &:active {
+        transform: translateY(-2px) scale(0.98);
       }
     }
   }
