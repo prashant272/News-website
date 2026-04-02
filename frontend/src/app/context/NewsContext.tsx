@@ -4,6 +4,7 @@ import React, { createContext, useContext, useEffect, useState, useMemo, ReactNo
 import { usePathname } from "next/navigation";
 import { NewsItem, NewsDocument } from "@/app/services/NewsService";
 import { useStreamingNews, useLanguage } from "@/app/hooks/NewsApi";
+import { getEnglishCategory } from "@/Utils/categoryMapping";
 
 interface NewsContextType {
   allNews: NewsItem[] | null;
@@ -110,7 +111,7 @@ export const NewsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     uniqueSortedAll.forEach((item) => {
       if (!item.category) return;
-      const cat = item.category.toLowerCase().trim();
+      const cat = getEnglishCategory(item.category).toLowerCase().trim();
       if (grouped[cat]) {
         grouped[cat].push(item);
       } else if (cat === 'tech') {

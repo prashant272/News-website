@@ -34,6 +34,14 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "images.unsplash.com", pathname: "/**" }
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/news/:path*',
+        destination: '/Pages/:path*',
+      },
+    ];
+  },
 };
 
 export default nextConfig;

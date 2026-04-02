@@ -1,0 +1,235 @@
+.container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  font-family: 'Inter', sans-serif;
+}
+
+.tabHeader {
+  display: flex;
+  gap: 1rem;
+  border-bottom: 2px solid #edf2f7;
+  padding-bottom: 1rem;
+  margin-bottom: 2rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tabBtn {
+    padding: 0.8rem 1.8rem;
+    border-radius: 50px;
+    font-weight: 800;
+    font-size: 0.95rem;
+    color: #4a5568;
+    background: #f7fafc;
+    border: 2px solid transparent;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+
+    &:hover {
+      background: #edf2f7;
+      color: #e31e26;
+      transform: translateY(-2px);
+    }
+
+    &.active {
+      background: #e31e26;
+      color: white;
+      box-shadow: 0 8px 15px rgba(227, 30, 38, 0.3);
+      transform: translateY(-4px);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+}
+
+.matchGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 1.5rem;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+.matchCard {
+  background: white;
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+  }
+
+  .cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid #f1f5f9;
+
+    .matchType {
+      font-weight: 800;
+      font-size: 0.75rem;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+  }
+
+  .badge {
+    padding: 0.4rem 1rem;
+    border-radius: 30px;
+    font-size: 0.75rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    &.live { 
+      background: #fef2f2; 
+      color: #dc2626;
+      border: 1px solid #fee2e2;
+    }
+    &.recent { 
+      background: #f8fafc; 
+      color: #64748b; 
+      border: 1px solid #f1f5f9;
+    }
+    &.upcoming { 
+      background: #f0f9ff; 
+      color: #0284c7;
+      border: 1px solid #e0f2fe;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      background: #dc2626;
+      border-radius: 50%;
+      box-shadow: 0 0 10px rgba(220, 38, 38, 0.5);
+      animation: pulse 1.5s infinite;
+    }
+  }
+
+  .teams {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .teamRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .teamInfo {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+
+      .teamLogo {
+        width: 42px;
+        height: 42px;
+        background: #f8fafc;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 900;
+        font-size: 1.1rem;
+        color: #475569;
+        border: 2px solid #f1f5f9;
+        box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
+      }
+
+      .teamName {
+        font-weight: 800;
+        color: #1e293b;
+        font-size: 1.2rem;
+        letter-spacing: -0.02em;
+      }
+    }
+
+    .score {
+      font-weight: 900;
+      color: #1e293b;
+      font-size: 1.25rem;
+      font-family: 'Outfit', sans-serif;
+    }
+  }
+
+  .cardFooter {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding-top: 1.2rem;
+    border-top: 2px dashed #f1f5f9;
+
+    .status {
+      font-size: 0.95rem;
+      color: #059669;
+      font-weight: 700;
+    }
+
+    .time {
+        color: #0284c7;
+        font-weight: 700;
+        font-size: 0.95rem;
+    }
+
+    .venue {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+}
+
+.noData {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 6rem 2rem;
+  background: #f8fafc;
+  border-radius: 20px;
+  color: #64748b;
+  font-weight: 700;
+  font-size: 1.1rem;
+  border: 2px dashed #e2e8f0;
+}
+
+.loading {
+  text-align: center;
+  padding: 6rem;
+  color: #94a3b8;
+  font-weight: 800;
+  font-size: 1.2rem;
+  letter-spacing: 0.1em;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.3); }
+  100% { opacity: 1; transform: scale(1); }
+}

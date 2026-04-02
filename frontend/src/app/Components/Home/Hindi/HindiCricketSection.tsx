@@ -12,7 +12,7 @@ const HindiCricketSection: React.FC = () => {
         recent: LiveMatch[],
         upcoming: LiveMatch[]
     }>({ live: [], recent: [], upcoming: [] });
-    
+
     const [seriesId, setSeriesId] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [mounted, setMounted] = useState(false);
@@ -29,7 +29,7 @@ const HindiCricketSection: React.FC = () => {
                 if (matchesRes.success && matchesRes.data) {
                     setMatches(matchesRes.data);
                 }
-                
+
                 if (settingsRes.success && settingsRes.data?.activeSeriesId) {
                     setSeriesId(settingsRes.data.activeSeriesId);
                 }
@@ -57,7 +57,7 @@ const HindiCricketSection: React.FC = () => {
     // --- Slot Calculation Logic ---
     const today = new Date();
     const todayStr = today.toISOString().split('T')[0];
-    
+
     const yesterdayDate = new Date(today);
     yesterdayDate.setDate(yesterdayDate.getDate() - 1);
     const yesterdayStr = yesterdayDate.toISOString().split('T')[0];
@@ -68,19 +68,19 @@ const HindiCricketSection: React.FC = () => {
 
     // Priority: find exact date matches, fallback to first available
     const yesterdayMatch = matches.recent.find(m => m.date.startsWith(yesterdayStr)) || matches.recent[0] || null;
-    
+
     const liveMatchToday = matches.live.find(m => m.date.startsWith(todayStr)) || matches.live[0];
     const upcomingToday = matches.upcoming.find(m => m.date.startsWith(todayStr));
     const todayMatch = liveMatchToday || upcomingToday || null;
 
-    const tomorrowMatch = matches.upcoming.find(m => m.date.startsWith(tomorrowStr)) 
-        || matches.upcoming.find(m => m.id !== todayMatch?.id && m.id !== yesterdayMatch?.id) 
+    const tomorrowMatch = matches.upcoming.find(m => m.date.startsWith(tomorrowStr))
+        || matches.upcoming.find(m => m.id !== todayMatch?.id && m.id !== yesterdayMatch?.id)
         || null;
 
     const slots = [
         { title: 'कल का मैच', match: yesterdayMatch, type: 'past' },
         { title: 'आज का मैच', match: todayMatch, type: 'present' },
-        { title: 'कल का मैच', match: tomorrowMatch, type: 'future' }
+        { title: 'आगामी मैच', match: tomorrowMatch, type: 'future' }
     ].filter(slot => slot.match !== null);
 
     if (loading && slots.length === 0) {
@@ -99,15 +99,15 @@ const HindiCricketSection: React.FC = () => {
         <section className={styles.cricketContainer} id="ipl-2026-section">
             <div className={styles.header}>
                 <h2 className={styles.title}>
-                    <span className={styles.icon}>🏏</span> 
+                    <span className={styles.icon}>🏏</span>
                     IPL <span className={styles.iplYear}>2026</span> न्यूज़
                 </h2>
-                <Link href="/news/sports" className={styles.viewAll}>
+                <Link href="/news/match-center" className={styles.viewAll}>
                     सभी मैच देखें →
                 </Link>
             </div>
 
-            {/* THREE-DAY MATCH SLOTS */}
+            {/* 4-COLUMN BALANCED DASHBOARD */}
             <div className={styles.matchGrid}>
                 {slots.map((slot, index) => {
                     const match = slot.match!;
@@ -131,9 +131,9 @@ const HindiCricketSection: React.FC = () => {
                                         <div className={styles.teamLogo}>{getTeamInitial(match.teams?.[0] || 'T1')}</div>
                                         <span className={styles.teamName}>{match.teams?.[0] || 'Team 1'}</span>
                                     </div>
-                                    {match.score?.[0] && (
-                                        <span className={styles.score}>{match.score[0].raw || `${match.score[0].r}/${match.score[0].w}`}</span>
-                                    )}
+                                    <span className={styles.score}>
+                                        {match.score?.[0] ? (match.score[0].raw || `${match.score[0].r || 0}/${match.score[0].w || 0}`) : '0/0'}
+                                    </span>
                                 </div>
 
                                 <div className={styles.teamRow}>
@@ -141,9 +141,9 @@ const HindiCricketSection: React.FC = () => {
                                         <div className={styles.teamLogo}>{getTeamInitial(match.teams?.[1] || 'T2')}</div>
                                         <span className={styles.teamName}>{match.teams?.[1] || 'Team 2'}</span>
                                     </div>
-                                    {match.score?.[1] && (
-                                        <span className={styles.score}>{match.score[1].raw || `${match.score[1].r}/${match.score[1].w}`}</span>
-                                    )}
+                                    <span className={styles.score}>
+                                        {match.score?.[1] ? (match.score[1].raw || `${match.score[1].r || 0}/${match.score[1].w || 0}`) : '0/0'}
+                                    </span>
                                 </div>
                             </div>
 
@@ -159,14 +159,17 @@ const HindiCricketSection: React.FC = () => {
                         </div>
                     );
                 })}
-            </div>
 
-            {/* POINTS TABLE */}
-            {seriesId && (
-                <div className={styles.pointsTableWrapper}>
-                    <CricketPointsTable seriesId={seriesId} lang="hi" />
-                </div>
-            )}
+                {/* 4TH SLOT: POINTS TABLE */}
+                {seriesId && (
+                    <div className={styles.gridPointsTable}>
+                        <div className={styles.pointsHeader}>IPL Standings</div>
+                        <div className={styles.tableMiniWrapper}>
+                            <CricketPointsTable seriesId={seriesId} lang="hi" compact={true} />
+                        </div>
+                    </div>
+                )}
+            </div>
         </section>
     );
 };

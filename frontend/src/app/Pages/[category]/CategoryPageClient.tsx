@@ -12,10 +12,13 @@ import SocialShare from '@/app/Components/Common/SocialShare/SocialShare';
 import BreadcrumbSchema from '@/app/Components/Common/JSONLD/BreadcrumbSchema';
 import { getEnglishCategory, getHindiCategory } from '@/Utils/categoryMapping';
 import StateNewsHeader from '@/app/Components/Common/StateNewsHeader/StateNewsHeader';
+import HindiSportsCricketDashboard from '@/app/Components/Home/Hindi/HindiSportsCricketDashboard';
+import { useLanguage } from '@/app/hooks/NewsApi';
 
 export default function CategoryPageClient() {
   const params = useParams();
   const context = useNewsContext();
+  const { lang } = useLanguage();
   const [currentUrl, setCurrentUrl] = useState<string>('');
   const category = params?.category as string;
   const decodedCategory = decodeURIComponent(category || '');
@@ -41,8 +44,8 @@ export default function CategoryPageClient() {
     if (!urlCategory || !context?.allNews) return [];
 
     return context.allNews.filter((news) => {
-      const newsCategory = news.category?.toLowerCase() || '';
-      const newsSection = (news as any).section?.toLowerCase() || '';
+      const newsCategory = getEnglishCategory(news.category || '').toLowerCase();
+      const newsSection = getEnglishCategory((news as any).section || '').toLowerCase();
       return newsCategory === urlCategory || newsCategory === mappedSection
         || newsSection === urlCategory || newsSection === mappedSection;
     });
@@ -51,13 +54,13 @@ export default function CategoryPageClient() {
   const isFiltering = context.loading || !context?.allNews;
 
   // Use limit 10 for Load More button functionality
-  const { 
-    items: infiniteNews, 
-    loading: infiniteLoading, 
-    hasMore, 
-    fetchNextPage, 
-    hasDataChecked, 
-    isInitialLoading 
+  const {
+    items: infiniteNews,
+    loading: infiniteLoading,
+    hasMore,
+    fetchNextPage,
+    hasDataChecked,
+    isInitialLoading
   } = useInfiniteNews(urlCategory || '', filteredNews, 10);
 
   // IntersectionObserver removed in favor of manual "Load More" button
@@ -154,10 +157,10 @@ export default function CategoryPageClient() {
       <BreadcrumbSchema
         items={[
           { name: "Home", item: "/" },
-          { name: categoryTitle, item: `/Pages/${category}` }
+          { name: categoryTitle, item: `${lang === 'hi' ? '/news' : '/Pages'}/${category}` }
         ]}
       />
-      
+
       {(decodedCategory === 'regional' || decodedCategory === 'राज्य' || decodedCategory === 'राज्य समाचार') && (
         <StateNewsHeader />
       )}
@@ -187,8 +190,8 @@ export default function CategoryPageClient() {
 
           {hasMore && (
             <div className="flex justify-center my-12">
-              <button 
-                onClick={fetchNextPage} 
+              <button
+                onClick={fetchNextPage}
                 className="px-10 py-4 bg-[#e31e26] text-white rounded-full font-extrabold text-lg shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center gap-3 disabled:opacity-50"
                 disabled={infiniteLoading}
               >
@@ -218,7 +221,7 @@ export default function CategoryPageClient() {
       )}
 
       <SocialShare
-        url={currentUrl || `https://www.primetimemedia.in/Pages/${category}`}
+        url={currentUrl || `https://www.primetimemedia.in${lang === 'hi' ? '/news' : '/Pages'}/${category}`}
         title={`${categoryTitle} - Latest News & Updates`}
         description={`Stay updated with the latest ${categoryTitle} news, breaking stories, trending topics, and in-depth analysis.`}
         image={infiniteNews[0]?.image || ''}
@@ -229,7 +232,7 @@ export default function CategoryPageClient() {
         sectionTitle={`ताज़ा ${getHindiCategory(urlCategory)} समाचार`}
         overrideSection={urlCategory}
         showReadMore={true}
-        readMoreLink={`/Pages/${decodedCategory}`}
+        readMoreLink={`${lang === 'hi' ? '/news' : '/Pages'}/${decodedCategory}`}
         columns={3}
       />
 

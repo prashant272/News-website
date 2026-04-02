@@ -9,9 +9,11 @@ import NewsSection from '@/app/Components/Common/NewsSection/NewsSection';
 import { VideosSection } from '@/app/Components/Common/VideosSection/VideosSection';
 import SocialShare from '@/app/Components/Common/SocialShare/SocialShare';
 import BreadcrumbSchema from '@/app/Components/Common/JSONLD/BreadcrumbSchema';
+import { useLanguage } from '@/app/hooks/NewsApi';
 
 export default function AllNewsPage() {
     const context = useNewsContext();
+    const { lang } = useLanguage();
     const [currentUrl, setCurrentUrl] = useState<string>('');
 
     const categoryTitle = "All News";
@@ -110,7 +112,7 @@ export default function AllNewsPage() {
             <BreadcrumbSchema
                 items={[
                     { name: "Home", item: "/" },
-                    { name: "All News", item: "/Pages/all" }
+                    { name: "All News", item: `${lang === 'hi' ? '/news' : '/Pages'}/all` }
                 ]}
             />
             <NewsSection
@@ -136,7 +138,7 @@ export default function AllNewsPage() {
             </div>
 
             <SocialShare
-                url={currentUrl || `https://www.primetimemedia.in/Pages/all`}
+                url={currentUrl || `https://www.primetimemedia.in${lang === 'hi' ? '/news' : '/Pages'}/all`}
                 title="All News - Latest Breaking News & Updates"
                 description="Stay updated with all the latest news, breaking stories, and trending topics from all categories."
                 image={infiniteNews[0]?.image || ''}
