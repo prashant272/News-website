@@ -25,6 +25,7 @@ const SECTION_LABELS_HI = {
     home: "होम",
     regional: "राज्य समाचार",
     india: "भारत",
+    world: "विदेश",
     sports: "खेल",
     entertainment: "मनोरंजन",
     business: "बिज़नेस",
@@ -56,6 +57,7 @@ const HindiNavbar: React.FC = () => {
             }))
         },
         { label: SECTION_LABELS_HI.india, href: `/Pages/india` },
+        { label: SECTION_LABELS_HI.world, href: `/Pages/world` },
         { label: SECTION_LABELS_HI.sports, href: `/Pages/sports` },
         { label: SECTION_LABELS_HI.entertainment, href: `/Pages/entertainment` },
         { label: SECTION_LABELS_HI.business, href: `/Pages/business` },

@@ -7,6 +7,7 @@ import { useNewsBySection } from '@/app/hooks/NewsApi';
 import { getLocalizedHref } from '@/Utils/navigation';
 import { useLanguage } from '@/app/hooks/useLanguage';
 import styles from './HindiHeroSection.module.scss';
+import { HINDI_STATES } from '@/Utils/stateMetadata';
 
 const HindiHeroSection: React.FC = () => {
     const { allNews, loading: contextLoading } = useNewsContext();
@@ -47,9 +48,9 @@ const HindiHeroSection: React.FC = () => {
             const st = (item.state || '').toLowerCase();
             
             // Check for Regional / State related keywords in category, subcategory or state fields
+            const stateKeywords = HINDI_STATES.flatMap(s => [s.slug, s.name, s.english.toLowerCase()]);
             const isReg = cat.includes('राज्य') || cat.includes('regional') || cat.includes('state') ||
-                          sub.includes('bihar') || sub.includes('बिहार') || sub.includes('up') || 
-                          st.includes('bihar') || st.includes('बिहार') || st.includes('up');
+                          stateKeywords.some(kw => sub.includes(kw) || st.includes(kw));
             return isLatest && isReg;
         });
 
@@ -147,7 +148,12 @@ const HindiHeroSection: React.FC = () => {
                 <div className={styles.middleColumn}>
                     <div className={styles.storiesList}>
                         {middleStories.map((item) => {
-                            const isRegional = (item.category || '').includes('राज्य') || (item.category || '').includes('regional') || (item.subCategory || '').includes('बिहार') || (item.state || '').includes('बिहार');
+                            const cat = (item.category || '').toLowerCase();
+                            const sub = (item.subCategory || '').toLowerCase();
+                            const st = (item.state || '').toLowerCase();
+                            const stateKeywords = HINDI_STATES.flatMap(s => [s.slug, s.name, s.english.toLowerCase()]);
+                            const isRegional = cat.includes('राज्य') || cat.includes('regional') || 
+                                              stateKeywords.some(kw => sub.includes(kw) || st.includes(kw));
                             
                             return (
                                 <Link key={item.slug} href={getUrl(item)} className={styles.storyItem}>

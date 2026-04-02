@@ -86,7 +86,7 @@ const getLatestLinks = async (rssUrl) => {
 
         console.log(`[${feed.title}] Found ${feed.items.length} items, ${recentItems.length} are within last 24 hours.`);
 
-        // Return top 10 recent items
+        // Return top 35 recent items
         return recentItems.slice(0, 10).map(item => ({
             title: item.title,
             link: item.link,

@@ -14,7 +14,7 @@ export const slugify = (text: string): string => {
 
 export const CATEGORY_MAP: { [key: string]: string } = {
   "india": "भारत",
-  "world": "दुनिया",
+  "world": "विदेश",
   "sports": "खेल",
   "entertainment": "मनोरंजन",
   "business": "बिजनेस",
@@ -38,7 +38,12 @@ export const CATEGORY_MAP: { [key: string]: string } = {
   "chhattisgarh": "छत्तीसगढ़",
   "punjab": "पंजाब",
   "gujarat": "गुजरात",
-  "himachal": "हिमाचल"
+  "himachal": "हिमाचल प्रदेश",
+  "andhra-pradesh": "आंध्र प्रदेश",
+  "arunachal-pradesh": "अरुणाचल प्रदेश",
+  "assam": "असम",
+  "sikkim": "सिक्किम",
+  "west-bengal": "पश्चिम बंगाल"
 };
 
 /**

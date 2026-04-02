@@ -28,15 +28,25 @@ const CATEGORIES = [
 ] as const;
 
 const STATES = [
-    { id: 'universal', label: 'Universal / National' },
-    { id: 'delhi', label: 'Delhi' },
-    { id: 'uttar-pradesh', label: 'Uttar Pradesh' },
-    { id: 'bihar', label: 'Bihar' },
-    { id: 'maharashtra', label: 'Maharashtra' },
-    { id: 'haryana', label: 'Haryana' },
-    { id: 'punjab', label: 'Punjab' },
-    { id: 'rajasthan', label: 'Rajasthan' },
-    { id: 'madhya-pradesh', label: 'Madhya Pradesh' },
+  
+  { id: 'universal', label: 'Universal / National' },
+
+  // States
+  { id: 'andhra-pradesh', label: 'Andhra Pradesh' },
+  { id: 'arunachal-pradesh', label: 'Arunachal Pradesh' },
+  { id: 'assam', label: 'Assam' },
+  { id: 'bihar', label: 'Bihar' },
+  { id: 'gujarat', label: 'Gujarat' },
+  { id: 'haryana', label: 'Haryana' },
+  { id: 'himachal-pradesh', label: 'Himachal Pradesh' },
+  { id: 'jharkhand', label: 'Jharkhand' },
+  { id: 'madhya-pradesh', label: 'Madhya Pradesh' },
+  { id: 'sikkim', label: 'Sikkim' },
+  { id: 'uttar-pradesh', label: 'Uttar Pradesh' },
+  { id: 'uttarakhand', label: 'Uttarakhand' },
+  { id: 'west-bengal', label: 'West Bengal' },
+  { id: 'others', label: 'Others' }
+
 ] as const;
 
 type NewsCategory = typeof CATEGORIES[number]['id'];

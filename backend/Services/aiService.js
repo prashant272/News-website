@@ -8,15 +8,19 @@ const client = new GoogleGenAI({
 const generateArticle = async (facts, lang = 'en') => {
     try {
         const isHindi = lang === 'hi';
+        const languageName = isHindi ? 'Hindi' : 'English';
+        
         const prompt = `
-You are an expert news writer. Based on the facts below, write a FULL, LONG, SEO-optimized news article in ${isHindi ? 'Hindi' : 'simple English'}.
+You are an expert news writer. Based on the facts below, write a FULL, LONG, SEO-optimized news article in ${languageName}.
 Output ONLY valid JSON. NEVER use markdown formatting like \`\`\`json or \`\`\` in your response.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 TITLE RULES:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-- Write a clear, SEO-friendly title ${isHindi ? 'in Hindi' : 'in simple English'}.
-- ${isHindi ? 'Use professional yet easy-to-understand Hindi vocabulary.' : 'Use simple, everyday English words — no complex vocabulary.'}
+- Write a clear, SEO-friendly title in ${languageName}.
+- ${isHindi 
+    ? 'Use professional yet easy-to-understand Hindi vocabulary (Aam-aadmi wali bhasha).' 
+    : 'Use simple, professional English. Avoid overly complex vocabulary.'}
 - Include the most important keyword of the news naturally.
 - Keep it between 8 and 14 words.
 - Make it interesting so people want to click and read.
@@ -24,9 +28,9 @@ TITLE RULES:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ARTICLE CONTENT RULES:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Write a LONG article (600-900 words) with the following HTML structure ${isHindi ? 'entirely in Hindi' : ''}:
+Write a LONG article (500-700 words) with the following HTML structure in ${languageName}:
 
-<p><strong>Opening paragraph</strong>: 3-4 sentences. Explain what happened, who was involved, where and when. Make it engaging.</p>
+<p>Start with a strong 3-4 sentence introduction. Explain what happened, who was involved, where and when. Make it engaging. (DO NOT use labels like 'Opening Paragraph' or 'Introduction').</p>
 
 <h2>${isHindi ? 'क्या हुआ?' : 'What Happened?'}</h2>
 <p>2-3 paragraphs going deeper into the story. Use simple sentences. Give context and background so even a new reader understands.</p>
@@ -40,36 +44,34 @@ Write a LONG article (600-900 words) with the following HTML structure ${isHindi
 <h2>${isHindi ? 'यह क्यों महत्वपूर्ण है?' : 'Why Does This Matter?'}</h2>
 <p>2 paragraphs explaining why this news is important for common people. Use relatable language.</p>
 
-<h2>${isHindi ? 'लोग क्या कह रहे हैं?' : 'What Are People Saying?'}</h2>
-<p>1-2 paragraphs on reactions — from officials, experts, or the public if mentioned in the facts.</p>
-
-<h2>${isHindi ? 'निष्कर्ष' : 'Conclusion'}</h2>
-<p>...</p>
-
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-STRICT LANGUAGE RULES:
+STRICT LANGUAGE RULES (${languageName.toUpperCase()}):
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-- ${isHindi ? 'Write in very simple, conversational Hindi (Aam-aadmi wali bhasha).' : 'Write in simple English. Short sentences. Easy words.'}
-- ${isHindi ? 'Use words that people use in daily life. It is OKAY to use common English terms in Hindi script (e.g., "मोबाइल", "कोर्ट", "डिसीजन", "अपडेट", "पॉलिसी", "सरकार").' : 'NO jargon, NO complex vocabulary, NO technical terms.'}
-- ${isHindi ? 'Avoid overly complex Sanskritized words. For example, instead of "अधिसूचना", use "नोटिस" or "सूचना". Instead of "परामर्श", use "सलाह".' : ''}
-- Write like you are explaining the news to a friend over tea.
-- Article must be at least 600 words long.
+${isHindi ? `
+- Write in very simple, conversational Hindi (Aam-aadmi wali bhasha).
+- Use words that people use in daily life. It is OKAY to use common English terms in Hindi script (e.g., "मोबाइल", "कोर्ट", "डिसीजन", "अपडेट", "पॉलिसी", "सरकार").
+- Avoid overly complex Sanskritized words. For example, instead of "अधिसूचना", use "नोटिस". Instead of "परामर्श", use "सलाह".
+- Everything (Title, Content, Summary, Sub-category) MUST be in Hindi script.
+- Sub-category should be 1-2 words in Hindi (e.g., "देश", "राजनीति", "खेल").` 
+: `
+- Write in simple, clear, and professional English.
+- Use short sentences. Avoid jargon or technical terms unless necessary and explained.
+- High SEO readability is key.
+- Everything (Title, Content, Summary, Sub-category) MUST be in English.
+- Sub-category should be a standard English news category (e.g., "India", "Sports", "Politics").`}
 
-STRICT LANGUAGE RULES (HINDI ONLY):
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-- Articles, Titles, Summaries, and Sub-categories MUST be in Hindi.
-- Sub-category should be a 1-2 word Hindi name (e.g., "राजनीति", "खेल", "मनोरंजन").
-- Content should be in simple, relatable Hindi (Aam-aadmi wali bhasha).
+- Write like you are explaining the news to a friend.
+- Article must be at least 500 words long.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 OUTPUT JSON FORMAT (strictly follow this):
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 {
-  "title": "${isHindi ? 'लेख का शीर्षक' : 'Your SEO-friendly title here'}",
-  "content": "${isHindi ? 'HTML युक्त लेख सामग्री' : '<p>Opening...</p><h2>What Happened?</h2>...'}",
-  "summary": "${isHindi ? 'लेख का संक्षिप्त विवरण' : '2-3 simple sentences summarizing the key news'}",
-  "tags": ["Tag1", "Tag2", "Tag3", "Tag4", "Tag5"],
-  "subCategory": "OneWordSubCategory"
+  "title": "String - The title of the article",
+  "content": "String - The full HTML content of the article",
+  "summary": "String - A short 2-3 sentence summary of the news",
+  "tags": ["Array of 5 relevant tags"],
+  "subCategory": "String - A 1-2 word category name"
 }
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -79,7 +81,7 @@ ${facts}
         `;
 
         const result = await client.models.generateContent({
-            model: "gemini-2.5-flash",
+            model: "gemini-3.0",
             contents: [{ role: "user", parts: [{ text: prompt }] }],
             config: {
                 responseMimeType: "application/json",

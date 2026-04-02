@@ -193,6 +193,143 @@ const newsSources = [
         url: "https://www.onmanorama.com/rss/news/kerala.xml",
         category: "state",
     },
+    {
+        name: "Live Hindustan - West Bengal",
+        url: "https://api.livehindustan.com/feeds/rss/west-bengal/rssfeed.xml",
+        category: "state",
+    },
+    {
+        name: "Live Hindustan - Gujarat",
+        url: "https://api.livehindustan.com/feeds/rss/gujarat/rssfeed.xml",
+        category: "state",
+    },
+    {
+        name: "Live Hindustan - Punjab",
+        url: "https://api.livehindustan.com/feeds/rss/punjab/rssfeed.xml",
+        category: "state",
+    },
+    {
+        name: "Live Hindustan - Odisha",
+        url: "https://api.livehindustan.com/feeds/rss/odisha/rssfeed.xml",
+        category: "state",
+    },
+    {
+        name: "Live Hindustan - Jammu & Kashmir",
+        url: "https://api.livehindustan.com/feeds/rss/jammu-and-kashmir/rssfeed.xml",
+        category: "state",
+    },
+    {
+        name: "Live Hindustan - Jharkhand",
+        url: "https://api.livehindustan.com/feeds/rss/jharkhand/rssfeed.xml",
+        category: "state",
+    },
+    {
+        name: "Live Hindustan - Chhattisgarh",
+        url: "https://api.livehindustan.com/feeds/rss/chhattisgarh/rssfeed.xml",
+        category: "state",
+    },
+    {
+        name: "Live Hindustan - Haryana",
+        url: "https://api.livehindustan.com/feeds/rss/haryana/rssfeed.xml",
+        category: "state",
+    },
+    {
+        name: "Live Hindustan - Himachal Pradesh",
+        url: "https://api.livehindustan.com/feeds/rss/himachal-pradesh/rssfeed.xml",
+        category: "state",
+    },
+    {
+        name: "Live Hindustan - Uttarakhand",
+        url: "https://api.livehindustan.com/feeds/rss/uttarakhand/rssfeed.xml",
+        category: "state",
+    },
+    {
+        name: "Times of India - Delhi",
+        url: "https://timesofindia.indiatimes.com/rssfeeds/-2128830821.cms",
+        category: "state",
+    },
+    {
+        name: "Times of India - Mumbai",
+        url: "https://timesofindia.indiatimes.com/rssfeeds/-2128833038.cms",
+        category: "state",
+    },
+    {
+        name: "Times of India - Hyderabad",
+        url: "https://timesofindia.indiatimes.com/rssfeeds/4118245.rss",
+        category: "state",
+    },
+    {
+        name: "Times of India - Chennai",
+        url: "https://timesofindia.indiatimes.com/rssfeeds/4450010.cms",
+        category: "state",
+    },
+    // --- AMAR UJALA (Additional Regional) ---
+    {
+        name: "Amar Ujala - Uttar Pradesh",
+        url: "https://www.amarujala.com/rss/uttar-pradesh.xml",
+        category: "state",
+        state: "uttar-pradesh"
+    },
+    {
+        name: "Amar Ujala - Bihar",
+        url: "https://www.amarujala.com/rss/bihar.xml",
+        category: "state",
+        state: "bihar"
+    },
+    {
+        name: "Amar Ujala - Haryana",
+        url: "https://www.amarujala.com/rss/haryana.xml",
+        category: "state",
+        state: "haryana"
+    },
+    {
+        name: "Amar Ujala - Uttarakhand",
+        url: "https://www.amarujala.com/rss/uttarakhand.xml",
+        category: "state",
+        state: "uttarakhand"
+    },
+    // --- TAK LIVE (Aaj Tak Group) ---
+    {
+        name: "UP Tak",
+        url: "https://www.tak.live/rss/up-tak.xml",
+        category: "state",
+        state: "uttar-pradesh"
+    },
+    {
+        name: "Bihar Tak",
+        url: "https://www.tak.live/rss/bihar-tak.xml",
+        category: "state",
+        state: "bihar"
+    },
+    {
+        name: "Rajasthan Tak",
+        url: "https://www.tak.live/rss/rajasthan-tak.xml",
+        category: "state",
+        state: "rajasthan"
+    },
+    {
+        name: "MP Tak",
+        url: "https://www.tak.live/rss/mp-tak.xml",
+        category: "state",
+        state: "madhya-pradesh"
+    },
+    {
+        name: "Haryana Tak",
+        url: "https://www.tak.live/rss/haryana-tak.xml",
+        category: "state",
+        state: "haryana"
+    },
+    // --- EDUCATION & JOBS ---
+    {
+        name: "NDTV Education",
+        url: "https://feeds.feedburner.com/ndtvnews-education",
+        category: "education",
+    },
+    {
+        name: "Jagran Josh - Education",
+        url: "https://www.jagranjosh.com/rss/josh/general-knowledge.xml",
+        category: "education",
+    },
 ];
 
 module.exports = newsSources;
