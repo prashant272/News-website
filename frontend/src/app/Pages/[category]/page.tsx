@@ -42,20 +42,33 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
   const description = lang === 'hi' 
     ? `ताज़ा ${displayTitle} समाचार, ब्रेकिंग न्यूज़, ट्रेंडिंग टॉपिक्स और ${siteName} पर गहन विश्लेषण।`
     : `Stay updated with the latest ${displayTitle} news, breaking stories, trending topics, and in-depth analysis on ${siteName}.`;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.primetimemedia.in";
+  const imageUrl = `${siteUrl}/logo.png`;
 
   return {
+    metadataBase: new URL(siteUrl),
     title: pageTitle, // Layout template will append "| Site Name"
     description: description,
     openGraph: {
       title: fullTitle,
       description: description,
-      type: 'website',
+      url: `${siteUrl}${lang === 'hi' ? '/news' : '/Pages'}/${category}`,
       siteName: siteName,
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: siteName,
+        }
+      ],
+      type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
       title: fullTitle,
       description: description,
+      images: [imageUrl],
     },
   };
 }

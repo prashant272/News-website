@@ -14,7 +14,7 @@ interface PageProps {
   }>;
 }
 
-const siteUrl = "https://www.primetimemedia.in";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.primetimemedia.in";
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug, category } = await params;
@@ -57,9 +57,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
           images: [
             {
               url: imageUrl,
+              secureUrl: imageUrl.startsWith('https') ? imageUrl : imageUrl.replace('http://', 'https://'),
               width: 1200,
               height: 630,
               alt: news.title,
+              type: 'image/jpeg',
             },
           ],
           type: 'article',
@@ -80,7 +82,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     metadataBase: new URL(siteUrl),
     title: "News | Prime Time News",
-    description: "Latest breaking news and updates on Prime Time Media."
+    description: "Latest breaking news and updates on Prime Time Media.",
+    openGraph: {
+      title: "Prime Time News",
+      description: "Latest breaking news and updates on Prime Time Media.",
+      images: [`${siteUrl}/favicon.ico`], // Or a larger logo image if available
+    }
   };
 }
 
