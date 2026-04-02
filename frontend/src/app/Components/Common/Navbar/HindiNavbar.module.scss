@@ -204,7 +204,7 @@
 .navLinks {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 1px;
   list-style: none;
   flex: 1;
   justify-content: center;
@@ -228,7 +228,7 @@
   border-radius: 8px;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 2px;
   transition: all 0.2s ease;
   white-space: nowrap;
 
@@ -281,13 +281,28 @@
   transform: translateX(-50%);
   width: 250px;
   background: #ffffff;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
-  border-radius: 16px;
-  padding: 15px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+  border-radius: 20px;
+  padding: 25px;
   opacity: 0;
   visibility: hidden;
   transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
   margin-top: 10px;
+  z-index: 9999; // Highest z-index
+  max-height: 70vh; // 70 percent of display height
+  overflow-y: auto; // Vertical scroll
+  border: 1px solid rgba(227, 30, 38, 0.1);
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #e31e26;
+    border-radius: 10px;
+  }
 }
 
 .navItem:hover .dropdown {
@@ -298,7 +313,7 @@
 
 .dropdownGrid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr; // Single line downwards
   gap: 5px;
 }
 
@@ -322,7 +337,7 @@
 .rightActions {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 6px;
 
   .liveBtn {
     background: #e31e26;
