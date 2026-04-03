@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../Models/user.model');
-const permissionsByRole = require('../config/permissions.js');
+const permissionsByRole = require('../Config/permissions.js');
 const cloudinary = require("cloudinary").v2;
 
 cloudinary.config({

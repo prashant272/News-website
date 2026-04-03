@@ -5,26 +5,26 @@ const express = require("express")
 const mongoose = require("mongoose")
 const cors = require("cors")
 const bodyParser = require("body-parser")
-const { connectdb } = require("./config/db")
+const { connectdb } = require("./Config/db")
 const morgan = require("morgan")
 const helmet = require("helmet")
 const compression = require("compression")
-const { initCronJobs } = require("./services/cronService")
-const AuthRouter = require("./routes/auth.routes")
-const NewsRouter = require("./routes/news.routes")
-const OTPRouter = require("./routes/otp.route")
-const AdsRouter = require("./routes/advertisement.route")
-const AutoNewsRouter = require("./routes/autoNewsRoute")
-const FacebookRouter = require("./routes/facebook.routes")
-const BreakingNewsRouter = require("./routes/breakingNewsRoute")
-const LiveScoreRouter = require("./routes/liveScoreRoute")
-const InternationalProgramRouter = require("./routes/internationalProgramRoute")
-const VisualStoryRouter = require("./routes/visualStory.route")
-const OneSignalRouter = require("./routes/onesignal.routes")
-const LinkedInRouter = require("./routes/linkedin.routes")
-const TwitterRouter = require("./routes/twitter.routes")
-const SitemapRouter = require("./routes/sitemap.routes")
-const ImageRouter = require("./routes/image.routes")
+const { initCronJobs } = require("./Services/cronService")
+const AuthRouter = require("./Routes/auth.routes")
+const NewsRouter = require("./Routes/news.routes")
+const OTPRouter = require("./Routes/otp.route")
+const AdsRouter = require("./Routes/advertisement.route")
+const AutoNewsRouter = require("./Routes/autoNewsRoute")
+const FacebookRouter = require("./Routes/facebook.routes")
+const BreakingNewsRouter = require("./Routes/breakingNewsRoute")
+const LiveScoreRouter = require("./Routes/liveScoreRoute")
+const InternationalProgramRouter = require("./Routes/internationalProgramRoute")
+const VisualStoryRouter = require("./Routes/visualStory.route")
+const OneSignalRouter = require("./Routes/onesignal.routes")
+const LinkedInRouter = require("./Routes/linkedin.routes")
+const TwitterRouter = require("./Routes/twitter.routes")
+const SitemapRouter = require("./Routes/sitemap.routes")
+const ImageRouter = require("./Routes/image.routes")
 
 
 const app = express()
@@ -97,7 +97,7 @@ app.use("/onesignal", OneSignalRouter)
 app.use("/api/images", ImageRouter)
 app.use("/", SitemapRouter)
 
-const { syncMatchesWithDB } = require("./services/cricketService")
+const { syncMatchesWithDB } = require("./Services/cricketService")
 
 app.listen(process.env.PORT, () => {
     // Initialize Cron Jobs
@@ -112,7 +112,7 @@ app.listen(process.env.PORT, () => {
     // Live Polling (Every 10 seconds)
     // Only fetches full scorecard for matches marked 'isLiveTracked'
     setInterval(() => {
-        const { pollLiveScores } = require("./services/cricketService");
+        const { pollLiveScores } = require("./Services/cricketService");
         pollLiveScores();
     }, 10000);
 

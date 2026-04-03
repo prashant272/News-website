@@ -2,7 +2,7 @@ const nodemailer = require("nodemailer");
 const dotenv = require("dotenv");
 const OTPModel = require("../Models/otp.model");
 
-dotenv.config({ path: "./config/config.env" })
+dotenv.config({ path: "./Config/config.env" })
 
 
 
