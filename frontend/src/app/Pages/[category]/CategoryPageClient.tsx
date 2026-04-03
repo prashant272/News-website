@@ -47,7 +47,8 @@ export default function CategoryPageClient() {
       // category may be an array (multi-category) or a string (legacy)
       const rawCat = Array.isArray(news.category) ? news.category[0] : (news.category || '');
       const newsCategory = getEnglishCategory(rawCat).toLowerCase();
-      const newsSection = getEnglishCategory((news as any).section || '').toLowerCase();
+      const rawSection = Array.isArray((news as any).section) ? (news as any).section[0] : ((news as any).section || '');
+      const newsSection = getEnglishCategory(rawSection).toLowerCase();
       return newsCategory === urlCategory || newsCategory === mappedSection
         || newsSection === urlCategory || newsSection === mappedSection;
     });
@@ -102,7 +103,8 @@ export default function CategoryPageClient() {
       // category may be an array (multi-category) or a string (legacy)
       const rawCat = Array.isArray(news.category) ? news.category[0] : (news.category || '');
       const newsCat = rawCat.toLowerCase();
-      const newsSection = (news as any).section?.toLowerCase() || '';
+      const rawSection = Array.isArray((news as any).section) ? (news as any).section[0] : ((news as any).section || '');
+      const newsSection = rawSection.toLowerCase();
 
       if (newsSection === urlCategory || newsSection === mappedSection) {
         if (rawCat && newsCat !== urlCategory) {

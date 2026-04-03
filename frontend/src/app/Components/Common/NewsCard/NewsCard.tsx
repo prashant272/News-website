@@ -103,7 +103,7 @@ export const NewsCard: React.FC<NewsCardProps> = (props) => {
         </div>
         <p className={styles.newsTitle}>{title}</p>
 
-        {(section?.toLowerCase() === "awards" || category?.toUpperCase() === "AWARDS") && (
+        {((Array.isArray(section) ? section[0] : section)?.toLowerCase() === "awards" || (Array.isArray(category) ? category[0] : category)?.toUpperCase() === "AWARDS") && (
           <div className={styles.awardActions}>
             {targetLink && (
               <a

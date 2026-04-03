@@ -249,9 +249,9 @@ export default function ArticlePageClient({
         </div>
 
         <MoreStoriesSection
-          sectionTitle={translations.moreFrom || `MORE FROM ${section.toUpperCase()}`}
-          overrideSection={section}
-          lang={section.toLowerCase() === 'bharat' || section.toLowerCase() === 'india' ? 'hi' : undefined} 
+          sectionTitle={translations.moreFrom || `MORE FROM ${(Array.isArray(section) ? section[0] : section).toUpperCase()}`}
+          overrideSection={Array.isArray(section) ? section[0] : section}
+          lang={(Array.isArray(section) ? section[0] : section).toLowerCase() === 'bharat' || (Array.isArray(section) ? section[0] : section).toLowerCase() === 'india' ? 'hi' : undefined} 
         />
       </div>
     </div>

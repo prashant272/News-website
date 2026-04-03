@@ -71,7 +71,8 @@ export default function TopNewsSidebar({ news }: TopNewsSidebarProps) {
 
       <div className={styles.listContainer}>
         {news.map((item, index) => {
-          const sectionSlug = item.section.toLowerCase();
+          const sectionRaw = Array.isArray(item.section) ? item.section[0] : (item.section || 'news');
+          const sectionSlug = sectionRaw.toLowerCase();
           const categorySlug = (item.category || 'general')
             .toLowerCase()
             .replace(/\s+/g, '-')

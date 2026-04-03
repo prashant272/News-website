@@ -9,8 +9,11 @@ interface BreadcrumbProps {
 }
 
 export default function Breadcrumb({ section, category, title }: BreadcrumbProps) {
-  const sectionSlug = encodeURIComponent(section.toLowerCase().replace(/\s+/g, '-'));
-  const categorySlug = encodeURIComponent(category.toLowerCase().replace(/\s+/g, '-'));
+  const sectionStr = Array.isArray(section) ? section[0] : (section || 'news');
+  const categoryStr = Array.isArray(category) ? category[0] : (category || 'general');
+  
+  const sectionSlug = encodeURIComponent(sectionStr.toLowerCase().replace(/\s+/g, '-'));
+  const categorySlug = encodeURIComponent(categoryStr.toLowerCase().replace(/\s+/g, '-'));
 
   return (
     <nav className={styles.breadcrumb}>
@@ -20,11 +23,11 @@ export default function Breadcrumb({ section, category, title }: BreadcrumbProps
 
       <span className={styles.separator}>/</span>
       <Link href={`/Pages/${sectionSlug}`} className={styles.link}>
-        {section}
+        {sectionStr}
       </Link>
       <span className={styles.separator}>/</span>
       <Link href={`/Pages/${sectionSlug}/${categorySlug}`} className={styles.link}>
-        {category}
+        {categoryStr}
       </Link>
       <span className={styles.separator}>/</span>
       <span className={styles.current}>{title}</span>
