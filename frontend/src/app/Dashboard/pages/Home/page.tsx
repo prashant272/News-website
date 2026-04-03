@@ -25,6 +25,7 @@ const sections = [
   { id: 'cricket_management' as const, label: 'Cricket Management', icon: '🏏' },
   { id: 'international_programs' as const, label: 'International Programs', icon: '🌐' },
   { id: 'visual_stories' as const, label: 'Visual Stories', icon: '🎬' },
+  { id: 'image_branding' as const, label: 'Image Branding', icon: '🖼️' },
 ] as const;
 
 type SectionId = typeof sections[number]['id'];

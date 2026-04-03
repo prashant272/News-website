@@ -1,10 +1,9 @@
 const NewsArticle = require("../Models/NewsArticle");
 const User = require("../Models/user.model");
 const AppConfig = require("../Models/AppConfig");
-const facebookService = require("../Services/facebookService");
-const linkedinService = require("../Services/linkedinService");
-const twitterService = require("../Services/twitterService");
-const onesignalService = require("../Services/onesignalService");
+const { triggerAllSocialMedia } = require("../Services/socialTriggerService");
+const { getArticleUrl } = require("../Utils/articleUtils");
+const { brandImageWithTitle } = require("../Services/imageService");
 const dotenv = require("dotenv");
 // dotenv.config({ path: "./Config/config.env" }); // Removed: Root server.js handles env loading
 const cloudinary = require("cloudinary").v2;
@@ -47,10 +46,10 @@ async function triggerFacebookPost(newsItem) {
       return;
     }
 
-    const articleUrl = `https://www.primetimemedia.in/Pages/${newsItem.category}/${newsItem.subCategory || newsItem.category}/${newsItem.slug}`;
+    const articleUrl = getArticleUrl(newsItem);
     const message = `📰 ${newsItem.title}\n\n${newsItem.summary || ""}\n\nRead more 👇`;
 
-    const result = await facebookService.postToPage(pageId, pageAccessToken, message, articleUrl);
+    const result = await facebookService.postToPage(pageId, pageAccessToken, message, articleUrl, newsItem.image || null);
     if (result.success) {
       console.log(`[Facebook] ✅ Auto-posted: "${newsItem.title}" → Post ID: ${result.postId}`);
     } else {
@@ -77,7 +76,7 @@ async function triggerLinkedInPost(newsItem) {
       return;
     }
 
-    const articleUrl = `https://www.primetimemedia.in/Pages/${newsItem.category}/${newsItem.subCategory || newsItem.category}/${newsItem.slug}`;
+    const articleUrl = getArticleUrl(newsItem);
     const message = `📰 ${newsItem.title}\n\n${newsItem.summary || ""}\n\nRead more 👇`;
 
     // Post to ALL accounts in parallel
@@ -138,7 +137,7 @@ async function triggerTwitterPost(newsItem) {
       return;
     }
 
-    const articleUrl = `https://www.primetimemedia.in/Pages/${newsItem.category}/${newsItem.subCategory || newsItem.category}/${newsItem.slug}`;
+    const articleUrl = getArticleUrl(newsItem);
     const message = `📰 ${newsItem.title}`;
 
     await twitterService.postToTwitter(credentials, message, articleUrl);
@@ -176,16 +175,23 @@ exports.AddNews = async (req, res) => {
 
     let imageUrl = null;
     if (image) {
-      if (image.startsWith("http")) {
-        imageUrl = image;
-      } else {
-        try {
-          const uploadResponse = await cloudinary.uploader.upload(image, {
-            folder: "primetime_news"
-          });
-          imageUrl = uploadResponse.secure_url;
-        } catch (uploadError) {
-          console.error("Cloudinary Upload Error:", uploadError);
+      try {
+        console.log(`[Admin-Upload] Applying professional branding to image for: ${title}`);
+        const brandedBuffer = await brandImageWithTitle(image, title);
+        
+        const uploadResponse = await cloudinary.uploader.upload(
+          `data:image/png;base64,${brandedBuffer.toString('base64')}`, 
+          { folder: "primetime_news" }
+        );
+        imageUrl = uploadResponse.secure_url;
+      } catch (uploadError) {
+        console.error("Branding/Upload Error:", uploadError);
+        // Fallback to raw image if branding fails
+        if (image.startsWith("http")) {
+          imageUrl = image;
+        } else {
+          const fallback = await cloudinary.uploader.upload(image, { folder: "primetime_news" });
+          imageUrl = fallback.secure_url;
         }
       }
     }
@@ -218,12 +224,9 @@ exports.AddNews = async (req, res) => {
 
     await newItem.save();
 
-    // Trigger Facebook auto-post & OneSignal notification
+    // Trigger All Social Media and Notifications
     if (status === "published") {
-      triggerFacebookPost(newItem);
-      triggerLinkedInPost(newItem);
-      triggerTwitterPost(newItem);
-      onesignalService.sendNotification(newItem);
+      triggerAllSocialMedia(newItem);
     }
 
     return res.status(201).json({
@@ -456,11 +459,24 @@ exports.updateNewsBySlug = async (req, res) => {
 
     let imageUrl = item.image;
     if (updateData.image && updateData.image !== imageUrl) {
-      if (!updateData.image.startsWith("http")) {
-        const uploadResponse = await cloudinary.uploader.upload(updateData.image, { folder: "primetime_news" });
+      try {
+        console.log(`[Admin-Update] Applying professional branding to updated image for: ${updateData.title || item.title}`);
+        const brandedBuffer = await brandImageWithTitle(updateData.image, updateData.title || item.title);
+        
+        const uploadResponse = await cloudinary.uploader.upload(
+          `data:image/png;base64,${brandedBuffer.toString('base64')}`, 
+          { folder: "primetime_news" }
+        );
         imageUrl = uploadResponse.secure_url;
+        updateData.image = imageUrl;
+      } catch (uploadError) {
+        console.error("Branding/Update Error:", uploadError);
+        if (!updateData.image.startsWith("http")) {
+          const uploadResponse = await cloudinary.uploader.upload(updateData.image, { folder: "primetime_news" });
+          imageUrl = uploadResponse.secure_url;
+          updateData.image = imageUrl;
+        }
       }
-      updateData.image = imageUrl;
     }
 
     // Set publishedAt if status is changing to published and it wasn't published before
@@ -494,12 +510,9 @@ exports.updateNewsBySlug = async (req, res) => {
 
     const updatedItem = await NewsArticle.findOneAndUpdate({ slug }, { ...updateData }, { new: true });
 
-    // Trigger Facebook auto-post & OneSignal notification if status just changed to published
+    // Trigger All Social Media and Notifications if status just changed to published
     if (updateData.status === "published" && item.status !== "published") {
-      triggerFacebookPost(updatedItem);
-      triggerLinkedInPost(updatedItem);
-      triggerTwitterPost(updatedItem);
-      onesignalService.sendNotification(updatedItem);
+      triggerAllSocialMedia(updatedItem);
     }
 
     return res.status(200).json({ success: true, news: updatedItem, section: updatedItem.category, msg: "Updated successfully" });

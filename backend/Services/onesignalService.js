@@ -21,8 +21,8 @@ const onesignalService = {
 
             const { appId, restApiKey } = config.onesignal;
             
-            // Construct notification payload
-            const articleUrl = `https://www.primetimemedia.in/Pages/${newsItem.category}/${newsItem.subCategory || newsItem.category}/${newsItem.slug}`;
+            const { getArticleUrl } = require("../Utils/articleUtils");
+            const articleUrl = getArticleUrl(newsItem);
             
             const payload = {
                 app_id: appId,

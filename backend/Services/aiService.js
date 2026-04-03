@@ -49,18 +49,20 @@ STRICT LANGUAGE RULES (${languageName.toUpperCase()}):
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ${isHindi ? `
 - Write in very simple, conversational Hindi (Aam-aadmi wali bhasha).
-- Use words that people use in daily life. It is OKAY to use common English terms in Hindi script (e.g., "मोबाइल", "कोर्ट", "डिसीजन", "अपडेट", "पॉलिसी", "सरकार").
-- Avoid overly complex Sanskritized words. For example, instead of "अधिसूचना", use "नोटिस". Instead of "परामर्श", use "सलाह".
-- Everything (Title, Content, Summary, Sub-category) MUST be in Hindi script.
-- Sub-category should be 1-2 words in Hindi (e.g., "देश", "राजनीति", "खेल").` 
+- Use words that people use in daily life (e.g., "मोबाइल", "कोर्ट", "डिसीजन", "अपडेट", "पॉलिसी").
+- Avoid overly complex Sanskritized words (use "नोटिस" instead of "अधिसूचना").
+- STRICT SUB-CATEGORY LIST (Pick ONE based on context):
+  - For Entertainment: "मुख्य खबरें", "बॉलीवुड", "हॉलीवुड"
+  - For Sports: "मुख्य खेल", "IPL", "फुटबॉल"
+  - For Lifestyle: "फैशन", "संस्कृति", "रोचक"
+  - For Specialized: "अर्थव्यवस्था", "शासन", "पर्यावरण", "शिक्षा", "करियर", "विज्ञान"
+  - Default: Any 1-2 word relevant Hindi term.` 
 : `
 - Write in simple, clear, and professional English.
-- Use short sentences. Avoid jargon or technical terms unless necessary and explained.
-- High SEO readability is key.
-- Everything (Title, Content, Summary, Sub-category) MUST be in English.
+- Use short sentences. Avoid jargon or technical terms.
 - Sub-category should be a standard English news category (e.g., "India", "Sports", "Politics").`}
 
-- Write like you are explaining the news to a friend.
+- Everything (Title, Content, Summary, Sub-category) MUST be in the requested language script.
 - Article must be at least 500 words long.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -81,7 +83,7 @@ ${facts}
         `;
 
         const result = await client.models.generateContent({
-            model: "gemini-3.0",
+            model: "gemini-2.5-flash",
             contents: [{ role: "user", parts: [{ text: prompt }] }],
             config: {
                 responseMimeType: "application/json",
@@ -141,7 +143,7 @@ ${facts}
         `;
 
         const result = await client.models.generateContent({
-            model: "gemini-2.5-flash",
+            model: "gemini-1.5-flash",
             contents: [{ role: "user", parts: [{ text: prompt }] }],
             config: {
                 responseMimeType: "application/json",

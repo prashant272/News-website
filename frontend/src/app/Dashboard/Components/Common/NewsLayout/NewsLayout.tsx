@@ -22,6 +22,7 @@ const NewsLayout: React.FC<NewsLayoutProps> = ({
   const navItems = [
     { id: "dashboard", label: "Dashboard", icon: "📊" },
     { id: "content", label: "Content", icon: "📝" },
+    { id: "image-branding", label: "Image Branding", icon: "🖼️" },
     { id: "analytics", label: "Analytics", icon: "📈" },
     { id: "settings", label: "Settings", icon: "⚙️" },
   ];

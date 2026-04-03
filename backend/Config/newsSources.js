@@ -1,14 +1,9 @@
 const newsSources = [
- 
+
     // --- INDIA (National) ---
     {
         name: "Aaj Tak - India",
         url: "https://www.aajtak.in/rssfeeds/?id=india",
-        category: "india",
-    },
-    {
-        name: "ABP News - India",
-        url: "https://www.abplive.com/news/india/feed",
         category: "india",
     },
     {
@@ -23,7 +18,7 @@ const newsSources = [
     },
     {
         name: "NDTV India News",
-        url: "https://feeds.feedburner.com/ndtvnews-india-news",
+        url: "https://www.ndtv.com/rss/top-stories",
         category: "india",
     },
     {
@@ -38,13 +33,16 @@ const newsSources = [
     },
 
     // --- SPORTS ---
-
     {
         name: "News18 Sports",
         url: "https://www.news18.com/rss/sports.xml",
         category: "sports",
     },
-
+    {
+        name: "ESPN Cricinfo",
+        url: "https://www.espncricinfo.com/rss/content/story/feeds/0.xml",
+        category: "sports"
+    },
 
     // --- BUSINESS ---
     {
@@ -60,8 +58,8 @@ const newsSources = [
         category: "technology",
     },
     {
-        name: "HT Tech",
-        url: "https://tech.hindustantimes.com/rss/tech",
+        name: "Hindustan Times Tech",
+        url: "https://www.hindustantimes.com/rss/tech/rssfeed.xml",
         category: "technology",
     },
 
@@ -128,36 +126,12 @@ const newsSources = [
         category: "health",
     },
     {
-        name: "ABP News - Health",
-        url: "https://news.abplive.com/lifestyle/health/feed",
-        category: "health",
-    },
-    {
         name: "World Health Organization (WHO)",
         url: "https://news.google.com/rss/search?q=site:who.int+health",
         category: "health",
-    },,
+    },
+
     // --- STATE NEWS (Regional) ---
-    {
-        name: "ABP News - Bihar",
-        url: "https://www.abplive.com/news/bihar/feed",
-        category: "state",
-    },
-    {
-        name: "ABP News - Uttar Pradesh",
-        url: "https://www.abplive.com/news/uttar-pradesh/feed",
-        category: "state",
-    },
-    {
-        name: "ABP News - Maharashtra",
-        url: "https://www.abplive.com/news/maharashtra/feed",
-        category: "state",
-    },
-    {
-        name: "ABP News - Rajasthan",
-        url: "https://www.abplive.com/news/rajasthan/feed",
-        category: "state",
-    },
     {
         name: "Live Hindustan - Bihar",
         url: "https://www.livehindustan.com/bihar/rss/",
@@ -169,28 +143,13 @@ const newsSources = [
         category: "state",
     },
     {
-        name: "Times of India - Karnataka",
-        url: "https://timesofindia.indiatimes.com/rssfeeds/-2128833038.cms",
+        name: "Live Hindustan - Uttarakhand",
+        url: "https://www.livehindustan.com/uttarakhand/rss/",
         category: "state",
     },
     {
-        name: "Times of India - Tamil Nadu",
-        url: "https://timesofindia.indiatimes.com/rssfeeds/4450010.cms",
-        category: "state",
-    },
-    {
-        name: "Telangana Today",
-        url: "https://telanganatoday.com/feed",
-        category: "state",
-    },
-    {
-        name: "The Hindu - Andhra Pradesh",
-        url: "https://www.thehindu.com/news/national/andhra-pradesh/feeder/default.rss",
-        category: "state",
-    },
-    {
-        name: "Onmanorama - Kerala",
-        url: "https://www.onmanorama.com/rss/news/kerala.xml",
+        name: "Live Hindustan - Haryana",
+        url: "https://www.livehindustan.com/haryana/rss/",
         category: "state",
     },
     {
@@ -209,16 +168,6 @@ const newsSources = [
         category: "state",
     },
     {
-        name: "Live Hindustan - Odisha",
-        url: "https://api.livehindustan.com/feeds/rss/odisha/rssfeed.xml",
-        category: "state",
-    },
-    {
-        name: "Live Hindustan - Jammu & Kashmir",
-        url: "https://api.livehindustan.com/feeds/rss/jammu-and-kashmir/rssfeed.xml",
-        category: "state",
-    },
-    {
         name: "Live Hindustan - Jharkhand",
         url: "https://api.livehindustan.com/feeds/rss/jharkhand/rssfeed.xml",
         category: "state",
@@ -229,41 +178,25 @@ const newsSources = [
         category: "state",
     },
     {
-        name: "Live Hindustan - Haryana",
-        url: "https://api.livehindustan.com/feeds/rss/haryana/rssfeed.xml",
+        name: "Live Hindustan - MP",
+        url: "https://www.livehindustan.com/madhya-pradesh/rss/",
+        category: "state"
+    },
+    {
+        name: "Telangana Today",
+        url: "https://telanganatoday.com/feed",
         category: "state",
     },
     {
-        name: "Live Hindustan - Himachal Pradesh",
-        url: "https://api.livehindustan.com/feeds/rss/himachal-pradesh/rssfeed.xml",
+        name: "The Hindu - AP",
+        url: "https://www.thehindu.com/news/national/andhra-pradesh/feeder/default.rss",
         category: "state",
     },
     {
-        name: "Live Hindustan - Uttarakhand",
-        url: "https://api.livehindustan.com/feeds/rss/uttarakhand/rssfeed.xml",
+        name: "Onmanorama - Kerala",
+        url: "https://www.onmanorama.com/rss/news/kerala.xml",
         category: "state",
     },
-    {
-        name: "Times of India - Delhi",
-        url: "https://timesofindia.indiatimes.com/rssfeeds/-2128830821.cms",
-        category: "state",
-    },
-    {
-        name: "Times of India - Mumbai",
-        url: "https://timesofindia.indiatimes.com/rssfeeds/-2128833038.cms",
-        category: "state",
-    },
-    {
-        name: "Times of India - Hyderabad",
-        url: "https://timesofindia.indiatimes.com/rssfeeds/4118245.rss",
-        category: "state",
-    },
-    {
-        name: "Times of India - Chennai",
-        url: "https://timesofindia.indiatimes.com/rssfeeds/4450010.cms",
-        category: "state",
-    },
-    // --- AMAR UJALA (Additional Regional) ---
     {
         name: "Amar Ujala - Uttar Pradesh",
         url: "https://www.amarujala.com/rss/uttar-pradesh.xml",
@@ -288,47 +221,68 @@ const newsSources = [
         category: "state",
         state: "uttarakhand"
     },
-    // --- TAK LIVE (Aaj Tak Group) ---
+    // --- TAK LIVE (Upgraded Links) ---
     {
         name: "UP Tak",
-        url: "https://www.tak.live/rss/up-tak.xml",
+        url: "https://uptak.tak.live/rss",
         category: "state",
         state: "uttar-pradesh"
     },
     {
         name: "Bihar Tak",
-        url: "https://www.tak.live/rss/bihar-tak.xml",
+        url: "https://bihartak.tak.live/rss",
         category: "state",
         state: "bihar"
     },
     {
         name: "Rajasthan Tak",
-        url: "https://www.tak.live/rss/rajasthan-tak.xml",
+        url: "https://rajasthantak.tak.live/rss",
         category: "state",
         state: "rajasthan"
     },
     {
         name: "MP Tak",
-        url: "https://www.tak.live/rss/mp-tak.xml",
+        url: "https://mptak.tak.live/rss",
         category: "state",
         state: "madhya-pradesh"
     },
     {
         name: "Haryana Tak",
-        url: "https://www.tak.live/rss/haryana-tak.xml",
+        url: "https://haryanatak.tak.live/rss",
         category: "state",
         state: "haryana"
     },
-    // --- EDUCATION & JOBS ---
+    // --- EDUCATION ---
     {
         name: "NDTV Education",
-        url: "https://feeds.feedburner.com/ndtvnews-education",
+        url: "https://www.ndtv.com/education/feed",
         category: "education",
     },
     {
         name: "Jagran Josh - Education",
         url: "https://www.jagranjosh.com/rss/josh/general-knowledge.xml",
         category: "education",
+    },
+    // --- SPECIAL CATEGORIES ---
+    {
+        name: "Amar Ujala - Business",
+        url: "https://www.amarujala.com/rss/business.xml",
+        category: "economy",
+    },
+    {
+        name: "PIB Hindi",
+        url: "https://pib.gov.in/RssMain.aspx?ModId=6&Lang=2&Regid=3",
+        category: "governance",
+    },
+    {
+        name: "Live Hindustan Career",
+        url: "https://www.livehindustan.com/career/rss/",
+        category: "careers",
+    },
+    {
+        name: "Amar Ujala Jobs",
+        url: "https://www.amarujala.com/rss/jobs.xml",
+        category: "careers",
     },
 ];
 

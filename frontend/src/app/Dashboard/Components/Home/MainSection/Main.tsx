@@ -36,9 +36,12 @@ const CricketManager = dynamic(() => import("./components/CricketManager"), {
 const InternationalProgramManager = dynamic(() => import("./components/InternationalProgramManager"), {
   loading: () => <div className={styles.loading}>Loading International Program Manager...</div>
 });
+const ImageBranding = dynamic(() => import("./components/ImageBranding"), {
+  loading: () => <div className={styles.loading}>Loading Image Branding...</div>
+});
 
 interface MainSectionProps {
-  section: 'news_management' | 'ad_management' | 'previous_news' | 'analytics' | 'user_management' | 'facebook_settings' | 'linkedin_settings' | 'twitter_settings' | 'breaking_news' | 'cricket_management' | 'international_programs';
+  section: 'news_management' | 'ad_management' | 'previous_news' | 'analytics' | 'user_management' | 'facebook_settings' | 'linkedin_settings' | 'twitter_settings' | 'breaking_news' | 'cricket_management' | 'international_programs' | 'image_branding';
   initialDraft?: NewsItem | null;
 }
 
@@ -106,7 +109,8 @@ const MainSection: FC<MainSectionProps> = ({ section, initialDraft }) => {
                       section === 'linkedin_settings' ? 'LinkedIn Settings' :
                         section === 'twitter_settings' ? 'Twitter Settings' :
                           section === 'cricket_management' ? 'Cricket Management' :
- 'Previous News'}
+                            section === 'image_branding' ? 'Image Branding' :
+                              'Previous News'}
               </h1>
               <p className={styles.headerSubtitle}>
                 {section === 'news_management' ? 'Add new articles to any category' :
@@ -118,8 +122,9 @@ const MainSection: FC<MainSectionProps> = ({ section, initialDraft }) => {
                             section === 'linkedin_settings' ? 'Configure auto-posting to LinkedIn' :
                               section === 'twitter_settings' ? 'Configure auto-posting to Twitter' :
                                 section === 'cricket_management' ? 'Manage cricket tournaments and tracking' :
-                              section === 'international_programs' ? 'Manage links in the Awards dropdown' :
-                                'View and manage previously published news'}
+                                  section === 'image_branding' ? 'Add branding logos to news images' :
+                                    section === 'international_programs' ? 'Manage links in the Awards dropdown' :
+                                      'View and manage previously published news'}
                 {userRole !== "USER" && <span className={styles.roleBadge}> • {userRole}</span>}
               </p>
             </div>
@@ -186,6 +191,9 @@ const MainSection: FC<MainSectionProps> = ({ section, initialDraft }) => {
         )}
         {section === 'international_programs' && (
           <InternationalProgramManager />
+        )}
+        {section === 'image_branding' && (
+          <ImageBranding />
         )}
       </div>
     </div>

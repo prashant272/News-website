@@ -1,15 +1,13 @@
 const NewsArticle = require("../Models/NewsArticle");
 const VisualStory = require("../Models/VisualStory");
 
-const BASE_URL = "https://www.primetimemedia.in";
-
 /**
  * Helper to slugify subcategory (Frontend Matching)
  */
 const slugify = (text) => {
     if (!text) return "general";
-    return text.toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
+    return text.toString().toLowerCase()
+        .replace(/[^a-z0-9\u0900-\u097F]+/g, '-') // Support Hindi characters in slug if needed
         .replace(/(^-|-$)+/g, '');
 };
 
@@ -18,7 +16,12 @@ const slugify = (text) => {
  */
 const generateSitemap = async (req, res) => {
     try {
-        const articles = await NewsArticle.find({ status: "published" })
+        const host = req.get('host') || "";
+        const isHindi = host.includes("hindi");
+        const BASE_URL = isHindi ? "https://hindi.primetimemedia.in" : "https://www.primetimemedia.in";
+        const siteLang = isHindi ? "hi" : "en";
+
+        const articles = await NewsArticle.find({ status: "published", lang: siteLang })
             .select("slug category subCategory updatedAt")
             .sort({ updatedAt: -1 });
 
@@ -35,10 +38,10 @@ const generateSitemap = async (req, res) => {
     <priority>1.0</priority>
   </url>`;
 
-        const staticPages = [
-            '/Values', '/Vision', '/WhoWeAre', '/Management', '/Contact',
-            '/disclaimer', '/privacy', '/terms'
-        ];
+        // Static Pages
+        const staticPages = isHindi ? 
+            ['/Contact'] : 
+            ['/Contact', '/disclaimer', '/privacy', '/terms'];
 
         staticPages.forEach(path => {
             sitemap += `
@@ -50,8 +53,9 @@ const generateSitemap = async (req, res) => {
   </url>`;
         });
 
+        // Articles (Every single published article)
         articles.forEach(article => {
-            const cat = article.category || "india";
+            const cat = article.category || (isHindi ? "bharat" : "india");
             const subCat = slugify(article.subCategory);
             const url = `${BASE_URL}/Pages/${cat}/${subCat}/${article.slug}`;
             sitemap += `
@@ -63,6 +67,7 @@ const generateSitemap = async (req, res) => {
   </url>`;
         });
 
+        // Visual Stories
         stories.forEach(story => {
             const url = `${BASE_URL}/visual-stories/${story.slug}`;
             sitemap += `
@@ -74,7 +79,13 @@ const generateSitemap = async (req, res) => {
   </url>`;
         });
 
-        const categories = [
+        // Categories & States
+        const categories = isHindi ? [
+            'bharat', 'videsh', 'sports', 'business', 'entertainment', 'lifestyle',
+            'health', 'technology', 'education', 'andhra-pradesh', 'arunachal-pradesh',
+            'assam', 'bihar', 'gujarat', 'haryana', 'himachal-pradesh', 'jharkhand',
+            'madhya-pradesh', 'sikkim', 'uttar-pradesh', 'uttarakhand', 'west-bengal'
+        ] : [
             'india', 'sports', 'business', 'entertainment', 'lifestyle',
             'health', 'technology', 'world', 'education', 'environment',
             'science', 'opinion', 'auto', 'travel', 'awards'
@@ -102,15 +113,21 @@ const generateSitemap = async (req, res) => {
 
 /**
  * Google News Sitemap (Last 48 Hours ONLY)
- * Recommended to index news fast (Limit 1,000 URLs)
  */
 const generateNewsSitemap = async (req, res) => {
     try {
+        const host = req.get('host') || "";
+        const isHindi = host.includes("hindi");
+        const BASE_URL = isHindi ? "https://hindi.primetimemedia.in" : "https://www.primetimemedia.in";
+        const siteLang = isHindi ? "hi" : "en";
+        const siteName = isHindi ? "Prime Time Hindi" : "Prime Time";
+        const langCode = isHindi ? "hi" : "en";
+
         const twoDaysAgo = new Date(Date.now() - 48 * 60 * 60 * 1000);
 
-        // Fetch only articles from the last 48 hours
         const articles = await NewsArticle.find({
             status: "published",
+            lang: siteLang,
             publishedAt: { $gte: twoDaysAgo }
         })
             .select("title slug category subCategory publishedAt")
@@ -122,11 +139,10 @@ const generateNewsSitemap = async (req, res) => {
         xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">`;
 
         articles.forEach(article => {
-            const cat = article.category || "india";
+            const cat = article.category || (isHindi ? "bharat" : "india");
             const subCat = slugify(article.subCategory);
             const url = `${BASE_URL}/Pages/${cat}/${subCat}/${article.slug}`;
 
-            // Escape XML entities in title
             const escapedTitle = article.title
                 .replace(/&/g, '&amp;')
                 .replace(/</g, '&lt;')
@@ -139,8 +155,8 @@ const generateNewsSitemap = async (req, res) => {
     <loc>${url}</loc>
     <news:news>
       <news:publication>
-        <news:name>Prime Time</news:name>
-        <news:language>en</news:language>
+        <news:name>${siteName}</news:name>
+        <news:language>${langCode}</news:language>
       </news:publication>
       <news:publication_date>${article.publishedAt ? article.publishedAt.toISOString() : new Date().toISOString()}</news:publication_date>
       <news:title>${escapedTitle}</news:title>

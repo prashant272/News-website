@@ -74,17 +74,17 @@ const getLatestLinks = async (rssUrl) => {
     try {
         const feed = await parser.parseURL(rssUrl);
 
-        // --- DATE FILTER: only accept news published in the last 24 hours ---
+        // --- DATE FILTER: only accept news published in the last 6 hours (User Request) ---
         const now = new Date();
-        const cutoff = new Date(now.getTime() - 24 * 60 * 60 * 1000); // 24 hours ago
+        const cutoff = new Date(now.getTime() - 6 * 60 * 60 * 1000); // 6 hours ago
 
         const recentItems = feed.items.filter(item => {
-            if (!item.pubDate) return false; // skip if no date
+            if (!item.pubDate) return true; // fallback to true if no date, or false if you want strict
             const pubDate = new Date(item.pubDate);
-            return pubDate >= cutoff; // only items from last 24 hours
+            return pubDate >= cutoff; 
         });
 
-        console.log(`[${feed.title}] Found ${feed.items.length} items, ${recentItems.length} are within last 24 hours.`);
+        console.log(`[${feed.title}] Found ${feed.items.length} items, ${recentItems.length} are within last 6 hours.`);
 
         // Return top 35 recent items
         return recentItems.slice(0, 10).map(item => ({

@@ -1,3 +1,4 @@
+const { applyWatermark, brandImageWithTitle } = require("../Services/imageService");
 const { scrapeNews, getLatestLinks } = require("../Services/scraperService");
 const { generateArticle } = require("../Services/aiService");
 const NewsArticle = require("../Models/NewsArticle");
@@ -11,119 +12,113 @@ cloudinary.config({
     api_secret: process.env.API_SECRET,
 });
 
-// Helper to check for Devanagari characters
+// --- HELPERS ---
+
 const hasHindiCharacters = (text) => {
     if (!text) return false;
     return /[\u0900-\u097F]/.test(text);
 };
 
-// Helper to create slug (Supports Hindi/Devanagari)
 const createSlug = (title) => {
     return title
         .toLowerCase()
         .trim()
-        .replace(/[\s_]+/g, "-") // Replace spaces and underscores with hyphens
-        .replace(/[^\u0900-\u097Fa-z0-9\u0915-\u0939\u0941-\u094d-]+/g, "") // Keep Devanagari range, a-z, 0-9 and hyphens
-        .replace(/-+/g, "-") // Remove double hyphens
-        .replace(/(^-|-$)+/g, ""); // Trim hyphens from ends
+        .replace(/[\s_]+/g, "-")
+        .replace(/[^\u0900-\u097Fa-z0-9\u0915-\u0939\u0941-\u094d-]+/g, "")
+        .replace(/-+/g, "-")
+        .replace(/(^-|-$)+/g, "");
 };
 
-// Helper: Upload Image to Cloudinary
-const uploadImage = async (imageUrl) => {
-    if (!imageUrl) return null;
-    try {
-        const response = await cloudinary.uploader.upload(imageUrl, {
-            folder: "auto_news",
-            fetch_format: "auto",
-            quality: "auto" // Optimize size
-        });
-        return response.secure_url;
-    } catch (error) {
-        console.error("Cloudinary Upload Error:", error.message);
-        return null; // Fail gracefully
-    }
-};
-
-// Helper: Generate URL Hash
 const generateUrlHash = (url) => {
     return crypto.createHash("sha256").update(url).digest("hex");
 };
 
-// Helper: Simple Semantic Check (Keyword Overlap)
+const uploadImage = async (imageUrl, title = "", source = "") => {
+    if (!imageUrl) return null;
+    try {
+        console.log(`[Cloudinary] ${title ? "Branding" : "Watermarking"} and Uploading: ${imageUrl}`);
+        
+        // 1. Apply branding/watermark
+        let buffer;
+        if (title) {
+            // New HD Master Branding with Title
+            buffer = await brandImageWithTitle(imageUrl, title);
+        } else {
+            // Legacy anti-copyright watermark
+            buffer = await applyWatermark(imageUrl, source);
+        }
+        
+        if (!buffer) {
+            console.log("[Cloudinary] Falling back to original image (no watermark).");
+            const response = await cloudinary.uploader.upload(imageUrl, {
+                folder: "auto_news",
+                fetch_format: "auto",
+                quality: "auto"
+            });
+            return response.secure_url;
+        }
+
+        // 2. Upload the watermarked buffer to Cloudinary
+        return new Promise((resolve, reject) => {
+            const uploadStream = cloudinary.uploader.upload_stream(
+                { folder: "auto_news", fetch_format: "auto", quality: "auto" },
+                (error, result) => {
+                    if (error) {
+                        console.error("Cloudinary Stream Error:", error.message);
+                        resolve(null); // Return null instead of rejecting to keep loop running
+                    } else {
+                        resolve(result.secure_url);
+                    }
+                }
+            );
+            uploadStream.end(watermarkedBuffer);
+        });
+    } catch (error) {
+        console.error("Cloudinary Error:", error.message);
+        return null;
+    }
+};
+
 const isSemanticDuplicate = (newTitle, existingTitles) => {
     if (!newTitle || !existingTitles.length) return false;
-
     const normalize = (str) => str.toLowerCase().replace(/[^\w\s]/g, "").split(/\s+/).filter(w => w.length > 3);
     const newWords = new Set(normalize(newTitle));
-
-    if (newWords.size < 3) return false; // Too short to deduplicate reliably
-
+    if (newWords.size < 3) return false;
     for (const title of existingTitles) {
         const existingWords = normalize(title);
         let matchCount = 0;
-        for (const word of existingWords) {
-            if (newWords.has(word)) matchCount++;
-        }
-
-        // If more than 60% of keywords match, consider it a semantic duplicate
+        for (const word of existingWords) { if (newWords.has(word)) matchCount++; }
         const similarity = matchCount / Math.min(newWords.size, existingWords.size);
         if (similarity > 0.6) return true;
     }
     return false;
 };
 
-// 1. Manual Single URL Processing
+// --- CONTROLLERS ---
+
 const autoGenerateNews = async (req, res) => {
     try {
         const { url, category } = req.body;
-
-        if (!url || !category) {
-            return res.status(400).json({
-                success: false,
-                msg: "URL and Category are required."
-            });
-        }
+        if (!url || !category) return res.status(400).json({ success: false, msg: "URL and Category are required." });
 
         const scraped = await scrapeNews(url);
-        
-        // Generate HI version ONLY
-        console.log("Generating AI Content (HI ONLY)...");
         const aiDataHi = await generateArticle(scraped.facts, 'hi');
         
-        const finalTitleHi = aiDataHi.title;
-        
-        // 1. Validate if title is actually in Hindi
-        if (!hasHindiCharacters(finalTitleHi)) {
-            console.log(`[AI-HI] Rejected: Generated title is not in Hindi -> "${finalTitleHi}"`);
-            return res.status(422).json({ 
-                success: false, 
-                msg: "The AI failed to generate a Hindi title even though requested. Please try again." 
-            });
+        if (!hasHindiCharacters(aiDataHi.title)) {
+            return res.status(422).json({ success: false, msg: "AI failed to generate a Hindi title." });
         }
 
-        const slug = createSlug(finalTitleHi);
+        const slug = createSlug(aiDataHi.title);
         const urlHash = generateUrlHash(url);
 
-        // Check technical duplicate
-        const existing = await NewsArticle.findOne({
-            $or: [
-                { slug: slug },
-                { urlHash: `${urlHash}-hi` }
-            ]
-        });
+        const existing = await NewsArticle.findOne({ $or: [{ slug: slug }, { urlHash: `${urlHash}-hi` }] });
+        if (existing) return res.status(409).json({ success: false, msg: "Article already exists.", slug: slug });
 
-        if (existing) {
-            return res.status(409).json({ success: false, msg: "News article (or source URL) already exists.", slug: slug });
-        }
-
-        // Upload Image
-        let finalImage = null;
-        if (scraped.image) {
-            finalImage = await uploadImage(scraped.image);
-        }
+        // BRANDING: Process image with AI generated title
+        const finalImage = scraped.image ? await uploadImage(scraped.image, aiDataHi.title, scraped.source) : null;
 
         const newPostHi = new NewsArticle({
-            title: finalTitleHi,
+            title: aiDataHi.title,
             slug: slug,
             category: category.toLowerCase(),
             subCategory: aiDataHi.subCategory || "General",
@@ -136,231 +131,166 @@ const autoGenerateNews = async (req, res) => {
             autoGenerated: true,
             status: "draft",
             author: "AI Writer",
-            isLatest: false,
-            isTrending: false,
             isHidden: true,
             lang: "hi"
         });
 
         await newPostHi.save();
-
-        res.json({ success: true, msg: "News auto-generated in Hindi.", post: newPostHi });
-
+        res.json({ success: true, msg: "News auto-generated and watermarked.", post: newPostHi });
     } catch (error) {
-        console.error("Auto-News Error:", error);
         res.status(500).json({ error: error.message });
     }
 };
 
-// 2. Batch Processing for RSS Feeds with Concurrency Control
 const fetchAndProcessNews = async (req, res) => {
     try {
-        let stats = {
-            processed: 0,
-            duplicates: 0,
-            errors: 0,
-            skipped_limit: 0,
-            articles: []
-        };
-        
-        const GLOBAL_LIMIT = 35;
+        let stats = { processed: 0, duplicates: 0, errors: 0, skipped_limit: 0, articles: [] };
+        const GLOBAL_LIMIT = 10;
         const STATE_LIMIT = 5;
-        const stateCounters = {}; // Track processed articles per state
+        const stateCounters = {};
 
-        // 1. Gather all potential links first
+        const recentArticles = await NewsArticle.find().sort({ createdAt: -1 }).limit(50).select("title");
+        const existingTitles = recentArticles.map(a => a.title);
+
         let allPotentialItems = [];
         for (const source of newsSources) {
             try {
-                console.log(`Fetching Links for: ${source.name}...`);
                 const items = await getLatestLinks(source.url);
-                const itemsWithSource = items.map(item => ({ 
-                    ...item, 
-                    sourceInfo: source 
-                }));
-                allPotentialItems.push(...itemsWithSource);
-            } catch (err) {
-                console.error(`Failed to fetch links for ${source.name}:`, err.message);
-            }
+                allPotentialItems.push(...items.map(i => ({ ...i, sourceInfo: source })));
+            } catch (err) {}
         }
-
-        // Shuffle to get variety from different sources at the top
         allPotentialItems = allPotentialItems.sort(() => Math.random() - 0.5);
 
-        // 2. Process in batches to balance speed and rate limits
-        const CONCURRENCY = 5;
+        const CONCURRENCY = 3; // Reduced for heavy image processing
         const processArticle = async (item) => {
             if (stats.processed >= GLOBAL_LIMIT) return;
 
             const source = item.sourceInfo;
             const state = source.state || source.name.split(" - ")[1]?.toLowerCase() || "general";
 
-            // Check State Limit
             if (stateCounters[state] >= STATE_LIMIT) {
-                console.log(`Skipping: Max limit (5) reached for state/source: ${state}`);
                 stats.skipped_limit++;
+                return;
+            }
+
+            if (isSemanticDuplicate(item.title, existingTitles)) {
+                stats.duplicates++;
                 return;
             }
 
             const urlHash = generateUrlHash(item.link);
             const slug = createSlug(item.title);
-            const category = source.category;
 
-            // Technical Duplicate Check
-            const duplicate = await NewsArticle.findOne({
-                $or: [{ slug: slug }, { urlHash: urlHash }, { title: item.title }]
-            });
-
-            if (duplicate) {
-                stats.duplicates++;
-                return;
-            }
-
-            try {
-                console.log(`[Parallel] Scraping: ${item.title}`);
+                try {
+                console.log(`[Batch] Scraping & AI Drafting: ${item.title}`);
                 const scraped = await scrapeNews(item.link);
-                
-                console.log(`[Parallel] AI Generating (GEMINI 3.0): ${item.title}`);
-                const aiDataHi = await generateArticle(scraped.facts, 'hi');
 
-                if (!hasHindiCharacters(aiDataHi.title)) {
-                    stats.errors++;
-                    return;
+                // --- HINDI ---
+                const aiDataHi = await generateArticle(scraped.facts, 'hi');
+                if (hasHindiCharacters(aiDataHi.title)) {
+                    // Unique branded image for Hindi
+                    const brandedImageHi = scraped.image ? await uploadImage(scraped.image, aiDataHi.title, source.name) : null;
+                    
+                    await new NewsArticle({
+                        title: aiDataHi.title,
+                        slug: createSlug(aiDataHi.title),
+                        category: source.category.toLowerCase(),
+                        subCategory: aiDataHi.subCategory || "General",
+                        summary: aiDataHi.summary,
+                        content: aiDataHi.content,
+                        image: brandedImageHi,
+                        tags: aiDataHi.tags || [],
+                        source: source.name,
+                        urlHash: `${urlHash}-hi`,
+                        autoGenerated: true,
+                        status: "draft",
+                        author: "AI News Bot",
+                        lang: "hi",
+                        isHidden: true
+                    }).save();
                 }
 
-                const finalSlugHi = createSlug(aiDataHi.title);
-                let finalImage = scraped.image ? await uploadImage(scraped.image) : null;
+                // --- ENGLISH ---
+                const aiDataEn = await generateArticle(scraped.facts, 'en');
+                // Unique branded image for English
+                const brandedImageEn = scraped.image ? await uploadImage(scraped.image, aiDataEn.title, source.name) : null;
 
-                const hiPost = new NewsArticle({
-                    title: aiDataHi.title,
-                    slug: finalSlugHi,
-                    category: category.toLowerCase(),
-                    subCategory: aiDataHi.subCategory || "General",
-                    summary: aiDataHi.summary,
-                    content: aiDataHi.content,
-                    image: finalImage,
-                    tags: aiDataHi.tags || [],
+                await new NewsArticle({
+                    title: aiDataEn.title,
+                    slug: createSlug(aiDataEn.title),
+                    category: source.category.toLowerCase(),
+                    subCategory: aiDataEn.subCategory || "General",
+                    summary: aiDataEn.summary,
+                    content: aiDataEn.content,
+                    image: brandedImageEn,
+                    tags: aiDataEn.tags || [],
                     source: source.name,
-                    urlHash: `${urlHash}-hi`,
+                    urlHash: `${urlHash}-en`,
                     autoGenerated: true,
                     status: "draft",
                     author: "AI News Bot",
-                    lang: "hi",
-                    isHidden: true,
-                    createdAt: new Date()
-                });
+                    lang: "en",
+                    isHidden: true
+                }).save();
 
-                await hiPost.save();
-
-                stats.processed += 1;
+                existingTitles.push(item.title);
+                stats.processed++;
                 stateCounters[state] = (stateCounters[state] || 0) + 1;
-                stats.articles.push(`${aiDataHi.title} (${state})`);
-
-            } catch (err) {
-                console.error(`Failed to process ${item.link}:`, err.message);
-                stats.errors++;
-            }
+                stats.articles.push(item.title);
+            } catch (err) { stats.errors++; }
         };
 
-        // Execution of Parallel Batches
         for (let i = 0; i < allPotentialItems.length; i += CONCURRENCY) {
             if (stats.processed >= GLOBAL_LIMIT) break;
-            const batch = allPotentialItems.slice(i, i + CONCURRENCY);
-            await Promise.allSettled(batch.map(item => processArticle(item)));
+            await Promise.allSettled(allPotentialItems.slice(i, i + CONCURRENCY).map(processArticle));
         }
 
-        res.json({
-            success: true,
-            msg: "Batch processing completed with parallel optimization.",
-            stats
-        });
-
+        res.json({ success: true, msg: "Manual batch completed with logo watermarking.", stats });
     } catch (error) {
-        console.error("Batch Process Error:", error);
         res.status(500).json({ error: "Batch processing failed." });
     }
 };
 
-// 3. Get All AI Drafts
 const getAutoGeneratedDrafts = async (req, res) => {
     try {
-        const drafts = await NewsArticle.find({
-            autoGenerated: true,
-            status: "draft"
-        }).sort({ createdAt: -1 });
-
-        res.json({
-            success: true,
-            count: drafts.length,
-            drafts: drafts
-        });
-
+        const drafts = await NewsArticle.find({ autoGenerated: true, status: "draft" }).sort({ createdAt: -1 });
+        res.json({ success: true, count: drafts.length, drafts });
     } catch (error) {
-        console.error("Get Drafts Error:", error);
         res.status(500).json({ error: "Failed to fetch drafts." });
     }
 };
 
-// 4. Cleanup Duplicates (Refactored for new Schema)
 const cleanupDuplicates = async (req, res) => {
     try {
         const duplicates = await NewsArticle.aggregate([
-            {
-                $group: {
-                    _id: { slug: "$slug" },
-                    regexCount: { $sum: 1 },
-                    ids: { $push: "$_id" }
-                }
-            },
-            {
-                $match: {
-                    regexCount: { $gt: 1 }
-                }
-            }
+            { $group: { _id: { slug: "$slug" }, regexCount: { $sum: 1 }, ids: { $push: "$_id" } } },
+            { $match: { regexCount: { $gt: 1 } } }
         ]);
-
         let totalRemoved = 0;
         for (const doc of duplicates) {
-            // Keep the first one, delete the rest
             const idsToDelete = doc.ids.slice(1);
             const result = await NewsArticle.deleteMany({ _id: { $in: idsToDelete } });
             totalRemoved += result.deletedCount;
         }
-
-        res.json({
-            success: true,
-            msg: `Cleanup completed. Removed ${totalRemoved} duplicate items.`,
-            removed: totalRemoved
-        });
-
+        res.json({ success: true, msg: `Removed ${totalRemoved} duplicates.`, removed: totalRemoved });
     } catch (error) {
-        console.error("Cleanup Error:", error);
         res.status(500).json({ error: "Cleanup failed." });
     }
 };
 
-// 5. Fix mismatched language tags (existing data cleanup)
 const fixLanguageTags = async (req, res) => {
     try {
-        // Find all articles tagged as 'hi'
         const hindiArticles = await NewsArticle.find({ lang: "hi" });
-        
         let fixedCount = 0;
         for (const article of hindiArticles) {
-            // If it's tagged 'hi' but has NO Hindi characters in title
             if (!hasHindiCharacters(article.title)) {
                 article.lang = "en";
                 await article.save();
                 fixedCount++;
             }
         }
-
-        res.json({
-            success: true,
-            msg: `Cleanup completed. Fixed ${fixedCount} articles that were incorrectly tagged as Hindi.`,
-            fixed: fixedCount
-        });
+        res.json({ success: true, msg: `Fixed ${fixedCount} language tags.`, fixed: fixedCount });
     } catch (error) {
-        console.error("Fix Language Error:", error);
         res.status(500).json({ error: "Language cleanup failed." });
     }
 };

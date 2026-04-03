@@ -26,12 +26,13 @@ async function triggerFacebookPost(newsItem) {
 
     if (!pageId || !pageAccessToken) return;
 
-    const articleUrl = `https://www.primetimemedia.in/Pages/${newsItem.category}/${newsItem.subCategory || newsItem.category}/${newsItem.slug}`;
+    const { getArticleUrl } = require("./Utils/articleUtils");
+    const articleUrl = getArticleUrl(newsItem);
     const message = `📰 ${newsItem.title}\n\n${newsItem.summary || ""}\n\nRead more 👇`;
 
     // Import service only when needed to avoid circular dependencies
     const facebookService = require("./facebookService");
-    await facebookService.postToPage(pageId, pageAccessToken, message, articleUrl);
+    await facebookService.postToPage(pageId, pageAccessToken, message, articleUrl, newsItem.image || null);
   } catch (error) {
     console.error("[Cron-Facebook] triggerFacebookPost Error:", error);
   }
@@ -48,7 +49,8 @@ async function triggerLinkedInPost(newsItem) {
     const accounts = (config?.linkedinAccounts || []).filter(a => a.autoPostEnabled && a.accessToken);
     if (accounts.length === 0) return;
 
-    const articleUrl = `https://www.primetimemedia.in/Pages/${newsItem.category}/${newsItem.subCategory || newsItem.category}/${newsItem.slug}`;
+    const { getArticleUrl } = require("./Utils/articleUtils");
+    const articleUrl = getArticleUrl(newsItem);
     const message = `📰 ${newsItem.title}\n\n${newsItem.summary || ""}\n\nRead more 👇`;
 
     const linkedinService = require("./linkedinService");
@@ -96,7 +98,8 @@ async function triggerTwitterPost(newsItem) {
 
     if (!credentials.accessToken) return;
 
-    const articleUrl = `https://www.primetimemedia.in/Pages/${newsItem.category}/${newsItem.subCategory || newsItem.category}/${newsItem.slug}`;
+    const { getArticleUrl } = require("./Utils/articleUtils");
+    const articleUrl = getArticleUrl(newsItem);
     const message = `📰 ${newsItem.title}`;
 
     const twitterService = require("./twitterService");
@@ -106,13 +109,32 @@ async function triggerTwitterPost(newsItem) {
   }
 }
 
+const { publishPendingDrafts } = require("./autoNewsService");
+
 const initCronJobs = () => {
-  // Run every minute
+  // --- 1. Immediate Run on Startup (DEACTIVATED) ---
+  // console.log("[AutoPost] ⚡ System Startup: Triggering initial publishing cycle...");
+  // publishPendingDrafts().catch(err => console.error("[AutoPost] ❌ Initial Cycle Failed:", err.message));
+
+  // --- 2. NIGHTLY HOURLY AUTO-POST (7 PM - 5 AM): Every 1 Hour (DEACTIVATED) ---
+  // cron.schedule("0 19-23,0-5 * * *", async () => {
+  //   try {
+  //     console.log(`[AutoPost] 🌑 Nightly Hourly Cycle triggered at ${new Date().toISOString()}`);
+  //     const stats = await publishPendingDrafts();
+  //     if (stats.processed > 0) {
+  //       console.log(`[AutoPost] ✅ Done: ${stats.processed} articles now live.`);
+  //     }
+  //   } catch (err) {
+  //     console.error("[AutoPost] ❌ Nightly Cycle Failed:", err.message);
+  //   }
+  // });
+
+  // console.log("✅ Nightly Hourly Auto-Posting Job (7PM-5AM) Initialized.");
+
+  // 3. Scheduled Publishing (Every Minute)
   cron.schedule("* * * * *", async () => {
     try {
       const now = new Date();
-      // console.log(`[Cron] Checking for scheduled news at ${now.toISOString()}`);
-
       const articlesToPublish = await NewsArticle.find({
         status: "scheduled",
         scheduledAt: { $lte: now }
@@ -124,13 +146,12 @@ const initCronJobs = () => {
         for (const article of articlesToPublish) {
           article.status = "published";
           article.publishedAt = now;
-          article.scheduledAt = null; // Clear scheduled time
+          article.scheduledAt = null;
           article.isHidden = false;
 
           await article.save();
           console.log(`[Cron] ✅ Automatically published: "${article.title}"`);
 
-          // Trigger Social Media posts
           triggerFacebookPost(article);
           triggerLinkedInPost(article);
           triggerTwitterPost(article);
@@ -141,9 +162,9 @@ const initCronJobs = () => {
     }
   });
 
-  console.log("✅ Scheduled Publishing Cron Job Initialized (Every Minute)");
+  console.log("✅ AI News Auto-Pilot (5 Min) and Publishing (1 Min) Jobs Initialized.");
 
-  // Clean up Breaking News older than 2 days (Runs every day at 2 AM)
+  // 3. Clean up Breaking News (Daily at 2 AM)
   cron.schedule("0 2 * * *", async () => {
     try {
       const twoDaysAgo = new Date();
