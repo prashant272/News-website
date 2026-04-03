@@ -54,7 +54,8 @@ const HeroSection: React.FC = () => {
   const featured = news[currentIndex];
 
   const getNewsUrl = (item: any) => {
-    const category = (item.category || 'news').toLowerCase().trim();
+    const categoryRaw = Array.isArray(item.category) ? item.category[0] : (item.category || 'news');
+    const category = categoryRaw.toLowerCase().trim();
     const subCategory = (item.subCategory || 'general').toLowerCase().trim();
     return `/Pages/${category}/${subCategory}/${item.slug}`;
   };
@@ -95,7 +96,7 @@ const HeroSection: React.FC = () => {
                   animate={{ opacity: 1, y: 0 }}
                   className={styles.category}
                 >
-                  {featured.category}
+                  {Array.isArray(featured.category) ? featured.category[0] : featured.category}
                 </motion.span>
                 
                 <Link href={getNewsUrl(featured)} className={styles.titleLink}>
@@ -170,7 +171,7 @@ const HeroSection: React.FC = () => {
                       />
                     </div>
                     <Link href={getNewsUrl(item)} className={styles.sideInfo}>
-                      <span className={styles.sideCategory}>{item.category}</span>
+                      <span className={styles.sideCategory}>{Array.isArray(item.category) ? item.category[0] : item.category}</span>
                       <h4 className={styles.sideNewsTitle}>{item.title}</h4>
                     </Link>
                   </div>
