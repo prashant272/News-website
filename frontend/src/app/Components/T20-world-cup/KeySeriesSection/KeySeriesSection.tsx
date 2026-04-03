@@ -150,9 +150,10 @@ const KeySeriesSection: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState(0);
 
-  const filteredMatches = allMatchesData.filter(
-    match => match.category === categories[activeTab]
-  );
+  const filteredMatches = allMatchesData.filter(match => {
+    const categoriesList = Array.isArray(match.category) ? match.category : [match.category];
+    return categoriesList.includes(categories[activeTab]);
+  });
 
   const displayMatches = filteredMatches.length > 0 ? filteredMatches : allMatchesData.slice(0, 4);
 
@@ -186,7 +187,7 @@ const KeySeriesSection: React.FC = () => {
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <div className={styles.cardHeader}>
-                  <span className={styles.categoryBadge}>{match.category}</span>
+                  <span className={styles.categoryBadge}>{Array.isArray(match.category) ? match.category[0] : match.category}</span>
                   {match.isLive && (
                     <span className={styles.liveBadge}>
                       <span className={styles.liveIcon}>●</span>

@@ -21,11 +21,14 @@ const HindiTrendingSection: React.FC = () => {
 
     // 2. Ticker Tags: Unique subcategories from all trending news
     const tickerTags = useMemo(() => {
-        const tags = trendingData.map((item: any) => ({
-            name: item.subCategory || item.category || 'Trending',
-            slug: item.subCategory || item.category,
-            parentCategory: item.category
-        }));
+        const tags = trendingData.map((item: any) => {
+            const catBase = Array.isArray(item.category) ? item.category[0] : item.category;
+            return {
+                name: item.subCategory || catBase || 'Trending',
+                slug: item.subCategory || catBase,
+                parentCategory: catBase
+            };
+        });
         return Array.from(new Set(tags.map(t => t.name)))
             .map(name => tags.find(t => t.name === name));
     }, [trendingData]);
@@ -46,7 +49,8 @@ const HindiTrendingSection: React.FC = () => {
     const rightSidebar = trendingData.slice(7, 10);
 
     const getUrl = (item: any) => {
-        const cat = (item.category || 'news').toLowerCase();
+        const catBase = Array.isArray(item.category) ? item.category[0] : (item.category || 'news');
+        const cat = catBase.toLowerCase();
         const sub = (item.subCategory || 'general').toLowerCase();
         return getLocalizedHref(`/Pages/${cat}/${sub}/${item.slug}`, lang);
     };

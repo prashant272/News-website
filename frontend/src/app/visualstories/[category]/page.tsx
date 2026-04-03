@@ -27,9 +27,10 @@ export default function CategoryVisualStoriesListing() {
                 const res = await fetch(`${base}/api/visual-stories`);
                 const data = await res.json();
                 if (data.success) {
-                    const filtered = data.data.filter((s: VisualStory) => 
-                        s.category?.toLowerCase() === categoryName?.toLowerCase()
-                    );
+                    const filtered = data.data.filter((s: any) => {
+                        const categories = Array.isArray(s.category) ? s.category : [s.category];
+                        return categories.some((cat: string) => cat?.toLowerCase() === categoryName?.toLowerCase());
+                    });
                     setStories(filtered);
                 }
             } catch (error) {
@@ -76,12 +77,12 @@ export default function CategoryVisualStoriesListing() {
                         }}
                     >
                         <Link
-                            href={`/visualstories/${story.category || 'general'}/${story.slug}`}
+                            href={`/visualstories/${(Array.isArray(story.category) ? story.category[0] : (story.category || 'general')).toLowerCase()}/${story.slug}`}
                             className={styles.card}
                         >
                             <div className={styles.imageWrapper}>
                                 <img src={story.thumbnail} alt={story.title} loading="lazy" />
-                                <span className={styles.badge}>{story.category}</span>
+                                <span className={styles.badge}>{Array.isArray(story.category) ? story.category[0] : story.category}</span>
                                 <div className={styles.overlay}>
                                     <div className={styles.content}>
                                         <h3>{story.title}</h3>

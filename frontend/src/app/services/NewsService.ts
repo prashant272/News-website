@@ -3,7 +3,7 @@ import { baseURL } from "@/Utils/Utils";
 export interface NewsItem {
     title: string;
     slug: string;
-    category: string;
+    category: string | string[];
     subCategory?: string;
     summary?: string;
     content: string;

@@ -43,7 +43,7 @@ const HindiHeroSection: React.FC = () => {
 
         const promotedRegional = allNews.filter((item: any) => {
             const isLatest = item.isLatest === true;
-            const cat = (item.category || '').toLowerCase();
+            const cat = (Array.isArray(item.category) ? item.category[0] : (item.category || '')).toLowerCase();
             const sub = (item.subCategory || '').toLowerCase();
             const st = (item.state || '').toLowerCase();
             
@@ -86,7 +86,7 @@ const HindiHeroSection: React.FC = () => {
     const middleStories = sortedNews.slice(1, 6);
 
     const getUrl = (item: any) => {
-        const cat = (item.category || 'news').toLowerCase();
+        const cat = (Array.isArray(item.category) ? item.category[0] : (item.category || 'news')).toLowerCase();
         const sub = (item.subCategory || 'general').toLowerCase();
         return getLocalizedHref(`/Pages/${cat}/${sub}/${item.slug}`, lang);
     };
@@ -148,7 +148,7 @@ const HindiHeroSection: React.FC = () => {
                 <div className={styles.middleColumn}>
                     <div className={styles.storiesList}>
                         {middleStories.map((item) => {
-                            const cat = (item.category || '').toLowerCase();
+                            const cat = (Array.isArray(item.category) ? item.category[0] : (item.category || '')).toLowerCase();
                             const sub = (item.subCategory || '').toLowerCase();
                             const st = (item.state || '').toLowerCase();
                             const stateKeywords = HINDI_STATES.flatMap(s => [s.slug, s.name, s.english.toLowerCase()]);
@@ -206,7 +206,7 @@ const HindiHeroSection: React.FC = () => {
                                     />
                                 </div>
                                 <div className={styles.sidebarText}>
-                                    <span>{item.subCategory || item.category || 'विशेष'}</span>
+                                    <span>{item.subCategory || (Array.isArray(item.category) ? item.category[0] : item.category) || 'विशेष'}</span>
                                     <h4>{item.title}</h4>
                                     <div className={styles.sidebarMeta}>
                                         {formatDate(item.publishedAt || (item as any).date)}

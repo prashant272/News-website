@@ -58,7 +58,7 @@ export default function AllNewsPage() {
         image: news.image || '',
         title: news.title,
         slug: news.slug,
-        category: news.category,
+        category: (Array.isArray(news.category) ? news.category[0] : news.category) || '',
         subCategory: news.subCategory || '',
         targetLink: news.targetLink,
         nominationLink: news.nominationLink

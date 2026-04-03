@@ -47,7 +47,7 @@ const Entertainment: React.FC = () => {
 
     return entertainmentNews.filter(item => {
       const sub = (item.subCategory || '').toLowerCase();
-      const cat = (item.category || '').toLowerCase();
+      const cat = (Array.isArray(item.category) ? item.category[0] : (item.category || '')).toLowerCase();
       return sub.includes(active) || cat.includes(active);
     });
   }, [entertainmentNews, activeCategory]);
@@ -61,7 +61,7 @@ const Entertainment: React.FC = () => {
       slug: item.slug,
       title: item.title,
       image: getImageSrc(item.image),
-      category: item.subCategory || item.category || 'Entertainment',
+      category: item.subCategory || (Array.isArray(item.category) ? item.category[0] : item.category) || 'Entertainment',
       date: item.publishedAt || item.date || item.createdAt,
     }));
   }, [filteredEntNews]);

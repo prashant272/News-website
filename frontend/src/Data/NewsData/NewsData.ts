@@ -809,9 +809,12 @@ export function getAllNewsData(): LatestNewsItem[] {
 
 // Helper function to get news by category
 export function getNewsByCategory(category: string): LatestNewsItem[] {
-  return getAllNewsData().filter(item => 
-    item.category.toLowerCase() === category.toLowerCase()
-  );
+  return getAllNewsData().filter(item => {
+    if (Array.isArray(item.category)) {
+      return item.category.some(cat => cat.toLowerCase() === category.toLowerCase());
+    }
+    return item.category?.toLowerCase() === category.toLowerCase();
+  });
 }
 
 // Helper function to get news by section

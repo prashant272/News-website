@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState, useMemo, useRef } from "react";
 import { newsService, NewsItem, NewsDocument, ApiResponse } from "../services/NewsService";
 import { baseURL } from "@/Utils/Utils";
 import { useLanguage } from "./useLanguage";
-export { newsService, useLanguage };
+export { newsService, useLanguage, baseURL };
 export type { NewsItem, NewsDocument, ApiResponse };
 
 type UseApiResult<T> = {

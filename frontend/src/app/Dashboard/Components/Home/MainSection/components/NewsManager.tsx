@@ -7,7 +7,8 @@ import {
     useAddNews,
     useUpdateNews,
     useDeleteNews,
-    useSetNewsFlags
+    useSetNewsFlags,
+    baseURL // Added import for preview
 } from "@/app/hooks/NewsApi";
 import { compressImage } from "@/Utils/Utils";
 import { useNewsContext } from "@/app/context/NewsContext";
@@ -97,7 +98,7 @@ const NewsManager: FC<NewsManagerProps> = ({
     const [formState, setFormState] = useState<Partial<NewsItem>>({
         title: "",
         slug: "",
-        category: "India",
+        category: ["india"],
         content: "",
         tags: [],
         status: "draft",
@@ -107,6 +108,8 @@ const NewsManager: FC<NewsManagerProps> = ({
         moreInfoLink: "",
         language: "en",
         state: "universal",
+        isLatest: false,
+        isTrending: false,
     });
 
     const [tagsInput, setTagsInput] = useState("");
@@ -114,6 +117,10 @@ const NewsManager: FC<NewsManagerProps> = ({
     const [showImage, setShowImage] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+    
+    // Live Branded Preview State
+    const [brandedPreview, setBrandedPreview] = useState<string | null>(null);
+    const [isBranding, setIsBranding] = useState(false);
 
     // Schedule time picker state (declared after formState)
     const [schedDate, setSchedDate] = useState("");
@@ -140,13 +147,52 @@ const NewsManager: FC<NewsManagerProps> = ({
             setFormState(prev => ({ ...prev, scheduledAt: iso }));
         }
     }, [schedDate, schedHour, schedMin, schedAmPm, timeFormat, formState.status, buildScheduledISO]);
+
+    // FETCH LIVE BRANDED PREVIEW
+    useEffect(() => {
+        const fetchBrandedPreview = async () => {
+            // Only fetch if we have an image and title, and the image is a new upload (base64)
+            if (!formState.image || !formState.title || formState.image.startsWith('http')) {
+                setBrandedPreview(null);
+                return;
+            }
+
+            setIsBranding(true);
+            try {
+                // Determine API URL (strip /news from context-based baseURL if needed)
+                const apiBase = baseURL.endsWith('/news') ? baseURL.slice(0, -5) : baseURL;
+                const response = await fetch(`${apiBase}/api/images/brand`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        image: formState.image,
+                        title: formState.title
+                    })
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const objectUrl = URL.createObjectURL(blob);
+                    setBrandedPreview(objectUrl);
+                }
+            } catch (err) {
+                console.error("[Preview] Branding failed:", err);
+            } finally {
+                setIsBranding(false);
+            }
+        };
+
+        const timer = setTimeout(fetchBrandedPreview, 1000); // 1s debounce to avoid over-calling
+        return () => clearTimeout(timer);
+    }, [formState.image, formState.title]);
+
     const [sortBy, setSortBy] = useState<"newest" | "oldest" | "title">("newest");
 
     const resetForm = useCallback(() => {
         setFormState({
             title: "",
             slug: "",
-            category: selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1),
+            category: [selectedCategory],
             content: "",
             tags: [],
             status: "draft",
@@ -156,8 +202,11 @@ const NewsManager: FC<NewsManagerProps> = ({
             moreInfoLink: "",
             language: "en",
             state: "universal",
+            isLatest: false,
+            isTrending: false,
         });
         setImagePreview(null);
+        setBrandedPreview(null);
         setShowImage(false);
         setEditingSlug(null);
         setTagsInput("");
@@ -165,17 +214,28 @@ const NewsManager: FC<NewsManagerProps> = ({
 
     useEffect(() => {
         if (initialDraft) {
-            const rawCategory = initialDraft.category?.toLowerCase() || 'india';
-            const matchedCat = CATEGORIES.find(c => c.id === rawCategory)?.id || 'india';
-            setSelectedCategory(matchedCat as NewsCategory);
+            // Handle multiple categories or single string for backward compatibility
+            let rawCats: string[] = [];
+            const draftCat = initialDraft.category;
+            if (Array.isArray(draftCat)) {
+                rawCats = draftCat;
+            } else if (typeof draftCat === 'string') {
+                rawCats = [draftCat.toLowerCase()];
+            }
+
+            const primaryCat = rawCats[0] || 'india';
+            setSelectedCategory(primaryCat as NewsCategory);
+
             setFormState({
                 ...initialDraft,
                 status: initialDraft.status || 'draft',
-                category: matchedCat.charAt(0).toUpperCase() + matchedCat.slice(1),
+                category: rawCats,
                 scheduledAt: initialDraft.scheduledAt ? new Date(initialDraft.scheduledAt).toISOString().slice(0, 16) : "",
                 targetLink: initialDraft.targetLink || "",
                 nominationLink: initialDraft.nominationLink || "",
                 moreInfoLink: initialDraft.moreInfoLink || "",
+                isLatest: !!initialDraft.isLatest,
+                isTrending: !!initialDraft.isTrending,
             });
             setEditingSlug(initialDraft.slug);
             setTagsInput(initialDraft.tags?.join(", ") || "");
@@ -207,6 +267,24 @@ const NewsManager: FC<NewsManagerProps> = ({
             },
         [editingSlug]
     );
+
+    const handleCategoryToggle = (catId: string) => {
+        setFormState(prev => {
+            const current = Array.isArray(prev.category) ? prev.category : [String(prev.category).toLowerCase()];
+            const exists = current.includes(catId);
+            const next = exists 
+                ? current.filter(c => c !== catId)
+                : [...current, catId];
+            
+            // Keep at least one category
+            if (next.length === 0) return prev;
+            return { ...prev, category: next };
+        });
+    };
+
+    const toggleFlag = (field: 'isLatest' | 'isTrending') => {
+        setFormState(prev => ({ ...prev, [field]: !prev[field] }));
+    };
 
     const handleTagsChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
         const val = e.target.value;
@@ -419,8 +497,10 @@ const NewsManager: FC<NewsManagerProps> = ({
     const getShareLink = (item: Partial<NewsItem>, platform: 'facebook' | 'whatsapp') => {
         if (!item.slug) return "#";
         const siteUrl = "https://www.primetimemedia.in";
-        const sectionSlug = selectedCategory.toLowerCase();
-        const categorySlug = (item.category || selectedCategory).toLowerCase().replace(/\s+/g, '-');
+        const sectionSlug = String(selectedCategory).toLowerCase();
+        const rawCat = item.category || selectedCategory;
+        const firstCat = Array.isArray(rawCat) ? rawCat[0] : rawCat;
+        const categorySlug = String(firstCat).toLowerCase().replace(/\s+/g, '-');
         const fullUrl = `${siteUrl}/Pages/${sectionSlug}/${categorySlug}/${item.slug}`;
         const shareText = `${item.title} | View more news on Prime Time Media:`;
 
@@ -497,25 +577,76 @@ const NewsManager: FC<NewsManagerProps> = ({
                                 placeholder="article-slug"
                             />
                         </div>
-                        <div className={styles.formGroup}>
-                            <label className={styles.label}>Category <span className={styles.required}>*</span></label>
-                            <select
-                                className={styles.select}
-                                value={selectedCategory}
-                                onChange={(e) => {
-                                    const newCat = e.target.value as NewsCategory;
-                                    setSelectedCategory(newCat);
-                                    setFormState(prev => ({
-                                        ...prev,
-                                        category: newCat.charAt(0).toUpperCase() + newCat.slice(1)
-                                    }));
-                                }}
-                            >
-                                {CATEGORIES.map(cat => (
-                                    <option key={cat.id} value={cat.id}>{cat.icon} {cat.label}</option>
-                                ))}
-                            </select>
+                        <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+                            <label className={styles.label}>Article Flags (Quick Mark)</label>
+                            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
+                                <button
+                                    type="button"
+                                    onClick={() => toggleFlag('isLatest')}
+                                    className={`${styles.flagBtn} ${formState.isLatest ? styles.flagActive : ""}`}
+                                    style={{ padding: '0.6rem 1.2rem', borderRadius: '12px', fontSize: '0.9rem' }}
+                                >
+                                    {formState.isLatest ? "⭐ Latest (Selected)" : "☆ Mark as Latest"}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => toggleFlag('isTrending')}
+                                    className={`${styles.flagBtn} ${formState.isTrending ? styles.flagActive : ""}`}
+                                    style={{ padding: '0.6rem 1.2rem', borderRadius: '12px', fontSize: '0.9rem' }}
+                                >
+                                    {formState.isTrending ? "🔥 Trending (Selected)" : "♢ Mark as Trending"}
+                                </button>
+                            </div>
                         </div>
+
+                        <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+                            <label className={styles.label}>Categories (Select all that apply) <span className={styles.required}>*</span></label>
+                            <div style={{ 
+                                display: 'grid', 
+                                gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', 
+                                gap: '0.75rem', 
+                                marginTop: '0.75rem',
+                                background: 'rgba(255,255,255,0.03)',
+                                padding: '1.25rem',
+                                borderRadius: '12px',
+                                border: '1px solid var(--border-subtle)'
+                            }}>
+                                {CATEGORIES.filter(c => c.id !== 'home').map(cat => {
+                                    const isSelected = Array.isArray(formState.category) 
+                                        ? formState.category.includes(cat.id) 
+                                        : formState.category?.toString().toLowerCase() === cat.id;
+
+                                    return (
+                                        <label 
+                                            key={cat.id} 
+                                            style={{ 
+                                                display: 'flex', 
+                                                alignItems: 'center', 
+                                                gap: '0.6rem', 
+                                                cursor: 'pointer',
+                                                padding: '0.5rem 0.75rem',
+                                                borderRadius: '8px',
+                                                background: isSelected ? 'rgba(10, 102, 194, 0.15)' : 'transparent',
+                                                border: `1px solid ${isSelected ? '#0A66C2' : 'transparent'}`,
+                                                transition: 'all 0.2s',
+                                                fontSize: '0.9rem',
+                                                fontWeight: isSelected ? 600 : 400,
+                                                color: isSelected ? '#fff' : 'var(--text-muted)'
+                                            }}
+                                        >
+                                            <input 
+                                                type="checkbox" 
+                                                checked={isSelected}
+                                                onChange={() => handleCategoryToggle(cat.id)}
+                                                style={{ cursor: 'pointer', width: '16px', height: '16px' }}
+                                            />
+                                            {cat.icon} {cat.label}
+                                        </label>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
                         <div className={styles.formGroup}>
                             <label className={styles.label}>Language <span className={styles.required}>*</span></label>
                             <select
@@ -694,23 +825,33 @@ const NewsManager: FC<NewsManagerProps> = ({
                             >
                                 {showImage || imagePreview || formState.image ? (
                                     <div className={styles.previewContainer}>
+                                        {isBranding && (
+                                            <div className={styles.brandingOverlay}>
+                                                <div className={styles.brandingSpinner}></div>
+                                                <span>Mastering Branding...</span>
+                                            </div>
+                                        )}
                                         <img
-                                            src={imagePreview || formState.image || ""}
+                                            src={brandedPreview || imagePreview || formState.image || ""}
                                             alt="Preview"
-                                            className={styles.imagePreview}
+                                            className={`${styles.imagePreview} ${brandedPreview ? styles.branded : ''}`}
                                         />
-                                        <button
-                                            type="button"
-                                            className={styles.removeImageBtn}
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setFormState((prev) => ({ ...prev, image: "" }));
-                                                setImagePreview(null);
-                                                setShowImage(false);
-                                            }}
-                                        >
-                                            Remove
-                                        </button>
+                                        <div className={styles.previewBadges}>
+                                            {brandedPreview && <span className={styles.brandedBadge}>✨ Branded Preview</span>}
+                                            <button
+                                                type="button"
+                                                className={styles.removeImageBtn}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setFormState((prev) => ({ ...prev, image: "" }));
+                                                    setImagePreview(null);
+                                                    setBrandedPreview(null);
+                                                    setShowImage(false);
+                                                }}
+                                            >
+                                                Remove 
+                                            </button>
+                                        </div>
                                     </div>
                                 ) : (
                                     <div className={styles.uploadPlaceholder}>
@@ -872,26 +1013,34 @@ const NewsManager: FC<NewsManagerProps> = ({
                                                     </button>
                                                     <button onClick={() => startEdit(item)} className={styles.editBtn} disabled={!canUpdate} title="Edit">✏️</button>
                                                     <button onClick={() => handleDelete(item.slug)} className={styles.deleteBtn} disabled={!canDelete} title="Delete">🗑️</button>
-                                                    {(item.category?.toLowerCase().includes('award')) && (
-                                                        <button 
-                                                            onClick={() => openAwardPopup(item)} 
-                                                            style={{
-                                                                background: 'linear-gradient(135deg, #d4af37 0%, #b8860b 100%)',
-                                                                color: 'white',
-                                                                border: 'none',
-                                                                borderRadius: '4px',
-                                                                padding: '4px 8px',
-                                                                fontSize: '0.75rem',
-                                                                fontWeight: '800',
-                                                                cursor: 'pointer',
-                                                                marginLeft: '8px',
-                                                                boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
-                                                            }}
-                                                            title="View Award Popup"
-                                                        >
-                                                            🏆 Popup
-                                                        </button>
-                                                    )}
+                                                    {(() => {
+                                                        const catNames = Array.isArray(item.category) 
+                                                            ? item.category.join(', ') 
+                                                            : String(item.category || '');
+                                                        if (catNames.toLowerCase().includes('award')) {
+                                                            return (
+                                                                <button 
+                                                                    onClick={() => openAwardPopup(item)} 
+                                                                    style={{
+                                                                        background: 'linear-gradient(135deg, #d4af37 0%, #b8860b 100%)',
+                                                                        color: 'white',
+                                                                        border: 'none',
+                                                                        borderRadius: '4px',
+                                                                        padding: '4px 8px',
+                                                                        fontSize: '0.75rem',
+                                                                        fontWeight: '800',
+                                                                        cursor: 'pointer',
+                                                                        marginLeft: '8px',
+                                                                        boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                                                                    }}
+                                                                    title="View Award Popup"
+                                                                >
+                                                                    🏆 Popup
+                                                                </button>
+                                                            );
+                                                        }
+                                                        return null;
+                                                    })()}
                                                 </div>
                                             </div>
                                             <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.75rem" }}>
@@ -905,35 +1054,43 @@ const NewsManager: FC<NewsManagerProps> = ({
                                                     className={`${styles.flagBtn} ${item.isTrending ? styles.flagActive : ""}`}
                                                     disabled={!canUpdate || flagsLoading}
                                                 >🔥 {item.isTrending ? "Trending" : "Mark Trending"}</button>
-                                                <button
-                                                    onClick={() => handleToggleFlag(item.slug, "isFiftyWordEdit", !item.isFiftyWordEdit)}
-                                                    className={`${styles.flagBtn} ${item.isFiftyWordEdit ? styles.flagActive : ""}`}
-                                                    disabled={!canUpdate || flagsLoading}
-                                                    title={item.isFiftyWordEdit ? "Remove from 50W Edit" : "Add to 50W Edit"}
-                                                >📝 {item.isFiftyWordEdit ? "Remove 50W" : "Mark 50W"}</button>
-                                                 {(item.category?.toLowerCase().includes('award')) && (
-                                                     <button
-                                                         onClick={(e) => {
-                                                             e.stopPropagation();
-                                                             handleToggleFlag(item.slug, "showInPopup", !item.showInPopup);
-                                                         }}
-                                                         className={`${styles.flagBtn} ${item.showInPopup ? styles.flagActive : ""}`}
-                                                         disabled={!canUpdate || flagsLoading}
-                                                         style={{
-                                                             marginLeft: '0.5rem',
-                                                             background: item.showInPopup ? 'linear-gradient(135deg, #d4af37 0%, #b8860b 100%)' : '',
-                                                             color: item.showInPopup ? 'white' : '',
-                                                             borderColor: item.showInPopup ? '#b8860b' : '',
-                                                             fontWeight: item.showInPopup ? 'bold' : 'normal',
-                                                             padding: '2px 8px',
-                                                             borderRadius: '4px',
-                                                             fontSize: '0.75rem'
-                                                         }}
-                                                         title={item.showInPopup ? "Remove from Popup Rotation" : "Add to Popup Rotation"}
-                                                     >
-                                                         🏆 {item.showInPopup ? "In Popup" : "Add to Popup"}
-                                                     </button>
-                                                 )}
+                                                    <button
+                                                        onClick={() => handleToggleFlag(item.slug, "isFiftyWordEdit", !item.isFiftyWordEdit)}
+                                                        className={`${styles.flagBtn} ${item.isFiftyWordEdit ? styles.flagActive : ""}`}
+                                                        disabled={!canUpdate || flagsLoading}
+                                                        title={item.isFiftyWordEdit ? "Remove from 50W Edit" : "Add to 50W Edit"}
+                                                    >📝 {item.isFiftyWordEdit ? "Remove 50W" : "Mark 50W"}</button>
+                                                    {(() => {
+                                                        const catNames = Array.isArray(item.category) 
+                                                            ? item.category.join(', ') 
+                                                            : String(item.category || '');
+                                                        if (catNames.toLowerCase().includes('award')) {
+                                                            return (
+                                                                <button
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        handleToggleFlag(item.slug, "showInPopup", !item.showInPopup);
+                                                                    }}
+                                                                    className={`${styles.flagBtn} ${item.showInPopup ? styles.flagActive : ""}`}
+                                                                    disabled={!canUpdate || flagsLoading}
+                                                                    style={{
+                                                                        marginLeft: '0.5rem',
+                                                                        background: item.showInPopup ? 'linear-gradient(135deg, #d4af37 0%, #b8860b 100%)' : '',
+                                                                        color: item.showInPopup ? 'white' : '',
+                                                                        borderColor: item.showInPopup ? '#b8860b' : '',
+                                                                        fontWeight: item.showInPopup ? 'bold' : 'normal',
+                                                                        padding: '2px 8px',
+                                                                        borderRadius: '4px',
+                                                                        fontSize: '0.75rem'
+                                                                    }}
+                                                                    title={item.showInPopup ? "Remove from Popup Rotation" : "Add to Popup Rotation"}
+                                                                >
+                                                                    🏆 {item.showInPopup ? "In Popup" : "Add to Popup"}
+                                                                </button>
+                                                            );
+                                                        }
+                                                        return null;
+                                                    })()}
                                             </div>
                                         </div>
                                     </article>

@@ -261,7 +261,8 @@ export default function WebStories() {
     // Handle story selection with URL update (PushState)
     const handleSelectStory = (story: VisualStory) => {
         setSelectedStory(story);
-        const category = story.category?.toLowerCase().trim().replace(/\s+/g, '-') || 'general';
+        const rawCategory = Array.isArray(story.category) ? story.category[0] : (story.category || 'general');
+        const category = rawCategory.toLowerCase().trim().replace(/\s+/g, '-');
         const newPath = `/visualstories/${category}/${story.slug}`;
         
         // Update URL without full page reload or Next.js navigation
@@ -310,8 +311,11 @@ export default function WebStories() {
                 const data = await res.json();
                 if (data.success) {
                     // Filter out 'awards' category stories as they belong in the VideosSection
-                    const filtered = data.data.filter((s: any) => s.category?.toLowerCase() !== 'awards');
-                    setStories(filtered);
+                    const filtered = data.data.filter((s: any) => {
+                        const cat = Array.isArray(s.category) ? s.category[0] : s.category;
+                        return cat?.toLowerCase() !== 'awards';
+                    });
+              setStories(filtered);
                 } else {
                     console.warn('API returned success:false for visual stories:', data);
                 }
@@ -362,7 +366,7 @@ export default function WebStories() {
                             // Extra safety: Verify story has required fields to prevent home page crash
                             if (!story || !story.slug) return null;
                             
-                            const categoryStr = typeof story.category === 'string' ? story.category : 'general';
+                            const categoryStr = Array.isArray(story.category) ? story.category[0] : (story.category || 'general');
                             const categorySlug = categoryStr.toLowerCase().trim().replace(/\s+/g, '-');
                             const storyPath = `/visualstories/${categorySlug}/${story.slug}`;
                             
@@ -382,7 +386,7 @@ export default function WebStories() {
                                     <div className={styles.content}>
                                         <h3 className={styles.storyTitle}>{story.title}</h3>
                                     </div>
-                                    <div className={styles.categoryBadge}>{story.category}</div>
+                                    <div className={styles.categoryBadge}>{Array.isArray(story.category) ? story.category[0] : story.category}</div>
                                 </Link>
                             );
                         })}

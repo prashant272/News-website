@@ -46,7 +46,7 @@ const SportsNews: React.FC = () => {
 
     return sportsNews.filter(item => {
       const sub = (item.subCategory || '').toLowerCase();
-      const cat = (item.category || '').toLowerCase();
+      const cat = (Array.isArray(item.category) ? item.category[0] : (item.category || '')).toLowerCase();
       return sub.includes(active) || cat.includes(active);
     });
   }, [sportsNews, activeCategory]);
@@ -60,7 +60,7 @@ const SportsNews: React.FC = () => {
       slug: item.slug,
       title: item.title,
       image: getImageSrc(item.image),
-      subCategory: item.subCategory || item.category || 'Sports',
+      subCategory: item.subCategory || (Array.isArray(item.category) ? item.category[0] : item.category) || 'Sports',
       date: item.publishedAt || item.date || item.createdAt,
     }));
   }, [filteredSportsNews]);

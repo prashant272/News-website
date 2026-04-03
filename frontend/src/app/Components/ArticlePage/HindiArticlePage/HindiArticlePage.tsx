@@ -136,7 +136,7 @@ export default function HindiArticlePage({
             <div className={styles.contentWrapper}>
                <div className={styles.stickyShare}>
                   <SocialShare
-                    url={typeof window !== 'undefined' ? window.location.href : `https://www.primetimemedia.in/Pages/${article.section}/${article.category}/${article.slug}`}
+                    url={typeof window !== 'undefined' ? window.location.href : `https://www.primetimemedia.in/Pages/${article.section}/${Array.isArray(article.category) ? article.category[0] : article.category}/${article.slug}`}
                     title={article.title}
                     description={article.subtitle}
                     image={article.image}
@@ -156,7 +156,7 @@ export default function HindiArticlePage({
                   )}
 
                   {/* Awards specific buttons if applicable */}
-                   {(article.category?.toUpperCase() === "AWARDS" || section?.toUpperCase() === "AWARDS") && (
+                   {(article.category?.toString().toUpperCase() === "AWARDS" || section?.toUpperCase() === "AWARDS") && (
                     <div className={styles.articleAwardActions}>
                         {article.targetLink && (
                         <a href={normalizeUrl(article.targetLink)} target="_blank" rel="noopener noreferrer" className={styles.moreInfoBtn}>

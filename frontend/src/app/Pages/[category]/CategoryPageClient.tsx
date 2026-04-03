@@ -44,7 +44,9 @@ export default function CategoryPageClient() {
     if (!urlCategory || !context?.allNews) return [];
 
     return context.allNews.filter((news) => {
-      const newsCategory = getEnglishCategory(news.category || '').toLowerCase();
+      // category may be an array (multi-category) or a string (legacy)
+      const rawCat = Array.isArray(news.category) ? news.category[0] : (news.category || '');
+      const newsCategory = getEnglishCategory(rawCat).toLowerCase();
       const newsSection = getEnglishCategory((news as any).section || '').toLowerCase();
       return newsCategory === urlCategory || newsCategory === mappedSection
         || newsSection === urlCategory || newsSection === mappedSection;
@@ -97,12 +99,14 @@ export default function CategoryPageClient() {
   const subCategories = useMemo(() => {
     const categoriesSet = new Set<string>();
     filteredNews.forEach((news) => {
-      const newsCat = news.category?.toLowerCase() || '';
+      // category may be an array (multi-category) or a string (legacy)
+      const rawCat = Array.isArray(news.category) ? news.category[0] : (news.category || '');
+      const newsCat = rawCat.toLowerCase();
       const newsSection = (news as any).section?.toLowerCase() || '';
 
       if (newsSection === urlCategory || newsSection === mappedSection) {
-        if (news.category && news.category.toLowerCase() !== urlCategory) {
-          categoriesSet.add(news.category);
+        if (rawCat && newsCat !== urlCategory) {
+          categoriesSet.add(rawCat);
         }
       } else if (newsCat === urlCategory || newsCat === mappedSection) {
         if (news.subCategory && news.subCategory.toLowerCase() !== urlCategory) {
@@ -118,7 +122,7 @@ export default function CategoryPageClient() {
     image: news.image || '',
     title: news.title,
     slug: news.slug,
-    category: news.category,
+    category: Array.isArray(news.category) ? news.category[0] : (news.category || ''),
     subCategory: news.subCategory || '',
     targetLink: news.targetLink,
     nominationLink: news.nominationLink

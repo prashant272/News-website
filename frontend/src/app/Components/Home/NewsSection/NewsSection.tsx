@@ -12,7 +12,7 @@ interface NewsItem {
   summary?: string;
   content?: string;
   image?: string;
-  category?: string;
+  category?: string | string[];
   subCategory?: string;
   tags?: string[];
   isLatest?: boolean;
@@ -86,7 +86,7 @@ const NewsSection: React.FC = () => {
         title: item.title,
         description: item.summary || (item.content ? item.content.substring(0, 150) + '...' : ''),
         image: getImageSrc(item.image),
-        category: item.category || 'Breaking News',
+        category: (Array.isArray(item.category) ? item.category[0] : item.category) || 'Breaking News',
         subCategory: item.subCategory || 'General',
         slug: item.slug,
         isVideo: item.tags?.includes('video') || false,
@@ -158,7 +158,7 @@ const NewsSection: React.FC = () => {
               <h1 className={styles.featuredTitle}>{featuredArticle.title}</h1>
               <p className={styles.featuredDescription}>{featuredArticle.description}</p>
 
-              {(featuredArticle.category?.toUpperCase() === "AWARDS" || featuredArticle.category?.toLowerCase() === "awards") && (
+              {(featuredArticle.category?.toString().toUpperCase() === "AWARDS") && (
                 <div className={styles.awardActions}>
                   <button
                     className={styles.viewAwardBtn}
@@ -240,7 +240,7 @@ const NewsSection: React.FC = () => {
                 <h3 className={styles.cardTitle}>{item.title}</h3>
                 <p className={styles.cardDescription}>{item.description}</p>
 
-                {(item.category?.toUpperCase() === "AWARDS" || item.category?.toLowerCase() === "awards") && (
+                {(item.category?.toString().toUpperCase() === "AWARDS") && (
                   <div className={styles.awardActions}>
                     <button
                       className={styles.viewAwardBtn}

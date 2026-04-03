@@ -38,7 +38,8 @@ export const NewsCard: React.FC<NewsCardProps> = (props) => {
   const title = item?.title || props.title || '';
   const image = item?.image || props.image || '';
   const slug = item?.slug || props.slug;
-  const category = item?.category || props.category;
+  const rawCategory = item?.category || props.category;
+  const category = Array.isArray(rawCategory) ? rawCategory[0] : rawCategory;
   const subCategory = item?.subCategory || props.subCategory || '';
   const isTrending = item?.isTrending || props.isTrending;
   const date = item?.date || props.date;

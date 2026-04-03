@@ -45,7 +45,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       return {
         title: news.title,
         description: fullDescription,
-        keywords: news.tags?.length > 0 ? news.tags.filter(Boolean) : [siteName, news.category || "", news.subCategory || ""],
+        keywords: news.tags?.length > 0 ? news.tags.filter(Boolean) : [siteName, (Array.isArray(news.category) ? news.category[0] : (news.category || "")), news.subCategory || ""],
         alternates: {
           canonical: articleUrl,
         },
@@ -134,7 +134,7 @@ function renderArticle(foundArticle: any, categoryNews: any[], category: string,
 
   const articleData = {
     id: foundArticle._id || foundArticle.slug,
-    section: foundArticle.category || category,
+    section: (Array.isArray(foundArticle.category) ? foundArticle.category[0] : foundArticle.category) || category,
     category: foundArticle.subCategory || subCategory,
     title: foundArticle.title,
     subtitle: foundArticle.summary || '',
@@ -228,7 +228,7 @@ function renderArticle(foundArticle: any, categoryNews: any[], category: string,
     },
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": `${siteUrl}/Pages/${foundArticle.category || category}/${slugify(foundArticle.subCategory) || subCategory}/${slug}`
+      "@id": `${siteUrl}/Pages/${(Array.isArray(foundArticle.category) ? foundArticle.category[0] : (foundArticle.category || category))}/${slugify(foundArticle.subCategory) || subCategory}/${slug}`
     }
   };
 

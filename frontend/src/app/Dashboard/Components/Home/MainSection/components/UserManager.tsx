@@ -13,6 +13,8 @@ const UserManager: FC<UserManagerProps> = ({ isSuperAdmin, showNotification }) =
     const [usersLoading, setUsersLoading] = useState(false);
     const [userForm, setUserForm] = useState({ name: '', email: '', password: '', role: 'ADMIN', designation: '', ProfilePicture: '' });
     const [userProfilePreview, setUserProfilePreview] = useState<string | null>(null);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editId, setEditId] = useState<string | null>(null);
 
     const fetchUsers = useCallback(async () => {
         if (!isSuperAdmin) return;
@@ -34,18 +36,53 @@ const UserManager: FC<UserManagerProps> = ({ isSuperAdmin, showNotification }) =
     const handleCreateUser = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const res = await API.post(`/auth/create`, userForm);
-            if (res.data.success) {
-                showNotification("User created successfully", "success");
-                setUserForm({ name: '', email: '', password: '', role: 'ADMIN', designation: '', ProfilePicture: '' });
-                setUserProfilePreview(null);
-                fetchUsers();
+            if (isEditing && editId) {
+                // UPDATE USER
+                const res = await API.put(`/auth/update/${editId}`, userForm);
+                if (res.data.success) {
+                    showNotification("User updated successfully", "success");
+                    handleCancelEdit();
+                    fetchUsers();
+                } else {
+                    showNotification(res.data.msg, "error");
+                }
             } else {
-                showNotification(res.data.msg, "error");
+                // CREATE USER
+                const res = await API.post(`/auth/create`, userForm);
+                if (res.data.success) {
+                    showNotification("User created successfully", "success");
+                    setUserForm({ name: '', email: '', password: '', role: 'ADMIN', designation: '', ProfilePicture: '' });
+                    setUserProfilePreview(null);
+                    fetchUsers();
+                } else {
+                    showNotification(res.data.msg, "error");
+                }
             }
         } catch (err: any) {
-            showNotification(err.response?.data?.msg || "Error creating user", "error");
+            showNotification(err.response?.data?.msg || "Error processing user", "error");
         }
+    };
+
+    const handleEditClick = (user: any) => {
+        setUserForm({
+            name: user.name,
+            email: user.email,
+            password: '', // Don't pre-fill password for security
+            role: user.role,
+            designation: user.designation || '',
+            ProfilePicture: user.ProfilePicture || ''
+        });
+        setUserProfilePreview(user.ProfilePicture || null);
+        setIsEditing(true);
+        setEditId(user._id);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleCancelEdit = () => {
+        setUserForm({ name: '', email: '', password: '', role: 'ADMIN', designation: '', ProfilePicture: '' });
+        setUserProfilePreview(null);
+        setIsEditing(false);
+        setEditId(null);
     };
 
     const handleToggleUserStatus = async (id: string, currentStatus: boolean) => {
@@ -100,8 +137,7 @@ const UserManager: FC<UserManagerProps> = ({ isSuperAdmin, showNotification }) =
 
     return (
         <div className={styles.userManagementSection}>
-            <div className={styles.editor}>
-                <h2 className={styles.editorTitle}>Create New Admin/Sub-Admin</h2>
+            <div className={styles.editor} style={{ paddingTop: '1.5rem' }}>
                 <form onSubmit={handleCreateUser} className={styles.formGrid}>
                     <div className={styles.formGroup}>
                         <label className={styles.label}>Name</label>
@@ -124,13 +160,13 @@ const UserManager: FC<UserManagerProps> = ({ isSuperAdmin, showNotification }) =
                         />
                     </div>
                     <div className={styles.formGroup}>
-                        <label className={styles.label}>Password</label>
+                        <label className={styles.label}>Password {isEditing && "(Leave blank to keep current)"}</label>
                         <input
                             type="password"
                             className={styles.input}
                             value={userForm.password}
                             onChange={e => setUserForm({ ...userForm, password: e.target.value })}
-                            required
+                            required={!isEditing}
                         />
                     </div>
                     <div className={styles.formGroup}>
@@ -197,14 +233,28 @@ const UserManager: FC<UserManagerProps> = ({ isSuperAdmin, showNotification }) =
                             )}
                         </div>
                     </div>
-                    <div className={styles.formActions} style={{ gridColumn: 'span 2' }}>
-                        <button type="submit" className={styles.primaryBtn}>Create User</button>
+                    <div className={styles.formActions} style={{ gridColumn: 'span 2', display: 'flex', gap: '1rem' }}>
+                        <button type="submit" className={styles.primaryBtn}>
+                            {isEditing ? "Update User" : "Create User"}
+                        </button>
+                        {isEditing && (
+                            <button 
+                                type="button" 
+                                className={styles.secondaryBtn} 
+                                onClick={handleCancelEdit}
+                                style={{ background: '#666' }}
+                            >
+                                Cancel
+                            </button>
+                        )}
                     </div>
                 </form>
             </div>
 
-            <div className={styles.userListCard}>
-                <h3 className={styles.sectionTitle}>Manage Users</h3>
+            <div className={styles.userListCard} style={{ marginTop: '1.5rem' }}>
+                <div className={styles.editorHeader} style={{ borderBottom: '1px solid var(--border-subtle)', marginBottom: '1.5rem' }}>
+                    <h3 className={styles.editorTitle} style={{ fontSize: '1.25rem' }}>Registered Administrators</h3>
+                </div>
                 {usersLoading ? (
                     <div className={styles.loading}>
                         <div className={styles.spinner} />
@@ -249,7 +299,14 @@ const UserManager: FC<UserManagerProps> = ({ isSuperAdmin, showNotification }) =
                                                 {u.isActive ? "Active" : "Disabled"}
                                             </button>
                                         </td>
-                                        <td>
+                                        <td style={{ display: 'flex', gap: '0.5rem' }}>
+                                            <button
+                                                onClick={() => handleEditClick(u)}
+                                                className={styles.editUserBtn}
+                                                style={{ background: '#4a90e2', border: 'none', borderRadius: '4px', padding: '5px 8px', cursor: 'pointer' }}
+                                            >
+                                                ✏️
+                                            </button>
                                             <button
                                                 onClick={() => handleDeleteUser(u._id)}
                                                 className={styles.deleteUserBtn}

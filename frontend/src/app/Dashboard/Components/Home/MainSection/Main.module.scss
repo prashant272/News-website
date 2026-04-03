@@ -435,7 +435,7 @@ $duration-slow: 300ms;
 .select {
   width: 100%;
   padding: $s-3 $s-4;
-  background: $bg-primary-dark;
+  background: var(--bg-primary) !important;
   border: 1.5px solid var(--border-subtle);
   border-radius: $rounded-lg;
   color: var(--text-primary);
@@ -443,8 +443,17 @@ $duration-slow: 300ms;
   font-family: inherit;
   transition: all $duration-base $ease-smooth;
 
+  // Force dark backgrounds and consistent colors
+  &:-webkit-autofill,
+  &:-webkit-autofill:hover, 
+  &:-webkit-autofill:focus, 
+  &:-webkit-autofill:active  {
+    -webkit-box-shadow: 0 0 0 100px var(--bg-primary) inset !important;
+    -webkit-text-fill-color: var(--text-primary) !important;
+  }
+
   option {
-    background-color: $bg-primary-dark;
+    background-color: var(--bg-primary);
     color: var(--text-primary);
     padding: $s-2;
   }
@@ -1365,29 +1374,101 @@ $duration-slow: 300ms;
 .previewContainer {
   position: relative;
   display: inline-block;
+  min-width: 200px;
+  min-height: 150px;
+  background: var(--bg-primary);
+  border-radius: $rounded-lg;
+  overflow: hidden;
+
+  .brandingOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    z-index: 10;
+    color: white;
+    font-weight: 600;
+    backdrop-filter: blur(8px);
+    
+    span {
+      font-size: 0.85rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      opacity: 0.9;
+    }
+  }
+
+  .brandingSpinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    border-top-color: $primary-light;
+    animation: spin 0.8s linear infinite;
+  }
 }
 
 .imagePreview {
   max-width: 100%;
-  max-height: 280px;
-  border-radius: 6px;
-  object-fit: cover;
+  max-height: 400px;
+  border-radius: $rounded-lg;
+  object-fit: contain;
+  display: block;
+  transition: all 0.4s ease;
+
+  &.branded {
+    border: 2px solid $success;
+    box-shadow: 0 0 25px rgba($success, 0.2);
+  }
+}
+
+.previewBadges {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  z-index: 20;
+
+  .brandedBadge {
+    background: $success;
+    color: white;
+    padding: 6px 14px;
+    border-radius: $rounded-full;
+    font-size: 0.75rem;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba($success, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
 }
 
 .removeImageBtn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.6);
   color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 4px 10px;
-  font-size: 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: $rounded-md;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
   cursor: pointer;
+  backdrop-filter: blur(4px);
+  transition: all $duration-base $ease-smooth;
 
   &:hover {
     background: $danger;
+    border-color: transparent;
+    transform: scale(1.05);
   }
 }
 
@@ -1614,9 +1695,14 @@ $duration-slow: 300ms;
   }
 
   td {
-    padding: 1rem;
+    padding: 1.25rem 1rem;
     border-bottom: 1px solid var(--border-subtle);
     font-size: 0.95rem;
+    vertical-align: middle;
+  }
+
+  tr:hover td {
+    background: var(--card-overlay);
   }
 }
 

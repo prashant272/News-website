@@ -45,7 +45,7 @@ const LifestyleSection: React.FC = () => {
 
     return lifestyleNews.filter(item => {
       const sub = (item.subCategory || '').toLowerCase();
-      const cat = (item.category || '').toLowerCase();
+      const cat = (Array.isArray(item.category) ? item.category[0] : (item.category || '')).toLowerCase();
       return sub.includes(active) || cat.includes(active);
     });
   }, [lifestyleNews, activeCategory]);
@@ -59,7 +59,7 @@ const LifestyleSection: React.FC = () => {
       slug: item.slug,
       title: item.title,
       image: getImageSrc(item.image),
-      category: item.subCategory || item.category || 'Lifestyle',
+      category: item.subCategory || (Array.isArray(item.category) ? item.category[0] : item.category) || 'Lifestyle',
       date: item.publishedAt || item.date || item.createdAt,
     }));
   }, [filteredLifestyleNews]);
@@ -69,7 +69,8 @@ const LifestyleSection: React.FC = () => {
   }, [activeCategory]);
 
   const getHref = (article: LifestyleArticle) => {
-    const sub = (article.category || 'general').toLowerCase().trim();
+    const catBase = Array.isArray(article.category) ? article.category[0] : article.category;
+    const sub = (catBase || 'general').toLowerCase().trim();
     return `/Pages/lifestyle/${encodeURIComponent(sub)}/${article.slug}`;
   };
 

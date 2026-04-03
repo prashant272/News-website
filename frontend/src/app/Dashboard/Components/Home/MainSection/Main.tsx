@@ -84,53 +84,6 @@ const MainSection: FC<MainSectionProps> = ({ section, initialDraft }) => {
         </div>
       )}
       <div className={styles.container}>
-        <div className={styles.header}>
-          <div className={styles.headerContent}>
-            <div className={styles.headerLeft}>
-              <h1 className={styles.mainHeading}>
-                <span className={styles.icon}>
-                  {section === 'news_management' ? '📝' :
-                    section === 'ad_management' ? '📢' :
-                      section === 'analytics' ? '📊' :
-                        section === 'user_management' ? '👥' :
-                          section === 'breaking_news' ? '🔥' :
-                          section === 'facebook_settings' ? '📱' :
-                            section === 'linkedin_settings' ? '🔗' :
-                              section === 'twitter_settings' ? '🐦' :
-                                section === 'cricket_management' ? '🏏' :
-                                  section === 'international_programs' ? '🌐' : '📁'}
-                </span>
-                {section === 'news_management' ? 'News Management' :
-                  section === 'ad_management' ? 'Ad Management' :
-                    section === 'analytics' ? 'Analytics' :
-                      section === 'user_management' ? 'User Management' :
-                        section === 'breaking_news' ? 'Breaking News' :
-                          section === 'facebook_settings' ? 'Facebook Settings' :
-                      section === 'linkedin_settings' ? 'LinkedIn Settings' :
-                        section === 'twitter_settings' ? 'Twitter Settings' :
-                          section === 'cricket_management' ? 'Cricket Management' :
-                            section === 'image_branding' ? 'Image Branding' :
-                              'Previous News'}
-              </h1>
-              <p className={styles.headerSubtitle}>
-                {section === 'news_management' ? 'Add new articles to any category' :
-                  section === 'ad_management' ? 'Manage advertisements across the platform' :
-                    section === 'analytics' ? 'Platform overview and performance' :
-                      section === 'user_management' ? 'Manage administrators and permissions' :
-                        section === 'breaking_news' ? 'Manage live breaking news headlines' :
-                          section === 'facebook_settings' ? 'Configure auto-posting to Facebook' :
-                            section === 'linkedin_settings' ? 'Configure auto-posting to LinkedIn' :
-                              section === 'twitter_settings' ? 'Configure auto-posting to Twitter' :
-                                section === 'cricket_management' ? 'Manage cricket tournaments and tracking' :
-                                  section === 'image_branding' ? 'Add branding logos to news images' :
-                                    section === 'international_programs' ? 'Manage links in the Awards dropdown' :
-                                      'View and manage previously published news'}
-                {userRole !== "USER" && <span className={styles.roleBadge}> • {userRole}</span>}
-              </p>
-            </div>
-          </div>
-        </div>
-
         {/* Modular Sections */}
         {(section === 'news_management' || section === 'previous_news') && (
           <NewsManager

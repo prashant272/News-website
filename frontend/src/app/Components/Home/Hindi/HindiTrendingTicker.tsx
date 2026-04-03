@@ -18,11 +18,15 @@ const HindiTrendingTicker: React.FC = () => {
         
         const trendingItems = allNews.filter((item: any) => item.isTrending === true);
         
-        const tags = trendingItems.map((item: any) => ({
-            name: item.subCategory || item.category || 'Trending',
-            slug: item.subCategory || item.category,
-            parentCategory: item.category
-        }));
+        const tags = trendingItems.map((item: any) => {
+            const catBase = Array.isArray(item.category) ? item.category[0] : item.category;
+            return {
+                name: item.subCategory || catBase || 'Trending',
+                slug: item.subCategory || catBase,
+                parentCategory: catBase
+            };
+        });
+        
 
         const uniqueTags = Array.from(new Set(tags.map(t => t.name)))
             .map(name => tags.find(t => t.name === name));
@@ -55,7 +59,7 @@ const HindiTrendingTicker: React.FC = () => {
                     {trendingTags.map((tag: any, index) => (
                         <Link 
                             key={index} 
-                            href={getLocalizedHref(`/Pages/${tag.parentCategory?.toLowerCase()}/${tag.slug?.toLowerCase()}`, lang)}
+                            href={getLocalizedHref(`/Pages/${tag.parentCategory?.toLowerCase()}/${tag.slug?.toString().toLowerCase()}`, lang)}
                             className={styles.tag}
                         >
                             {tag.name}

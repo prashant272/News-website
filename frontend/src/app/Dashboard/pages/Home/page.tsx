@@ -157,7 +157,7 @@ export default function NewsAdminPage() {
                   </div>
                 </div>
                 <div className={styles.activeBadge}>
-                  Active: <span>{activeSection}</span>
+                  Active: <span>{activeSectionData?.label || activeSection}</span>
                 </div>
                 <button
                   onClick={handleLogout}

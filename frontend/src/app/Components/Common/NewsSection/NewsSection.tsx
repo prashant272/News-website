@@ -123,7 +123,7 @@ const NewsSection: React.FC<NewsSectionProps> = ({
       image: getImageSrc(item.image),
       title: item.title,
       slug: item.slug,
-      category: item.category,
+      category: Array.isArray(item.category) ? item.category[0] : item.category,
       subCategory: item.subCategory || '',
       displaySubCategory: cleanDisplayText(item.subCategory || ''),
       isTrending: (item as any).isTrending,

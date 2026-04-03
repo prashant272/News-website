@@ -86,7 +86,7 @@ export default function SubCategoryPage() {
 
     return infiniteNews.filter((news) => {
       // Use slugify for ROBUST matching across languages and formatting
-      const newsCatSlug = getEnglishCategory(news.category || '');
+      const newsCatSlug = getEnglishCategory(Array.isArray(news.category) ? news.category[0] : (news.category || ''));
       const newsSubSlug = getEnglishCategory(news.subCategory || '');
       const newsSectionSlug = getEnglishCategory((news as any).section || '');
       
@@ -160,7 +160,7 @@ export default function SubCategoryPage() {
     image: news.image || '',
     title: news.title,
     slug: news.slug,
-    category: news.category,
+    category: Array.isArray(news.category) ? news.category[0] : (news.category || ''),
     subCategory: cleanDisplay(news.subCategory) || '',
     targetLink: news.targetLink,
     nominationLink: news.nominationLink

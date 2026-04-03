@@ -32,7 +32,7 @@ export default function RelatedArticles({ articles, title }: RelatedArticlesProp
         {articles.slice(0, 16).map((article) => (
           <Link
             key={article.id}
-            href={`/Pages/${article.section || 'news'}/${article.category ? article.category.toLowerCase().replace(/\s+/g, '-') : 'general'}/${article.slug}`}
+            href={`/Pages/${article.section || 'news'}/${article.category ? (Array.isArray(article.category) ? article.category[0] : article.category).toLowerCase().replace(/\s+/g, '-') : 'general'}/${article.slug}`}
             className={styles.articleItem}
           >
             <div className={styles.imageWrapper}>
@@ -49,7 +49,7 @@ export default function RelatedArticles({ articles, title }: RelatedArticlesProp
                )}
             </div>
             <div className={styles.content}>
-              <span className={styles.categoryBadge}>{article.category || article.section || 'Special'}</span>
+              <span className={styles.categoryBadge}>{Array.isArray(article.category) ? article.category[0] : (article.category || article.section || 'Special')}</span>
               <h3 className={styles.title}>{article.title}</h3>
               <div className={styles.meta}>
                  {article.publishedAt && new Date(article.publishedAt).toLocaleDateString('en-IN', {

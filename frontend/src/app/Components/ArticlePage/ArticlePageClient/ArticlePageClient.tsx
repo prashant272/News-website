@@ -128,7 +128,7 @@ export default function ArticlePageClient({
         items={[
           { name: "Home", item: "/" },
           { name: section.charAt(0).toUpperCase() + section.slice(1), item: `/Pages/${section}` },
-          { name: article.title, item: `/Pages/${section}/${category}/${article.slug}` }
+          { name: article.title, item: `/Pages/${section}/${Array.isArray(article.category) ? article.category[0] : (article.category || category)}/${article.slug}` }
         ]}
       />
       
@@ -146,7 +146,7 @@ export default function ArticlePageClient({
             <div className={styles.contentWrapper}>
                <div className={styles.stickyShare}>
                   <SocialShare
-                    url={typeof window !== 'undefined' ? window.location.href : `https://www.primetimemedia.in/Pages/${article.section}/${article.category}/${article.slug}`}
+                    url={typeof window !== 'undefined' ? window.location.href : `https://www.primetimemedia.in/Pages/${article.section}/${Array.isArray(article.category) ? article.category[0] : (article.category || category)}/${article.slug}`}
                     title={article.title}
                     description={article.subtitle}
                     image={article.image}
@@ -163,7 +163,7 @@ export default function ArticlePageClient({
                     </div>
                   )}
 
-                  {(article.category?.toUpperCase() === "AWARDS" || section?.toUpperCase() === "AWARDS") && (
+                  {(article.category?.toString().toUpperCase() === "AWARDS" || section?.toUpperCase() === "AWARDS") && (
                     <div className={styles.articleAwardActions}>
                       {article.targetLink && (
                         <a

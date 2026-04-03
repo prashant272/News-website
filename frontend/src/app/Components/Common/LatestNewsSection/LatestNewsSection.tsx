@@ -115,7 +115,7 @@ export default function LatestNewsSection({
                 }}
               >
                 <div className={styles.content}>
-                  <span className={styles.category}>{item.category}</span>
+                  <span className={styles.category}>{Array.isArray(item.category) ? item.category[0] : item.category}</span>
                   <h3 className={styles.newsTitle}>{item.title}</h3>
                   {item.date && (
                     <div className={styles.newsMeta}>
@@ -125,7 +125,7 @@ export default function LatestNewsSection({
                     </div>
                   )}
 
-                  {(overrideSection?.toLowerCase() === "awards" || item.category?.toUpperCase() === "AWARDS") && (
+                  {(overrideSection?.toLowerCase() === "awards" || item.category?.toString().toUpperCase() === "AWARDS") && (
                     <div className={styles.awardActions}>
                       {(item as any).targetLink && (
                         <a

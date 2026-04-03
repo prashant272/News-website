@@ -49,7 +49,7 @@ const LatestNews: React.FC = () => {
         id: `latest-${item._id || item.slug || idx}`,
         title: item.title || 'Untitled',
         image: item.image || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80',
-        category: item.category || section.charAt(0).toUpperCase() + section.slice(1),
+        category: (Array.isArray(item.category) ? item.category[0] : item.category) || section.charAt(0).toUpperCase() + section.slice(1),
         section,
         subCategory: item.subCategory,
         slug: item.slug || '',

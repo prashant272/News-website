@@ -111,7 +111,8 @@ export const NewsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     uniqueSortedAll.forEach((item) => {
       if (!item.category) return;
-      const cat = getEnglishCategory(item.category).toLowerCase().trim();
+      const rawCat = Array.isArray(item.category) ? item.category[0] : item.category;
+      const cat = getEnglishCategory(rawCat).toLowerCase().trim();
       if (grouped[cat]) {
         grouped[cat].push(item);
       } else if (cat === 'tech') {

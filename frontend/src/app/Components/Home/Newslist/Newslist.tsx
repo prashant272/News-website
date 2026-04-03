@@ -64,8 +64,8 @@ const NewsList: React.FC = () => {
   const newsArticles: NewsArticle[] = useMemo(() => {
     return sortedNews.map((item, idx) => ({
       id: `list-${item.slug}-${idx}`,
-      category: item.category || 'News',
-      subCategory: item.subCategory,
+      category: (Array.isArray(item.category) ? item.category[0] : item.category) || 'News',
+    subCategory: item.subCategory,
       title: item.title,
       image: getImageSrc(item.image),
       slug: item.slug,
@@ -94,7 +94,7 @@ const NewsList: React.FC = () => {
         title: item.title,
         image: getImageSrc(item.image),
         slug: item.slug,
-        category: item.category,
+        category: Array.isArray(item.category) ? item.category[0] : item.category,
         subCategory: item.subCategory,
         date: item.publishedAt || item.date || item.createdAt,
       })),
@@ -147,7 +147,8 @@ const NewsList: React.FC = () => {
               <p className={styles.noNews}>No recent news available</p>
             ) : (
               newsArticles.map((article) => {
-                const url = `/Pages/${article.category || 'news'}/${article.subCategory || 'general'}/${article.slug}`;
+                const catBase = Array.isArray(article.category) ? article.category[0] : (article.category || 'news');
+                const url = `/Pages/${catBase}/${article.subCategory || 'general'}/${article.slug}`;
                 return (
                   <Link
                     key={article.id}
@@ -165,7 +166,7 @@ const NewsList: React.FC = () => {
                       )}
                     </div>
                     <div className={styles.cardContent}>
-                      <span className={styles.categoryBadge}>{article.category}</span>
+                      <span className={styles.categoryBadge}>{Array.isArray(article.category) ? article.category[0] : article.category}</span>
                       <h3 className={styles.cardTitle}>{article.title}</h3>
                       {article.date && (
                         <span className={styles.date}>{formatDateTime(article.date)}</span>
@@ -198,7 +199,8 @@ const NewsList: React.FC = () => {
 
             <div className={styles.trendingList}>
               {trendingItems.map((item, index) => {
-                const url = `/Pages/${item.category || 'news'}/${item.subCategory || 'general'}/${item.slug}`;
+                const catBase = Array.isArray(item.category) ? item.category[0] : (item.category || 'news');
+                const url = `/Pages/${catBase}/${item.subCategory || 'general'}/${item.slug}`;
                 const adToInsert = (index + 1) % 3 === 0;
 
                 return (

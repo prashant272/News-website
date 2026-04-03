@@ -37,15 +37,18 @@ export default function AINewsManagement({ onEdit, isSuperAdmin }: AINewsManagem
 
     const handleScrap = async () => {
         setScraping(true);
+        console.log(`[FrontEnd] Triggering Scraping: /api/auto-news/fetch-daily`);
         try {
             const res = await API.get("/api/auto-news/fetch-daily");
+            console.log("[FrontEnd] API Response:", res.data);
             if (res.data.success) {
                 alert(`Scraping completed! Processed: ${res.data.stats.processed}, Duplicates: ${res.data.stats.duplicates}`);
                 fetchDrafts();
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error("Scraping failed", error);
-            alert("Scraping failed. Check console for details.");
+            const errMsg = error.response?.data?.error || error.message;
+            alert(`Scraping failed: ${errMsg}`);
         } finally {
             setScraping(false);
         }
@@ -123,12 +126,12 @@ export default function AINewsManagement({ onEdit, isSuperAdmin }: AINewsManagem
                                 <img src={draft.image} alt={draft.title} />
                             ) : (
                                 <div className={styles.noImage}>
-                                    <span>{draft.category?.toUpperCase() || 'AI'}</span>
+                                    <span>{Array.isArray(draft.category) ? draft.category[0]?.toUpperCase() : draft.category?.toUpperCase() || 'AI'}</span>
                                 </div>
                             )}
                         </div>
                         <div className={styles.cardHeader}>
-                            <span className={styles.badge}>{draft.category}</span>
+                            <span className={styles.badge}>{Array.isArray(draft.category) ? draft.category.join(', ') : draft.category}</span>
                             <span className={`${styles.langBadge} ${styles[draft.lang || 'en']}`}>
                                 {draft.lang === 'hi' ? '🇮🇳 HI' : '🇺🇸 EN'}
                             </span>

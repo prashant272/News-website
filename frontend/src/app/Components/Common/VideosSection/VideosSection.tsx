@@ -23,8 +23,11 @@ export const VideosSection: React.FC = () => {
                 const res = await fetch(`${base}/api/visual-stories`);
                 const data = await res.json();
                 if (data.success) {
-                    const awards = data.data.filter((s: any) => s.category?.toLowerCase() === 'awards');
-                    setStories(awards);
+                    const awards = data.data.filter((s: any) => {
+                        const cat = Array.isArray(s.category) ? s.category[0] : s.category;
+                        return cat?.toLowerCase() === 'awards';
+                    });
+              setStories(awards);
                 }
             } catch (error) {
                 console.error('Error fetching awards stories:', error);
@@ -87,7 +90,7 @@ export const VideosSection: React.FC = () => {
                                         <div className={styles.playIcon}>
                                             <Play size={24} />
                                         </div>
-                                        <span className={styles.tag}>{story.category}</span>
+                                        <span className={styles.tag}>{Array.isArray(story.category) ? story.category[0] : story.category}</span>
                                     </div>
                                 </motion.div>
                             ))

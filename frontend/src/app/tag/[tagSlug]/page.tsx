@@ -94,7 +94,8 @@ export default function TagPage() {
                 ) : (
                     <div className={styles.newsGrid}>
                         {news.map((item) => {
-                            const section = item.category?.toLowerCase() || 'india';
+                            const categoryBase = Array.isArray(item.category) ? item.category[0] : (item.category || 'india');
+                            const section = categoryBase.toLowerCase();
                             const subCat = (item.subCategory || 'general').toLowerCase().replace(/\s+/g, '-');
                             const href = item.slug ? `/Pages/${section}/${subCat}/${item.slug}` : '#';
                             
@@ -108,7 +109,7 @@ export default function TagPage() {
                                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                             className={styles.cardImg}
                                         />
-                                        <div className={styles.categoryLabel}>{item.category}</div>
+                                        <div className={styles.categoryLabel}>{Array.isArray(item.category) ? item.category[0] : item.category}</div>
                                     </div>
                                     <div className={styles.cardInfo}>
                                         <h3 className={styles.title}>{item.title}</h3>
