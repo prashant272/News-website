@@ -35,7 +35,8 @@ const HindiRegionalNews: React.FC = () => {
     }, [news, selectedState]);
 
     const getUrl = (item: any) => {
-        const cat = (item.category || 'news').toLowerCase();
+        const catRaw = Array.isArray(item.category) ? item.category[0] : (item.category || 'news');
+        const cat = catRaw.toLowerCase();
         const sub = (item.subCategory || 'general').toLowerCase();
         return getLocalizedHref(`/Pages/${cat}/${sub}/${item.slug}`, lang);
     };

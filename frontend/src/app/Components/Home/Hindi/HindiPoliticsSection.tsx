@@ -15,10 +15,11 @@ const HindiPoliticsSection: React.FC = () => {
     // 1. Data Logic: Filter news by subcategory 'politics'
     const politicsNews = useMemo(() => {
         if (!allNews || allNews.length === 0) return [];
-        return allNews.filter((item: any) => 
-            (item.subCategory || '').toLowerCase() === 'politics' || 
-            (item.category || '').toLowerCase().includes('politics')
-        );
+        return allNews.filter((item: any) => {
+            const cat = Array.isArray(item.category) ? item.category[0] : (item.category || '');
+            return (item.subCategory || '').toLowerCase() === 'politics' || 
+            cat.toLowerCase().includes('politics');
+        });
     }, [allNews]);
 
     if (loading || politicsNews.length === 0) return null;
@@ -32,7 +33,8 @@ const HindiPoliticsSection: React.FC = () => {
     const mainEdit = fiftyWordEditNews[0];
 
     const getUrl = (item: any) => {
-        const cat = (item.category || 'news').toLowerCase();
+        const catRaw = Array.isArray(item.category) ? item.category[0] : (item.category || 'news');
+        const cat = catRaw.toLowerCase();
         const sub = (item.subCategory || 'general').toLowerCase();
         return getLocalizedHref(`/Pages/${cat}/${sub}/${item.slug}`, lang);
     };

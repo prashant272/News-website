@@ -40,7 +40,8 @@ const ColumnList = ({ title, news, loading }: { title: string, news: any[], load
                     ))
                 ) : news && news.length > 0 ? (
                     news.slice(0, 5).map(item => {
-                        const cat = (item.category || 'sports').toLowerCase();
+                        const catRaw = Array.isArray(item.category) ? item.category[0] : (item.category || 'sports');
+                        const cat = catRaw.toLowerCase();
                         const sub = (item.subCategory || 'general').toLowerCase();
                         return (
                         <Link key={item._id || item.slug} href={getLocalizedHref(`/Pages/${cat}/${sub}/${item.slug}`, lang)} className={styles.listItem}>
@@ -87,7 +88,8 @@ const ColumnBig = ({ title, news, loading }: { title: string, news: any[], loadi
             ) : news && news.length > 0 ? (
                 (() => {
                     const item = news[0];
-                    const cat = (item.category || 'sports').toLowerCase();
+                    const catRaw = Array.isArray(item.category) ? item.category[0] : (item.category || 'sports');
+                    const cat = catRaw.toLowerCase();
                     const sub = (item.subCategory || 'general').toLowerCase();
                     return (
                 <Link href={getLocalizedHref(`/Pages/${cat}/${sub}/${item.slug}`, lang)} className={styles.bigCard}>

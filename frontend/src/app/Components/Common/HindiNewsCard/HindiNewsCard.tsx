@@ -23,7 +23,8 @@ const HindiNewsCard: React.FC<HindiNewsCardProps> = ({
 }) => {
     if (!item) return null;
 
-    const category = (item.category || 'news').toLowerCase();
+    const categoryRaw = Array.isArray(item.category) ? item.category[0] : (item.category || 'news');
+    const category = categoryRaw.toLowerCase();
     const subCategory = (item.subCategory || 'general').toLowerCase().trim();
     const href = getLocalizedHref(`/Pages/${category}/${subCategory}/${item.slug}`, lang);
 
