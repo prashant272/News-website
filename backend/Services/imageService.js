@@ -150,7 +150,7 @@ const addLogoToImage = async (imageBuffer) => {
                         </feComponentTransfer>
                         <feMerge>
                             <feMergeNode />
-                            <feMergeNode in="SourceGraphic" />
+                            <feMergeNode in="SourceGraphic6" />
                         </feMerge>
                     </filter>
                 </defs>
@@ -193,7 +193,14 @@ const brandImageWithTitle = async (imageUrl, title, options = { addLogo: true })
         const logoPath = path.join(__dirname, '..', 'Assets', 'logo1.jpeg');
 
         const metadata = await sharp(imageBuffer).metadata();
-        const { width, height } = metadata;
+        let { width, height } = metadata;
+
+        // Safety fallback if metadata is missing (prevents NaN/crash errors)
+        if (!width || !height) {
+            console.warn('[Branding-Final] ⚠️ Could not determine image dimensions. Using 1080x1080 fallback.');
+            width = 1080;
+            height = 1080;
+        }
 
         // 2. HD IMAGE GRADING (Image Section Only)
         const gradedImage = await sharp(imageBuffer)
@@ -202,11 +209,59 @@ const brandImageWithTitle = async (imageUrl, title, options = { addLogo: true })
             .linear(1.05, -5)
             .toBuffer();
 
-        // 3. CANVAS EXTENSION (Adding White Space at Bottom)
-        // Add ~45% extra height for the text card area
-        const cardH = Math.round(height * 0.48);
-        const totalH = height + cardH;
+        // 3. GENERATE THE TEXT SECTION (SVG) with Smart Headline Wrap
+        const escapeXML = (str) => str.replace(/[&<>"']/g, (m) => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        })[m]);
 
+        const safeTitle = escapeXML(title.trim());
+        const words = safeTitle.split(' ');
+        
+        // Define branding parts
+        let firstPartText = words.slice(0, 2).join(' ').toUpperCase();
+        let restText = words.slice(2).join(' ').toUpperCase();
+
+        // Dynamic Font Scaling
+        let fontSize = 38;
+        if (title.length > 60) fontSize = 34;
+        if (title.length > 100) fontSize = 30;
+        if (title.length > 150) fontSize = 26;
+
+        // Wrap Logic
+        const charWidth = fontSize * 0.55; // Approximate width multiplier for sans-serif
+        const maxChars = Math.floor((width * 0.9) / charWidth);
+
+        const wrapText = (text, maxLength) => {
+            const lines = [];
+            let currentLine = "";
+            text.split(' ').forEach(word => {
+                if ((currentLine + word).length > maxLength) {
+                    if (currentLine) lines.push(currentLine.trim());
+                    currentLine = word + " ";
+                } else {
+                    currentLine += word + " ";
+                }
+            });
+            if (currentLine) lines.push(currentLine.trim());
+            return lines;
+        };
+
+        const firstPartLines = wrapText(firstPartText, maxChars);
+        const restLines = wrapText(restText, maxChars);
+
+        // SVG Layout Constants
+        const badgeY = 15;
+        const lineSpacing = fontSize * 1.4;
+        let currentY = 100; // Starting Y for the red title
+
+        // 4. CALCULATE DYNAMIC CARD HEIGHT
+        // 100 (top offset) + lines * spacing + 60 (footer space) + 30 (bottom buffer)
+        const totalTextLines = firstPartLines.length + Math.min(restLines.length, 3);
+        const requiredCardHeight = Math.round(100 + (totalTextLines * lineSpacing) + 90);
+        const cardH = Math.max(Math.round(height * 0.48), requiredCardHeight);
+        const totalH = Math.round(height + cardH);
+
+        // 5. CANVAS EXTENSION (Adding White Space at Bottom)
         const whiteCard = await sharp({
             create: {
                 width: width,
@@ -216,49 +271,38 @@ const brandImageWithTitle = async (imageUrl, title, options = { addLogo: true })
             }
         }).png().toBuffer();
 
-        // 4. GENERATE THE TEXT SECTION (SVG) with Smart Headline Wrap
-        const words = title.trim().split(' ');
-        const firstPart = words.slice(0, 2).join(' ').toUpperCase();
-        const secondPart = words.slice(2).join(' ').toUpperCase();
-
-        const maxChars = Math.floor(width / 14);
-        let secLines = [];
-        let cur = "";
-        secondPart.split(' ').forEach(w => {
-            if ((cur + w).length > maxChars) {
-                secLines.push(cur.trim());
-                cur = w + " ";
-            } else {
-                cur += w + " ";
-            }
-        });
-        secLines.push(cur.trim());
-        secLines = secLines.slice(0, 2);
-
         const textOverlay = Buffer.from(`
             <svg width="${width}" height="${cardH}">
                 <defs>
                     <style>
                         .header { font-family: sans-serif; font-weight: 900; font-size: 20px; fill: white; }
-                        .title-red { font-family: 'Arial Black', sans-serif; font-weight: 900; font-size: 38px; fill: #CC0000; }
-                        .title-black { font-family: 'Arial Black', sans-serif; font-weight: 900; font-size: 38px; fill: #000000; }
+                        .title-red { font-family: 'Arial Black', sans-serif; font-weight: 900; font-size: ${fontSize}px; fill: #CC0000; }
+                        .title-black { font-family: 'Arial Black', sans-serif; font-weight: 900; font-size: ${fontSize}px; fill: #000000; }
                         .url { font-family: sans-serif; font-weight: bold; font-size: 16px; fill: #666; }
                     </style>
                 </defs>
 
                 <!-- 1. LIVE HEADER BADGE (Center) -->
-                <rect x="${width / 2 - 100}" y="15" width="200" height="40" rx="8" fill="#CC0000" />
-                <text x="${width / 2}" y="43" text-anchor="middle" class="header">PRIME TIME LIVE</text>
+                <rect x="${width / 2 - 100}" y="${badgeY}" width="200" height="40" rx="8" fill="#CC0000" />
+                <text x="${width / 2}" y="${badgeY + 28}" text-anchor="middle" class="header">PRIME TIME NEWS</text>
 
-                <!-- 2. HEADLINE (ABP/InShorts Style) -->
-                <text x="${width / 2}" y="115" text-anchor="middle" class="title-red">${firstPart}</text>
-                ${secLines.map((line, i) => `
-                    <text x="${width / 2}" y="${175 + (i * 55)}" text-anchor="middle" class="title-black">${line}</text>
-                `).join('')}
+                <!-- 2. HEADLINE (Red First Part) -->
+                ${firstPartLines.map((line, i) => {
+                    const y = currentY;
+                    currentY += lineSpacing;
+                    return `<text x="${width / 2}" y="${y}" text-anchor="middle" class="title-red">${line}</text>`;
+                }).join('')}
 
-                <!-- 3. URL FOOTER BADGE -->
-                <rect x="${width / 2 - 110}" y="${cardH - 60}" width="220" height="34" rx="17" stroke="#EEE" stroke-width="2" fill="#FBFBFB" />
-                <text x="${width / 2}" y="${cardH - 37}" text-anchor="middle" class="url">primetimemedia.in</text>
+                <!-- 3. HEADLINE (Black Rest) -->
+                ${restLines.slice(0, 3).map((line, i) => { // Up to 3 lines of black text
+                    const y = currentY;
+                    currentY += lineSpacing;
+                    return `<text x="${width / 2}" y="${y}" text-anchor="middle" class="title-black">${line}</text>`;
+                }).join('')}
+
+                <!-- 4. URL FOOTER BADGE (Dynamic Position) -->
+                <rect x="${width / 2 - 130}" y="${currentY + 6}" width="260" height="42" rx="21" fill="#FFD700" />
+                <text x="${width / 2}" y="${currentY + 38}" text-anchor="middle" style="font-family: 'Arial Black', sans-serif; font-weight: 900; font-size: 20px; fill: #CC0000; letter-spacing: 0.02em;">primetimemedia.in</text>
             </svg>
         `);
 

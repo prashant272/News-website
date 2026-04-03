@@ -14,6 +14,7 @@ const scrapeNews = async (url) => {
             }
         };
 
+        console.log(`[Scrape] Loading Content: ${url || 'unknown'}`);
         const { data } = await axios.get(url, config);
         const $ = cheerio.load(data);
 
@@ -22,24 +23,27 @@ const scrapeNews = async (url) => {
 
         // Select paragraphs - avoid nav/footer/sidebar text
         // Common content containers: article, main, .story-body, .content, #content
-        let paragraphElements = $("article p, .story-body p, .article-body p, #article-body p, .content p, .story p");
+        let paragraphElements = $("article p, .story-body p, .article-body p, #article-body p, .content p, .story p, .story-details p, .full-details p, .article-content p, .story-text p, .description p");
 
         // Fallback if specific containers aren't found
         if (paragraphElements.length === 0) {
-            paragraphElements = $("p");
+            paragraphElements = $("div[class*='content'] p, div[class*='story'] p, div[id*='article'] p, p");
         }
 
         const paragraphs = [];
         paragraphElements.each((i, el) => {
             const text = $(el).text().trim();
             // Filter out short/empty lines or common boilerplate
-            if (text.length > 60 && !text.includes("Read Also") && !text.includes("Subscribe")) {
+            const boilerplateWords = ["Read Also", "Subscribe", "Read More", "Click here", "Follow us", "Advertisement"];
+            const isBoilerplate = boilerplateWords.some(word => text.includes(word));
+            
+            if (text.length > 50 && !isBoilerplate) {
                 paragraphs.push(text);
             }
         });
 
-        // Get substantial content
-        const content = paragraphs.slice(0, 15).join(" ");
+        // Get substantial content (up to 20 paragraphs)
+        const content = paragraphs.slice(0, 20).join(" ");
 
         // Extract Featured Image (og:image or first img)
         let image = $('meta[property="og:image"]').attr('content');
@@ -72,26 +76,37 @@ const scrapeNews = async (url) => {
 // 2. Fetch Latest Links from RSS Feed (only last 24 hours)
 const getLatestLinks = async (rssUrl) => {
     try {
-        const feed = await parser.parseURL(rssUrl);
+        // Fetch XML with axios to include headers (bypass 403)
+        const config = {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                'Accept': 'application/xml, text/xml, */*'
+            },
+            timeout: 10000
+        };
+
+        console.log(`[RSS] Fetching Feed: ${rssUrl}`);
+        const { data: xmlData } = await axios.get(rssUrl, config);
+        const feed = await parser.parseString(xmlData);
 
         // --- DATE FILTER: only accept news published in the last 6 hours (User Request) ---
         const now = new Date();
         const cutoff = new Date(now.getTime() - 6 * 60 * 60 * 1000); // 6 hours ago
 
         const recentItems = feed.items.filter(item => {
-            if (!item.pubDate) return true; // fallback to true if no date, or false if you want strict
+            if (!item.pubDate) return true; // fallback to true if no date
             const pubDate = new Date(item.pubDate);
             return pubDate >= cutoff; 
         });
 
-        console.log(`[${feed.title}] Found ${feed.items.length} items, ${recentItems.length} are within last 6 hours.`);
+        console.log(`[${feed.title || rssUrl}] Found ${feed.items.length} items, ${recentItems.length} are within last 6 hours.`);
 
-        // Return top 35 recent items
+        // Return top 10 recent items
         return recentItems.slice(0, 10).map(item => ({
             title: item.title,
-            link: item.link,
+            link: item.link || item.guid,
             pubDate: item.pubDate,
-            source: feed.title // Capture feed title as source name if available
+            source: feed.title || rssUrl
         }));
     } catch (error) {
         console.error(`RSS Error (${rssUrl}):`, error.message);

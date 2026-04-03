@@ -18,7 +18,7 @@ const newsArticleSchema = new mongoose.Schema(
             index: true,
         },
         category: {
-            type: String,
+            type: [String],
             required: true,
             lowercase: true,
             trim: true,

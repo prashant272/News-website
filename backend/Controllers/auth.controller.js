@@ -245,7 +245,7 @@ exports.CreateUserByAdmin = async (req, res) => {
 exports.UpdateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const { role, isActive, ProfilePicture, designation, name } = req.body;
+    const { role, isActive, ProfilePicture, designation, name, password, email } = req.body;
 
     const updateData = {};
     if (role) {
@@ -255,6 +255,15 @@ exports.UpdateUser = async (req, res) => {
     if (typeof isActive !== 'undefined') updateData.isActive = isActive;
     if (designation) updateData.designation = designation;
     if (name) updateData.name = name;
+    if (email) updateData.email = email;
+
+    // Handle Password Update with Hashing
+    if (password && password.length >= 6) {
+      const Salt = await bcrypt.genSalt(12);
+      updateData.password = await bcrypt.hash(password, Salt);
+    } else if (password && password.length < 6) {
+      return res.status(400).json({ success: false, msg: "Password must be at least 6 characters long" });
+    }
 
     if (ProfilePicture) {
       if (ProfilePicture.startsWith("http")) {
@@ -274,8 +283,11 @@ exports.UpdateUser = async (req, res) => {
     const user = await User.findByIdAndUpdate(id, updateData, { new: true }).select('-password');
     if (!user) return res.status(404).json({ success: false, msg: "User not found" });
 
-    return res.status(200).json({ success: true, user, msg: "User updated" });
+    return res.status(200).json({ success: true, user, msg: "User updated successfully" });
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(409).json({ success: false, msg: "Email or Slug already exists" });
+    }
     return res.status(500).json({ success: false, msg: "Error updating user" });
   }
 };

@@ -153,15 +153,24 @@ exports.AddNews = async (req, res) => {
     const {
       title, slug, category, subCategory, summary, content,
       image, tags = [], section, targetLink, nominationLink, moreInfoLink,
-      author, status, authorId, scheduledAt, showInPopup, isFiftyWordEdit, language, state
+      author, status, authorId, scheduledAt, showInPopup, isFiftyWordEdit, 
+      isLatest, isTrending, language, state
     } = req.body;
 
-    const finalCategory = (category || section)?.toLowerCase();
+    // Handle category as an array (for multi-category support)
+    let finalCategory = category || section;
+    if (Array.isArray(finalCategory)) {
+      finalCategory = finalCategory.map(c => c.toLowerCase());
+    } else if (typeof finalCategory === 'string') {
+      finalCategory = [finalCategory.toLowerCase()];
+    } else {
+      finalCategory = ["india"]; // Default safety
+    }
 
-    if (!title || !slug || !finalCategory || !content) {
+    if (!title || !slug || !finalCategory.length || !content) {
       return res.status(400).json({
         success: false,
-        msg: "Missing required fields: title, slug, category, content",
+        msg: "Missing required fields: title, slug, category (at least one), content",
       });
     }
 
@@ -218,6 +227,8 @@ exports.AddNews = async (req, res) => {
       publishedAt: status === "published" ? new Date() : null,
       showInPopup: !!showInPopup,
       isFiftyWordEdit: !!isFiftyWordEdit,
+      isLatest: !!isLatest,
+      isTrending: !!isTrending,
       lang: finalLanguage,
       state: state || "universal"
     });
@@ -494,7 +505,19 @@ exports.updateNewsBySlug = async (req, res) => {
       updateData.isHidden = true; // Keep hidden until scheduled
     }
 
-    // Normalize category if provided
+    // Normalize category if provided (handle multiple)
+    if (updateData.category) {
+      if (Array.isArray(updateData.category)) {
+        updateData.category = updateData.category.map(c => c.toLowerCase());
+      } else if (typeof updateData.category === 'string') {
+        updateData.category = [updateData.category.toLowerCase()];
+      }
+    }
+
+    // Ensure isLatest/isTrending are booleans if provided
+    if (updateData.isLatest !== undefined) updateData.isLatest = !!updateData.isLatest;
+    if (updateData.isTrending !== undefined) updateData.isTrending = !!updateData.isTrending;
+
     // Auto-detect language if currently 'en' or missing but has Hindi characters
     const fullContent = (updateData.title || item.title || '') + (updateData.content || item.content || '') + (updateData.summary || item.summary || '');
     const hasHindiChars = /[\u0900-\u097F]/.test(fullContent);
@@ -502,10 +525,6 @@ exports.updateNewsBySlug = async (req, res) => {
     if (hasHindiChars && (updateData.language === 'en' || !updateData.language)) {
       updateData.lang = 'hi';
       console.log(`[News] Auto-corrected Language to Hindi for existing article: ${item.title}`);
-    }
-
-    if (updateData.category) {
-      updateData.category = updateData.category.toLowerCase();
     }
 
     const updatedItem = await NewsArticle.findOneAndUpdate({ slug }, { ...updateData }, { new: true });
