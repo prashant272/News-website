@@ -21,7 +21,7 @@ const onesignalService = {
 
             const { appId, restApiKey } = config.onesignal;
             
-            const { getArticleUrl } = require("../Utils/articleUtils");
+            const { getArticleUrl } = require("../utils/articleUtils");
             const articleUrl = getArticleUrl(newsItem);
             
             const payload = {

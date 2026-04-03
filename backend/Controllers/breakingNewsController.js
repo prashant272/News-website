@@ -1,5 +1,5 @@
 const BreakingNews = require("../Models/BreakingNews");
-const { getLatestLinks } = require("../Services/scraperService");
+const { getLatestLinks } = require("../services/scraperService");
 
 // Get all active breaking news
 exports.scrapeBreakingNews = async (req, res) => {

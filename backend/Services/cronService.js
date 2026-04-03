@@ -26,7 +26,7 @@ async function triggerFacebookPost(newsItem) {
 
     if (!pageId || !pageAccessToken) return;
 
-    const { getArticleUrl } = require("./Utils/articleUtils");
+    const { getArticleUrl } = require("../utils/articleUtils");
     const articleUrl = getArticleUrl(newsItem);
     const message = `📰 ${newsItem.title}\n\n${newsItem.summary || ""}\n\nRead more 👇`;
 
@@ -49,7 +49,7 @@ async function triggerLinkedInPost(newsItem) {
     const accounts = (config?.linkedinAccounts || []).filter(a => a.autoPostEnabled && a.accessToken);
     if (accounts.length === 0) return;
 
-    const { getArticleUrl } = require("./Utils/articleUtils");
+    const { getArticleUrl } = require("../utils/articleUtils");
     const articleUrl = getArticleUrl(newsItem);
     const message = `📰 ${newsItem.title}\n\n${newsItem.summary || ""}\n\nRead more 👇`;
 
@@ -98,7 +98,7 @@ async function triggerTwitterPost(newsItem) {
 
     if (!credentials.accessToken) return;
 
-    const { getArticleUrl } = require("./Utils/articleUtils");
+    const { getArticleUrl } = require("../utils/articleUtils");
     const articleUrl = getArticleUrl(newsItem);
     const message = `📰 ${newsItem.title}`;
 

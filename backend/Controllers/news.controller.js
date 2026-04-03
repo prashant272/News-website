@@ -1,11 +1,11 @@
 const NewsArticle = require("../Models/NewsArticle");
 const User = require("../Models/user.model");
 const AppConfig = require("../Models/AppConfig");
-const { triggerAllSocialMedia } = require("../Services/socialTriggerService");
-const { getArticleUrl } = require("../Utils/articleUtils");
-const { brandImageWithTitle } = require("../Services/imageService");
+const { triggerAllSocialMedia } = require("../services/socialTriggerService");
+const { getArticleUrl } = require("../utils/articleUtils");
+const { brandImageWithTitle } = require("../services/imageService");
 const dotenv = require("dotenv");
-// dotenv.config({ path: "./Config/config.env" }); // Removed: Root server.js handles env loading
+// dotenv.config({ path: "./config/config.env" }); // Removed: Root server.js handles env loading
 const cloudinary = require("cloudinary").v2;
 
 cloudinary.config({

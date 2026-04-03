@@ -166,7 +166,7 @@ exports.disconnectFacebook = async (req, res) => {
 
 exports.testPost = async (req, res) => {
     try {
-        const facebookService = require("../Services/facebookService");
+        const facebookService = require("../services/facebookService");
 
         // First try global config
         const globalConfig = await AppConfig.findOne({ key: "facebook" });

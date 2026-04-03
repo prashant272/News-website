@@ -1,4 +1,4 @@
-const { addLogoToImage } = require("../Services/imageService");
+const { addLogoToImage } = require("../services/imageService");
 const sharp = require("sharp");
 
 /**

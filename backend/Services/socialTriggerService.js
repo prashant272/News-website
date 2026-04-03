@@ -5,7 +5,7 @@ const linkedinService = require("./linkedinService");
 const twitterService = require("./twitterService");
 const onesignalService = require("./onesignalService");
 const imageService = require("./imageService");
-const { getArticleUrl } = require("../Utils/articleUtils");
+const { getArticleUrl } = require("../utils/articleUtils");
 
 /**
  * Trigger Facebook auto-post when an article is published.

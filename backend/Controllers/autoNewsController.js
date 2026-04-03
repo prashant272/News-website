@@ -1,8 +1,8 @@
-const { applyWatermark, brandImageWithTitle } = require("../Services/imageService");
-const { scrapeNews, getLatestLinks } = require("../Services/scraperService");
-const { generateArticle } = require("../Services/aiService");
+const { applyWatermark, brandImageWithTitle } = require("../services/imageService");
+const { scrapeNews, getLatestLinks } = require("../services/scraperService");
+const { generateArticle } = require("../services/aiService");
 const NewsArticle = require("../Models/NewsArticle");
-const newsSources = require("../Config/newsSources");
+const newsSources = require("../config/newsSources");
 const cloudinary = require("cloudinary").v2;
 const crypto = require("crypto");
 

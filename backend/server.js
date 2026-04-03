@@ -5,11 +5,11 @@ const express = require("express")
 const mongoose = require("mongoose")
 const cors = require("cors")
 const bodyParser = require("body-parser")
-const { connectdb } = require("./Config/db")
+const { connectdb } = require("./config/db")
 const morgan = require("morgan")
 const helmet = require("helmet")
 const compression = require("compression")
-const { initCronJobs } = require("./Services/cronService")
+const { initCronJobs } = require("./services/cronService")
 const AuthRouter = require("./routes/auth.routes")
 const NewsRouter = require("./routes/news.routes")
 const OTPRouter = require("./routes/otp.route")
@@ -24,7 +24,7 @@ const OneSignalRouter = require("./routes/onesignal.routes")
 const LinkedInRouter = require("./routes/linkedin.routes")
 const TwitterRouter = require("./routes/twitter.routes")
 const SitemapRouter = require("./routes/sitemap.routes")
-const ImageRouter = require("./Routes/image.routes")
+const ImageRouter = require("./routes/image.routes")
 
 
 const app = express()
@@ -97,7 +97,7 @@ app.use("/onesignal", OneSignalRouter)
 app.use("/api/images", ImageRouter)
 app.use("/", SitemapRouter)
 
-const { syncMatchesWithDB } = require("./Services/cricketService")
+const { syncMatchesWithDB } = require("./services/cricketService")
 
 app.listen(process.env.PORT, () => {
     // Initialize Cron Jobs
@@ -112,7 +112,7 @@ app.listen(process.env.PORT, () => {
     // Live Polling (Every 10 seconds)
     // Only fetches full scorecard for matches marked 'isLiveTracked'
     setInterval(() => {
-        const { pollLiveScores } = require("./Services/cricketService");
+        const { pollLiveScores } = require("./services/cricketService");
         pollLiveScores();
     }, 10000);
 
