@@ -29,7 +29,7 @@ const applyWatermark = async (imageUrl, source = "") => {
         console.log(`[Anti-Copyright] Transforming image for ${src}`);
 
         const inputBuffer = await getImageBuffer(imageUrl);
-        const logoPath = path.join(__dirname, '..', '..', 'frontend', 'public', 'logo1.jpeg');
+        const logoPath = path.join(__dirname, '..', 'Assets', 'logo1.jpeg');
 
         const imageMetadata = await sharp(inputBuffer).metadata();
         const { width, height } = imageMetadata;
@@ -90,7 +90,7 @@ const applyWatermark = async (imageUrl, source = "") => {
  */
 const addLogoToImage = async (imageBuffer) => {
     try {
-        const logoPath = path.join(__dirname, '..', '..', 'frontend', 'public', 'logo1.jpeg');
+        const logoPath = path.join(__dirname, '..', 'Assets', 'logo1.jpeg');
         const metadata = await sharp(imageBuffer).metadata();
         const { width, height } = metadata;
 
@@ -190,7 +190,7 @@ const brandImageWithTitle = async (imageUrl, title, options = { addLogo: true })
         
         // 1. Resolve image buffer (supports URL or Base64/Local)
         const imageBuffer = await getImageBuffer(imageUrl);
-        const logoPath = path.join(__dirname, '..', '..', 'frontend', 'public', 'logo1.jpeg');
+        const logoPath = path.join(__dirname, '..', 'Assets', 'logo1.jpeg');
 
         const metadata = await sharp(imageBuffer).metadata();
         const { width, height } = metadata;
