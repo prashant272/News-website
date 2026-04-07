@@ -1,6 +1,12 @@
 import { MetadataRoute } from 'next';
+import { headers } from 'next/headers';
 
-export default function robots(): MetadataRoute.Robots {
+export default async function robots(): Promise<MetadataRoute.Robots> {
+    const headersList = await headers();
+    const host = headersList.get('host') || 'www.primetimemedia.in';
+    const protocol = host.includes('localhost') ? 'http' : 'https';
+    const baseUrl = `${protocol}://${host}`;
+
     return {
         rules: {
             userAgent: '*',
@@ -20,8 +26,8 @@ export default function robots(): MetadataRoute.Robots {
             ],
         },
         sitemap: [
-            'https://www.primetimemedia.in/sitemap.xml',
-            'https://www.primetimemedia.in/sitemap-news.xml'
+            `${baseUrl}/sitemap.xml`,
+            `${baseUrl}/sitemap-news.xml`
         ],
     };
 }
