@@ -104,7 +104,7 @@ export default function ArticlePageClient({
     "dateModified": article.date,
     "author": [{
       "@type": "Person",
-      "name": article.author || "Prime Time News"
+      "name": article.author || "Prime Time"
     }],
     "publisher": {
       "@type": "Organization",
@@ -219,7 +219,7 @@ export default function ArticlePageClient({
                     ) : (
                       <div className={styles.authorAttribution}>
                         <span className={styles.authorPrefix}>{translations.publishedBy || "Published by"}:</span>
-                        <span className={styles.authorName}>{article.author || 'Prime Time News'}</span>
+                        <span className={styles.authorName}>{article.author || 'Prime Time'}</span>
                       </div>
                     )}
                   </div>

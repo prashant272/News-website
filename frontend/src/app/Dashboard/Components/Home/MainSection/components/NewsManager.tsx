@@ -110,6 +110,7 @@ const NewsManager: FC<NewsManagerProps> = ({
         state: "universal",
         isLatest: false,
         isTrending: false,
+        isFeatured: false,
     });
 
     const [tagsInput, setTagsInput] = useState("");
@@ -204,6 +205,7 @@ const NewsManager: FC<NewsManagerProps> = ({
             state: "universal",
             isLatest: false,
             isTrending: false,
+            isFeatured: false,
         });
         setImagePreview(null);
         setBrandedPreview(null);
@@ -236,6 +238,7 @@ const NewsManager: FC<NewsManagerProps> = ({
                 moreInfoLink: initialDraft.moreInfoLink || "",
                 isLatest: !!initialDraft.isLatest,
                 isTrending: !!initialDraft.isTrending,
+                isFeatured: !!initialDraft.isFeatured,
             });
             setEditingSlug(initialDraft.slug);
             setTagsInput(initialDraft.tags?.join(", ") || "");
@@ -282,7 +285,7 @@ const NewsManager: FC<NewsManagerProps> = ({
         });
     };
 
-    const toggleFlag = (field: 'isLatest' | 'isTrending') => {
+    const toggleFlag = (field: 'isLatest' | 'isTrending' | 'isFeatured') => {
         setFormState(prev => ({ ...prev, [field]: !prev[field] }));
     };
 
@@ -338,7 +341,7 @@ const NewsManager: FC<NewsManagerProps> = ({
             return;
         }
         try {
-            const authorName = userAuthData?.name || "Prime Time News";
+            const authorName = userAuthData?.name || "Prime Time";
             const currentUserId = userAuthData?.userId || userAuthData?._id || userAuthData?.id;
 
             // Convert datetime-local (local time) to UTC ISO string
@@ -401,7 +404,7 @@ const NewsManager: FC<NewsManagerProps> = ({
             return;
         }
         try {
-            const authorName = userAuthData?.name || "Prime Time News";
+            const authorName = userAuthData?.name || "Prime Time";
             const currentUserId = userAuthData?.userId || userAuthData?._id || userAuthData?.id;
 
             // Convert datetime-local (local time) to UTC ISO string
@@ -446,7 +449,7 @@ const NewsManager: FC<NewsManagerProps> = ({
     );
 
     const handleToggleFlag = useCallback(
-        async (slug: string, field: "isLatest" | "isTrending" | "isHidden" | "showInPopup" | "isFiftyWordEdit", newValue: boolean) => {
+        async (slug: string, field: "isLatest" | "isTrending" | "isFeatured" | "isHidden" | "showInPopup" | "isFiftyWordEdit", newValue: boolean) => {
             if (flagsLoading) return;
             try {
                 await setFlags({ slug, [field]: newValue });
@@ -454,6 +457,7 @@ const NewsManager: FC<NewsManagerProps> = ({
                     `Article ${newValue ? "marked as" : "removed from"} ${
                         field === "isLatest" ? "Latest" : 
                         field === "isTrending" ? "Trending" : 
+                        field === "isFeatured" ? "Featured" : 
                         field === "isFiftyWordEdit" ? "50W Edit" : 
                         field === "isHidden" ? "Hidden" : "Popup Rotation"
                     }`,
@@ -595,6 +599,14 @@ const NewsManager: FC<NewsManagerProps> = ({
                                     style={{ padding: '0.6rem 1.2rem', borderRadius: '12px', fontSize: '0.9rem' }}
                                 >
                                     {formState.isTrending ? "🔥 Trending (Selected)" : "♢ Mark as Trending"}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => toggleFlag('isFeatured')}
+                                    className={`${styles.flagBtn} ${formState.isFeatured ? styles.flagActive : ""}`}
+                                    style={{ padding: '0.6rem 1.2rem', borderRadius: '12px', fontSize: '0.9rem' }}
+                                >
+                                    {formState.isFeatured ? "💎 Featured (Selected)" : "♢ Mark as Featured"}
                                 </button>
                             </div>
                         </div>
@@ -1054,6 +1066,11 @@ const NewsManager: FC<NewsManagerProps> = ({
                                                     className={`${styles.flagBtn} ${item.isTrending ? styles.flagActive : ""}`}
                                                     disabled={!canUpdate || flagsLoading}
                                                 >🔥 {item.isTrending ? "Trending" : "Mark Trending"}</button>
+                                                <button
+                                                    onClick={() => handleToggleFlag(item.slug, "isFeatured", !item.isFeatured)}
+                                                    className={`${styles.flagBtn} ${item.isFeatured ? styles.flagActive : ""}`}
+                                                    disabled={!canUpdate || flagsLoading}
+                                                >💎 {item.isFeatured ? "Featured" : "Mark Featured"}</button>
                                                     <button
                                                         onClick={() => handleToggleFlag(item.slug, "isFiftyWordEdit", !item.isFiftyWordEdit)}
                                                         className={`${styles.flagBtn} ${item.isFiftyWordEdit ? styles.flagActive : ""}`}

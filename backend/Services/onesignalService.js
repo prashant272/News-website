@@ -27,7 +27,7 @@ const onesignalService = {
             const payload = {
                 app_id: appId,
                 headings: { en: newsItem.title },
-                contents: { en: newsItem.summary || "Read the latest news on Prime Time News" },
+                contents: { en: newsItem.summary || "Read the latest news on Prime Time" },
                 url: articleUrl,
                 chrome_web_image: newsItem.image || null,
                 included_segments: ["All"], // Send to all subscribed users

@@ -13,14 +13,14 @@ export async function generateMetadata({ searchParams }: HomeProps): Promise<Met
   
   const isHindi = sParams.lang === 'hi' || host.startsWith('hindi.') || host.includes('.hindi.');
   
-  const siteName = isHindi ? "प्राइम टाइम न्यूज़" : "Prime Time News";
+  const siteName = isHindi ? "प्राइम टाइम" : "Prime Time";
   const title = isHindi 
-    ? "प्राइम टाइम न्यूज़ | होम - एशिया का अग्रणी डिजिटल मीडिया हाउस" 
+    ? "प्राइम टाइम | होम - एशिया का अग्रणी डिजिटल मीडिया हाउस" 
     : "Prime Time | Asia Leading Media House - Breaking News, Politics, Sports";
   
   const description = isHindi 
-    ? "प्राइम टाइम न्यूज़ - राजनीति, खेल, मनोरंजन, व्यापार और विश्व समाचारों के लिए एशिया का अग्रणी डिजिटल मीडिया हाउस। 24/7 लाइव अपडेट प्राप्त करें।"
-    : "Prime Time News - Asia's leading digital media house for breaking news, politics, sports, entertainment, business and world events. Get live updates 24/7.";
+    ? "प्राइम टाइम - राजनीति, खेल, मनोरंजन, व्यापार और विश्व समाचारों के लिए एशिया का अग्रणी डिजिटल मीडिया हाउस। 24/7 लाइव अपडेट प्राप्त करें।"
+    : "Prime Time - Asia's leading digital media house for breaking news, politics, sports, entertainment, business and world events. Get live updates 24/7.";
 
   return {
     title: title,

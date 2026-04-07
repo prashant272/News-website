@@ -4,9 +4,16 @@ import React, { useEffect, useState } from 'react';
 import styles from './HindiCricketSection.module.scss';
 import { cricketService, LiveMatch } from '@/app/services/CricketService';
 import Link from 'next/link';
+import Image from 'next/image';
 import CricketPointsTable from '@/app/Components/T20-world-cup/PointsTable/PointsTable';
+import { useNewsBySection } from '@/app/hooks/NewsApi';
+import { useLanguage } from '@/app/hooks/useLanguage';
+import { formatDateTime } from '@/Utils/Utils';
+import { getLocalizedHref } from '@/Utils/navigation';
 
 const HindiCricketSection: React.FC = () => {
+    const { lang } = useLanguage();
+    const { data: cricketNews, loading: newsLoading } = useNewsBySection('cricket', false, 1, 4, "published", lang);
     const [matches, setMatches] = useState<{
         live: LiveMatch[],
         recent: LiveMatch[],
@@ -169,6 +176,50 @@ const HindiCricketSection: React.FC = () => {
                         </div>
                     </div>
                 )}
+            </div>
+
+            {/* CRICKET NEWS SUB-SECTION */}
+            <div className={styles.newsSection}>
+                <div className={styles.newsHeader}>
+                    <h3>क्रिकेट समाचार</h3>
+                    <Link href={getLocalizedHref('/Pages/sports', lang)} className={styles.viewMoreNews}>
+                        सभी समाचार देखें
+                    </Link>
+                </div>
+                <div className={styles.newsGrid}>
+                    {newsLoading ? (
+                        Array(4).fill(0).map((_, i) => (
+                            <div key={i} className={styles.newsItemPlaceholder}>
+                                <div className={styles.shimmerImg}></div>
+                                <div className={styles.shimmerLine}></div>
+                                <div className={styles.shimmerLineShort}></div>
+                            </div>
+                        ))
+                    ) : cricketNews && cricketNews.length > 0 ? (
+                        cricketNews.map(item => (
+                            <Link 
+                                key={item._id} 
+                                href={getLocalizedHref(`/Pages/${(Array.isArray(item.category) ? item.category[0] : (item.category || 'sports')).toLowerCase()}/${(item.subCategory || 'general').toLowerCase()}/${item.slug}`, lang)} 
+                                className={styles.newsCard}
+                            >
+                                <div className={styles.newsImage}>
+                                    <Image
+                                        src={item.image || '/placeholder.jpg'}
+                                        alt={item.title}
+                                        fill
+                                        sizes="(max-width: 768px) 50vw, 250px"
+                                    />
+                                </div>
+                                <div className={styles.newsContent}>
+                                    <h4 className={styles.newsTitle}>{item.title}</h4>
+                                    <span className={styles.newsDate}>{formatDateTime((item.publishedAt || item.createdAt || '').toString())}</span>
+                                </div>
+                            </Link>
+                        ))
+                    ) : (
+                        <div className={styles.noNews}>कोई क्रिकेट समाचार उपलब्ध नहीं है।</div>
+                    )}
+                </div>
             </div>
         </section>
     );

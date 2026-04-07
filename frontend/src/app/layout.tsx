@@ -43,9 +43,9 @@ export async function generateMetadata(): Promise<Metadata> {
   const host = headerList.get("host") || "";
   const isHindi = host.startsWith('hindi.') || host.includes('.hindi.');
   
-  const siteName = isHindi ? "प्राइम टाइम न्यूज़" : "Prime Time News";
+  const siteName = isHindi ? "प्राइम टाइम" : "Prime Time";
   const defaultTitle = isHindi 
-    ? "प्राइम टाइम न्यूज़ | होम - एशिया का अग्रणी डिजिटल मीडिया हाउस" 
+    ? "प्राइम टाइम | होम - एशिया का अग्रणी डिजिटल मीडिया हाउस" 
     : "Prime Time | Asia Leading Media House";
 
   return {
@@ -55,12 +55,12 @@ export async function generateMetadata(): Promise<Metadata> {
       template: `%s | ${siteName}`,
     },
     description: isHindi 
-      ? "प्राइम टाइम न्यूज़ - राजनीति, खेल, मनोरंजन, व्यापार और विश्व समाचारों के लिए एशिया का अग्रणी डिजिटल मीडिया हाउस।"
-      : "Prime Time News — Asia Leading Media House for breaking news, politics, sports, entertainment, technology, business and world news. Get live updates 24/7.",
+      ? "प्राइम टाइम - राजनीति, खेल, मनोरंजन, व्यापार और विश्व समाचारों के लिए एशिया का अग्रणी डिजिटल मीडिया हाउस।"
+      : "Prime Time — Asia Leading Media House for breaking news, politics, sports, entertainment, technology, business and world news. Get live updates 24/7.",
     keywords: [
       "Asia Leading Media House",
-      "Prime Time News",
-      "प्राइम टाइम न्यूज़",
+      "Prime Time",
+      "प्राइम टाइम",
       "Asia Breaking News",
     "Prime Time Media Asia",
       "Latest India News",
@@ -81,8 +81,8 @@ export async function generateMetadata(): Promise<Metadata> {
     "Leading Asia News Network",
     "Worldwide Breaking News"
     ],
-    authors: [{ name: "Prime Time News Editorial Team" }],
-  publisher: "Prime Time News",
+    authors: [{ name: "Prime Time Editorial Team" }],
+  publisher: "Prime Time",
     category: "news",
     robots: {
       index: true,
@@ -141,7 +141,7 @@ export default function RootLayout({
         "@id": "https://www.primetimemedia.in/#website",
         "url": "https://www.primetimemedia.in",
         "name": "Prime Time | Asia Leading Media House",
-        "alternateName": ["Prime Time News", "Prime Time Research Media Pvt Ltd", "Prime Time Media", "primetimemedia.in"],
+        "alternateName": ["Prime Time", "Prime Time Research Media Pvt Ltd", "Prime Time Media", "primetimemedia.in"],
         "description": "Asia Leading Media House for breaking news, politics, sports, entertainment, technology, business and world news.",
         "publisher": {
           "@id": "https://www.primetimemedia.in/#organization"
@@ -160,7 +160,7 @@ export default function RootLayout({
         "@type": "NewsMediaOrganization",
         "@id": "https://www.primetimemedia.in/#organization",
         "name": "Prime Time | Asia Leading Media House",
-        "alternateName": ["Prime Time News", "Prime Time Research Media Pvt Ltd", "Prime Time Media"],
+        "alternateName": ["Prime Time", "Prime Time Research Media Pvt Ltd", "Prime Time Media"],
         "url": "https://www.primetimemedia.in",
         "logo": {
           "@type": "ImageObject",
@@ -191,7 +191,7 @@ export default function RootLayout({
       {
         "@type": "Organization",
         "name": "Prime Time | Asia Leading Media House",
-        "alternateName": ["Prime Time Research Media Pvt Ltd", "Prime Time News ", "Prime Time Media","Asia leading media house"],
+        "alternateName": ["Prime Time Research Media Pvt Ltd", "Prime Time ", "Prime Time Media","Asia leading media house"],
         "url": "https://www.primetimemedia.in",
         "logo": "https://www.primetimemedia.in/favicon.ico",
         "description": "Prime Time | Asia's leading media house delivering 24/7 breaking news, in-depth analysis, and latest updates across politics, sports, entertainment, and world events.",
@@ -213,7 +213,7 @@ export default function RootLayout({
         "isPartOf": {
           "@id": "https://www.primetimemedia.in/#website"
         },
-        "description": "Prime Time News — Asia Leading Media House for breaking news, politics, sports, entertainment, technology, business and world news. Get live updates 24/7.",
+        "description": "Prime Time — Asia Leading Media House for breaking news, politics, sports, entertainment, technology, business and world news. Get live updates 24/7.",
         "breadcrumb": {
           "@id": "https://www.primetimemedia.in/#breadcrumb"
         },

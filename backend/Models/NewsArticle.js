@@ -50,6 +50,7 @@ const newsArticleSchema = new mongoose.Schema(
         ],
         isLatest: { type: Boolean, default: false },
         isTrending: { type: Boolean, default: false },
+        isFeatured: { type: Boolean, default: false },
         isFiftyWordEdit: { type: Boolean, default: false },
         isHidden: { type: Boolean, default: false },
         showInPopup: { type: Boolean, default: false },
@@ -57,7 +58,7 @@ const newsArticleSchema = new mongoose.Schema(
         urlHash: { type: String, trim: true, index: true, unique: true, sparse: true },
         nominationLink: { type: String, trim: true, default: null },
         moreInfoLink: { type: String, trim: true, default: null },
-        author: { type: String, trim: true, default: "Prime Time News" },
+        author: { type: String, trim: true, default: "Prime Time" },
         authorId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",

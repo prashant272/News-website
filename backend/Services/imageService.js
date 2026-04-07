@@ -131,7 +131,7 @@ const addLogoToImage = async (imageBuffer) => {
                     </linearGradient>
                 </defs>
                 <rect width="${width}" height="${stripH}" fill="url(#grad1)" />
-                <text x="${width - 20}" y="${stripH / 2 + 6}" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="white" text-anchor="end">PRIME TIME NEWS</text>
+                <text x="${width - 20}" y="${stripH / 2 + 6}" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="white" text-anchor="end">PRIME TIME</text>
             </svg>
         `);
 
@@ -284,7 +284,7 @@ const brandImageWithTitle = async (imageUrl, title, options = { addLogo: true })
 
                 <!-- 1. LIVE HEADER BADGE (Center) -->
                 <rect x="${width / 2 - 100}" y="${badgeY}" width="200" height="40" rx="8" fill="#CC0000" />
-                <text x="${width / 2}" y="${badgeY + 28}" text-anchor="middle" class="header">PRIME TIME NEWS</text>
+                <text x="${width / 2}" y="${badgeY + 28}" text-anchor="middle" class="header">PRIME TIME</text>
 
                 <!-- 2. HEADLINE (Red First Part) -->
                 ${firstPartLines.map((line, i) => {

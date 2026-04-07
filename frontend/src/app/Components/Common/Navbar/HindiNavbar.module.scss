@@ -139,7 +139,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 20px;
+  gap: 5px;
   height: 70px;
 
   @media (max-width: 1024px) {
@@ -183,20 +183,76 @@
       font-size: 1.3rem;
     }
 
-    &::after {
-      content: 'हिन्दी';
-      position: absolute;
-      right: -45px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: #ffd700;
-      color: #1a1a1a;
-      font-size: 0.65rem;
+    @media (max-width: 380px) {
+      font-size: 1.1rem; // Further shrink brand name on tiny screens
+    }
+
+    @media (max-width: 340px) {
+      display: none; // Hide whole brand text if it's too tight
+    }
+  }
+
+  .logoLangToggle {
+    display: flex;
+    gap: 8px;
+    margin-left: 4px;
+    align-items: center;
+
+    @media (max-width: 1024px) {
+      margin-left: 2px;
+      gap: 4px;
+    }
+  }
+
+  .logoLangBtn {
+    font-size: 1rem;
+    font-weight: 900;
+    color: #141414;
+    text-decoration: none;
+    padding: 1px 8px;
+    border-radius: 6px;
+
+    @media (max-width: 640px) {
+      font-size: 8px;
       padding: 2px 6px;
       border-radius: 4px;
-      font-weight: 900;
-      letter-spacing: 0;
     }
+    background: #f1f1f1;
+    border: 1px solid rgba(0,0,0,0.1);
+    transition: all 0.3s;
+    letter-spacing: 0.5px;
+
+    &:hover {
+      background: #ffda07;
+      color: #e31e26;
+      border-color: #e31e26;
+    }
+  }
+
+  .logoLangActive {
+    background: #f10707;
+    color: #fff !important;
+    border-color: #e31e26;
+    box-shadow: 0 0 10px rgba(227, 30, 38, 0.3);
+    animation: logo-blink 2s infinite ease-in-out;
+  }
+}
+
+@keyframes logo-blink {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 8px rgba(227, 30, 38, 0.4);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.03);
+    box-shadow: 0 0 15px rgba(227, 30, 38, 0.6);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 8px rgba(227, 30, 38, 0.4);
   }
 }
 
@@ -204,7 +260,7 @@
 .navLinks {
   display: flex;
   align-items: center;
-  gap: 1px;
+  gap: -1px;
   list-style: none;
   flex: 1;
   justify-content: center;
@@ -216,7 +272,7 @@
 
 .navItem {
   position: relative;
-  padding: 10px 0;
+  padding: 3px 0;
 }
 
 .navLink {
@@ -224,7 +280,7 @@
   color: #1a1a1a;
   font-size: 1rem;
   font-weight: 850;
-  padding: 8px 12px;
+  padding: 4px 8px;
   border-radius: 8px;
   display: flex;
   align-items: center;

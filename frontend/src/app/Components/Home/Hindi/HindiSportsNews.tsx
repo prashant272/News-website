@@ -123,8 +123,12 @@ const HindiSportsNews = () => {
     const lists = useMemo(() => {
         if (!sportsNews) return { all: [], ipl: [], football: [] };
         
+        // Find news associated with 'sports' OR 'cricket' (via NewsContext which usually groups them)
         const all = sportsNews.slice(0, 5);
-        const ipl = sportsNews.filter((i: any) => (i.subCategory || '').toLowerCase().includes('ipl')).slice(0, 5);
+        const ipl = sportsNews.filter((i: any) => 
+            (i.subCategory || '').toLowerCase().includes('ipl') || 
+            (Array.isArray(i.category) ? i.category.some((c: string) => c.toLowerCase() === 'cricket') : (i.category || '').toLowerCase() === 'cricket')
+        ).slice(0, 5);
         const football = sportsNews.filter((i: any) => (i.subCategory || '').toLowerCase().includes('football')).slice(0, 1);
 
         return { all, ipl, football };

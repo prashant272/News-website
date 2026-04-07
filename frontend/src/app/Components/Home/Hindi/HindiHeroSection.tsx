@@ -191,7 +191,7 @@ const HindiHeroSection: React.FC = () => {
                 {/* ── 3. SIDEBAR (Premium State Section) ── */}
                 <div className={styles.sidebarColumn}>
                     <div className={styles.premiumHeader}>
-                        <div className={styles.brandTitle}>हमारे राज्य <span>Premium Offering</span></div>
+                        <div className={styles.brandTitle}>राज्य </div>
                     </div>
 
                     <div className={styles.sidebarList}>

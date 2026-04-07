@@ -29,7 +29,7 @@ export default function ArticleHeader({ article }: ArticleHeaderProps) {
         <div className={styles.authorSection}>
           <span className={styles.label}>Author:</span>
           <span className={styles.authorName}>
-            {article.author || 'Prime Time News'}
+            {article.author || 'Prime Time'}
           </span>
         </div>
         <div className={styles.timeSection}>

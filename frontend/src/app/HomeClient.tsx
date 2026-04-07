@@ -7,6 +7,7 @@ import NewsList from "./Components/Home/Newslist/Newslist";
 import LatestNews from "./Components/Home/LatestNewsSection/LatestNews";
 import Sports from "./Components/Home/SportsNewsSection/SportsNews";
 import Entertainment from "./Components/Home/EntertainmentNewsSection/EntertainmentNews";
+import FeaturesSection from "./Components/Home/FeaturesSection/FeaturesSection";
 import WebStories from "./Components/Home/WebStories/WebStories";
 import GoogleAd from "./Components/Common/GoogleAd/GoogleAd";
 import { useLanguage } from "./hooks/useLanguage";
@@ -23,6 +24,7 @@ import HindiEntertainmentNews from "./Components/Home/Hindi/HindiEntertainmentNe
 import HindiCricketSection from "./Components/Home/Hindi/HindiCricketSection";
 import HindiFeaturedSubcategories from "./Components/Home/Hindi/HindiFeaturedSubcategories";
 import HindiEducationScience from "./Components/Home/Hindi/HindiEducationScience";
+import HindiFeaturesSection from "./Components/Home/Hindi/HindiFeaturesSection/HindiFeaturesSection";
 import HindiLifestyleSection from "./Components/Home/Hindi/HindiLifestyleSection";
 
 // Lazy-load heavy sections
@@ -50,6 +52,8 @@ const EnglishHome = () => (
     <LatestNews />
     <Sports />
     
+    <FeaturesSection />
+    
     <GoogleAd slot="5006567326" format="auto" />
 
     <Entertainment />
@@ -76,6 +80,7 @@ const HindiHome = () => (
     <HindiCricketSection />
     <HindiFeaturedSubcategories />
     <HindiEducationScience />
+    <HindiFeaturesSection />
     <HindiRashifal />
     
     <GoogleAd slot="5006567326" format="auto" />

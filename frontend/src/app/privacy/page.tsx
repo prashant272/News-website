@@ -4,7 +4,7 @@ import styles from '../Components/Common/LegalPage/LegalPage.module.scss';
 
 export const metadata: Metadata = {
     title: 'Privacy Policy',
-    description: 'Read the Privacy Policy of Prime Time News — India\'s leading news portal. Learn how we collect, use, and protect your personal information.',
+    description: 'Read the Privacy Policy of Prime Time — India\'s leading news portal. Learn how we collect, use, and protect your personal information.',
     robots: { index: false, follow: false },
 };
 

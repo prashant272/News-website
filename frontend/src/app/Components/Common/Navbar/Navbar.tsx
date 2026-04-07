@@ -354,6 +354,21 @@ const Navbar: React.FC = () => {
                 {/* prime time text */}
                 <span className={styles.brandName}> </span>
               </Link>
+
+              <div className={styles.logoLangToggle}>
+                <a 
+                  href="https://primetimemedia.in" 
+                  className={`${styles.logoLangBtn} ${!isHindi ? styles.logoLangActive : ''}`}
+                >
+                  ENGLISH
+                </a>
+                <a 
+                  href="https://hindi.primetimemedia.in" 
+                  className={`${styles.logoLangBtn} ${isHindi ? styles.logoLangActive : ''}`}
+                >
+                  हिन्दी
+                </a>
+              </div>
             </div>
 
             <ul className={styles.navListDesktop}>
@@ -498,15 +513,6 @@ const Navbar: React.FC = () => {
             </ul>
 
             <div className={styles.rightSection}>
-
-              {/* Language Switcher */}
-              <div className={styles.langSwitcher}>
-                {isHindi ? (
-                  <a href="https://primetimemedia.in" className={styles.langBtn}>EN</a>
-                ) : (
-                  <a href="https://hindi.primetimemedia.in" className={styles.langBtn}>हिन्दी</a>
-                )}
-              </div>
 
               <button
                 className={styles.themeToggle}

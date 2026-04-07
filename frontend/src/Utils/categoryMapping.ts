@@ -21,6 +21,7 @@ export const CATEGORY_MAP: { [key: string]: string } = {
   "lifestyle": "लाइफस्टाइल",
   "technology": "टेक",
   "tech": "टेक",
+  "cricket": "क्रिकेट",
   "awards": "अवॉर्ड्स",
   "regional": "राज्य समाचार",
   "state": "राज्य समाचार",

@@ -102,7 +102,7 @@ export default function HindiArticlePage({
     "dateModified": article.date,
     "author": [{
       "@type": "Person",
-      "name": article.author || "Prime Time News"
+      "name": article.author || "Prime Time"
     }],
     "publisher": {
       "@type": "Organization",
@@ -188,7 +188,7 @@ export default function HindiArticlePage({
                       </div>
                     ) : (
                       <div className={styles.simpleAuthor}>
-                        <span>{translations.publishedBy}: <strong>{article.author || 'Prime Time News'}</strong></span>
+                        <span>{translations.publishedBy}: <strong>{article.author || 'Prime Time'}</strong></span>
                       </div>
                     )}
                   </div>

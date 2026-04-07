@@ -4,7 +4,7 @@ import styles from '../Components/Common/LegalPage/LegalPage.module.scss';
 
 export const metadata: Metadata = {
     title: 'Cookie Policy',
-    description: 'Cookie Policy of Prime Time News — India\'s trusted news portal. Learn how we use cookies.',
+    description: 'Cookie Policy of Prime Time — India\'s trusted news portal. Learn how we use cookies.',
     robots: { index: false, follow: false },
 };
 

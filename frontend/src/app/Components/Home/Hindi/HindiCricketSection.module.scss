@@ -175,6 +175,163 @@
           align-items: center;
           gap: 0.8rem;
           min-width: 0;
+/* CRICKET NEWS SECTION */
+.newsSection {
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 1px solid rgba(226, 232, 240, 0.1);
+}
+
+.newsHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+
+    h3 {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #fff;
+        margin: 0;
+        position: relative;
+        padding-left: 15px;
+
+        &::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 24px;
+            background: #e31e26;
+            border-radius: 2px;
+        }
+    }
+
+    .viewMoreNews {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #3b82f6;
+        text-decoration: none;
+        transition: all 0.2s;
+
+        &:hover {
+            color: #60a5fa;
+            transform: translateX(5px);
+        }
+    }
+}
+
+.newsGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+
+    @media (max-width: 1024px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 640px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.newsCard {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    text-decoration: none;
+    background: rgba(30, 41, 59, 0.4);
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.3s;
+
+    &:hover {
+        transform: translateY(-5px);
+        background: rgba(30, 41, 59, 0.6);
+        border-color: rgba(59, 130, 246, 0.3);
+
+        .newsImage img {
+            transform: scale(1.1);
+        }
+
+        .newsTitle {
+            color: #3b82f6;
+        }
+    }
+}
+
+.newsImage {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+
+    img {
+        object-fit: cover;
+        transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+}
+
+.newsContent {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.newsTitle {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #f1f5f9;
+    line-height: 1.4;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.newsDate {
+    font-size: 0.75rem;
+    color: #94a3b8;
+}
+
+.newsItemPlaceholder {
+    background: rgba(30, 41, 59, 0.4);
+    border-radius: 16px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.shimmerImg {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 8px;
+}
+
+.shimmerLine, .shimmerLineShort {
+    height: 12px;
+    background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 4px;
+}
+
+.shimmerLine { width: 100%; }
+.shimmerLineShort { width: 60%; }
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
 
           .teamLogo {
             width: 32px;

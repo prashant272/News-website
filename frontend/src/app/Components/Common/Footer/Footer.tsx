@@ -62,7 +62,7 @@ const Footer: React.FC = () => {
             <div className={styles.logoSection}>
               <Image
                 src={logo}
-                alt="Prime Time News"
+                alt="Prime Time"
                 className={styles.logoImg}
                 width={150}
                 height={150}

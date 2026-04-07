@@ -4,7 +4,7 @@ import styles from '../Components/Common/LegalPage/LegalPage.module.scss';
 
 export const metadata: Metadata = {
     title: 'Terms & Services',
-    description: 'Terms and Services of Prime Time News — India\'s trusted news portal. Read our usage terms and conditions.',
+    description: 'Terms and Services of Prime Time — India\'s trusted news portal. Read our usage terms and conditions.',
     robots: { index: false, follow: false },
 };
 

@@ -115,6 +115,21 @@ const HindiNavbar: React.FC = () => {
                             <Image src={logo} alt="PrimeTime" width={45} height={45} className={styles.logoImg} />
                             <span className={styles.brand}>PRIME TIME</span>
                         </Link>
+
+                        <div className={styles.logoLangToggle}>
+                              <a 
+                                href="https://hindi.primetimemedia.in" 
+                                className={`${styles.logoLangBtn} ${lang === 'hi' ? styles.logoLangActive : ''}`}
+                            >
+                                हिन्दी
+                            </a>
+                            <a 
+                                href="https://primetimemedia.in" 
+                                className={`${styles.logoLangBtn} ${lang === 'en' ? styles.logoLangActive : ''}`}
+                            >
+                                ENGLISH
+                            </a>
+                        </div>
                     </div>
 
                     <nav className={styles.navLinks}>
@@ -158,9 +173,6 @@ const HindiNavbar: React.FC = () => {
                         <Link href={getLocalizedHref('/news', lang)} className={styles.liveBtn}>
                             <span className={styles.pulse}></span>
                             लाइव न्यूज़
-                        </Link>
-                        <Link href="https://primetimemedia.in" className={styles.langSwitch}>
-                            EN
                         </Link>
                     </div>
                 </div>

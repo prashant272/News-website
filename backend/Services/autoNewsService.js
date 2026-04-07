@@ -33,7 +33,7 @@ const initAuthors = async () => {
  * Get Author based on Category
  */
 const getAuthorForCategory = (category) => {
-    if (!authorCache) return { name: "Prime Time News", id: null };
+    if (!authorCache) return { name: "Prime Time", id: null };
     
     let email = EMAILS.SNEHA; // Default
     const cat = (category || "").toLowerCase();
@@ -42,7 +42,7 @@ const getAuthorForCategory = (category) => {
     else if (cat.includes("sports") || cat.includes("cricket")) email = EMAILS.SPORTS;
     else if (cat.includes("lifestyle") || cat.includes("health")) email = EMAILS.LIFESTYLE;
 
-    return authorCache[email] || { name: "Prime Time News", id: null };
+    return authorCache[email] || { name: "Prime Time", id: null };
 };
 
 /**
@@ -78,7 +78,7 @@ const publishPendingDrafts = async () => {
                 const author = getAuthorForCategory(draft.category);
                 
                 // Add Branding
-                const branding = " - Prime Time News";
+                const branding = " - Prime Time";
                 if (!draft.title.includes(branding)) {
                     draft.title = `${draft.title}${branding}`;
                     draft.slug = draft.title.toLowerCase().trim().replace(/[\s_]+/g, "-").replace(/[^\u0900-\u097Fa-z0-9\u0915-\u0939\u0941-\u094d-]+/g, "").replace(/-+/g, "-").replace(/(^-|-$)+/g, "");

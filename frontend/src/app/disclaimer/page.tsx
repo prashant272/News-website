@@ -4,7 +4,7 @@ import styles from '../Components/Common/LegalPage/LegalPage.module.scss';
 
 export const metadata: Metadata = {
     title: 'Disclaimer',
-    description: 'Disclaimer of Prime Time News — India\'s trusted news portal.',
+    description: 'Disclaimer of Prime Time — India\'s trusted news portal.',
     robots: { index: false, follow: false },
 };
 

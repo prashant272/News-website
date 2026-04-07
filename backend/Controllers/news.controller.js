@@ -154,7 +154,7 @@ exports.AddNews = async (req, res) => {
       title, slug, category, subCategory, summary, content,
       image, tags = [], section, targetLink, nominationLink, moreInfoLink,
       author, status, authorId, scheduledAt, showInPopup, isFiftyWordEdit, 
-      isLatest, isTrending, language, state
+      isLatest, isTrending, isFeatured, language, state
     } = req.body;
 
     // Handle category as an array (for multi-category support)
@@ -190,7 +190,7 @@ exports.AddNews = async (req, res) => {
         
         const uploadResponse = await cloudinary.uploader.upload(
           `data:image/png;base64,${brandedBuffer.toString('base64')}`, 
-          { folder: "primetime_news" }
+          { folder: "primetime" }
         );
         imageUrl = uploadResponse.secure_url;
       } catch (uploadError) {
@@ -199,7 +199,7 @@ exports.AddNews = async (req, res) => {
         if (image.startsWith("http")) {
           imageUrl = image;
         } else {
-          const fallback = await cloudinary.uploader.upload(image, { folder: "primetime_news" });
+          const fallback = await cloudinary.uploader.upload(image, { folder: "primetime" });
           imageUrl = fallback.secure_url;
         }
       }
@@ -220,7 +220,7 @@ exports.AddNews = async (req, res) => {
       summary: summary || null, content, image: imageUrl, tags,
       targetLink: targetLink || null, nominationLink: nominationLink || null,
       moreInfoLink: moreInfoLink || null,
-      author: author || "Prime Time News",
+      author: author || "Prime Time",
       authorId: authorId || null,
       status: status || "draft",
       scheduledAt: status === "scheduled" ? scheduledAt : null,
@@ -229,6 +229,7 @@ exports.AddNews = async (req, res) => {
       isFiftyWordEdit: !!isFiftyWordEdit,
       isLatest: !!isLatest,
       isTrending: !!isTrending,
+      isFeatured: !!isFeatured,
       lang: finalLanguage,
       state: state || "universal"
     });
@@ -277,6 +278,7 @@ exports.getAllNews = async (req, res) => {
     const skip = (pageNum - 1) * limitNum;
 
     const news = await NewsArticle.find(query)
+      .select("-content")
       .sort({ publishedAt: -1, createdAt: -1 })
       .skip(skip)
       .limit(limitNum)
@@ -327,6 +329,8 @@ exports.streamNews = async (req, res) => {
         query.category = { $in: ['regional', 'state', 'राज्य', 'राज्य समाचार'] };
       } else if (catToUse === 'india' || catToUse === 'national' || catToUse === 'भारत') {
         query.category = { $in: ['india', 'national', 'भारत', 'देश-विदेश', 'india'] };
+      } else if (catToUse === 'featured' || catToUse === 'फीचर्स') {
+        query.isFeatured = true;
       } else {
         query.category = catToUse;
       }
@@ -406,6 +410,8 @@ exports.getSectionNews = async (req, res) => {
         query.category = { $in: ['regional', 'state', 'राज्य', 'राज्य समाचार'] };
       } else if (lowerCat === 'india' || lowerCat === 'national' || lowerCat === 'भारत') {
         query.category = { $in: ['india', 'national', 'भारत', 'देश-विदेश'] };
+      } else if (lowerCat === 'featured' || lowerCat === 'फीचर्स') {
+        query.isFeatured = true;
       } else {
         query.category = lowerCat;
       }
@@ -430,6 +436,7 @@ exports.getSectionNews = async (req, res) => {
     const skip = (pageNum - 1) * limitNum;
 
     const sectionNews = await NewsArticle.find(query)
+      .select("-content")
       .sort({ publishedAt: -1, createdAt: -1 })
       .skip(skip)
       .limit(limitNum)
@@ -476,14 +483,14 @@ exports.updateNewsBySlug = async (req, res) => {
         
         const uploadResponse = await cloudinary.uploader.upload(
           `data:image/png;base64,${brandedBuffer.toString('base64')}`, 
-          { folder: "primetime_news" }
+          { folder: "primetime" }
         );
         imageUrl = uploadResponse.secure_url;
         updateData.image = imageUrl;
       } catch (uploadError) {
         console.error("Branding/Update Error:", uploadError);
         if (!updateData.image.startsWith("http")) {
-          const uploadResponse = await cloudinary.uploader.upload(updateData.image, { folder: "primetime_news" });
+          const uploadResponse = await cloudinary.uploader.upload(updateData.image, { folder: "primetime" });
           imageUrl = uploadResponse.secure_url;
           updateData.image = imageUrl;
         }
@@ -517,6 +524,7 @@ exports.updateNewsBySlug = async (req, res) => {
     // Ensure isLatest/isTrending are booleans if provided
     if (updateData.isLatest !== undefined) updateData.isLatest = !!updateData.isLatest;
     if (updateData.isTrending !== undefined) updateData.isTrending = !!updateData.isTrending;
+    if (updateData.isFeatured !== undefined) updateData.isFeatured = !!updateData.isFeatured;
 
     // Auto-detect language if currently 'en' or missing but has Hindi characters
     const fullContent = (updateData.title || item.title || '') + (updateData.content || item.content || '') + (updateData.summary || item.summary || '');
@@ -544,10 +552,11 @@ exports.updateNewsBySlug = async (req, res) => {
 exports.setNewsFlags = async (req, res) => {
   try {
     const { section, slug } = req.params;
-    const { isLatest, isTrending, isHidden, showInPopup, isFiftyWordEdit } = req.body;
+    const { isLatest, isTrending, isFeatured, isHidden, showInPopup, isFiftyWordEdit } = req.body;
     const updateFields = {};
     if (typeof isLatest !== "undefined") updateFields.isLatest = !!isLatest;
     if (typeof isTrending !== "undefined") updateFields.isTrending = !!isTrending;
+    if (typeof isFeatured !== "undefined") updateFields.isFeatured = !!isFeatured;
     if (typeof isHidden !== "undefined") updateFields.isHidden = !!isHidden;
     if (typeof showInPopup !== "undefined") updateFields.showInPopup = !!showInPopup;
     if (typeof isFiftyWordEdit !== "undefined") updateFields.isFiftyWordEdit = !!isFiftyWordEdit;
