@@ -19,11 +19,11 @@ const HindiFeaturesSection = () => {
 
     return (
         <section className={styles.featuresSection}>
-            <div className={styles.sideTitle}>फीचर्स</div>
+            <div className={styles.sideTitle}>FEATURES</div>
             <div className={styles.container}>
                 <div className={styles.sectionHeading}>
                     <span className={styles.line}></span>
-                    <h2 className={styles.title}>प्राइम <span className={styles.highlight}>फीचर्स</span></h2>
+                    <h2 className={styles.title}><span className={styles.highlight}>Features</span></h2>
                     <span className={styles.line}></span>
                 </div>
                 

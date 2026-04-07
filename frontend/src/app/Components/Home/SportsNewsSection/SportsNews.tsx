@@ -3,7 +3,8 @@ import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useNewsContext } from '@/app/context/NewsContext';
+import { useNewsBySection } from '@/app/hooks/NewsApi';
+import { useLanguage } from '@/app/hooks/useLanguage';
 import { formatDateTime } from '@/Utils/Utils';
 import styles from './SportsNews.module.scss';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -18,7 +19,8 @@ interface SportsArticle {
 }
 
 const SportsNews: React.FC = () => {
-  const { sportsNews, loading } = useNewsContext();
+  const { lang } = useLanguage();
+  const { data: sportsNews, loading } = useNewsBySection('sports', false, 1, 15, "published", lang);
   const [activeCategory, setActiveCategory] = useState('Sports');
   const [activeIndex, setActiveIndex] = useState(0);
   const router = useRouter();

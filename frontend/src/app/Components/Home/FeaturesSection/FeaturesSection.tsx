@@ -23,7 +23,7 @@ const FeaturesSection = () => {
             <div className={styles.container}>
                 <div className={styles.sectionHeading}>
                     <span className={styles.line}></span>
-                    <h2 className={styles.title}>Prime <span className={styles.highlight}>Features</span></h2>
+                    <h2 className={styles.title}><span className={styles.highlight}>Features</span></h2>
                     <span className={styles.line}></span>
                 </div>
                 

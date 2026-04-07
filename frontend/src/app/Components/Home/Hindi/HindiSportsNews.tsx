@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 // Reuse the common layout styles built for Featured Subcategories
 import styles from './HindiFeaturedSubcategories.module.scss';
-import { useNewsContext } from '@/app/context/NewsContext';
+import { useNewsBySection } from '@/app/hooks/NewsApi';
 import { getLocalizedHref } from '@/Utils/navigation';
 import { useLanguage } from '@/app/hooks/useLanguage';
 
@@ -117,8 +117,8 @@ const ColumnBig = ({ title, news, loading }: { title: string, news: any[], loadi
 };
 
 const HindiSportsNews = () => {
-    const { sportsNews, loading } = useNewsContext();
     const { lang } = useLanguage();
+    const { data: sportsNews, loading } = useNewsBySection('sports', false, 1, 15, "published", lang);
 
     const lists = useMemo(() => {
         if (!sportsNews) return { all: [], ipl: [], football: [] };
