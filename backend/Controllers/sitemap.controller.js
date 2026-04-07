@@ -58,7 +58,10 @@ const generateSitemap = async (req, res) => {
         articles.forEach(article => {
             const cat = article.category || (isHindi ? "bharat" : "india");
             const subCat = slugify(article.subCategory);
-            const url = `${BASE_URL}/Pages/${cat}/${subCat}/${article.slug}`;
+            // URL must be properly encoded for XML sitemaps, especially for Hindi URLs
+            let url = encodeURI(`${BASE_URL}/Pages/${cat}/${subCat}/${article.slug}`);
+            // Escape any XML entities like &amp; in the URL
+            url = url.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
             sitemap += `
   <url>
     <loc>${url}</loc>
@@ -70,7 +73,8 @@ const generateSitemap = async (req, res) => {
 
         // Visual Stories
         stories.forEach(story => {
-            const url = `${BASE_URL}/visual-stories/${story.slug}`;
+            let url = encodeURI(`${BASE_URL}/visual-stories/${story.slug}`);
+            url = url.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
             sitemap += `
   <url>
     <loc>${url}</loc>
@@ -93,9 +97,11 @@ const generateSitemap = async (req, res) => {
         ];
 
         categories.forEach(cat => {
+            let url = encodeURI(`${BASE_URL}/Pages/${cat}`);
+            url = url.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
             sitemap += `
   <url>
-    <loc>${BASE_URL}/Pages/${cat}</loc>
+    <loc>${url}</loc>
     <lastmod>${new Date().toISOString()}</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
@@ -143,7 +149,8 @@ const generateNewsSitemap = async (req, res) => {
         articles.forEach(article => {
             const cat = article.category || (isHindi ? "bharat" : "india");
             const subCat = slugify(article.subCategory);
-            const url = `${BASE_URL}/Pages/${cat}/${subCat}/${article.slug}`;
+            let url = encodeURI(`${BASE_URL}/Pages/${cat}/${subCat}/${article.slug}`);
+            url = url.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
 
             const escapedTitle = article.title
                 .replace(/&/g, '&amp;')
