@@ -183,7 +183,6 @@ export default function HindiArticlePage({
                         <div className={styles.authorMeta}>
                           <span className={styles.publishedBy}>{translations.publishedBy}</span>
                           <h4 className={styles.authorName}>{article.authorId.name}</h4>
-                          <p className={styles.designation}>{article.authorId.designation || 'संपादकीय विभाग'}</p>
                         </div>
                       </div>
                     ) : (
