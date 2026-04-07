@@ -1,9 +1,16 @@
 import { NextResponse } from 'next/server';
+import { headers } from 'next/headers';
 
 export async function GET() {
     try {
+        const headerList = await headers();
+        const host = headerList.get("host") || "";
+        
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.primetimemedia.in';
         const response = await fetch(`${apiUrl}/sitemap.xml`, {
+            headers: {
+                'X-Forwarded-Host': host
+            },
             next: { revalidate: 3600 } // Cache for 1 hour
         });
 

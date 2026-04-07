@@ -16,7 +16,8 @@ const slugify = (text) => {
  */
 const generateSitemap = async (req, res) => {
     try {
-        const host = req.get('host') || "";
+        const forwardedHost = req.get('x-forwarded-host');
+        const host = forwardedHost || req.get('host') || "";
         const isHindi = host.includes("hindi");
         const BASE_URL = isHindi ? "https://hindi.primetimemedia.in" : "https://www.primetimemedia.in";
         const siteLang = isHindi ? "hi" : "en";
@@ -116,7 +117,8 @@ const generateSitemap = async (req, res) => {
  */
 const generateNewsSitemap = async (req, res) => {
     try {
-        const host = req.get('host') || "";
+        const forwardedHost = req.get('x-forwarded-host');
+        const host = forwardedHost || req.get('host') || "";
         const isHindi = host.includes("hindi");
         const BASE_URL = isHindi ? "https://hindi.primetimemedia.in" : "https://www.primetimemedia.in";
         const siteLang = isHindi ? "hi" : "en";
