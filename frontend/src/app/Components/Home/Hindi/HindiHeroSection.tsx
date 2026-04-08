@@ -60,7 +60,7 @@ const HindiHeroSection: React.FC = () => {
                         .map(slug => combined.find(a => a.slug === slug));
 
         if (unique.length > 0) {
-            return unique.slice(0, 5);
+            return unique.slice(0, 6);
         }
 
         if (regionalNews && regionalNews.length > 0) {
@@ -83,7 +83,7 @@ const HindiHeroSection: React.FC = () => {
     }
 
     const featured = sortedNews[0];
-    const middleStories = sortedNews.slice(1, 6);
+    const middleStories = sortedNews.slice(1, 7);
 
     const getUrl = (item: any) => {
         const cat = (Array.isArray(item.category) ? item.category[0] : (item.category || 'news')).toLowerCase();
@@ -123,7 +123,7 @@ const HindiHeroSection: React.FC = () => {
                                     src={featured.image || '/placeholder.jpg'} 
                                     alt={featured.title} 
                                     fill 
-                                    className={styles.spotlightImg}
+                                    style={{ objectFit: 'cover' }}
                                     priority 
                                 />
                             </div>
@@ -163,6 +163,7 @@ const HindiHeroSection: React.FC = () => {
                                             alt={item.title} 
                                             fill 
                                             sizes="(max-width: 768px) 100vw, 150px"
+                                            style={{ objectFit: 'cover' }}
                                         />
                                         {isRegional && (
                                             <button 
@@ -203,6 +204,7 @@ const HindiHeroSection: React.FC = () => {
                                         alt={item.title} 
                                         fill 
                                         sizes="(max-width: 768px) 100vw, 150px"
+                                        style={{ objectFit: 'cover' }}
                                     />
                                 </div>
                                 <div className={styles.sidebarText}>

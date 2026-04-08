@@ -57,7 +57,7 @@ const SECTION_LABELS_HI: Record<string, string> = {
   science: "विज्ञान",
   politics: "राजनीति",
   education: "शिक्षा",
-  awards: "अवॉर्ड्स",
+  awards: "इवेंट्स",
   regional: "राज्य समाचार"
 };
 
@@ -150,14 +150,14 @@ const Navbar: React.FC = () => {
       { label: labels.business || "Business", href: "/Pages/business", key: "business" },
       { label: labels.technology || "Technology", href: "/Pages/technology", key: "technology" },
       {
-        label: labels.awards || "Awards",
+        label: labels.awards || "Events",
         href: "/Pages/awards",
         key: "awards",
         submenu: [
-          { label: isHindi ? "हेल्थकेयर अवॉर्ड्स" : "Healthcare Awards", href: "https://healthcareawards.primetimemedia.in/" },
-          { label: isHindi ? "शिक्षा अवॉर्ड्स" : "Education Awards", href: "https://education-awards.primetimemedia.in/" },
-          { label: isHindi ? "बिजनेस अवॉर्ड्स" : "Business Awards", href: "https://business-leadership.primetimemedia.in/" },
-          { label: isHindi ? "अवॉर्ड्स न्यूज़" : "Awards News", href: "/Pages/awards" },
+          { label: isHindi ? "हेल्थकेयर इवेंट्स" : "Healthcare Events", href: "https://healthcareawards.primetimemedia.in/" },
+          { label: isHindi ? "शिक्षा इवेंट्स" : "Education Events", href: "https://education-awards.primetimemedia.in/" },
+          { label: isHindi ? "बिजनेस इवेंट्स" : "Business Events", href: "https://business-leadership.primetimemedia.in/" },
+          { label: isHindi ? "इवेंट्स न्यूज़" : "Events News", href: "/Pages/awards" },
           ...(internationalPrograms.length > 0 ? [{
             label: isHindi ? "इंटरनेशनल प्रोग्राम" : "International Program",
             href: "#",

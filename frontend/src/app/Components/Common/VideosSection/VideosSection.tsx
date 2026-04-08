@@ -55,7 +55,7 @@ export const VideosSection: React.FC = () => {
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
                 >
-                    Awards & Showreels
+                    Events & Showreels
                 </motion.h2>
                 
                 <div className={styles.contentGrid}>
@@ -95,7 +95,7 @@ export const VideosSection: React.FC = () => {
                                 </motion.div>
                             ))
                         ) : (
-                            <div className={styles.noData}>No award stories available yet.</div>
+                            <div className={styles.noData}>No event stories available yet.</div>
                         )}
                     </motion.div>
 
@@ -133,7 +133,7 @@ export const VideosSection: React.FC = () => {
 
                 <div className={styles.footerAction}>
                     <a href="/visualstories/awards" className={styles.viewAllBtn}>
-                        View All Awards <ArrowRight size={20} />
+                        View All Events <ArrowRight size={20} />
                     </a>
                 </div>
             </div>

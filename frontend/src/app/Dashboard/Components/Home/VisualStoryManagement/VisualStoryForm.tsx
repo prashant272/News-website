@@ -185,7 +185,7 @@ export default function VisualStoryForm({
                         >
                             <option value="">Select Category</option>
                             <option value="news">News</option>
-                            <option value="awards">Awards</option>
+                            <option value="awards">Events</option>
                             <option value="entertainment">Entertainment</option>
                             <option value="sports">Sports</option>
                             <option value="lifestyle">Lifestyle</option>

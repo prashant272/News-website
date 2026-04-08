@@ -34,7 +34,7 @@ const CATEGORIES = [
     { id: 'opinion', label: 'Opinion', icon: '✍️' },
     { id: 'environment', label: 'Environment', icon: '🌱' },
     { id: 'travel', label: 'Travel', icon: '✈️' },
-    { id: 'awards', label: 'Awards', icon: '🏆' },
+    { id: 'awards', label: 'Events', icon: '🎪' },
     { id: 'regional', label: 'Regional', icon: '📍' },
 ] as const;
 
@@ -888,7 +888,7 @@ const NewsManager: FC<NewsManagerProps> = ({
                             </div>
                         )}
                         <div className={styles.formGroup}>
-                            <label className={styles.label}>Nomination Link (Awards only)</label>
+                            <label className={styles.label}>Nomination Link (Events only)</label>
                             <input
                                 type="text"
                                 className={styles.input}
@@ -898,7 +898,7 @@ const NewsManager: FC<NewsManagerProps> = ({
                             />
                         </div>
                         <div className={styles.formGroup}>
-                            <label className={styles.label}>More Info Link (Awards only)</label>
+                            <label className={styles.label}>More Info Link (Events only)</label>
                             <input
                                 type="text"
                                 className={styles.input}

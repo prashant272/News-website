@@ -29,7 +29,7 @@ const SECTION_LABELS_HI = {
     sports: "खेल",
     entertainment: "मनोरंजन",
     business: "बिज़नेस",
-    awards: "अवॉर्ड्स"
+    awards: "इवेंट्स"
 };
 
 const HindiNavbar: React.FC = () => {

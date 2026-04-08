@@ -110,7 +110,7 @@ const InternationalProgramManager: React.FC = () => {
         <div className={styles.articlesSection}>
             <div className={styles.articlesSectionHeader}>
                 <h2 className={styles.sectionTitle}><Globe className="mr-2" style={{ display: 'inline' }} /> International Program Manager</h2>
-                <p className={styles.headerSubtitle}>Manage links in the Awards dropdown</p>
+                <p className={styles.headerSubtitle}>Manage links in the Events dropdown</p>
             </div>
 
             <div className={styles.editor}>
