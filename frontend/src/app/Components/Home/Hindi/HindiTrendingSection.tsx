@@ -44,9 +44,9 @@ const HindiTrendingSection: React.FC = () => {
     if (loading || trendingData.length === 0) return null;
 
     // Distribute Trending News among Columns (Mirrors screenshot layout)
-    const leftList = trendingData.slice(0, 4);
-    const middleCards = trendingData.slice(4, 7);
-    const rightSidebar = trendingData.slice(7, 10);
+    const leftList = trendingData.slice(0, 5);
+    const middleCards = trendingData.slice(5, 8);
+    const rightSidebar = trendingData.slice(8, 11);
 
     const getUrl = (item: any) => {
         const catBase = Array.isArray(item.category) ? item.category[0] : (item.category || 'news');

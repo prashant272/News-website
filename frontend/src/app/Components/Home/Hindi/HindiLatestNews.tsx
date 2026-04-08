@@ -12,7 +12,7 @@ import { ChevronDown } from 'lucide-react';
 const HindiLatestNews: React.FC = () => {
     const { allNews, loading } = useNewsContext();
     const { lang } = useLanguage();
-    const [visibleCount, setVisibleCount] = useState(10);
+    const [visibleCount, setVisibleCount] = useState(8);
 
     const displayNews = useMemo(() => {
         if (!allNews) return [];
@@ -22,7 +22,7 @@ const HindiLatestNews: React.FC = () => {
     const hasMore = allNews ? visibleCount < allNews.length : false;
 
     const handleLoadMore = () => {
-        setVisibleCount(prev => prev + 10);
+        setVisibleCount(prev => prev + 8);
     };
 
     if (loading && displayNews.length === 0) return null;

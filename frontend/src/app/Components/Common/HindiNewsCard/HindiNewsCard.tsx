@@ -14,9 +14,9 @@ interface HindiNewsCardProps {
     orientation?: 'vertical' | 'horizontal';
 }
 
-const HindiNewsCard: React.FC<HindiNewsCardProps> = ({ 
-    item, 
-    lang = 'hi', 
+const HindiNewsCard: React.FC<HindiNewsCardProps> = ({
+    item,
+    lang = 'hi',
     showCategory = true,
     compact = false,
     orientation = 'vertical'
@@ -44,14 +44,7 @@ const HindiNewsCard: React.FC<HindiNewsCardProps> = ({
                     sizes={orientation === 'horizontal' ? "120px" : "(max-width: 768px) 100vw, 400px"}
                     className={styles.image}
                 />
-                {item.isTrending && (
-                    <div className={styles.trendingBadge}>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z" />
-                        </svg>
-                        ट्रेंडिंग
-                    </div>
-                )}
+
                 {item.isLive && (
                     <div className={styles.liveBadge}>
                         <span className={styles.liveDot}></span>
@@ -72,9 +65,9 @@ const HindiNewsCard: React.FC<HindiNewsCardProps> = ({
                         </span>
                     </div>
                 )}
-                
+
                 <h3 className={styles.title}>{item.title}</h3>
-                
+
                 {!compact && orientation === 'vertical' && (
                     <div className={styles.footer}>
                         <span className={styles.readMore}>पूरी खबर पढ़ें</span>
