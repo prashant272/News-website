@@ -30,9 +30,6 @@ const HindiFeaturesSection = () => {
                 <div className={styles.grid}>
                     {/* Big Card Column */}
                     <div className={styles.column}>
-                        <div className={styles.columnHeader}>
-                            <h3>हाइलाइट्स</h3>
-                        </div>
                         {loading ? (
                             <div className={styles.bigCardPlaceholder}>
                                 <div className={styles.shimmerBigImg}></div>
@@ -77,9 +74,6 @@ const HindiFeaturesSection = () => {
 
                     {/* List Column 1 */}
                     <div className={styles.column}>
-                        <div className={styles.columnHeader}>
-                            <h3>टॉप फीचर्स</h3>
-                        </div>
                         <div className={styles.list}>
                             {loading ? (
                                 Array(4).fill(0).map((_, i) => (
@@ -112,17 +106,12 @@ const HindiFeaturesSection = () => {
                                         </div>
                                     </Link>
                                 ))
-                            ) : (
-                                <div className={styles.noNews}>अगले फीचर्स जल्द आ रहे हैं।</div>
-                            )}
+                            ) : null}
                         </div>
                     </div>
 
                     {/* List Column 2 */}
                     <div className={styles.column}>
-                        <div className={styles.columnHeader}>
-                            <h3>ट्रेंडिंग</h3>
-                        </div>
                         <div className={styles.list}>
                             {loading ? (
                                 Array(4).fill(0).map((_, i) => (
@@ -155,9 +144,7 @@ const HindiFeaturesSection = () => {
                                         </div>
                                     </Link>
                                 ))
-                            ) : (
-                                <div className={styles.noNews}>अधिक अपडेट के लिए जुड़े रहें।</div>
-                            )}
+                            ) : null}
                         </div>
                     </div>
                 </div>

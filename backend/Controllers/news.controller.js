@@ -153,7 +153,7 @@ exports.AddNews = async (req, res) => {
     const {
       title, slug, category, subCategory, summary, content,
       image, tags = [], section, targetLink, nominationLink, moreInfoLink,
-      author, status, authorId, scheduledAt, showInPopup, isFiftyWordEdit, 
+      author, status, authorId, scheduledAt, showInPopup, isFiftyWordEdit,
       isLatest, isTrending, isFeatured, language, state
     } = req.body;
 
@@ -187,9 +187,9 @@ exports.AddNews = async (req, res) => {
       try {
         console.log(`[Admin-Upload] Applying professional branding to image for: ${title}`);
         const brandedBuffer = await brandImageWithTitle(image, title);
-        
+
         const uploadResponse = await cloudinary.uploader.upload(
-          `data:image/png;base64,${brandedBuffer.toString('base64')}`, 
+          `data:image/png;base64,${brandedBuffer.toString('base64')}`,
           { folder: "primetime" }
         );
         imageUrl = uploadResponse.secure_url;
@@ -480,9 +480,9 @@ exports.updateNewsBySlug = async (req, res) => {
       try {
         console.log(`[Admin-Update] Applying professional branding to updated image for: ${updateData.title || item.title}`);
         const brandedBuffer = await brandImageWithTitle(updateData.image, updateData.title || item.title);
-        
+
         const uploadResponse = await cloudinary.uploader.upload(
-          `data:image/png;base64,${brandedBuffer.toString('base64')}`, 
+          `data:image/png;base64,${brandedBuffer.toString('base64')}`,
           { folder: "primetime" }
         );
         imageUrl = uploadResponse.secure_url;

@@ -17,15 +17,16 @@ import HindiHeroSection from "./Components/Home/Hindi/HindiHeroSection";
 import HindiTrendingSection from "./Components/Home/Hindi/HindiTrendingSection";
 import HindiLatestNews from "./Components/Home/Hindi/HindiLatestNews";
 import HindiRegionalNews from "./Components/Home/Hindi/HindiRegionalNews";
-import HindiSportsNews from "./Components/Home/Hindi/HindiSportsNews";
-import HindiRashifal from "./Components/Home/Hindi/HindiRashifal";
-import HindiPoliticsSection from "./Components/Home/Hindi/HindiPoliticsSection";
-import HindiEntertainmentNews from "./Components/Home/Hindi/HindiEntertainmentNews";
-import HindiCricketSection from "./Components/Home/Hindi/HindiCricketSection";
-import HindiFeaturedSubcategories from "./Components/Home/Hindi/HindiFeaturedSubcategories";
-import HindiEducationScience from "./Components/Home/Hindi/HindiEducationScience";
-import HindiFeaturesSection from "./Components/Home/Hindi/HindiFeaturesSection/HindiFeaturesSection";
-import HindiLifestyleSection from "./Components/Home/Hindi/HindiLifestyleSection";
+
+const HindiSportsNews = dynamic(() => import("./Components/Home/Hindi/HindiSportsNews"), { loading: () => <div className="h-96 animate-pulse bg-gray-100 rounded-xl m-8" />, ssr: false });
+const HindiRashifal = dynamic(() => import("./Components/Home/Hindi/HindiRashifal"), { loading: () => <div className="h-96 animate-pulse bg-gray-100 rounded-xl m-8" />, ssr: false });
+const HindiPoliticsSection = dynamic(() => import("./Components/Home/Hindi/HindiPoliticsSection"), { loading: () => <div className="h-96 animate-pulse bg-gray-100 rounded-xl m-8" />, ssr: false });
+const HindiEntertainmentNews = dynamic(() => import("./Components/Home/Hindi/HindiEntertainmentNews"), { loading: () => <div className="h-96 animate-pulse bg-gray-100 rounded-xl m-8" />, ssr: false });
+const HindiCricketSection = dynamic(() => import("./Components/Home/Hindi/HindiCricketSection"), { loading: () => <div className="h-96 animate-pulse bg-gray-100 rounded-xl m-8" />, ssr: false });
+const HindiFeaturedSubcategories = dynamic(() => import("./Components/Home/Hindi/HindiFeaturedSubcategories"), { loading: () => <div className="h-96 animate-pulse bg-gray-100 rounded-xl m-8" />, ssr: false });
+const HindiEducationScience = dynamic(() => import("./Components/Home/Hindi/HindiEducationScience"), { loading: () => <div className="h-96 animate-pulse bg-gray-100 rounded-xl m-8" />, ssr: false });
+const HindiFeaturesSection = dynamic(() => import("./Components/Home/Hindi/HindiFeaturesSection/HindiFeaturesSection"), { loading: () => <div className="h-96 animate-pulse bg-gray-100 rounded-xl m-8" />, ssr: false });
+const HindiLifestyleSection = dynamic(() => import("./Components/Home/Hindi/HindiLifestyleSection"), { loading: () => <div className="h-96 animate-pulse bg-gray-100 rounded-xl m-8" />, ssr: false });
 
 // Lazy-load heavy sections
 const VideosSection = dynamic(() => import("./Components/Common/VideosSection/VideosSection").then(mod => mod.VideosSection), {

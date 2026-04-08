@@ -17,15 +17,49 @@ import styles from "../Main.module.scss";
 const CATEGORIES = [
     { id: 'home', label: 'Home', icon: '🏠' },
     { id: 'india', label: 'India', icon: '🇮🇳' },
-    { id: 'sports', label: 'Sports', icon: '⚽' },
+    { id: 'politics', label: 'Politics', icon: '🏛️' },
     { id: 'business', label: 'Business', icon: '📈' },
+    { id: 'economy', label: 'Economy', icon: '💰' },
+    { id: 'governance', label: 'Governance', icon: '⚖️' },
+    { id: 'sports', label: 'Sports', icon: '⚽' },
     { id: 'technology', label: 'Tech', icon: '💻' },
     { id: 'entertainment', label: 'Entertainment', icon: '🎬' },
     { id: 'lifestyle', label: 'Lifestyle', icon: '✨' },
     { id: 'world', label: 'World', icon: '🌍' },
+    { id: 'education', label: 'Education', icon: '🎓' },
+    { id: 'careers', label: 'Careers', icon: '💼' },
+    { id: 'science', label: 'Science', icon: '🔬' },
     { id: 'health', label: 'Health', icon: '🏥' },
+    { id: 'auto', label: 'Auto', icon: '🚘' },
+    { id: 'opinion', label: 'Opinion', icon: '✍️' },
+    { id: 'environment', label: 'Environment', icon: '🌱' },
+    { id: 'travel', label: 'Travel', icon: '✈️' },
     { id: 'awards', label: 'Awards', icon: '🏆' },
     { id: 'regional', label: 'Regional', icon: '📍' },
+] as const;
+
+const ALL_SUBCATEGORIES = [
+    { id: '', label: 'General / None' },
+    
+    // Sports
+    { id: 'sports', label: 'Sports (All)' },
+    { id: 'cricket', label: 'Cricket' },
+    { id: 'football', label: 'Football' },
+    { id: 'ipl 2026', label: 'IPL 2026' },
+    
+    // Entertainment
+    { id: 'entertainment', label: 'Entertainment (All)' },
+    { id: 'bollywood', label: 'Bollywood' },
+    { id: 'hollywood', label: 'Hollywood' },
+    
+    // Lifestyle
+    { id: 'lifestyle', label: 'Lifestyle (All)' },
+    { id: 'fashion', label: 'Fashion' },
+    { id: 'culture', label: 'Culture' },
+    { id: 'shopping', label: 'Shopping' },
+    
+    // Custom Fallback
+    { id: 'others', label: 'Others (Custom)' }
 ] as const;
 
 const STATES = [
@@ -45,7 +79,9 @@ const STATES = [
   { id: 'sikkim', label: 'Sikkim' },
   { id: 'uttar-pradesh', label: 'Uttar Pradesh' },
   { id: 'uttarakhand', label: 'Uttarakhand' },
-  { id: 'west-bengal', label: 'West Bengal' },
+  { id: 'west-bengal', label: 'West Bengal' }, 
+  { id: 'maharashtra', label: 'Maharashtra' },
+  { id: 'telangana', label: 'Telangana' },
   { id: 'others', label: 'Others' }
 
 ] as const;
@@ -86,7 +122,7 @@ const NewsManager: FC<NewsManagerProps> = ({
         page,
         shouldFetchList ? limit : 1,
         filterStatus === 'all' ? undefined : filterStatus,
-        langFilter === 'all' ? undefined : langFilter
+        langFilter
     );
 
     const { mutate: addNews, loading: addLoading } = useAddNews();
@@ -148,6 +184,31 @@ const NewsManager: FC<NewsManagerProps> = ({
             setFormState(prev => ({ ...prev, scheduledAt: iso }));
         }
     }, [schedDate, schedHour, schedMin, schedAmPm, timeFormat, formState.status, buildScheduledISO]);
+
+    // Auto-populate current date/time when switching to "scheduled"
+    useEffect(() => {
+        if (formState.status === "scheduled" && !schedDate) {
+            const now = new Date();
+            const y = now.getFullYear();
+            const m = String(now.getMonth() + 1).padStart(2, '0');
+            const d = String(now.getDate()).padStart(2, '0');
+            setSchedDate(`${y}-${m}-${d}`);
+            
+            let h = now.getHours();
+            
+            // Round minutes to nearest 5 for the select dropdown
+            const minFloored = Math.floor(now.getMinutes() / 5) * 5;
+            
+            const ampm = h >= 12 ? "PM" : "AM";
+            if (timeFormat === "12h") {
+                h = h % 12;
+                if (h === 0) h = 12;
+                setSchedAmPm(ampm);
+            }
+            setSchedHour(String(h).padStart(2, '0'));
+            setSchedMin(String(minFloored).padStart(2, '0'));
+        }
+    }, [formState.status, schedDate, timeFormat]);
 
     // FETCH LIVE BRANDED PREVIEW
     useEffect(() => {
@@ -684,12 +745,36 @@ const NewsManager: FC<NewsManagerProps> = ({
                         </div>
                         <div className={styles.formGroup}>
                             <label className={styles.label}>Sub-category</label>
-                            <input
-                                type="text"
-                                className={styles.input}
-                                value={formState.subCategory ?? ""}
-                                onChange={handleChange("subCategory")}
-                            />
+                            {(() => {
+                                const isKnownSubCat = ALL_SUBCATEGORIES.some(s => s.id === formState.subCategory) && formState.subCategory !== 'others';
+                                const isOthers = formState.subCategory === 'others' || (!isKnownSubCat && formState.subCategory);
+                                const activeSelectValue = isKnownSubCat ? formState.subCategory : (isOthers ? 'others' : '');
+
+                                return (
+                                    <>
+                                        <select
+                                            className={styles.select}
+                                            value={activeSelectValue}
+                                            onChange={handleChange("subCategory")}
+                                        >
+                                            {ALL_SUBCATEGORIES.map(sub => (
+                                                <option key={sub.id} value={sub.id}>{sub.label}</option>
+                                            ))}
+                                        </select>
+                                        
+                                        {activeSelectValue === 'others' && (
+                                            <input
+                                                type="text"
+                                                className={styles.input}
+                                                style={{ marginTop: '0.5rem' }}
+                                                placeholder="Custom Sub-category..."
+                                                value={formState.subCategory === 'others' ? '' : formState.subCategory ?? ""}
+                                                onChange={handleChange("subCategory")}
+                                            />
+                                        )}
+                                    </>
+                                );
+                            })()}
                         </div>
                         <div className={styles.formGroup}>
                             <label className={styles.label}>Target Link (Redirect)</label>

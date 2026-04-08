@@ -243,7 +243,7 @@ export const useStreamingNews = (section?: string, limit: number = 50, lang?: st
 
 export const useNewsBySection = (section: string, includeDrafts: boolean = false, page: number = 1, limit: number = 100, status?: string, langOverride?: string): UseApiResult<NewsItem[]> => {
   const { lang: globalLang } = useLanguage();
-  const lang = langOverride || globalLang;
+  const lang = langOverride === 'all' ? undefined : (langOverride || globalLang);
   return useApi<NewsItem[]>(() => newsService.getNewsBySection(section, includeDrafts, page, limit, status, lang), [section, includeDrafts, page, limit, status, lang]);
 };
 

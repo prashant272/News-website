@@ -30,9 +30,6 @@ const FeaturesSection = () => {
                 <div className={styles.grid}>
                     {/* Big Card Column */}
                     <div className={styles.column}>
-                        <div className={styles.columnHeader}>
-                            <h3>Highlights</h3>
-                        </div>
                         {loading ? (
                             <div className={styles.bigCardPlaceholder}>
                                 <div className={styles.shimmerBigImg}></div>
@@ -67,19 +64,13 @@ const FeaturesSection = () => {
                                     </div>
                                 </div>
                             </Link>
-                        ) : (
-                            <div className={styles.noNewsBig}>
-                                <div className={styles.placeholderIcon}>💎</div>
-                                <p>No featured articles available yet.</p>
-                            </div>
-                        )}
+                        ) :null }
+                        {/*  if news not found then show null you can change it later */}
                     </div>
 
                     {/* List Column 1 */}
                     <div className={styles.column}>
-                        <div className={styles.columnHeader}>
-                            <h3>Top Features</h3>
-                        </div>
+
                         <div className={styles.list}>
                             {loading ? (
                                 Array(4).fill(0).map((_, i) => (
@@ -112,17 +103,15 @@ const FeaturesSection = () => {
                                         </div>
                                     </Link>
                                 ))
-                            ) : (
-                                <div className={styles.noNews}>Next features coming soon.</div>
-                            )}
+                            ) : null }
                         </div>
                     </div>
 
                     {/* List Column 2 */}
                     <div className={styles.column}>
-                        <div className={styles.columnHeader}>
+                        {/* <div className={styles.columnHeader}>
                             <h3>Trending</h3>
-                        </div>
+                        </div> */}
                         <div className={styles.list}>
                             {loading ? (
                                 Array(4).fill(0).map((_, i) => (
@@ -155,9 +144,7 @@ const FeaturesSection = () => {
                                         </div>
                                     </Link>
                                 ))
-                            ) : (
-                                <div className={styles.noNews}>Stay tuned for more updates.</div>
-                            )}
+                            ) :null }
                         </div>
                     </div>
                 </div>

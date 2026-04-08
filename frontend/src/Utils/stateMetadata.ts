@@ -12,6 +12,8 @@ export const HINDI_STATES = [
     { name: 'सिक्किम', slug: 'sikkim', english: 'Sikkim' },
     { name: 'उत्तराखंड', slug: 'uttarakhand', english: 'Uttarakhand' },
     { name: 'पश्चिम बंगाल', slug: 'west-bengal', english: 'West Bengal' },
+    { name: 'महाराष्ट्र', slug: 'maharashtra', english: 'Maharashtra' },
+    { name: 'तेलंगाना', slug: 'telangana', english: 'Telangana' },
     { name: 'अन्य', slug: 'others', english: 'Others' }
 ];
 
