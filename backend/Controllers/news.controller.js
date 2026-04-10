@@ -14,6 +14,35 @@ cloudinary.config({
   api_secret: process.env.API_SECRET,
 });
 
+// --- BRANDING HELPERS ---
+const BRAND_EN = "Prime Time";
+const BRAND_HI = "प्राइम टाइम";
+
+const ensureBranding = (title, slug, lang) => {
+  let finalTitle = (title || "").trim();
+  let finalSlug = (slug || "").trim();
+
+  // 1. Branding for Title
+  if (lang === "hi") {
+    if (!finalTitle.includes(BRAND_HI)) {
+      finalTitle = `${finalTitle} - ${BRAND_HI}`;
+    }
+  } else {
+    // English or empty
+    const regexEN = new RegExp(`${BRAND_EN}$`, "i");
+    if (!regexEN.test(finalTitle)) {
+      finalTitle = `${finalTitle} ${BRAND_EN}`;
+    }
+  }
+
+  // 2. Branding for Slug
+  if (finalSlug && !finalSlug.toLowerCase().endsWith("prime-time")) {
+    finalSlug = `${finalSlug}-prime-time`;
+  }
+
+  return { title: finalTitle, slug: finalSlug };
+};
+
 /**
  * Trigger Facebook auto-post when an article is published.
  * Priority: 1) Global AppConfig  2) Per-user facebook config
@@ -174,19 +203,34 @@ exports.AddNews = async (req, res) => {
       });
     }
 
-    const existing = await NewsArticle.findOne({ slug });
+    // Auto-detect language if not provided (needed for branding logic)
+    let finalLanguage = language || "en";
+    const fullContent = (title || '') + (content || '') + (summary || '');
+    const hasHindiChars = /[\u0900-\u097F]/.test(fullContent);
+
+    if (!language && hasHindiChars) {
+      finalLanguage = "hi";
+      console.log(`[News] Auto-detected Hindi language for article: ${title}`);
+    }
+
+    // APPLY BRANDING
+    const branded = ensureBranding(title, slug, finalLanguage);
+    const finalTitleStr = branded.title;
+    const finalSlugStr = branded.slug;
+
+    const existing = await NewsArticle.findOne({ slug: finalSlugStr });
     if (existing) {
       return res.status(409).json({
         success: false,
-        msg: `Slug '${slug}' already exists.`,
+        msg: `Slug '${finalSlugStr}' already exists.`,
       });
     }
 
     let imageUrl = null;
     if (image) {
       try {
-        console.log(`[Admin-Upload] Applying professional branding to image for: ${title}`);
-        const brandedBuffer = await brandImageWithTitle(image, title);
+        console.log(`[Admin-Upload] Applying professional branding to image for: ${finalTitleStr}`);
+        const brandedBuffer = await brandImageWithTitle(image, finalTitleStr);
 
         const uploadResponse = await cloudinary.uploader.upload(
           `data:image/png;base64,${brandedBuffer.toString('base64')}`,
@@ -205,20 +249,17 @@ exports.AddNews = async (req, res) => {
       }
     }
 
-    // Auto-detect language if not provided
-    let finalLanguage = language || "en";
-    const fullContent = (title || '') + (content || '') + (summary || '');
-    const hasHindiChars = /[\u0900-\u097F]/.test(fullContent);
-
-    if (!language && hasHindiChars) {
-      finalLanguage = "hi";
-      console.log(`[News] Auto-detected Hindi language for article: ${title}`);
-    }
-
     const newItem = new NewsArticle({
-      title, slug, category: finalCategory, subCategory: subCategory || null,
-      summary: summary || null, content, image: imageUrl, tags,
-      targetLink: targetLink || null, nominationLink: nominationLink || null,
+      title: finalTitleStr, 
+      slug: finalSlugStr, 
+      category: finalCategory, 
+      subCategory: subCategory || null,
+      summary: summary || null, 
+      content, 
+      image: imageUrl, 
+      tags,
+      targetLink: targetLink || null, 
+      nominationLink: nominationLink || null,
       moreInfoLink: moreInfoLink || null,
       author: author || "Prime Time",
       authorId: authorId || null,
@@ -475,11 +516,28 @@ exports.updateNewsBySlug = async (req, res) => {
     const item = await NewsArticle.findOne({ slug });
     if (!item) return res.status(404).json({ success: false, msg: `News not found` });
 
+    // Auto-detect language if currently 'en' or missing but has Hindi characters
+    const effectiveLang = updateData.language || item.lang || "en";
+    const checkString = (updateData.title || item.title || "") + (updateData.content || item.content || "");
+    const finalLang = (effectiveLang === "en" && /[\u0900-\u097F]/.test(checkString)) ? "hi" : effectiveLang;
+
+    // APPLY BRANDING ON UPDATE
+    if (updateData.title || updateData.slug) {
+      const brandedUpdate = ensureBranding(
+        updateData.title || item.title, 
+        updateData.slug || item.slug, 
+        finalLang
+      );
+      updateData.title = brandedUpdate.title;
+      updateData.slug = brandedUpdate.slug;
+      updateData.lang = finalLang;
+    }
+
     let imageUrl = item.image;
     if (updateData.image && updateData.image !== imageUrl) {
       try {
-        console.log(`[Admin-Update] Applying professional branding to updated image for: ${updateData.title || item.title}`);
-        const brandedBuffer = await brandImageWithTitle(updateData.image, updateData.title || item.title);
+        console.log(`[Admin-Update] Applying professional branding to updated image for: ${updateData.title}`);
+        const brandedBuffer = await brandImageWithTitle(updateData.image, updateData.title);
 
         const uploadResponse = await cloudinary.uploader.upload(
           `data:image/png;base64,${brandedBuffer.toString('base64')}`,
@@ -525,15 +583,6 @@ exports.updateNewsBySlug = async (req, res) => {
     if (updateData.isLatest !== undefined) updateData.isLatest = !!updateData.isLatest;
     if (updateData.isTrending !== undefined) updateData.isTrending = !!updateData.isTrending;
     if (updateData.isFeatured !== undefined) updateData.isFeatured = !!updateData.isFeatured;
-
-    // Auto-detect language if currently 'en' or missing but has Hindi characters
-    const fullContent = (updateData.title || item.title || '') + (updateData.content || item.content || '') + (updateData.summary || item.summary || '');
-    const hasHindiChars = /[\u0900-\u097F]/.test(fullContent);
-
-    if (hasHindiChars && (updateData.language === 'en' || !updateData.language)) {
-      updateData.lang = 'hi';
-      console.log(`[News] Auto-corrected Language to Hindi for existing article: ${item.title}`);
-    }
 
     const updatedItem = await NewsArticle.findOneAndUpdate({ slug }, { ...updateData }, { new: true });
 

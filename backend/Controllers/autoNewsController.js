@@ -12,6 +12,32 @@ cloudinary.config({
     api_secret: process.env.API_SECRET,
 });
 
+// --- BRANDING HELPERS ---
+const BRAND_EN = "Prime Time";
+const BRAND_HI = "प्राइम टाइम";
+
+const ensureBranding = (title, slug, lang) => {
+    let finalTitle = (title || "").trim();
+    let finalSlug = (slug || "").trim();
+
+    if (lang === "hi") {
+        if (!finalTitle.includes(BRAND_HI)) {
+            finalTitle = `${finalTitle} - ${BRAND_HI}`;
+        }
+    } else {
+        const regexEN = new RegExp(`${BRAND_EN}$`, "i");
+        if (!regexEN.test(finalTitle)) {
+            finalTitle = `${finalTitle} ${BRAND_EN}`;
+        }
+    }
+
+    if (finalSlug && !finalSlug.toLowerCase().endsWith("prime-time")) {
+        finalSlug = `${finalSlug}-prime-time`;
+    }
+
+    return { title: finalTitle, slug: finalSlug };
+};
+
 // --- HELPERS ---
 
 const hasHindiCharacters = (text) => {
@@ -108,18 +134,22 @@ const autoGenerateNews = async (req, res) => {
             return res.status(422).json({ success: false, msg: "AI failed to generate a Hindi title." });
         }
 
-        const slug = createSlug(aiDataHi.title);
+        // APPLY BRANDING
+        const branded = ensureBranding(aiDataHi.title, createSlug(aiDataHi.title), "hi");
+        const finalTitle = branded.title;
+        const finalSlug = branded.slug;
+
         const urlHash = generateUrlHash(url);
 
-        const existing = await NewsArticle.findOne({ $or: [{ slug: slug }, { urlHash: `${urlHash}-hi` }] });
-        if (existing) return res.status(409).json({ success: false, msg: "Article already exists.", slug: slug });
+        const existing = await NewsArticle.findOne({ $or: [{ slug: finalSlug }, { urlHash: `${urlHash}-hi` }] });
+        if (existing) return res.status(409).json({ success: false, msg: "Article already exists.", slug: finalSlug });
 
         // BRANDING: Process image with AI generated title
-        const finalImage = scraped.image ? await uploadImage(scraped.image, aiDataHi.title, scraped.source) : null;
+        const finalImage = scraped.image ? await uploadImage(scraped.image, finalTitle, scraped.source) : null;
 
         const newPostHi = new NewsArticle({
-            title: aiDataHi.title,
-            slug: slug,
+            title: finalTitle,
+            slug: finalSlug,
             category: category.toLowerCase(),
             subCategory: aiDataHi.subCategory || "General",
             summary: aiDataHi.summary,
@@ -222,12 +252,17 @@ const fetchAndProcessNews = async (req, res) => {
                 // --- HINDI ---
                 const aiDataHi = await generateArticle(scraped.facts, 'hi');
                 if (hasHindiCharacters(aiDataHi.title)) {
+                    // APPLY BRANDING
+                    const brandedHi = ensureBranding(aiDataHi.title, createSlug(aiDataHi.title), "hi");
+                    const finalTitleHi = brandedHi.title;
+                    const finalSlugHi = brandedHi.slug;
+
                     // Unique branded image for Hindi
-                    const brandedImageHi = scraped.image ? await uploadImage(scraped.image, aiDataHi.title, source.name) : null;
+                    const brandedImageHi = scraped.image ? await uploadImage(scraped.image, finalTitleHi, source.name) : null;
 
                     const articleHi = new NewsArticle({
-                        title: aiDataHi.title,
-                        slug: createSlug(aiDataHi.title),
+                        title: finalTitleHi,
+                        slug: finalSlugHi,
                         category: source.category.toLowerCase(),
                         subCategory: aiDataHi.subCategory || "General",
                         summary: aiDataHi.summary,
@@ -248,12 +283,17 @@ const fetchAndProcessNews = async (req, res) => {
 
                 // --- ENGLISH ---
                 const aiDataEn = await generateArticle(scraped.facts, 'en');
+                // APPLY BRANDING
+                const brandedEn = ensureBranding(aiDataEn.title, createSlug(aiDataEn.title), "en");
+                const finalTitleEn = brandedEn.title;
+                const finalSlugEn = brandedEn.slug;
+
                 // Unique branded image for English
-                const brandedImageEn = scraped.image ? await uploadImage(scraped.image, aiDataEn.title, source.name) : null;
+                const brandedImageEn = scraped.image ? await uploadImage(scraped.image, finalTitleEn, source.name) : null;
 
                 const articleEn = new NewsArticle({
-                    title: aiDataEn.title,
-                    slug: createSlug(aiDataEn.title),
+                    title: finalTitleEn,
+                    slug: finalSlugEn,
                     category: source.category.toLowerCase(),
                     subCategory: aiDataEn.subCategory || "General",
                     summary: aiDataEn.summary,

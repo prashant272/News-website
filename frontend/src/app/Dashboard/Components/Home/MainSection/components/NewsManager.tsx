@@ -309,13 +309,15 @@ const NewsManager: FC<NewsManagerProps> = ({
         }
     }, [initialDraft]);
 
-    const generateSlug = (title: string) =>
-        title
+    const generateSlug = (title: string) => {
+        const base = title
             .toLowerCase()
             .replace(/[^\w\s-]/g, "")
             .replace(/\s+/g, "-")
             .replace(/-+/g, "-")
             .trim();
+        return base ? `${base}-prime-time` : "";
+    };
 
     const handleChange = useCallback(
         (field: keyof NewsItem) =>
