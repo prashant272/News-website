@@ -32,7 +32,7 @@ const NewsLayout: React.FC<NewsLayoutProps> = ({
   };
 
   return (
-    <div className={styles.appShell}>
+    <div className={`${styles.appShell} admin-dashboard-frame`}>
       {/* ========== NAVBAR ========== */}
       <header className={styles.navbar}>
         <div className={styles.navLeft}>

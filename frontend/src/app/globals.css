@@ -136,7 +136,7 @@ h6 {
 }
 
 /* Paragraphs and text */
-p {
+p:not(.admin-dashboard-frame *) {
   text-align: justify;
   color: var(--text-color);
   transition: color 0.3s ease;
@@ -187,8 +187,8 @@ blockquote::before {
   opacity: 0.2;
 }
 
-span,
-div {
+span:not(.admin-dashboard-frame *),
+div:not(.admin-dashboard-frame *) {
   color: var(--text-color);
   transition: color 0.3s ease;
 }
@@ -204,8 +204,8 @@ a:hover {
 }
 
 /* Cards and containers */
-.card,
-[class*="card"] {
+.card:not(.admin-dashboard-frame *),
+[class*="card"]:not(.admin-dashboard-frame *) {
   background-color: var(--card-bg);
   border-color: var(--card-border);
   transition: background-color 0.3s ease, border-color 0.3s ease;

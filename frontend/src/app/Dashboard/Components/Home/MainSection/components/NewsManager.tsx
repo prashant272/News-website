@@ -1140,28 +1140,28 @@ const NewsManager: FC<NewsManagerProps> = ({
                                                     })()}
                                                 </div>
                                             </div>
-                                            <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.75rem" }}>
+                                            <div className={styles.cardFlags}>
                                                 <button
                                                     onClick={() => handleToggleFlag(item.slug, "isLatest", !item.isLatest)}
                                                     className={`${styles.flagBtn} ${item.isLatest ? styles.flagActive : ""}`}
                                                     disabled={!canUpdate || flagsLoading}
-                                                >⭐ {item.isLatest ? "Latest" : "Mark Latest"}</button>
+                                                >⭐ {item.isLatest ? "Latest" : "Latest"}</button>
                                                 <button
                                                     onClick={() => handleToggleFlag(item.slug, "isTrending", !item.isTrending)}
                                                     className={`${styles.flagBtn} ${item.isTrending ? styles.flagActive : ""}`}
                                                     disabled={!canUpdate || flagsLoading}
-                                                >🔥 {item.isTrending ? "Trending" : "Mark Trending"}</button>
+                                                >🔥 {item.isTrending ? "Trending" : "Trending"}</button>
                                                 <button
                                                     onClick={() => handleToggleFlag(item.slug, "isFeatured", !item.isFeatured)}
                                                     className={`${styles.flagBtn} ${item.isFeatured ? styles.flagActive : ""}`}
                                                     disabled={!canUpdate || flagsLoading}
-                                                >💎 {item.isFeatured ? "Featured" : "Mark Featured"}</button>
+                                                >💎 {item.isFeatured ? "Featured" : "Featured"}</button>
                                                     <button
                                                         onClick={() => handleToggleFlag(item.slug, "isFiftyWordEdit", !item.isFiftyWordEdit)}
                                                         className={`${styles.flagBtn} ${item.isFiftyWordEdit ? styles.flagActive : ""}`}
                                                         disabled={!canUpdate || flagsLoading}
                                                         title={item.isFiftyWordEdit ? "Remove from 50W Edit" : "Add to 50W Edit"}
-                                                    >📝 {item.isFiftyWordEdit ? "Remove 50W" : "Mark 50W"}</button>
+                                                    >📝 {item.isFiftyWordEdit ? "50W" : "50W"}</button>
                                                     {(() => {
                                                         const catNames = Array.isArray(item.category) 
                                                             ? item.category.join(', ') 
