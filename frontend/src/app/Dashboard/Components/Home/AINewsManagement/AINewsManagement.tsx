@@ -35,11 +35,12 @@ export default function AINewsManagement({ onEdit, isSuperAdmin }: AINewsManagem
         }
     }, []);
 
-    const handleScrap = async () => {
+    const handleScrap = async (category?: string, limit: number = 10) => {
         setScraping(true);
-        console.log(`[FrontEnd] Triggering Scraping: /api/auto-news/fetch-daily`);
+        const query = category ? `?category=${category}&limit=${limit}` : "";
+        console.log(`[FrontEnd] Triggering Scraping: /api/auto-news/fetch-daily${query}`);
         try {
-            const res = await API.get("/api/auto-news/fetch-daily");
+            const res = await API.get(`/api/auto-news/fetch-daily${query}`);
             console.log("[FrontEnd] API Response:", res.data);
             if (res.data.success) {
                 alert(`Scraping completed! Processed: ${res.data.stats.processed}, Duplicates: ${res.data.stats.duplicates}`);
@@ -53,6 +54,7 @@ export default function AINewsManagement({ onEdit, isSuperAdmin }: AINewsManagem
             setScraping(false);
         }
     };
+
 
     useEffect(() => {
         fetchDrafts();
@@ -94,14 +96,38 @@ export default function AINewsManagement({ onEdit, isSuperAdmin }: AINewsManagem
                 <h2>🤖 AI Generated Drafts ({drafts.length})</h2>
                 <div className={styles.headerActions}>
                     {isSuperAdmin && (
-                        <button
-                            onClick={handleScrap}
-                            className={styles.scrapBtn}
-                            disabled={scraping}
-                        >
-                            {scraping ? "Scraping..." : "Scrap News"}
-                        </button>
+                        <>
+                            <button
+                                onClick={() => handleScrap()}
+                                className={styles.scrapBtn}
+                                disabled={scraping}
+                            >
+                                {scraping ? "Scraping..." : "Scrap News"}
+                            </button>
+                            <button
+                                onClick={() => handleScrap('sports', 10)}
+                                className={styles.scrapSportsBtn}
+                                disabled={scraping}
+                            >
+                                {scraping ? "..." : "🏀 Sports"}
+                            </button>
+                            <button
+                                onClick={() => handleScrap('business', 10)}
+                                className={styles.scrapBusinessBtn}
+                                disabled={scraping}
+                            >
+                                {scraping ? "..." : "💰 Business"}
+                            </button>
+                            <button
+                                onClick={() => handleScrap('sports', 15)}
+                                className={styles.scrapIPLBtn}
+                                disabled={scraping}
+                            >
+                                {scraping ? "..." : "🏏 IPL Special"}
+                            </button>
+                        </>
                     )}
+
                     <select 
                         className={styles.langFilter} 
                         value={langFilter} 

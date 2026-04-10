@@ -79,6 +79,7 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-serif: var(--font-serif);
+  --font-hindi: var(--font-poppins), var(--font-hindi), sans-serif;
 
   /* Add custom Tailwind theme colors */
   --color-card: var(--card-bg);

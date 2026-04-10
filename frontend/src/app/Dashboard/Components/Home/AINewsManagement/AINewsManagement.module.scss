@@ -72,6 +72,84 @@
             background: #218838;
         }
     }
+
+    .scrapSportsBtn {
+        padding: 8px 16px;
+        background: #ff5722;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.2s ease;
+
+        &:hover:not(:disabled) {
+            background: #e64a19;
+            transform: translateY(-1px);
+        }
+
+        &:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        &:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+    }
+
+    .scrapBusinessBtn {
+        padding: 8px 16px;
+        background: #00bcd4;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.2s ease;
+
+        &:hover:not(:disabled) {
+            background: #00838f;
+            transform: translateY(-1px);
+        }
+
+        &:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        &:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+    }
+
+    .scrapIPLBtn {
+        padding: 8px 16px;
+        background: #0d47a1; // Deep Blue (IPL Style)
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 700;
+        transition: all 0.2s ease;
+        border: 2px solid #ffd700; // Gold Border
+
+        &:hover:not(:disabled) {
+            background: #1565c0;
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+        }
+
+        &:active:not(:disabled) {
+            transform: scale(1);
+        }
+
+        &:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            border-color: #aaa;
+        }
+    }
 }
 
 .grid {

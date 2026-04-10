@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Lora, Noto_Sans_Devanagari } from "next/font/google";
+import { Geist, Geist_Mono, Lora, Noto_Sans_Devanagari, Poppins } from "next/font/google";
 import "./globals.css";
 import Navbar from "./Components/Common/Navbar/Navbar";
 import Footer from "./Components/Common/Footer/Footer";
@@ -30,11 +30,18 @@ const lora = Lora({
   weight: ["400", "500", "600", "700"],
 });
 
+const poppins = Poppins({
+  variable: "--font-poppins",
+  subsets: ["latin", "devanagari"],
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
+});
+
 const notoHindi = Noto_Sans_Devanagari({
   variable: "--font-hindi",
   subsets: ["devanagari"],
   weight: ["400", "500", "600", "700", "800", "900"],
 });
+
 
 import { headers } from "next/headers";
 
@@ -239,7 +246,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} ${lora.variable} ${notoHindi.variable} antialiased`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} ${lora.variable} ${notoHindi.variable} ${poppins.variable} antialiased`}>
         <Script
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5571209076881303"
           crossOrigin="anonymous"

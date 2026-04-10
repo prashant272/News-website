@@ -39,10 +39,27 @@ const newsSources = [
         category: "sports",
     },
     {
-        name: "ESPN Cricinfo",
-        url: "https://www.espncricinfo.com/rss/content/story/feeds/0.xml",
+        name: "Aaj Tak Sports",
+        url: "https://www.aajtak.in/rss/khel",
         category: "sports"
     },
+    {
+        name: "Zee News Sports",
+        url: "https://zeenews.india.com/rss/sports-news.xml",
+        category: "sports"
+    },
+    {
+        name: "NDTV Sports News",
+        url: "https://feeds.feedburner.com/ndtvsports-latest",
+        category: "sports"
+    },
+    {
+        name: "Hindustan Times Cricket",
+        url: "https://www.hindustantimes.com/rss/cricket/rssfeed.xml",
+        category: "sports"
+    },
+
+
 
     // --- BUSINESS ---
     {
@@ -265,10 +282,26 @@ const newsSources = [
     },
     // --- SPECIAL CATEGORIES ---
     {
-        name: "Amar Ujala - Business",
-        url: "https://www.amarujala.com/rss/business.xml",
-        category: "economy",
+        name: "Live Mint - Business",
+        url: "https://www.livemint.com/rss/companies",
+        category: "business",
     },
+    {
+        name: "Moneycontrol Latest",
+        url: "https://www.moneycontrol.com/rss/latestnews.xml",
+        category: "business",
+    },
+    {
+        name: "Business Standard",
+        url: "https://www.business-standard.com/rss/latest.rss",
+        category: "business",
+    },
+    {
+        name: "Live Hindustan Business",
+        url: "https://www.livehindustan.com/business/rss/",
+        category: "business",
+    },
+
     {
         name: "PIB Hindi",
         url: "https://pib.gov.in/RssMain.aspx?ModId=6&Lang=2&Regid=3",

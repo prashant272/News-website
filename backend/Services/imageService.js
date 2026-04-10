@@ -2,6 +2,12 @@ const sharp = require('sharp');
 const axios = require('axios');
 const path = require('path');
 
+const hasHindiCharacters = (text) => {
+    if (!text) return false;
+    return /[\u0900-\u097F]/.test(text);
+};
+
+
 /**
  * Helper to resolve a Buffer from a URL, Base64 string, or Buffer.
  */
@@ -10,9 +16,20 @@ const getImageBuffer = async (input) => {
     if (typeof input !== 'string') throw new Error("Invalid image input type");
 
     if (input.startsWith('http')) {
-        const response = await axios.get(input, { responseType: 'arraybuffer' });
+        const config = {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.9',
+                'Referer': 'https://www.google.com/'
+            },
+            responseType: 'arraybuffer',
+            timeout: 10000
+        };
+        const response = await axios.get(input, config);
         return Buffer.from(response.data);
     }
+
 
     if (input.startsWith('data:image')) {
         const base64Data = input.split(',')[1] || input;
@@ -215,11 +232,21 @@ const brandImageWithTitle = async (imageUrl, title, options = { addLogo: true })
         })[m]);
 
         const safeTitle = escapeXML(title.trim());
+        // Detection and Branding logic refinement
+        const isHindi = hasHindiCharacters(title);
         const words = safeTitle.split(' ');
         
         // Define branding parts
-        let firstPartText = words.slice(0, 2).join(' ').toUpperCase();
-        let restText = words.slice(2).join(' ').toUpperCase();
+        let splitIdx = isHindi ? 3 : 2; // Split more words for Hindi if possible
+        if (words.length <= splitIdx) splitIdx = Math.max(1, words.length - 1);
+        
+        let firstPartText = words.slice(0, splitIdx).join(' ');
+        let restText = words.slice(splitIdx).join(' ');
+
+        if (!isHindi) {
+            firstPartText = firstPartText.toUpperCase();
+            restText = restText.toUpperCase();
+        }
 
         // Dynamic Font Scaling
         let fontSize = 38;
@@ -228,8 +255,10 @@ const brandImageWithTitle = async (imageUrl, title, options = { addLogo: true })
         if (title.length > 150) fontSize = 26;
 
         // Wrap Logic
-        const charWidth = fontSize * 0.55; // Approximate width multiplier for sans-serif
-        const maxChars = Math.floor((width * 0.9) / charWidth);
+        // Hindi characters take more horizontal space in many renderers
+        const charWidth = isHindi ? (fontSize * 0.65) : (fontSize * 0.55); 
+        const maxChars = Math.floor((width * 0.92) / charWidth);
+
 
         const wrapText = (text, maxLength) => {
             const lines = [];
@@ -275,11 +304,12 @@ const brandImageWithTitle = async (imageUrl, title, options = { addLogo: true })
             <svg width="${width}" height="${cardH}">
                 <defs>
                     <style>
-                        .header { font-family: sans-serif; font-weight: 900; font-size: 20px; fill: white; }
-                        .title-red { font-family: 'Arial Black', sans-serif; font-weight: 900; font-size: ${fontSize}px; fill: #CC0000; }
-                        .title-black { font-family: 'Arial Black', sans-serif; font-weight: 900; font-size: ${fontSize}px; fill: #000000; }
-                        .url { font-family: sans-serif; font-weight: bold; font-size: 16px; fill: #666; }
+                        .header { font-family: 'Arial', sans-serif; font-weight: 900; font-size: 20px; fill: white; }
+                        .title-red { font-family: 'Nirmala UI', 'Poppins', 'Noto Sans Devanagari', 'Arial Black', sans-serif; font-weight: 900; font-size: ${fontSize}px; fill: #CC0000; }
+                        .title-black { font-family: 'Nirmala UI', 'Poppins', 'Noto Sans Devanagari', 'Arial Black', sans-serif; font-weight: 900; font-size: ${fontSize}px; fill: #000000; }
+                        .url { font-family: 'Arial', sans-serif; font-weight: bold; font-size: 16px; fill: #666; }
                     </style>
+
                 </defs>
 
                 <!-- 1. LIVE HEADER BADGE (Center) -->

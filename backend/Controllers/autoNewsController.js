@@ -145,25 +145,38 @@ const autoGenerateNews = async (req, res) => {
 const fetchAndProcessNews = async (req, res) => {
     try {
         console.log("-----------------------------------------");
-        console.log("[Trigger] Scraping Process Started Manually...");
+        const targetCategory = req.query.category; // e.g. 'sports' or 'business'
+        const limitParam = parseInt(req.query.limit) || 10;
+        
+        console.log(`[Trigger] Scraping Process Started Manually... ${targetCategory ? `(Category: ${targetCategory})` : '(General)'}`);
         console.log("-----------------------------------------");
-
+ 
         let stats = { processed: 0, duplicates: 0, errors: 0, skipped_limit: 0, articles: [] };
-        const GLOBAL_LIMIT = 10;
-        const STATE_LIMIT = 5;
+        const GLOBAL_LIMIT = limitParam;
+        const STATE_LIMIT = targetCategory ? limitParam : 5; // Relax state limit if category is specific
         const stateCounters = {};
-
+ 
         const recentArticles = await NewsArticle.find().sort({ createdAt: -1 }).limit(500).select("title");
         const existingTitles = recentArticles.map(a => a.title);
-
+ 
         let allPotentialItems = [];
-        for (const source of newsSources) {
+        
+        // Filter sources by category if provided
+        let sourcesToProcess = newsSources;
+        if (targetCategory) {
+            const categoriesToMatch = targetCategory === 'business' ? ['business', 'economy'] : [targetCategory];
+            sourcesToProcess = newsSources.filter(s => categoriesToMatch.includes(s.category.toLowerCase()));
+            console.log(`[Batch] Filtered to ${sourcesToProcess.length} sources for category: ${targetCategory}`);
+        }
+
+        for (const source of sourcesToProcess) {
             try {
                 const items = await getLatestLinks(source.url);
                 allPotentialItems.push(...items.map(i => ({ ...i, sourceInfo: source })));
             } catch (err) { }
         }
         allPotentialItems = allPotentialItems.sort(() => Math.random() - 0.5);
+
 
         const CONCURRENCY = 2; // Reduced for heavy image processing stability
         const processArticle = async (item) => {
@@ -177,14 +190,30 @@ const fetchAndProcessNews = async (req, res) => {
                 return;
             }
 
-            if (isSemanticDuplicate(item.title, existingTitles)) {
-                console.log(`[Skip] Duplicate Found: "${item.title}"`);
+            // --- STRICT DUPLICATE PREVENTION (PRE-SCRAPE) ---
+            const urlHash = generateUrlHash(item.link);
+            const alreadyExists = await NewsArticle.findOne({ 
+                $or: [
+                    { urlHash: `${urlHash}-hi` }, 
+                    { urlHash: `${urlHash}-en` },
+                    { urlHash: urlHash }
+                ] 
+            });
+
+            if (alreadyExists) {
+                console.log(`[Skip] URL Already Processed: ${item.title}`);
                 stats.duplicates++;
                 return;
             }
 
-            const urlHash = generateUrlHash(item.link);
+            if (isSemanticDuplicate(item.title, existingTitles)) {
+                console.log(`[Skip] Semantic Duplicate Found: "${item.title}"`);
+                stats.duplicates++;
+                return;
+            }
+
             const slug = createSlug(item.title);
+
 
             try {
                 console.log(`[Batch] Scraping & AI Drafting: ${item.title}`);
