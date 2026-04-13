@@ -7,12 +7,12 @@ $card-border: rgba(255, 255, 255, 0.12);
 $card-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
 
 $input-bg: rgba(255, 255, 255, 0.08);
-$input-border: rgba(255, 255, 255, 0.15);
-$input-focus: rgba(45, 212, 191, 0.4);
+$input-border: rgba(255, 255, 255, 1);
+$input-focus: rgba(255, 255, 255, 0.4);
 
-$text-primary: #f1f5f9;
-$text-secondary: #cbd5e1;
-$text-muted: #94a3b8;
+$text-primary: #ffffff;
+$text-secondary: #f8fafc;
+$text-muted: #cbd5e1;
 
 $teal: #2dd4bf;
 $teal-dark: #0d9488;
@@ -28,7 +28,18 @@ $transition: all 0.2s ease;
   align-items: center;
   justify-content: center;
   background: $page-bg;
-  padding: 1rem;
+  padding: 1.5rem;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+  color: $text-primary;
+
+  @media (max-width: 480px) {
+    padding: 1rem;
+    align-items: flex-start;
+    padding-top: 2rem;
+  }
 }
 
 .card {
@@ -37,14 +48,26 @@ $transition: all 0.2s ease;
   background: $card-bg;
   backdrop-filter: blur(16px);
   border: 1px solid $card-border;
-  border-radius: 1rem;
-  padding: 1.75rem;
+  border-radius: 1.25rem;
+  padding: 2rem;
   box-shadow: $card-shadow;
+  position: relative;
+  overflow: hidden;
+
+  @media (max-width: 480px) {
+    padding: 1.5rem;
+    border-radius: 1rem;
+    max-width: 100%;
+  }
 }
 
 .header {
   text-align: center;
-  margin-bottom: 1.75rem;
+  margin-bottom: 2rem;
+
+  @media (max-width: 480px) {
+    margin-bottom: 1.5rem;
+  }
 }
 
 .iconWrapper {
@@ -56,12 +79,22 @@ $transition: all 0.2s ease;
   align-items: center;
   justify-content: center;
   margin: 0 auto 0.75rem;
+
+  @media (max-width: 480px) {
+    width: 3rem;
+    height: 3rem;
+  }
 }
 
 .lockIcon {
   width: 1.75rem;
   height: 1.75rem;
   color: $teal;
+
+  @media (max-width: 480px) {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
 }
 
 .title {
@@ -71,12 +104,21 @@ $transition: all 0.2s ease;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  margin: 0;
+
+  @media (max-width: 480px) {
+    font-size: 1.5rem;
+  }
 }
 
 .form {
   display: flex;
   flex-direction: column;
-  gap: 0.875rem;
+  gap: 1rem;
+
+  @media (max-width: 480px) {
+    gap: 0.75rem;
+  }
 }
 
 .selectWrapper,
@@ -86,13 +128,14 @@ $transition: all 0.2s ease;
 
 .select {
   width: 100%;
-  padding: 0.625rem 1rem 0.625rem 2.25rem;
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
   background: $input-bg;
   border: 1px solid $input-border;
   border-radius: 0.75rem;
   color: $text-primary;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   font-weight: 500;
+  font-family: inherit;
   appearance: none;
   cursor: pointer;
   transition: $transition;
@@ -112,16 +155,22 @@ $transition: all 0.2s ease;
     background: #0f172a;
     color: white;
   }
+
+  @media (max-width: 480px) {
+    padding: 10px 12px 10px 36px;
+    font-size: 0.875rem;
+  }
 }
 
 .input {
   width: 100%;
-  padding: 0.625rem 1rem 0.625rem 2.25rem;
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
   background: $input-bg;
   border: 1px solid $input-border;
   border-radius: 0.75rem;
   color: $text-primary;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
+  font-family: inherit;
   transition: $transition;
 
   &::placeholder {
@@ -138,37 +187,66 @@ $transition: all 0.2s ease;
     opacity: 0.6;
     cursor: not-allowed;
   }
+
+  @media (max-width: 480px) {
+    padding: 10px 12px 10px 36px;
+    font-size: 0.875rem;
+  }
 }
 
 .inputError {
-  border-color: $error !important;
-  box-shadow: 0 0 0 3px rgba($error, 0.2) !important;
+  border-color: #ff4d4d !important;
+  box-shadow: 0 0 10px rgba(255, 77, 77, 0.2) !important;
+  background: rgba(255, 77, 77, 0.05) !important;
 }
 
 .inputIcon {
   position: absolute;
-  left: 0.75rem;
+  left: 0.875rem;
   top: 50%;
   transform: translateY(-50%);
-  width: 1rem;
-  height: 1rem;
+  width: 1.125rem;
+  height: 1.125rem;
   color: $text-muted;
+  pointer-events: none;
+
+  @media (max-width: 480px) {
+    left: 0.75rem;
+    width: 1rem;
+    height: 1rem;
+  }
 }
 
 .passwordToggle {
   position: absolute;
-  right: 0.75rem;
+  right: 0.875rem;
   top: 50%;
   transform: translateY(-50%);
   background: none;
   border: none;
   color: $text-muted;
   cursor: pointer;
-  padding: 0;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+
+  &:hover {
+    color: $text-secondary;
+  }
 
   svg {
-    width: 1rem;
-    height: 1rem;
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+
+  @media (max-width: 480px) {
+    right: 0.75rem;
+    svg {
+      width: 1rem;
+      height: 1rem;
+    }
   }
 }
 
@@ -177,33 +255,49 @@ $transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
-  background: linear-gradient(to right, #0d9488, #115e59);
-  color: white;
-  font-size: 0.875rem;
-  font-weight: 600;
+  gap: 0.625rem;
+  padding: 0.875rem 1.25rem;
+  background: #ffffff;
+  color: #0f172a;
+  font-size:1.5rem;
+  font-weight: 900;
+  font-family: inherit;
   border: none;
   border-radius: 0.75rem;
-  box-shadow: 0 4px 12px rgba($teal, 0.25);
+  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.2);
   transition: $transition;
-  margin-top: 0.5rem;
+  margin-top: 0.75rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 
   &:hover:not(:disabled) {
-    background: linear-gradient(to right, #115e59, #0d9488);
-    transform: translateY(-1px);
-    box-shadow: 0 8px 20px rgba($teal, 0.35);
+    background: #f8fafc;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 255, 255, 0.35);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
   }
 
   &:disabled {
-    background: linear-gradient(to right, #4b5563, #374151);
+    background: #faf607;
+    color: #05070a;
     cursor: not-allowed;
-    box-shadow: none;
+    text-shadow: none;
+  }
+
+  @media (max-width: 480px) {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
   }
 }
 
 .spinner {
   animation: spin 1s linear infinite;
+  width: 1.125rem;
+  height: 1.125rem;
 }
 
 @keyframes spin {
@@ -213,28 +307,31 @@ $transition: all 0.2s ease;
 }
 
 .arrow {
-  width: 1rem;
-  height: 1rem;
+  width: 1.125rem;
+  height: 1.125rem;
 }
 
 .footer {
   text-align: center;
-  margin-top: 1.25rem;
-  padding-top: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .link {
   color: $teal;
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   font-weight: 500;
   background: none;
   border: none;
   cursor: pointer;
   transition: $transition;
+  padding: 2px 4px;
+  border-radius: 4px;
 
   &:hover {
     color: color.adjust($teal, $lightness: 12%);
+    background: rgba($teal, 0.1);
   }
 
   &:disabled {
@@ -244,7 +341,10 @@ $transition: all 0.2s ease;
 }
 
 .signupPrompt {
-  margin-top: 0.5rem;
-  font-size: 0.75rem;
+  margin-top: 0.75rem;
+  font-size: 0.8125rem;
   color: $text-muted;
+  margin-bottom: 0;
+  text-align: center;
+  line-height: normal;
 }
