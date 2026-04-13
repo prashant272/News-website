@@ -34,6 +34,7 @@ export const MainAuth: FC = () => {
         flexDirection: "column",
         color: "#ffffff" 
       }}
+      // background image
     >
       {mode === "signin" ? (
         <NoSSRSignIn setMode={setMode} />
