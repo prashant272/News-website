@@ -22,18 +22,18 @@ $error: #f87171;
 
 $transition: all 0.2s ease;
 
-.page {
+.authPageRoot {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: $page-bg;
+  background: $page-bg !important;
   padding: 1.5rem;
   font-family:
     system-ui,
     -apple-system,
-    sans-serif;
-  color: $text-primary;
+    sans-serif !important;
+  color: $text-primary !important;
 
   @media (max-width: 480px) {
     padding: 1rem;
@@ -42,22 +42,22 @@ $transition: all 0.2s ease;
   }
 }
 
-.card {
-  width: 100%;
-  max-width: 380px;
-  background: $card-bg;
-  backdrop-filter: blur(16px);
-  border: 1px solid $card-border;
-  border-radius: 1.25rem;
-  padding: 2rem;
-  box-shadow: $card-shadow;
-  position: relative;
-  overflow: hidden;
+.authCardBox {
+  width: 100% !important;
+  max-width: 380px !important;
+  background: $card-bg !important;
+  backdrop-filter: blur(16px) !important;
+  border: 1px solid $card-border !important;
+  border-radius: 1.25rem !important;
+  padding: 2rem !important;
+  box-shadow: $card-shadow !important;
+  position: relative !important;
+  overflow: hidden !important;
 
   @media (max-width: 480px) {
-    padding: 1.5rem;
-    border-radius: 1rem;
-    max-width: 100%;
+    padding: 1.5rem !important;
+    border-radius: 1rem !important;
+    max-width: 100% !important;
   }
 }
 

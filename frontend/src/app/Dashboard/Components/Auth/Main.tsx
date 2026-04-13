@@ -24,7 +24,17 @@ export const MainAuth: FC = () => {
   const [mode, setMode] = useState<Mode>("signin");
 
   return (
-    <div style={{ height: "100vh", backgroundColor: "#f7f7f7" }}>
+    <div 
+      data-theme="dark" 
+      style={{ 
+        minHeight: "100vh", 
+        backgroundColor: "#0f172a", 
+        width: "100%", 
+        display: "flex", 
+        flexDirection: "column",
+        color: "#ffffff" 
+      }}
+    >
       {mode === "signin" ? (
         <NoSSRSignIn setMode={setMode} />
       ) : mode === "signup" ? (

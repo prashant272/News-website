@@ -149,8 +149,8 @@ export const SignIn: React.FC<AuthChildProps> = ({ setMode }) => {
   );
 
   return (
-    <div className={styles.page}>
-      <div className={styles.card}>
+    <div className={styles.authPageRoot}>
+      <div className={styles.authCardBox}>
         <div className={styles.header}>
           <div className={styles.iconWrapper}>
             <Lock className={styles.lockIcon} />
