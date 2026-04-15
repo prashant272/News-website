@@ -20,17 +20,7 @@ const ensureBranding = (title, slug, lang) => {
     let finalTitle = (title || "").trim();
     let finalSlug = (slug || "").trim();
 
-    if (lang === "hi") {
-        if (!finalTitle.includes(BRAND_HI)) {
-            finalTitle = `${finalTitle} - ${BRAND_HI}`;
-        }
-    } else {
-        const regexEN = new RegExp(`${BRAND_EN}$`, "i");
-        if (!regexEN.test(finalTitle)) {
-            finalTitle = `${finalTitle} ${BRAND_EN}`;
-        }
-    }
-
+    // Only apply branding to slug, title should remain original
     if (finalSlug && !finalSlug.toLowerCase().endsWith("prime-time")) {
         finalSlug = `${finalSlug}-prime-time`;
     }
