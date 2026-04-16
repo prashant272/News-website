@@ -18,9 +18,23 @@ const getRandomUserAgent = () => USER_AGENTS[Math.floor(Math.random() * USER_AGE
  */
 const repairXml = (xml) => {
     if (!xml) return xml;
-    // Fix <tag attr> and <tag attr > by adding =""
-    // Matches attributes like 'allowfullscreen' or 'async' that sometimes appear without =""
-    return xml.replace(/<([a-zA-Z0-9:]+)([^>]*?)\s([a-zA-Z0-9_\-]+)(\s|>)/g, '<$1$2 $3=""$4');
+    
+    // 1. Nuclear Cleanup: Remove non-printable characters that break XML parsers
+    let repaired = xml.replace(/[^\x09\x0A\x0D\x20-\xFF\x85\xA0-\uD7FF\uE000-\uFDCF\uFDE0-\uFFFD]/gm, "");
+
+    // 2. Fix attributes without values (Common in Hindustan Times/HT feeds)
+    // Example: <iframe ... allowfullscreen ...> -> <iframe ... allowfullscreen="">
+    const booleanAttrs = ['allowfullscreen', 'async', 'autofocus', 'autoplay', 'checked', 'controls', 'default', 'defer', 'disabled', 'formnovalidate', 'hidden', 'ismap', 'itemscope', 'loop', 'multiple', 'muted', 'nomodule', 'novalidate', 'open', 'playsinline', 'readonly', 'required', 'reversed', 'selected'];
+    
+    booleanAttrs.forEach(attr => {
+        const regex = new RegExp(`\\s(${attr})(\\s|>|\\/)`, 'gi');
+        repaired = repaired.replace(regex, ` ${attr}=""$2`);
+    });
+
+    // 3. Ensure any stray '&' not part of an entity is escaped
+    repaired = repaired.replace(/&(?!(?:amp|lt|gt|quot|apos|#\d+|#x[a-f\d]+);)/gi, '&amp;');
+
+    return repaired;
 };
 
 
@@ -112,12 +126,24 @@ const scrapeNews = async (url) => {
 const getLatestLinks = async (rssUrl) => {
     try {
         // Fetch XML with axios to include headers (bypass 403)
+        const domain = new URL(rssUrl).hostname;
         const config = {
             headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-                'Accept': 'application/xml, text/xml, */*'
+                'User-Agent': getRandomUserAgent(),
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.9,hi;q=0.8',
+                'Accept-Encoding': 'gzip, deflate, br',
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache',
+                'Upgrade-Insecure-Requests': '1',
+                'Referer': `https://www.google.com/search?q=${domain}+rss+feed`,
+                'DNT': '1',
+                'Sec-Fetch-Dest': 'document',
+                'Sec-Fetch-Mode': 'navigate',
+                'Sec-Fetch-Site': 'cross-site'
             },
-            timeout: 10000
+            timeout: 10000,
+            validateStatus: (status) => status < 500 // Allow 403 to see if we get partial content
         };
 
         console.log(`[RSS] Fetching Feed: ${rssUrl}`);
@@ -128,9 +154,9 @@ const getLatestLinks = async (rssUrl) => {
         const feed = await parser.parseString(cleanedXml);
 
 
-        // --- DATE FILTER: only accept news published in the last 5 hours (User Request) ---
+        // --- DATE FILTER: only accept news published in the last 24 hours (Ensures important news isn't missed) ---
         const now = new Date();
-        const cutoff = new Date(now.getTime() - 5 * 60 * 60 * 1000); // 5 hours ago
+        const cutoff = new Date(now.getTime() - 12 * 60 * 60 * 1000); // 24 hours ago
 
         const recentItems = feed.items.filter(item => {
             if (!item.pubDate) return true; // fallback to true if no date

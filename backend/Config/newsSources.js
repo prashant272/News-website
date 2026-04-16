@@ -7,23 +7,13 @@ const newsSources = [
         category: "india",
     },
     {
-        name: "Zee News India",
-        url: "https://zeenews.india.com/rss/india-national-news.xml",
-        category: "india",
-    },
-    {
         name: "India TV News",
         url: "https://www.indiatvnews.com/rssnews/topstory.xml",
         category: "india",
     },
     {
         name: "NDTV India News",
-        url: "https://www.ndtv.com/rss/top-stories",
-        category: "india",
-    },
-    {
-        name: "News18 India",
-        url: "https://www.news18.com/rss/india.xml",
+        url: "https://feeds.feedburner.com/ndtvnews-india-news",
         category: "india",
     },
     {
@@ -37,21 +27,6 @@ const newsSources = [
         name: "News18 Sports",
         url: "https://www.news18.com/rss/sports.xml",
         category: "sports",
-    },
-    {
-        name: "Aaj Tak Sports",
-        url: "https://www.aajtak.in/rss/khel",
-        category: "sports"
-    },
-    {
-        name: "Zee News Sports",
-        url: "https://zeenews.india.com/rss/sports-news.xml",
-        category: "sports"
-    },
-    {
-        name: "NDTV Sports News",
-        url: "https://feeds.feedburner.com/ndtvsports-latest",
-        category: "sports"
     },
     {
         name: "Hindustan Times Cricket",
@@ -91,33 +66,6 @@ const newsSources = [
         url: "https://www.bollywoodhungama.com/rss/news.xml",
         category: "entertainment",
     },
-    {
-        name: "Variety",
-        url: "https://variety.com/feed/",
-        category: "entertainment",
-    },
-    {
-        name: "The Hollywood Reporter",
-        url: "https://www.hollywoodreporter.com/feed/",
-        category: "entertainment",
-    },
-
-    // --- LIFESTYLE ---
-    {
-        name: "Femina Lifestyle",
-        url: "http://www.femina.in/feeds/feeds-lifestyle.xml",
-        category: "lifestyle",
-    },
-    {
-        name: "HT Lifestyle",
-        url: "https://www.hindustantimes.com/rss/lifestyle/rssfeed.xml",
-        category: "lifestyle",
-    },
-    {
-        name: "GQ",
-        url: "https://www.gq.com/feed/rss",
-        category: "lifestyle",
-    },
 
     // --- WORLD ---
     {
@@ -135,6 +83,11 @@ const newsSources = [
         url: "https://rss.cnn.com/rss/edition_world.rss",
         category: "world",
     },
+    {
+        name: "Reuters World",
+        url: "https://www.reutersagency.com/feed/?best-topics=world-news&post_type=best",
+        category: "world",
+    },
 
     // --- HEALTH ---
     {
@@ -149,26 +102,6 @@ const newsSources = [
     },
 
     // --- STATE NEWS (Regional) ---
-    {
-        name: "Live Hindustan - Bihar",
-        url: "https://www.livehindustan.com/bihar/rss/",
-        category: "state",
-    },
-    {
-        name: "Live Hindustan - UP",
-        url: "https://www.livehindustan.com/uttar-pradesh/rss/",
-        category: "state",
-    },
-    {
-        name: "Live Hindustan - Uttarakhand",
-        url: "https://www.livehindustan.com/uttarakhand/rss/",
-        category: "state",
-    },
-    {
-        name: "Live Hindustan - Haryana",
-        url: "https://www.livehindustan.com/haryana/rss/",
-        category: "state",
-    },
     {
         name: "Live Hindustan - West Bengal",
         url: "https://api.livehindustan.com/feeds/rss/west-bengal/rssfeed.xml",
@@ -195,11 +128,6 @@ const newsSources = [
         category: "state",
     },
     {
-        name: "Live Hindustan - MP",
-        url: "https://www.livehindustan.com/madhya-pradesh/rss/",
-        category: "state"
-    },
-    {
         name: "Telangana Today",
         url: "https://telanganatoday.com/feed",
         category: "state",
@@ -215,69 +143,27 @@ const newsSources = [
         category: "state",
     },
     {
-        name: "Amar Ujala - Uttar Pradesh",
-        url: "https://www.amarujala.com/rss/uttar-pradesh.xml",
-        category: "state",
-        state: "uttar-pradesh"
-    },
-    {
         name: "Amar Ujala - Bihar",
         url: "https://www.amarujala.com/rss/bihar.xml",
         category: "state",
         state: "bihar"
     },
     {
-        name: "Amar Ujala - Haryana",
-        url: "https://www.amarujala.com/rss/haryana.xml",
-        category: "state",
-        state: "haryana"
-    },
-    {
-        name: "Amar Ujala - Uttarakhand",
-        url: "https://www.amarujala.com/rss/uttarakhand.xml",
-        category: "state",
-        state: "uttarakhand"
-    },
-    // --- TAK LIVE (Upgraded Links) ---
-    {
-        name: "UP Tak",
-        url: "https://uptak.tak.live/rss",
-        category: "state",
-        state: "uttar-pradesh"
-    },
-    {
-        name: "Bihar Tak",
-        url: "https://bihartak.tak.live/rss",
+        name: "Bihar - Live Hindustan",
+        url: "https://api.livehindustan.com/feeds/rss/bihar/rssfeed.xml",
         category: "state",
         state: "bihar"
     },
     {
-        name: "Rajasthan Tak",
-        url: "https://rajasthantak.tak.live/rss",
+        name: "UP - Live Hindustan",
+        url: "https://api.livehindustan.com/feeds/rss/uttar-pradesh/rssfeed.xml",
         category: "state",
-        state: "rajasthan"
-    },
-    {
-        name: "MP Tak",
-        url: "https://mptak.tak.live/rss",
-        category: "state",
-        state: "madhya-pradesh"
-    },
-    {
-        name: "Haryana Tak",
-        url: "https://haryanatak.tak.live/rss",
-        category: "state",
-        state: "haryana"
+        state: "uttar-pradesh"
     },
     // --- EDUCATION ---
     {
-        name: "NDTV Education",
-        url: "https://www.ndtv.com/education/feed",
-        category: "education",
-    },
-    {
-        name: "Jagran Josh - Education",
-        url: "https://www.jagranjosh.com/rss/josh/general-knowledge.xml",
+        name: "India Today Education",
+        url: "https://www.indiatoday.in/rss/1206550",
         category: "education",
     },
     // --- SPECIAL CATEGORIES ---
@@ -292,13 +178,8 @@ const newsSources = [
         category: "business",
     },
     {
-        name: "Business Standard",
-        url: "https://www.business-standard.com/rss/latest.rss",
-        category: "business",
-    },
-    {
         name: "Live Hindustan Business",
-        url: "https://www.livehindustan.com/business/rss/",
+        url: "https://api.livehindustan.com/feeds/rss/business/rssfeed.xml",
         category: "business",
     },
 
@@ -309,7 +190,7 @@ const newsSources = [
     },
     {
         name: "Live Hindustan Career",
-        url: "https://www.livehindustan.com/career/rss/",
+        url: "https://api.livehindustan.com/feeds/rss/career/rssfeed.xml",
         category: "careers",
     },
     {

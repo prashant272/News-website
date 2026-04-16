@@ -195,7 +195,29 @@ const fetchAndProcessNews = async (req, res) => {
                 allPotentialItems.push(...items.map(i => ({ ...i, sourceInfo: source })));
             } catch (err) { }
         }
-        allPotentialItems = allPotentialItems.sort(() => Math.random() - 0.5);
+
+        // --- ENHANCED PRIORITIZATION ---
+        // Group by priority: High (India, World, State), Medium (Business, Tech), Low (Sports, Entertainment)
+        const priorityPools = { high: [], med: [], low: [] };
+        
+        allPotentialItems.forEach(item => {
+            const cat = (item.sourceInfo.category || "").toLowerCase();
+            if (['india', 'world', 'state', 'politics'].includes(cat)) priorityPools.high.push(item);
+            else if (['business', 'technology', 'science', 'health'].includes(cat)) priorityPools.med.push(item);
+            else priorityPools.low.push(item);
+        });
+
+        // Shuffle each pool for variety within priority
+        priorityPools.high.sort(() => Math.random() - 0.5);
+        priorityPools.med.sort(() => Math.random() - 0.5);
+        priorityPools.low.sort(() => Math.random() - 0.5);
+
+        // Re-assemble allPotentialItems with high priority items first
+        allPotentialItems = [
+            ...priorityPools.high,
+            ...priorityPools.med,
+            ...priorityPools.low
+        ];
 
 
         const CONCURRENCY = 2; // Reduced for heavy image processing stability

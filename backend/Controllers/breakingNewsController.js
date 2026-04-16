@@ -10,54 +10,96 @@ exports.scrapeBreakingNews = async (req, res) => {
         await BreakingNews.deleteMany({ createdAt: { $lt: twoDaysAgo } });
 
         const sources = [
-            { name: "Aaj Tak", url: "https://www.aajtak.in/rssfeeds/?id=home" },
-            { name: "NDTV", url: "https://feeds.feedburner.com/ndtvnews-india-news" },
-            { name: "India TV", url: "https://www.indiatvnews.com/rssnews/topstory.xml" },
-            { name: "The Hindu", url: "https://www.thehindu.com/news/national/feeder/default.rss" },
-            { name: "Zee News", url: "https://zeenews.india.com/rss/india-national-news.xml" },
-            { name: "ABP News", url: "https://news.abplive.com/news/india/feed" },
-            { name: "Republic World", url: "https://www.republicworld.com/feeds/india-news.xml" },
-            { name: "Hindustan Times", url: "https://www.hindustantimes.com/feeds/rss/india-news/rssfeed.xml" },
-            { name: "Times of India", url: "https://timesofindia.indiatimes.com/rssfeeds/296589292.cms" },
+            // --- NATIONAL / INDIA ---
+            { name: "Aaj Tak India", url: "https://www.aajtak.in/rssfeeds/?id=india", cat: 'india' },
+            { name: "NDTV India", url: "https://feeds.feedburner.com/ndtvnews-india-news", cat: 'india' },
+            { name: "India TV", url: "https://www.indiatvnews.com/rssnews/topstory.xml", cat: 'india' },
+            { name: "ABP News India", url: "https://news.abplive.com/news/india/feed", cat: 'india' },
+            
+            // --- WORLD ---
+            { name: "BBC News World", url: "http://feeds.bbci.co.uk/news/world/rss.xml", cat: 'world' },
+            { name: "CNN World", url: "https://rss.cnn.com/rss/edition_world.rss", cat: 'world' },
+
+            // --- STATES / REGIONAL ---
+            { name: "Live Hindustan Bihar", url: "https://www.livehindustan.com/bihar/rss/", cat: 'state', state: 'bihar' },
+            { name: "Bihar Tak", url: "https://bihartak.tak.live/rss", cat: 'state', state: 'bihar' },
+            { name: "Live Hindustan UP", url: "https://www.livehindustan.com/uttar-pradesh/rss/", cat: 'state', state: 'uttar-pradesh' },
+            
+            // --- GENERAL / TOP STORIES ---
+            { name: "The Hindu", url: "https://www.thehindu.com/news/national/feeder/default.rss", cat: 'india' },
+            { name: "Times of India", url: "https://timesofindia.indiatimes.com/rssfeeds/296589292.cms", cat: 'india' },
         ];
 
         let allNewItems = [];
         for (const source of sources) {
             try {
                 const items = await getLatestLinks(source.url);
-                const itemsWithSource = items.map(item => ({ ...item, sourceName: source.name }));
+                const itemsWithSource = items.map(item => ({ 
+                    ...item, 
+                    sourceName: source.name, 
+                    cat: source.cat,
+                    state: source.state || 'universal'
+                }));
                 allNewItems = [...allNewItems, ...itemsWithSource];
             } catch (err) {
                 console.error(`Error scraping ${source.name}:`, err.message);
             }
         }
 
-        // Shuffle to mix sources
+        // Shuffling to mix initially
         allNewItems.sort(() => Math.random() - 0.5);
 
-        // Filter and map to model
-        const samples = [];
+        // --- CATEGORICAL BALANCING ---
+        const finalSelection = [];
         const existingTitles = await BreakingNews.find().select('title').lean();
         const existingSet = new Set(existingTitles.map(t => t.title));
 
-        let staggerTime = new Date();
-        const INTERVAL_MINUTES = 5; // Release every 20 minutes
-
+        // Group by category
+        const categories = { india: [], state: [], world: [], other: [] };
         for (const item of allNewItems) {
             if (!existingSet.has(item.title)) {
-                samples.push({
-                    title: item.title,
-                    link: item.link,
-                    source: item.sourceName || "Global",
-                    priority: 0,
-                    isActive: true,
-                    scheduledAt: new Date(staggerTime)
-                });
-                // Increment stagger time for next item
-                staggerTime.setMinutes(staggerTime.getMinutes() + INTERVAL_MINUTES);
-                if (samples.length >= 15) break; // Limit to 50
+                const c = item.cat || 'other';
+                if (categories[c]) categories[c].push(item);
+                else categories.other.push(item);
             }
         }
+
+        // Picking logic: 5 India, 5 State, 5 World/Other
+        const pickFrom = (catName, limit) => {
+            const picked = categories[catName].slice(0, limit);
+            finalSelection.push(...picked);
+            // Remove picked from main pool to avoid duplicates if we fallback
+            const pickedTitles = new Set(picked.map(p => p.title));
+            categories[catName] = categories[catName].filter(p => !pickedTitles.has(p.title));
+        };
+
+        pickFrom('india', 6);
+        pickFrom('state', 6);
+        pickFrom('world', 3);
+
+        // Fallback: If we didn't reach 15, fill with whatever is left
+        if (finalSelection.length < 15) {
+            const leftovers = [...categories.india, ...categories.state, ...categories.world, ...categories.other];
+            finalSelection.push(...leftovers.slice(0, 15 - finalSelection.length));
+        }
+
+        let staggerTime = new Date();
+        const INTERVAL_MINUTES = 4; // Slightly faster release (every 4 mins)
+
+        const samples = finalSelection.slice(0, 15).map(item => {
+            const scheduled = new Date(staggerTime);
+            staggerTime.setMinutes(staggerTime.getMinutes() + INTERVAL_MINUTES);
+            return {
+                title: item.title,
+                link: item.link,
+                source: item.sourceName || "Global",
+                priority: 0,
+                isActive: true,
+                lang: hasHindiCharacters(item.title) ? "hi" : "en",
+                state: item.state || "universal",
+                scheduledAt: scheduled
+            };
+        });
 
         if (samples.length === 0) {
             return res.status(200).json({ success: true, message: "No new breaking news found." });
