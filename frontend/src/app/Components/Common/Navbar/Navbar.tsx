@@ -110,6 +110,7 @@ const Navbar: React.FC = () => {
 
   const desktopNavRef = useRef<HTMLDivElement>(null);
   const scrollPillRef = useRef<HTMLDivElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
 
   const { theme, toggleTheme } = useTheme();
   const newsContext = useNewsContext();
@@ -207,8 +208,9 @@ const Navbar: React.FC = () => {
       const target = event.target as Node;
       const isInsideDesktop = desktopNavRef.current?.contains(target);
       const isInsidePill = scrollPillRef.current?.contains(target);
+      const isInsideMobile = mobileMenuRef.current?.contains(target);
 
-      if (activeDropdown && !isInsideDesktop && !isInsidePill) {
+      if (activeDropdown && !isInsideDesktop && !isInsidePill && !isInsideMobile) {
         setActiveDropdown(null);
       }
     };
@@ -529,7 +531,7 @@ const Navbar: React.FC = () => {
         </div>
       </nav>
 
-      <div className={`${styles.mobileMenu} ${isMobileMenuOpen ? styles.open : ''}`}>
+      <div ref={mobileMenuRef} className={`${styles.mobileMenu} ${isMobileMenuOpen ? styles.open : ''}`}>
         <ul className={styles.navListMobile}>
           {navItems.map(item => (
             <li key={item.key} className={item.submenu ? styles.hasMobileSubmenu : ''}>

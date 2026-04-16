@@ -41,7 +41,7 @@ exports.scrapeBreakingNews = async (req, res) => {
         const existingSet = new Set(existingTitles.map(t => t.title));
 
         let staggerTime = new Date();
-        const INTERVAL_MINUTES = 10; // Release every 20 minutes
+        const INTERVAL_MINUTES = 5; // Release every 20 minutes
 
         for (const item of allNewItems) {
             if (!existingSet.has(item.title)) {
@@ -55,7 +55,7 @@ exports.scrapeBreakingNews = async (req, res) => {
                 });
                 // Increment stagger time for next item
                 staggerTime.setMinutes(staggerTime.getMinutes() + INTERVAL_MINUTES);
-                if (samples.length >= 50) break; // Limit to 50
+                if (samples.length >= 15) break; // Limit to 50
             }
         }
 
