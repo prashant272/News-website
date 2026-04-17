@@ -49,7 +49,7 @@ const generateUrlHash = (url) => {
     return crypto.createHash("sha256").update(url).digest("hex");
 };
 
-const uploadImage = async (imageUrl, title = "", source = "") => {
+const uploadImage = async (imageUrl, title = "", source = "", category = null) => {
     if (!imageUrl) return null;
     try {
         console.log(`[Cloudinary] ${title ? "Branding" : "Watermarking"} and Uploading: ${imageUrl}`);
@@ -58,7 +58,7 @@ const uploadImage = async (imageUrl, title = "", source = "") => {
         let buffer;
         if (title) {
             // New HD Master Branding with Title
-            buffer = await brandImageWithTitle(imageUrl, title);
+            buffer = await brandImageWithTitle(imageUrl, title, { category });
         } else {
             // Legacy anti-copyright watermark
             buffer = await applyWatermark(imageUrl, source);
@@ -135,7 +135,7 @@ const autoGenerateNews = async (req, res) => {
         if (existing) return res.status(409).json({ success: false, msg: "Article already exists.", slug: finalSlug });
 
         // BRANDING: Process image with AI generated title
-        const finalImage = scraped.image ? await uploadImage(scraped.image, finalTitle, scraped.source) : null;
+        const finalImage = scraped.image ? await uploadImage(scraped.image, finalTitle, scraped.source, category) : null;
 
         const newPostHi = new NewsArticle({
             title: finalTitle,
@@ -270,7 +270,7 @@ const fetchAndProcessNews = async (req, res) => {
                     const finalSlugHi = brandedHi.slug;
 
                     // Unique branded image for Hindi
-                    const brandedImageHi = scraped.image ? await uploadImage(scraped.image, finalTitleHi, source.name) : null;
+                    const brandedImageHi = scraped.image ? await uploadImage(scraped.image, finalTitleHi, source.name, source.category) : null;
 
                     const articleHi = new NewsArticle({
                         title: finalTitleHi,

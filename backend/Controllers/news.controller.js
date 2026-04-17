@@ -218,8 +218,8 @@ exports.AddNews = async (req, res) => {
     let imageUrl = null;
     if (image) {
       try {
-        console.log(`[Admin-Upload] Applying professional branding to image for: ${finalTitleStr}`);
-        const brandedBuffer = await brandImageWithTitle(image, finalTitleStr);
+        console.log(`[Admin-Upload] Requesting branded image for: ${finalTitleStr} (Category: ${finalCategory})`);
+        const brandedBuffer = await brandImageWithTitle(image, finalTitleStr, { category: finalCategory });
 
         const uploadResponse = await cloudinary.uploader.upload(
           `data:image/png;base64,${brandedBuffer.toString('base64')}`,
@@ -523,8 +523,11 @@ exports.updateNewsBySlug = async (req, res) => {
     let imageUrl = item.image;
     if (updateData.image && updateData.image !== imageUrl) {
       try {
-        console.log(`[Admin-Update] Applying professional branding to updated image for: ${updateData.title}`);
-        const brandedBuffer = await brandImageWithTitle(updateData.image, updateData.title);
+        // Resolve effective category for branding check
+        const currentCategories = updateData.category || item.category || [];
+        
+        console.log(`[Admin-Update] Requesting branded image for update: ${updateData.title} (Category: ${currentCategories})`);
+        const brandedBuffer = await brandImageWithTitle(updateData.image, updateData.title, { category: currentCategories });
 
         const uploadResponse = await cloudinary.uploader.upload(
           `data:image/png;base64,${brandedBuffer.toString('base64')}`,

@@ -214,9 +214,26 @@ const addLogoToImage = async (imageBuffer) => {
  * Full Newsroom Branding with Title Overlay
  * Used for social media posts (Facebook, etc.)
  */
-const brandImageWithTitle = async (imageUrl, title, options = { addLogo: true }) => {
+const brandImageWithTitle = async (imageUrl, title, options = { addLogo: true, category: null }) => {
     try {
         const addLogo = options?.addLogo !== false;
+        const category = options?.category;
+
+        // SKIP BRANDING for specific categories (Awards, Events, etc.)
+        const categoriesToSkip = ["awards", "events", "event"];
+        const normalizedCats = Array.isArray(category) 
+            ? category.map(c => String(c).toLowerCase()) 
+            : [String(category).toLowerCase()];
+        
+        const isExcluded = normalizedCats.some(c => categoriesToSkip.includes(c));
+        const titleLower = (title || "").toLowerCase();
+        const titleExcludes = categoriesToSkip.some(kw => titleLower.includes(kw));
+
+        if (isExcluded || titleExcludes) {
+            console.log(`[Branding-Skip] Exclusion rule triggered (Cat: ${category}, Title: ${title}). Returning original image.`);
+            return await getImageBuffer(imageUrl);
+        }
+
         console.log(`[Branding-Final] Mastering professional white-card for: ${title}`);
         
         // 1. Resolve image buffer (supports URL or Base64/Local)

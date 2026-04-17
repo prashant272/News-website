@@ -33,12 +33,12 @@ exports.brandImage = async (req, res) => {
         }
 
         // Determine branding type based on whether a title is provided
-        const { title } = req.body;
+        const { title, category } = req.body;
         let brandedBuffer;
 
         if (title) {
-            console.log(`[Branding-API] Applying full title-based branding for preview: ${title}`);
-            brandedBuffer = await brandImageWithTitle(buffer, title);
+            console.log(`[Branding-API] Applying full title-based branding for preview: ${title} (Category: ${category})`);
+            brandedBuffer = await brandImageWithTitle(buffer, title, { category: category });
         } else {
             console.log("[Branding-API] Applying standalone logo branding");
             brandedBuffer = await addLogoToImage(buffer);

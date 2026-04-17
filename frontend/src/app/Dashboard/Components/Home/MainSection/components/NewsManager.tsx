@@ -228,7 +228,8 @@ const NewsManager: FC<NewsManagerProps> = ({
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         image: formState.image,
-                        title: formState.title
+                        title: formState.title,
+                        category: formState.category
                     })
                 });
 
