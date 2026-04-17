@@ -130,7 +130,8 @@ const NewsSection: React.FC<NewsSectionProps> = ({
       isLive: (item as any).isLive,
       date: item.date || (item as any).publishedAt || (item as any).createdAt,
       targetLink: (item as any).targetLink,
-      nominationLink: (item as any).nominationLink
+      nominationLink: (item as any).nominationLink,
+      moreInfoLink: (item as any).moreInfoLink
     }));
   }, [providedMainNews, sectionNews, section]);
 
@@ -173,7 +174,12 @@ const NewsSection: React.FC<NewsSectionProps> = ({
     );
   }
 
-  const hasTrendingNews = sectionNews.some(item => item.isTrending === true);
+  const isRegionalOrState = useMemo(() => {
+    const lowerSection = section.toLowerCase();
+    return lowerSection === 'regional' || lowerSection === 'state' || lowerSection === 'राज्य' || lowerSection === 'awards';
+  }, [section]);
+
+  const hasTrendingNews = sectionNews.some(item => (item as any).isTrending === true);
 
   return (
     <div className={styles.pageWrapper}>
@@ -218,17 +224,18 @@ const NewsSection: React.FC<NewsSectionProps> = ({
           <div className={`${styles.mainGrid} ${lang === 'hi' ? styles.hindiGrid : styles[`cols${gridColumns}`]}`}>
             {mainNews.map((news) => (
               lang === 'hi' ? (
-                <HindiNewsCard 
-                  key={news.id} 
-                  item={news} 
-                  lang={lang} 
-                  orientation="horizontal" 
+                <HindiNewsCard
+                  key={news.id}
+                  item={news}
+                  lang={lang}
+                  orientation={isRegionalOrState ? 'horizontal' : 'vertical'}
                 />
               ) : (
                 <NewsCard
                   key={news.id}
                   currentSection={section}
                   lang={lang}
+                  orientation={isRegionalOrState ? 'horizontal' : 'vertical'}
                   {...news}
                 />
               )

@@ -34,8 +34,16 @@ const HindiNewsCard: React.FC<HindiNewsCardProps> = ({
         compact ? styles.compact : ''
     ].join(' ');
 
+    const isAwardCategory = category === "awards" || (item.category && item.category[0]?.toLowerCase() === "awards");
+
+    const handleCardClick = () => {
+        if (href) {
+            window.open(href, '_blank', 'noopener,noreferrer');
+        }
+    };
+
     return (
-        <Link href={href} className={cardClasses}>
+        <div onClick={handleCardClick} className={cardClasses} style={{ cursor: 'pointer' }}>
             <div className={styles.imageWrapper}>
                 <Image
                     src={item.image || '/placeholder.jpg'}
@@ -48,7 +56,7 @@ const HindiNewsCard: React.FC<HindiNewsCardProps> = ({
                 {item.isLive && (
                     <div className={styles.liveBadge}>
                         <span className={styles.liveDot}></span>
-                        लाइव
+                        {lang === 'hi' ? 'लाइव' : 'LIVE'}
                     </div>
                 )}
             </div>
@@ -68,16 +76,45 @@ const HindiNewsCard: React.FC<HindiNewsCardProps> = ({
 
                 <h3 className={styles.title}>{item.title}</h3>
 
+                {isAwardCategory && (item.nominationLink || item.moreInfoLink) && (
+                    <div className={styles.awardActions}>
+                        {item.nominationLink && (
+                            <a 
+                                href={item.nominationLink.startsWith('http') ? item.nominationLink : `https://${item.nominationLink}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={styles.nominateBtn}
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                Nominate Now
+                            </a>
+                        )}
+                        {item.moreInfoLink && (
+                            <a 
+                                href={item.moreInfoLink.startsWith('http') ? item.moreInfoLink : `https://${item.moreInfoLink}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={styles.moreInfoBtn}
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                More Info
+                            </a>
+                        )}
+                    </div>
+                )}
+
                 {!compact && orientation === 'vertical' && (
                     <div className={styles.footer}>
-                        <span className={styles.readMore}>पूरी खबर पढ़ें</span>
+                        <span className={styles.readMore}>
+                            {lang === 'hi' ? 'पूरी खबर पढ़ें' : 'Read More'}
+                        </span>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M9 18l6-6-6-6" />
                         </svg>
                     </div>
                 )}
             </div>
-        </Link>
+        </div>
     );
 };
 

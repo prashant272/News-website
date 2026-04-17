@@ -16,15 +16,29 @@ const getImageBuffer = async (input) => {
     if (typeof input !== 'string') throw new Error("Invalid image input type");
 
     if (input.startsWith('http')) {
+        let domain = "https://www.google.com/";
+        try {
+            const urlObj = new URL(input);
+            domain = `${urlObj.protocol}//${urlObj.hostname}/`;
+        } catch (e) {}
+
         const config = {
             headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
                 'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
-                'Accept-Language': 'en-US,en;q=0.9',
-                'Referer': 'https://www.google.com/'
+                'Accept-Language': 'en-US,en;q=0.9,hi;q=0.8',
+                'Referer': domain,
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache',
+                'Sec-Ch-Ua': '"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"',
+                'Sec-Ch-Ua-Mobile': '?0',
+                'Sec-Ch-Ua-Platform': '"Windows"',
+                'Sec-Fetch-Dest': 'image',
+                'Sec-Fetch-Mode': 'no-cors',
+                'Sec-Fetch-Site': 'cross-site'
             },
             responseType: 'arraybuffer',
-            timeout: 10000
+            timeout: 15000 // Increased timeout for slow news servers
         };
         const response = await axios.get(input, config);
         return Buffer.from(response.data);
@@ -232,121 +246,145 @@ const brandImageWithTitle = async (imageUrl, title, options = { addLogo: true })
         })[m]);
 
         const safeTitle = escapeXML(title.trim());
-        // Detection and Branding logic refinement
         const isHindi = hasHindiCharacters(title);
         const words = safeTitle.split(' ');
         
-        // Define branding parts
-        let splitIdx = isHindi ? 3 : 2; // Split more words for Hindi if possible
+        let splitIdx = isHindi ? 4 : 3; 
         if (words.length <= splitIdx) splitIdx = Math.max(1, words.length - 1);
         
-        let firstPartText = words.slice(0, splitIdx).join(' ');
-        let restText = words.slice(splitIdx).join(' ');
+        const firstPartText = words.slice(0, splitIdx).join(' ');
+        const restText = words.slice(splitIdx).join(' ');
 
-        if (!isHindi) {
-            firstPartText = firstPartText.toUpperCase();
-            restText = restText.toUpperCase();
-        }
+        // 1. DYNAMIC FONT SCALING
+        let fontSize = 42;
+        if (title.length > 60) fontSize = 38;
+        if (title.length > 100) fontSize = 34;
+        if (title.length > 150) fontSize = 30;
 
-        // Dynamic Font Scaling
-        let fontSize = 38;
-        if (title.length > 60) fontSize = 34;
-        if (title.length > 100) fontSize = 30;
-        if (title.length > 150) fontSize = 26;
-
-        // Wrap Logic
-        // Hindi characters take more horizontal space in many renderers
-        const charWidth = isHindi ? (fontSize * 0.65) : (fontSize * 0.55); 
+        const lineSpacing = fontSize * 1.35;
+        const charWidth = isHindi ? (fontSize * 0.72) : (fontSize * 0.58);
         const maxChars = Math.floor((width * 0.92) / charWidth);
 
-
-        const wrapText = (text, maxLength) => {
+        const wrapLines = (text, limit) => {
             const lines = [];
-            let currentLine = "";
-            text.split(' ').forEach(word => {
-                if ((currentLine + word).length > maxLength) {
-                    if (currentLine) lines.push(currentLine.trim());
-                    currentLine = word + " ";
+            let current = "";
+            text.split(' ').forEach(w => {
+                if ((current + w).length > limit) {
+                    lines.push(current.trim());
+                    current = w + " ";
                 } else {
-                    currentLine += word + " ";
+                    current += w + " ";
                 }
             });
-            if (currentLine) lines.push(currentLine.trim());
+            if (current) lines.push(current.trim());
             return lines;
         };
 
-        const firstPartLines = wrapText(firstPartText, maxChars);
-        const restLines = wrapText(restText, maxChars);
+        const firstLines = wrapLines(firstPartText, maxChars);
+        const restLines = wrapLines(restText, maxChars);
+        const totalLines = firstLines.length + restLines.length;
 
-        // SVG Layout Constants
-        const badgeY = 15;
-        const lineSpacing = fontSize * 1.4;
-        let currentY = 100; // Starting Y for the red title
-
-        // 4. CALCULATE DYNAMIC CARD HEIGHT
-        // 100 (top offset) + lines * spacing + 60 (footer space) + 30 (bottom buffer)
-        const totalTextLines = firstPartLines.length + Math.min(restLines.length, 3);
-        const requiredCardHeight = Math.round(100 + (totalTextLines * lineSpacing) + 90);
-        const cardH = Math.max(Math.round(height * 0.48), requiredCardHeight);
+        // 2. CALCULATE DYNAMIC LAYOUT DIMENSIONS
+        const titleStartY = 110;
+        const titleEndY = titleStartY + (totalLines * lineSpacing);
+        const urlPillY = titleEndY + 30; // 30px gap after title
+        const cardH = urlPillY + 90; // Padding after URL pill
         const totalH = Math.round(height + cardH);
 
-        // 5. CANVAS EXTENSION (Adding White Space at Bottom)
-        const whiteCard = await sharp({
-            create: {
-                width: width,
-                height: totalH,
-                channels: 4,
-                background: { r: 255, g: 255, b: 255, alpha: 1 }
-            }
-        }).png().toBuffer();
+        // 3. HD CINEMATIC BACKDROP (Full Bleed)
+        const bgBlur = await sharp(imageBuffer)
+            .resize(width, totalH, { fit: 'cover' })
+            .blur(40)
+            .modulate({ brightness: 0.6, saturation: 1.2 })
+            .toBuffer();
 
-        const textOverlay = Buffer.from(`
+        // 4. MAIN IMAGE (Glass Frame)
+        const frameW = Math.round(width * 0.94);
+        const frameH = Math.round(height * 0.92);
+        const mainImageFrame = await sharp(gradedImage)
+            .resize({ width: frameW, height: frameH, fit: 'cover' })
+            .extend({
+                top: 4, bottom: 4, left: 4, right: 4,
+                background: { r: 255, g: 255, b: 255, alpha: 0.2 } // Silver border
+            })
+            .toBuffer();
+
+        // 5. EXECUTIVE CRIMSON TEXT SECTION OVERLAY
+        const glassOverlay = Buffer.from(`
             <svg width="${width}" height="${cardH}">
                 <defs>
-                    <style>
-                        .header { font-family: 'Arial', sans-serif; font-weight: 900; font-size: 20px; fill: white; }
-                        .title-red { font-family: 'Nirmala UI', 'Poppins', 'Noto Sans Devanagari', 'Arial Black', sans-serif; font-weight: 900; font-size: ${fontSize}px; fill: #CC0000; }
-                        .title-black { font-family: 'Nirmala UI', 'Poppins', 'Noto Sans Devanagari', 'Arial Black', sans-serif; font-weight: 900; font-size: ${fontSize}px; fill: #000000; }
-                        .url { font-family: 'Arial', sans-serif; font-weight: bold; font-size: 16px; fill: #666; }
-                    </style>
-
+                    <linearGradient id="crimson" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#4a0000;stop-opacity:0.95" />
+                        <stop offset="100%" style="stop-color:#1a0000;stop-opacity:0.90" />
+                    </linearGradient>
+                    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur in="SourceAlpha" stdDeviation="5" />
+                        <feOffset dx="0" dy="3" />
+                        <feComponentTransfer><feFuncA type="linear" slope="0.5"/></feComponentTransfer>
+                        <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+                    </filter>
                 </defs>
+                
+                <rect width="${width}" height="${cardH}" fill="url(#crimson)" />
+                <rect width="${width}" height="2" fill="rgba(255,255,255,0.1)" />
 
-                <!-- 1. LIVE HEADER BADGE (Center) -->
-                <rect x="${width / 2 - 100}" y="${badgeY}" width="200" height="40" rx="8" fill="#CC0000" />
-                <text x="${width / 2}" y="${badgeY + 28}" text-anchor="middle" class="header">PRIME TIME</text>
+                <!-- Header Ticker Badge -->
+                <rect x="${width / 2 - 120}" y="20" width="240" height="42" rx="21" fill="#CC0000" filter="url(#shadow)" />
+                <text x="${width / 2}" y="48" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="20px" fill="white" letter-spacing="1.5px">PRIME TIME</text>
 
-                <!-- 2. HEADLINE (Red First Part) -->
-                ${firstPartLines.map((line, i) => {
-                    const y = currentY;
-                    currentY += lineSpacing;
-                    return `<text x="${width / 2}" y="${y}" text-anchor="middle" class="title-red">${line}</text>`;
-                }).join('')}
+                <!-- Headline (Luxury White & Gold) -->
+                <g filter="url(#shadow)">
+                    ${firstLines.map((line, i) => {
+                        const y = titleStartY + (i * lineSpacing);
+                        return `<text x="${width / 2}" y="${y}" text-anchor="middle" font-family="Nirmala UI, Arial, sans-serif" font-size="${fontSize + 2}" font-weight="900" fill="#FFFFFF">${line}</text>`;
+                    }).join('')}
+                    ${restLines.map((line, i) => {
+                        const y = titleStartY + ((i + firstLines.length) * lineSpacing);
+                        return `<text x="${width / 2}" y="${y}" text-anchor="middle" font-family="Nirmala UI, Arial, sans-serif" font-size="${fontSize}" font-weight="900" fill="#FFD700">${line}</text>`;
+                    }).join('')}
+                </g>
 
-                <!-- 3. HEADLINE (Black Rest) -->
-                ${restLines.slice(0, 3).map((line, i) => { // Up to 3 lines of black text
-                    const y = currentY;
-                    currentY += lineSpacing;
-                    return `<text x="${width / 2}" y="${y}" text-anchor="middle" class="title-black">${line}</text>`;
-                }).join('')}
-
-                <!-- 4. URL FOOTER BADGE (Dynamic Position) -->
-                <rect x="${width / 2 - 130}" y="${currentY + 6}" width="260" height="42" rx="21" fill="#FFD700" />
-                <text x="${width / 2}" y="${currentY + 38}" text-anchor="middle" style="font-family: 'Arial Black', sans-serif; font-weight: 900; font-size: 20px; fill: #CC0000; letter-spacing: 0.02em;">primetimemedia.in</text>
+                <!-- URL Sticker (Gold-to-Orange Pill) - DYNAMIC POSITION -->
+                <rect x="${width / 2 - 155}" y="${urlPillY}" width="310" height="46" rx="23" fill="#FFD700" filter="url(#shadow)" />
+                <text x="${width / 2}" y="${urlPillY + 31}" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="20px" fill="#4d0000" letter-spacing="0.05em">primetimemedia.in</text>
             </svg>
         `);
 
-        // 5. ASSEMBLE ALL PIECES (Logo ONLY at Top-Left)
-        const logoSize = Math.min(Math.round(width * 0.16), 250);
+        // 6. PREMIUM GLASS BADGE FOR LOGO
+        const logoSize = Math.min(Math.round(width * 0.18), 300);
+        const badgeSize = logoSize + 60;
+        
+        const logoBadge = Buffer.from(`
+            <svg width="${badgeSize}" height="${badgeSize}">
+                <defs>
+                    <filter id="badgeShadow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur in="SourceAlpha" stdDeviation="8" />
+                        <feOffset dx="0" dy="4" />
+                        <feComponentTransfer><feFuncA type="linear" slope="0.4"/></feComponentTransfer>
+                        <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+                    </filter>
+                    <linearGradient id="silver" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:0.4" />
+                        <stop offset="100%" style="stop-color:#AAAAAA;stop-opacity:0.2" />
+                    </linearGradient>
+                </defs>
+                <circle cx="${badgeSize / 2}" cy="${badgeSize / 2}" r="${badgeSize / 2 - 10}" fill="rgba(255,255,255,0.2)" filter="url(#badgeShadow)" />
+                <circle cx="${badgeSize / 2}" cy="${badgeSize / 2}" r="${badgeSize / 2 - 10}" fill="none" stroke="url(#silver)" stroke-width="2" />
+                <circle cx="${badgeSize / 2}" cy="${badgeSize / 2}" r="${badgeSize / 2 - 15}" fill="none" stroke="#FFD700" stroke-width="1" opacity="0.3" />
+            </svg>
+        `);
+
         const resizedLogo = await sharp(logoPath)
             .resize({ width: logoSize, height: logoSize, fit: 'contain' })
             .toBuffer();
 
-        const finalBuffer = await sharp(whiteCard)
+        // 7. FINAL COMPOSITE
+        const finalBuffer = await sharp(bgBlur)
             .composite([
-                { input: gradedImage, top: 0, left: 0 },
-                { input: textOverlay, top: height, left: 0 },
-                { input: resizedLogo, top: 20, left: 25 } // Fixed Top-Left Logo
+                { input: mainImageFrame, top: 40, left: Math.round((width - frameW - 8) / 2) },
+                { input: glassOverlay, top: height, left: 0 },
+                { input: logoBadge, top: 20, left: 20 },
+                { input: resizedLogo, top: 50, left: 50 }
             ])
             .toBuffer();
 

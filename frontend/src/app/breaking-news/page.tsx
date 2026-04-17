@@ -5,8 +5,8 @@ import axios from "axios";
 import { AlertCircle, Share2, RotateCcw } from "lucide-react";
 import { FaFacebook, FaWhatsapp, FaXTwitter } from "react-icons/fa6";
 
-
 import styles from "./BreakingNewsPage.module.scss";
+import { useLanguage } from "@/app/hooks/useLanguage";
 
 interface BreakingNewsItem {
     _id: string;
@@ -21,29 +21,36 @@ const BreakingNewsPage = () => {
     const [news, setNews] = useState<BreakingNewsItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [seeding, setSeeding] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const { lang, isHindi, isMounted } = useLanguage();
 
     const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://api.primetimemedia.in";
 
     const fetchNews = async () => {
+        if (!isMounted) return;
         setLoading(true);
+        setError(null);
         try {
-            const response = await axios.get(`${API_BASE}/api/breaking-news`);
+            const response = await axios.get(`${API_BASE}/api/breaking-news?lang=${lang}`);
             if (response.data.success) {
                 setNews(response.data.data);
             }
-        } catch (error) {
-            console.error("Fetch Error:", error);
+        } catch (err) {
+            console.error("Fetch Error:", err);
+            setError(isHindi ? "सर्वर से कनेक्ट करने में विफल" : "Failed to connect to server");
         } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        fetchNews();
-    }, [API_BASE]);
+        if (isMounted) {
+            fetchNews();
+        }
+    }, [API_BASE, lang, isMounted]);
 
     const handleScrape = async () => {
-        if (!window.confirm("Do you want to scrape real breaking news from live sources?")) return;
+        if (!window.confirm(isHindi ? "क्या आप लाइव स्रोतों से ब्रेकिंग न्यूज़ स्क्रैप करना चाहते हैं?" : "Do you want to scrape real breaking news from live sources?")) return;
         setSeeding(true);
         try {
             const response = await axios.post(`${API_BASE}/api/breaking-news/scrape`);
@@ -67,11 +74,24 @@ const BreakingNewsPage = () => {
         const date = new Date(dateString);
         return date.toLocaleDateString([], { day: 'numeric', month: 'short' });
     };
-
     if (loading) {
         return (
             <div className={styles.pageContainer}>
-                <div className={styles.loading}>Updating live headlines...</div>
+                <div className={styles.loading}>{isHindi ? "ताज़ा सुर्खियां अपडेट हो रही हैं..." : "Updating live headlines..."}</div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className={styles.pageContainer}>
+                <div className={styles.errorBox}>
+                    <AlertCircle size={48} />
+                    <p>{error}</p>
+                    <button onClick={() => fetchNews()} className={styles.seedButton}>
+                        {isHindi ? "पुनः प्रयास करें" : "Retry"}
+                    </button>
+                </div>
             </div>
         );
     }
@@ -81,18 +101,18 @@ const BreakingNewsPage = () => {
             <header className={styles.header}>
                 <div className={styles.headerContent}>
                     <div className={styles.breadcrumbBadge}>
-                        <span className={styles.category}>News</span>
+                        <span className={styles.category}>{isHindi ? "समाचार" : "News"}</span>
                         <span className={styles.separator}>/</span>
-                        <span className={styles.badge}>Breaking News</span>
+                        <span className={styles.badge}>{isHindi ? "ब्रेकिंग न्यूज़" : "Breaking News"}</span>
                     </div>
                     <div className={styles.titleRow}>
-                        <h1>News Flash {formatDate(new Date().toISOString())} <RotateCcw size={20} className={styles.refreshIcon} onClick={() => fetchNews()} /></h1>
+                        <h1>{isHindi ? "न्यूज़ फ़्लैश" : "News Flash"} {formatDate(new Date().toISOString())} <RotateCcw size={20} className={styles.refreshIcon} onClick={() => fetchNews()} /></h1>
                         <button
                             className={styles.seedButton}
                             onClick={handleScrape}
                             disabled={seeding}
                         >
-                            {seeding ? "Loading..." : "Latest News"}
+                            {seeding ? (isHindi ? "लोड हो रहा है..." : "Loading...") : (isHindi ? "ताज़ा समाचार" : "Latest News")}
                         </button>
                     </div>
                 </div>
@@ -102,7 +122,7 @@ const BreakingNewsPage = () => {
                 {news.length === 0 ? (
                     <div className={styles.empty}>
                         <AlertCircle size={48} />
-                        <p>No breaking news at the moment. Check back later!</p>
+                        <p>{isHindi ? "फिलहाल कोई ब्रेकिंग न्यूज़ नहीं है। बाद में वापस आएं!" : "No breaking news at the moment. Check back later!"}</p>
                     </div>
                 ) : (
                     news.map((item, index) => (

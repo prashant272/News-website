@@ -1,5 +1,5 @@
 const BreakingNews = require("../Models/BreakingNews");
-const { getLatestLinks } = require("../Services/scraperService");
+const { getLatestLinks, scrapeLiveBlog, hasHindiCharacters } = require("../Services/scraperService");
 
 // Get all active breaking news
 exports.scrapeBreakingNews = async (req, res) => {
@@ -12,6 +12,9 @@ exports.scrapeBreakingNews = async (req, res) => {
         const sources = [
             // --- NATIONAL / INDIA ---
             { name: "Aaj Tak India", url: "https://www.aajtak.in/rssfeeds/?id=india", cat: 'india' },
+            { name: "Zee News Hindi", url: "https://zeenews.india.com/hindi/india.xml", cat: 'india' },
+            { name: "News18 Hindi", url: "https://hindi.news18.com/commonfeeds/v1/hindi/rss/india.xml", cat: 'india' },
+            { name: "Amar Ujala India", url: "https://www.amarujala.com/rss/india-news.xml", cat: 'india' },
             { name: "NDTV India", url: "https://feeds.feedburner.com/ndtvnews-india-news", cat: 'india' },
             { name: "India TV", url: "https://www.indiatvnews.com/rssnews/topstory.xml", cat: 'india' },
             { name: "ABP News India", url: "https://news.abplive.com/news/india/feed", cat: 'india' },
@@ -28,12 +31,20 @@ exports.scrapeBreakingNews = async (req, res) => {
             // --- GENERAL / TOP STORIES ---
             { name: "The Hindu", url: "https://www.thehindu.com/news/national/feeder/default.rss", cat: 'india' },
             { name: "Times of India", url: "https://timesofindia.indiatimes.com/rssfeeds/296589292.cms", cat: 'india' },
+            
+            // --- LIVE BLOGS / REAL-TIME ---
+            { name: "Aaj Tak Live", url: "https://www.aajtak.in/breakingnews/story/latest-breaking-news-in-hindi-17-april-2026-ntc-rmxk-2525688-2026-04-17", cat: 'india', type: 'liveblog' },
         ];
 
         let allNewItems = [];
         for (const source of sources) {
             try {
-                const items = await getLatestLinks(source.url);
+                let items = [];
+                if (source.type === 'liveblog') {
+                    items = await scrapeLiveBlog(source.url);
+                } else {
+                    items = await getLatestLinks(source.url);
+                }
                 const itemsWithSource = items.map(item => ({ 
                     ...item, 
                     sourceName: source.name, 
@@ -122,40 +133,35 @@ exports.getBreakingNews = async (req, res) => {
         let query = { isActive: true };
 
         if (lang) {
-            if (lang === 'en') {
-                query.$or = [{ lang: 'en' }, { lang: { $exists: false } }, { lang: null }];
-            } else {
-                query.lang = lang;
-            }
+            // STRICT ISOLATION: No leaking news from other languages
+            query.lang = lang;
         }
         if (state) query.state = state;
 
-        // Start of today
         const today = new Date();
         today.setHours(0, 0, 0, 0);
+        const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
 
         if (showAll === 'true') {
             // Admin explicitly wants to see all history (still limited below)
-            query = {}; 
-        } else {
-            // Default: Only show today's news
+            // No date filter
+        } else if (all === 'true') {
+            // Visitors seeing "Full Story" for today
             query.scheduledAt = {
-                $lte: new Date(), // Already released
-                $gte: today // From today onwards
+                $gte: today,
+                $lt: tomorrow
             };
-        }
-
-        // Overwrite if only 'all' is passed (legacy admin call)
-        // If 'all' is true but 'showAll' is not provided, we still filter for today to keep it fast
-        if (all === 'true' && showAll !== 'true') {
-            query = {
-                scheduledAt: { $gte: today }
+        } else {
+            // Default Ticker: Only show released news for today
+            query.scheduledAt = {
+                $lte: new Date(),
+                $gte: today
             };
         }
 
         const news = await BreakingNews.find(query)
             .sort({ scheduledAt: -1, createdAt: -1 })
-            .limit(100); // Sanity limit for performance
+            .limit(100);
 
         res.status(200).json({ success: true, count: news.length, data: news });
     } catch (error) {
@@ -171,11 +177,14 @@ exports.addBreakingNews = async (req, res) => {
             return res.status(400).json({ success: false, msg: "Title is required" });
         }
 
+        // Automatic Language Detection if not provided
+        const detectedLang = language || (hasHindiCharacters(title) ? "hi" : "en");
+
         const news = await BreakingNews.create({ 
             title, 
             link, 
             priority,
-            lang: language || "en",
+            lang: detectedLang,
             state: state || "universal"
         });
         res.status(201).json({ success: true, data: news });

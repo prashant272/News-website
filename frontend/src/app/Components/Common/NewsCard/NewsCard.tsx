@@ -23,9 +23,11 @@ export interface NewsCardProps {
   date?: string;
   targetLink?: string;
   nominationLink?: string;
+  moreInfoLink?: string;
   currentSection?: string;
   item?: SharedNewsItem; // Option 1: Support passing the whole item
   lang?: string;
+  orientation?: 'vertical' | 'horizontal';
 }
 
 export const NewsCard: React.FC<NewsCardProps> = (props) => {
@@ -45,6 +47,7 @@ export const NewsCard: React.FC<NewsCardProps> = (props) => {
   const date = item?.date || props.date;
   const targetLink = item?.targetLink || props.targetLink;
   const nominationLink = item?.nominationLink || props.nominationLink;
+  const moreInfoLink = (item as any)?.moreInfoLink || props.moreInfoLink;
 
   // currentSection logic (simplified from your NewsSection version)
   const getSectionFromUrl = (path: string): string => {
@@ -97,25 +100,31 @@ export const NewsCard: React.FC<NewsCardProps> = (props) => {
         )}
       </div>
       <div className={styles.cardContent}>
-        <div className={styles.cardMeta}>
+        <div className={styles.meta}>
           {displaySubCategory && <span className={styles.subCategoryName}>{displaySubCategory}</span>}
-          {date && <span className={styles.newsDate}>{formatDateTime(date)}</span>}
+          {date && (
+            <div className={styles.newsDate}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg>
+              <span>{formatDateTime(date)}</span>
+            </div>
+          )}
         </div>
         <p className={styles.newsTitle}>{title}</p>
 
         {((Array.isArray(section) ? section[0] : section)?.toLowerCase() === "awards" || (Array.isArray(category) ? category[0] : category)?.toUpperCase() === "AWARDS") && (
           <div className={styles.awardActions}>
-            {targetLink && (
-              <a
-                href={targetLink.startsWith('http') ? targetLink : `https://${targetLink}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.moreInfoBtn}
-                onClick={(e) => e.stopPropagation()}
-              >
-                More Info
-              </a>
-            )}
+            <a
+              href={moreInfoLink ? (moreInfoLink.startsWith('http') ? moreInfoLink : `https://${moreInfoLink}`) : (targetLink?.startsWith('http') ? targetLink : `https://${targetLink}`) || href}
+              target={moreInfoLink || targetLink ? "_blank" : "_self"}
+              rel="noopener noreferrer"
+              className={styles.moreInfoBtn}
+              onClick={(e) => e.stopPropagation()}
+            >
+              More Info
+            </a>
             {nominationLink && (
               <a
                 href={nominationLink.startsWith('http') ? nominationLink : `https://${nominationLink}`}
@@ -147,7 +156,7 @@ export const NewsCard: React.FC<NewsCardProps> = (props) => {
   return (
     <div
       onClick={handleCardClick}
-      className={`${styles.newsCard} ${props.lang === 'hi' ? styles.premiumHindi : ''}`}
+      className={`${styles.newsCard} ${props.lang === 'hi' ? styles.premiumHindi : ''} ${props.orientation === 'horizontal' ? styles.horizontal : ''}`}
       style={{ cursor: 'pointer' }}
     >
       {cardContent}
@@ -249,7 +258,7 @@ const NewsCards: React.FC<NewsCardsProps> = ({
         isVideo: item.isVideo,
         isPhoto: item.isPhoto,
         targetLink: item.targetLink,
-        nominationLink: item.nominationLink
+        nominationLink: item.nominationLink,
       });
     });
 
@@ -574,3 +583,4 @@ const NewsCards: React.FC<NewsCardsProps> = ({
 };
 
 export default NewsCards;
+    

@@ -22,20 +22,9 @@ const ensureBranding = (title, slug, lang) => {
   let finalTitle = (title || "").trim();
   let finalSlug = (slug || "").trim();
 
-  // 1. Branding for Title
-  if (lang === "hi") {
-    if (!finalTitle.includes(BRAND_HI)) {
-      finalTitle = `${finalTitle} - ${BRAND_HI}`;
-    }
-  } else {
-    // English or empty
-    const regexEN = new RegExp(`${BRAND_EN}$`, "i");
-    if (!regexEN.test(finalTitle)) {
-      finalTitle = `${finalTitle} ${BRAND_EN}`;
-    }
-  }
+  // Branding for Title removed as per user request to keep titles clean
 
-  // 2. Branding for Slug
+  // Branding for Slug remains for SEO consistency
   if (finalSlug && !finalSlug.toLowerCase().endsWith("prime-time")) {
     finalSlug = `${finalSlug}-prime-time`;
   }
@@ -319,7 +308,6 @@ exports.getAllNews = async (req, res) => {
     const skip = (pageNum - 1) * limitNum;
 
     const news = await NewsArticle.find(query)
-      .select("-content")
       .sort({ publishedAt: -1, createdAt: -1 })
       .skip(skip)
       .limit(limitNum)
@@ -477,7 +465,6 @@ exports.getSectionNews = async (req, res) => {
     const skip = (pageNum - 1) * limitNum;
 
     const sectionNews = await NewsArticle.find(query)
-      .select("-content")
       .sort({ publishedAt: -1, createdAt: -1 })
       .skip(skip)
       .limit(limitNum)

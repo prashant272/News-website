@@ -14,6 +14,14 @@ const USER_AGENTS = [
 const getRandomUserAgent = () => USER_AGENTS[Math.floor(Math.random() * USER_AGENTS.length)];
 
 /**
+ * Checks if a piece of text contains Devanagari (Hindi) characters.
+ */
+const hasHindiCharacters = (text) => {
+    if (!text) return false;
+    return /[\u0900-\u097F]/.test(text);
+};
+
+/**
  * Repairs malformed XML by fixing attributes without values (Common in Hindustan Times feeds).
  */
 const repairXml = (xml) => {
@@ -31,8 +39,8 @@ const repairXml = (xml) => {
         repaired = repaired.replace(regex, ` ${attr}=""$2`);
     });
 
-    // 3. Ensure any stray '&' not part of an entity is escaped
-    repaired = repaired.replace(/&(?!(?:amp|lt|gt|quot|apos|#\d+|#x[a-f\d]+);)/gi, '&amp;');
+    // 4. Final safety: Remove any remaining null bytes or Control characters
+    repaired = repaired.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, "");
 
     return repaired;
 };
@@ -180,4 +188,46 @@ const getLatestLinks = async (rssUrl) => {
     }
 };
 
-module.exports = { scrapeNews, getLatestLinks };
+// 3. Specialized Scraper for Live Blogs (e.g., Aaj Tak Live Updates)
+const scrapeLiveBlog = async (url) => {
+    try {
+        const domain = new URL(url).hostname;
+        const config = {
+            headers: {
+                'User-Agent': getRandomUserAgent(),
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+                'Referer': `https://www.google.com/search?q=${domain}`
+            },
+            timeout: 10000
+        };
+
+        console.log(`[Scrape-Live] Loading: ${url}`);
+        const { data } = await axios.get(url, config);
+        const $ = cheerio.load(data);
+
+        const items = [];
+        
+        // Aaj Tak Live Blog Selector: .breaking-news ul li
+        $('.breaking-news ul li').each((i, el) => {
+            const time = $(el).find('span').first().text().trim();
+            const headline = $(el).find('.content p').text().trim() || $(el).find('.content').text().trim();
+            
+            if (headline && headline.length > 10) {
+                items.push({
+                    title: headline,
+                    link: url, // Live blogs usually don't have deep links for every item
+                    pubDate: time ? `${time} (Today)` : new Date().toISOString(),
+                    source: "Aaj Tak Live"
+                });
+            }
+        });
+
+        console.log(`[Scrape-Live] Found ${items.length} live updates from ${url}`);
+        return items.slice(0, 15); // Return the most recent 15 updates
+    } catch (error) {
+        console.error(`Live Scrape Error (${url}):`, error.message);
+        return [];
+    }
+};
+
+module.exports = { scrapeNews, getLatestLinks, scrapeLiveBlog, hasHindiCharacters };

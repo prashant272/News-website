@@ -15,6 +15,7 @@ interface MoreFromSectionProps {
   columns?: number;
   limit?: number;
   lang?: string;
+  categoryName?: string;
 }
 
 export default function MoreFromSection({
@@ -24,9 +25,10 @@ export default function MoreFromSection({
   columns = 3,
   limit = 9,
   lang,
+  categoryName = 'CATEGORY',
 }: MoreFromSectionProps) {
   const [visibleCount, setVisibleCount] = useState(limit);
-  
+
   const { items, isLoading } = useNewsSectionData<MoreFromItem>({
     variant: 'more-from',
     overrideSection,
@@ -43,8 +45,8 @@ export default function MoreFromSection({
     return (
       <div className={styles.moreFromWrapper}>
         <div className={styles.sectionHeader}>
-           <h2 className={styles.sectionTitle}>{sectionTitle}</h2>
-           <div className={styles.titleUnderline} />
+          <h2 className={styles.sectionTitle}>{sectionTitle}</h2>
+          <div className={styles.titleUnderline} />
         </div>
         <div className={styles.itemsGrid}>
           {Array(6).fill(0).map((_, i) => (
@@ -71,22 +73,29 @@ export default function MoreFromSection({
         {visibleItems.map((item) => {
           if (lang === 'hi') {
             return (
-              <HindiNewsCard 
-                key={item.id} 
-                item={item} 
-                lang={lang} 
-                orientation="horizontal" 
-                compact={true} 
+              <HindiNewsCard
+                key={item.id}
+                item={item}
+                lang={lang}
+                orientation="horizontal"
+                compact={true}
               />
             );
           }
 
           const href = item.href || '#';
+          const isAward = overrideSection?.toLowerCase() === "awards" || item.category?.toString().toUpperCase() === "AWARDS";
+          
           return (
-            <Link
+            <div
               key={item.id}
-              href={href}
-              className={styles.newsCard}
+              className={`${styles.newsCard} ${isAward ? styles.awardCard : ''}`}
+              onClick={() => {
+                if (href !== '#') {
+                  window.open(href, '_blank', 'noopener,noreferrer');
+                }
+              }}
+              style={{ cursor: 'pointer' }}
             >
               <div className={styles.imageBox}>
                 <Image
@@ -103,14 +112,41 @@ export default function MoreFromSection({
                 {item.date && (
                   <div className={styles.meta}>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                       <circle cx="12" cy="12" r="10" />
-                       <polyline points="12 6 12 12 16 14" />
+                      <circle cx="12" cy="12" r="10" />
+                      <polyline points="12 6 12 12 16 14" />
                     </svg>
                     <span>{formatDateTime(item.date)}</span>
                   </div>
                 )}
+
+                {isAward && (
+                  <div className={styles.awardActions}>
+                    {item.targetLink && (
+                      <a
+                        href={item.targetLink.startsWith('http') ? item.targetLink : `https://${item.targetLink}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.moreInfoBtn}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Info
+                      </a>
+                    )}
+                    {item.nominationLink && (
+                      <a
+                        href={item.nominationLink.startsWith('http') ? item.nominationLink : `https://${item.nominationLink}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.nominationBtn}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Nominate
+                      </a>
+                    )}
+                  </div>
+                )}
               </div>
-            </Link>
+            </div>
           );
         })}
       </div>
@@ -118,7 +154,11 @@ export default function MoreFromSection({
       {hasMore && (
         <div className={styles.loadMoreContainer}>
           <button className={styles.readMoreBtn} onClick={handleReadMore}>
-            <span>READ MORE CATEGORY NEWS</span>
+            <span>
+              {lang === 'hi'
+                ? `${categoryName === 'CATEGORY' ? '' : categoryName} और खबरें देखें`
+                : `READ MORE ${categoryName.toUpperCase()} NEWS`}
+            </span>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
               <path d="M12 5v14M5 12h14" />
             </svg>

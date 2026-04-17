@@ -1,0 +1,122 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+.loadMoreWrapper {
+  display: flex;
+  justify-content: center;
+  margin: 4rem 0;
+  padding: 0 1rem;
+}
+
+.premiumLoadMore {
+  display: inline-flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1.25rem 4rem;
+  background: #e31e26; // Solid primary red
+  border-radius: 100px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 800;
+  font-size: 1.125rem;
+  color: #ffffff !important;
+  border: none;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: 0 4px 12px rgba(227, 30, 38, 0.2); 
+  transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  outline: none;
+
+  span, svg, div {
+    color: #ffffff !important;
+    fill: none;
+    stroke: #ffffff !important;
+  }
+
+  // Shine effect
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transition: left 0.6s ease;
+    z-index: 1;
+  }
+
+  // Hover state
+  &:hover:not(:disabled) {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(227, 30, 38, 0.3);
+    background: #f0242d; // Slightly brighter red on hover
+
+    &::before {
+      left: 100%;
+    }
+
+    .iconWrapper {
+      transform: rotate(90deg) scale(1.1);
+    }
+  }
+
+  // Active state
+  &:active:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(227, 30, 38, 0.3);
+  }
+
+  // Disabled state
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: #9ca3af;
+    box-shadow: none;
+  }
+
+  .textWrapper {
+    position: relative;
+    z-index: 2;
+  }
+
+  .iconWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    position: relative;
+    z-index: 2;
+    
+    svg {
+      width: 24px;
+      height: 24px;
+      stroke-width: 3.5;
+    }
+  }
+
+  .loader {
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top: 3px solid #ffffff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@media (max-width: 640px) {
+  .premiumLoadMore {
+    width: 100%;
+    justify-content: center;
+    padding: 1.125rem 2rem;
+    font-size: 1rem;
+    gap: 1rem;
+  }
+}

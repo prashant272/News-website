@@ -5,6 +5,7 @@ import axios from "axios";
 import { Plus, Trash2, Power, PowerOff, ListPlus } from "lucide-react";
 import { toast } from "react-toastify";
 import styles from "../Main.module.scss";
+import { useLanguage } from "@/app/hooks/useLanguage";
 
 interface BreakingNewsItem {
     _id: string;
@@ -21,7 +22,13 @@ const BreakingNewsManager: React.FC = () => {
     const [title, setTitle] = useState("");
     const [link, setLink] = useState("");
     const [loading, setLoading] = useState(false);
+    const { lang } = useLanguage();
     const [language, setLanguage] = useState<"en" | "hi">("en");
+
+    // Initialize language based on domain
+    useEffect(() => {
+        if (lang) setLanguage(lang);
+    }, [lang]);
 
     const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://api.primetimemedia.in";
 

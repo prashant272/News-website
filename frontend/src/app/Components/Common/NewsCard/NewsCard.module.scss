@@ -2,7 +2,7 @@
 
 .categoryCardsWrapper {
   background-color: var(--background);
-  padding: 3rem 2rem;
+  padding: 1rem 1rem;
   position: relative;
   overflow: hidden;
   transition: background-color 0.3s ease;
@@ -30,11 +30,9 @@
   }
 }
 
-.categoryCardsGrid {
+.mainGrid {
   display: grid;
-  gap: 1.25rem;
-  position: relative;
-  z-index: 1;
+  gap: 1rem;
   max-width: 1400px;
   margin: 0 auto;
 }
@@ -240,58 +238,107 @@
 }
 
 .imageOverlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to bottom, transparent 40%, rgba(0, 0, 0, 0.6) 100%);
-  z-index: 1;
-  transition: opacity 0.4s ease;
-  pointer-events: none;
+  display: none; // Match clean look of MoreFrom
 }
 
 // Singular NewsCard styles (Generic)
 .newsCard {
-  background: var(--card-bg);
-  border-radius: 20px;
-  overflow: hidden;
-  border: 1.5px solid rgba(var(--primary-rgb, 59, 130, 246), 0.1);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
-  transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
-  text-decoration: none;
-  position: relative;
   display: flex;
   flex-direction: column;
+  text-decoration: none;
+  background: var(--card-bg);
+  transition: all 0.3s ease;
+  border-radius: 0.75rem;
+  overflow: hidden;
   height: 100%;
+  border: 1px solid var(--card-border);
 
   &:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.12);
     border-color: var(--primary);
-
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    
     .imageWrapper img {
-      transform: scale(1.1);
+      transform: scale(1.05);
     }
-
     .newsTitle {
       color: var(--primary);
     }
+    .readMore svg {
+      transform: translateX(4px);
+    }
+  }
 
-    .readMore {
-      opacity: 1;
-      transform: translateX(0);
-
-      svg {
-        transform: translateX(6px);
+  // Preserve premium Hindi hover effects if needed
+  &.premiumHindi {
+    border-color: rgba(204, 0, 0, 0.2);
+    &:hover {
+      border-color: #cc0000 !important;
+      .newsTitle {
+        color: #cc0000;
       }
     }
+  }
+}
+
+// Separate Horizontal Variant to prevent interference
+.newsCard.horizontal {
+  flex-direction: row-reverse;
+  align-items: stretch;
+  padding: 1rem;
+  gap: 1.5rem;
+  background: var(--card-bg);
+  border: 1.5px solid var(--card-border);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+
+  &:hover {
+    transform: translateY(-2px);
+    border-color: var(--primary);
+    box-shadow: 0 8px 25px rgba(var(--primary-rgb), 0.1);
+  }
+
+  .imageWrapper {
+    width: 200px;
+    height: 130px;
+    aspect-ratio: auto;
+    flex-shrink: 0;
+    border-radius: 10px;
+  }
+
+  .cardContent {
+    padding: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .newsTitle {
+    font-size: 1.15rem;
+    line-height: 1.4;
+    -webkit-line-clamp: 2;
+    margin-bottom: 0.5rem;
+    color: var(--heading-color);
+  }
+
+  .awardActions {
+    padding: 0;
+    margin-top: 0.75rem;
+  }
+
+  .readMore {
+    margin-top: 0.5rem;
   }
 }
 
 .imageWrapper {
   position: relative;
   width: 100%;
-  padding-bottom: 60%;
+  aspect-ratio: 16/9; // Restored to 16/9 for better proportions if height is controlled by container
+  padding-bottom: 0;
   overflow: hidden;
   background: var(--muted);
+  border-radius: 0.5rem;
+  border: 1px solid var(--border);
   flex-shrink: 0;
 
   img {
@@ -300,29 +347,23 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+    transition: transform 0.5s ease;
   }
 }
 
 .categoryBadge {
   position: absolute;
-  top: 1rem;
-  left: 1rem;
-  padding: 0.5rem 1rem;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(12px) saturate(180%);
-  -webkit-backdrop-filter: blur(12px) saturate(180%);
-  border-radius: 100px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  font-family: 'Inter', sans-serif;
-  font-weight: 700;
-  font-size: 0.65rem;
+  bottom: 0.75rem;
+  left: 0.75rem;
+  background: var(--primary);
   color: white;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.65rem;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border-radius: 2px;
   z-index: 2;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 .trendingBadge {
@@ -353,70 +394,76 @@
 }
 
 .cardContent {
-  padding: 1.5rem;
+  padding: 0.75rem 1rem 1rem; // Reduced top padding
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.5rem; // Add consistent gap between elements
 }
 
-.cardMeta {
+.meta {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.25rem;
-}
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
 
-.subCategoryName {
-  font-family: 'Inter', sans-serif;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--primary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  .subCategoryName {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
 }
 
 .newsDate {
-  font-family: 'Inter', sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--secondary);
   font-size: 0.75rem;
-  color: var(--muted-foreground);
   font-weight: 500;
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
 }
 
 .newsTitle {
-  font-family: 'Lora', serif;
-  font-size: 1.25rem;
-  font-weight: 700;
-  line-height: 1.5;
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  font-weight: 800;
   color: var(--heading-color);
-  letter-spacing: -0.015em;
-  margin: 0;
+  line-height: 1.4;
+  margin-bottom: 0.5rem; // Reduced margin
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
-  word-break: break-word;
-  transition: color 0.3s ease;
+  transition: color 0.2s ease;
 }
 
 .readMore {
-  margin-top: auto;
+  margin-top: 0.5rem; // Removed 'auto' to close the gap
   padding-top: 0.5rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
   color: var(--primary);
   font-family: 'Inter', sans-serif;
-  font-size: 0.875rem;
-  font-weight: 600;
-  opacity: 0;
-  transform: translateX(-10px);
-  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  opacity: 1;
+  transform: none;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 
   &.hi {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     font-weight: 700;
     color: #cc0000;
   }
@@ -451,11 +498,17 @@
 
   &:hover {
     border-color: #cc0000 !important;
-    box-shadow: 0 25px 50px rgba(204, 0, 0, 0.12) !important;
+    box-shadow: 0 15px 40px rgba(204, 0, 0, 0.1) !important;
 
     .newsTitle {
       color: #cc0000;
     }
+  }
+
+  .readMore.hi {
+    opacity: 1;
+    transform: none;
+    color: #cc0000;
   }
 }
 
@@ -479,6 +532,7 @@
   letter-spacing: 0.12em;
   z-index: 3;
 }
+
 
 .liveIcon {
   width: 8px;
@@ -744,17 +798,17 @@
 // Modern Footer Button
 .awardActions {
   display: flex;
-  gap: 12px;
-  padding: 0 1.5rem 1.25rem;
+  gap: 6px;
+  padding: 0 1rem 1rem;
   margin-top: 4px;
 
   .moreInfoBtn,
   .nominationBtn {
     flex: 1;
-    padding: 10px 16px;
+    padding: 6px 12px;
     border-radius: 100px;
     font-family: 'Inter', sans-serif;
-    font-size: 0.75rem;
+    font-size: 0.65rem;
     font-weight: 700;
     text-align: center;
     text-decoration: none;
@@ -781,14 +835,14 @@
   }
 
   .nominationBtn {
-    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    background: linear-gradient(135deg, #e40a0a 0%, #a80707 100%);
     color: white;
     border: none;
-    box-shadow: 0 4px 15px rgba(234, 88, 12, 0.3);
+    box-shadow: 0 4px 12px rgba(228, 10, 10, 0.2);
 
     &:hover {
-      transform: translateY(-3px) scale(1.02);
-      box-shadow: 0 8px 25px rgba(234, 88, 12, 0.5);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(228, 10, 10, 0.4);
       filter: brightness(1.1);
     }
   }
@@ -938,7 +992,6 @@
 }
 
 @media (max-width: 992px) {
-
   .cols3,
   .cols4 {
     grid-template-columns: repeat(2, 1fr);
@@ -1142,7 +1195,7 @@
 .awardActions {
   display: flex;
   gap: 12px;
-  margin-top: auto;
+  margin-top: 0.5rem; // Tightened gap
   padding: 1rem 1.5rem 1.5rem;
   width: 100%;
 

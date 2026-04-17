@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { useNewsContext } from '@/app/context/NewsContext';
 import { useInfiniteNews } from '@/app/hooks/NewsApi';
-import LatestNewsSection from '@/app/Components/Common/LatestNewsSection/LatestNewsSection';
+// import LatestNewsSection from '@/app/Components/Common/LatestNewsSection/LatestNewsSection';
 import MoreFromSection from '@/app/Components/Common/MoreFromSection/MoreFromSection';
 import NewsSection from '@/app/Components/Common/NewsSection/NewsSection';
 import { VideosSection } from '@/app/Components/Common/VideosSection/VideosSection';
@@ -14,6 +14,7 @@ import { getEnglishCategory, getHindiCategory } from '@/Utils/categoryMapping';
 import StateNewsHeader from '@/app/Components/Common/StateNewsHeader/StateNewsHeader';
 import HindiSportsCricketDashboard from '@/app/Components/Home/Hindi/HindiSportsCricketDashboard';
 import { useLanguage } from '@/app/hooks/NewsApi';
+import styles from './CategoryPage.module.scss';
 
 export default function CategoryPageClient() {
   const params = useParams();
@@ -64,7 +65,7 @@ export default function CategoryPageClient() {
     fetchNextPage,
     hasDataChecked,
     isInitialLoading
-  } = useInfiniteNews(urlCategory || '', filteredNews, 10);
+  } = useInfiniteNews(urlCategory || '', filteredNews, 12);
 
   // IntersectionObserver removed in favor of manual "Load More" button
   /*
@@ -127,7 +128,8 @@ export default function CategoryPageClient() {
     category: Array.isArray(news.category) ? news.category[0] : (news.category || ''),
     subCategory: news.subCategory || '',
     targetLink: news.targetLink,
-    nominationLink: news.nominationLink
+    nominationLink: news.nominationLink,
+    moreInfoLink: news.moreInfoLink
   }));
 
   const transformedTrendingNews = trendingNews.slice(0, 5).map((news, index) => ({
@@ -162,8 +164,8 @@ export default function CategoryPageClient() {
     <>
       <BreadcrumbSchema
         items={[
-          { name: "Home", item: "/" },
-          { name: categoryTitle, item: `${lang === 'hi' ? '/news' : '/Pages'}/${category}` }
+          { name: lang === 'hi' ? "होम" : "Home", item: "/" },
+          { name: lang === 'hi' ? getHindiCategory(urlCategory) : categoryTitle, item: `${lang === 'hi' ? '/news' : '/Pages'}/${category}` }
         ]}
       />
 
@@ -185,33 +187,37 @@ export default function CategoryPageClient() {
       ) : (
         <>
           <NewsSection
-            sectionTitle={categoryTitle}
+            sectionTitle={lang === 'hi' ? `ताज़ा ${getHindiCategory(urlCategory)} समाचार` : `${categoryTitle} News`}
             subCategories={subCategories}
             mainNews={transformedNews}
             topNews={transformedTrendingNews}
             showSidebar={true}
-            gridColumns={3}
-            lang="hi"
+            gridColumns={urlCategory?.toLowerCase() === 'awards' ? 2 : 3}
+            lang={lang}
           />
 
           {hasMore && (
-            <div className="flex justify-center my-12">
+            <div className={styles.loadMoreWrapper}>
               <button
                 onClick={fetchNextPage}
-                className="px-10 py-4 bg-[#e31e26] text-white rounded-full font-extrabold text-lg shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center gap-3 disabled:opacity-50"
+                className={styles.premiumLoadMore}
                 disabled={infiniteLoading}
               >
                 {infiniteLoading ? (
                   <>
-                    <div className="w-5 h-5 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
-                    लोड हो रहा है...
+                    <div className={styles.loader}></div>
+                    <span>{lang === 'hi' ? 'लोड हो रहा है...' : 'Loading...'}</span>
                   </>
                 ) : (
                   <>
-                    <span>और खबरें देखें (Load More)</span>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M12 5v14M5 12h14" />
-                    </svg>
+                    <span className={styles.textWrapper}>
+                      {lang === 'hi' ? 'और खबरें देखें' : 'Load More Stories'}
+                    </span>
+                    <div className={styles.iconWrapper}>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 5v14M5 12h14" />
+                      </svg>
+                    </div>
                   </>
                 )}
               </button>
@@ -220,7 +226,9 @@ export default function CategoryPageClient() {
 
           {!hasMore && infiniteNews.length > 0 && (
             <div className="text-center py-10">
-              <p className="text-gray-500 font-bold italic">आप अब अंत तक पहुँच चुके हैं।</p>
+              <p className="text-gray-500 font-bold italic">
+                {lang === 'hi' ? 'आप अब अंत तक पहुँच चुके हैं।' : "You've reached the end of the list."}
+              </p>
             </div>
           )}
         </>
@@ -234,23 +242,25 @@ export default function CategoryPageClient() {
         isArticle={false}
       />
 
-      <LatestNewsSection
-        sectionTitle={`ताज़ा ${getHindiCategory(urlCategory)} समाचार`}
+      {/* <LatestNewsSection
+        sectionTitle={lang === 'hi' ? `ताज़ा ${getHindiCategory(urlCategory)} समाचार` : `Latest ${categoryTitle} News`}
         overrideSection={urlCategory}
         showReadMore={true}
         readMoreLink={`${lang === 'hi' ? '/news' : '/Pages'}/${decodedCategory}`}
         columns={3}
+      /> */}
+
+      <MoreFromSection
+        sectionTitle={lang === 'hi' ? `${getHindiCategory(urlCategory)} से और भी` : `More From ${categoryTitle}`}
+        categoryName={lang === 'hi' ? getHindiCategory(urlCategory) : categoryTitle}
+        overrideSection={urlCategory}
+        columns={2}
+        limit={8}
+        lang={lang}
       />
 
       <VideosSection />
 
-      <MoreFromSection
-        sectionTitle={`More From ${categoryTitle}`}
-        overrideSection={urlCategory}
-        columns={2}
-        limit={8}
-        lang="hi"
-      />
     </>
   );
 }
