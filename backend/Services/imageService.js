@@ -20,7 +20,7 @@ const getImageBuffer = async (input) => {
         try {
             const urlObj = new URL(input);
             domain = `${urlObj.protocol}//${urlObj.hostname}/`;
-        } catch (e) {}
+        } catch (e) { }
 
         const config = {
             headers: {
@@ -221,10 +221,10 @@ const brandImageWithTitle = async (imageUrl, title, options = { addLogo: true, c
 
         // SKIP BRANDING for specific categories (Awards, Events, etc.)
         const categoriesToSkip = ["awards", "events", "event"];
-        const normalizedCats = Array.isArray(category) 
-            ? category.map(c => String(c).toLowerCase()) 
+        const normalizedCats = Array.isArray(category)
+            ? category.map(c => String(c).toLowerCase())
             : [String(category).toLowerCase()];
-        
+
         const isExcluded = normalizedCats.some(c => categoriesToSkip.includes(c));
         const titleLower = (title || "").toLowerCase();
         const titleExcludes = categoriesToSkip.some(kw => titleLower.includes(kw));
@@ -235,7 +235,7 @@ const brandImageWithTitle = async (imageUrl, title, options = { addLogo: true, c
         }
 
         console.log(`[Branding-Final] Mastering professional white-card for: ${title}`);
-        
+
         // 1. Resolve image buffer (supports URL or Base64/Local)
         const imageBuffer = await getImageBuffer(imageUrl);
         const logoPath = path.join(__dirname, '..', 'Assets', 'logo1.jpeg');
@@ -265,10 +265,10 @@ const brandImageWithTitle = async (imageUrl, title, options = { addLogo: true, c
         const safeTitle = escapeXML(title.trim());
         const isHindi = hasHindiCharacters(title);
         const words = safeTitle.split(' ');
-        
-        let splitIdx = isHindi ? 4 : 3; 
+
+        let splitIdx = isHindi ? 4 : 3;
         if (words.length <= splitIdx) splitIdx = Math.max(1, words.length - 1);
-        
+
         const firstPartText = words.slice(0, splitIdx).join(' ');
         const restText = words.slice(splitIdx).join(' ');
 
@@ -352,13 +352,13 @@ const brandImageWithTitle = async (imageUrl, title, options = { addLogo: true, c
                 <!-- Headline (Luxury White & Gold) -->
                 <g filter="url(#shadow)">
                     ${firstLines.map((line, i) => {
-                        const y = titleStartY + (i * lineSpacing);
-                        return `<text x="${width / 2}" y="${y}" text-anchor="middle" font-family="Nirmala UI, Arial, sans-serif" font-size="${fontSize + 2}" font-weight="900" fill="#FFFFFF">${line}</text>`;
-                    }).join('')}
+            const y = titleStartY + (i * lineSpacing);
+            return `<text x="${width / 2}" y="${y}" text-anchor="middle" font-family="Nirmala UI, Arial, sans-serif" font-size="${fontSize + 2}" font-weight="900" fill="#FFFFFF">${line}</text>`;
+        }).join('')}
                     ${restLines.map((line, i) => {
-                        const y = titleStartY + ((i + firstLines.length) * lineSpacing);
-                        return `<text x="${width / 2}" y="${y}" text-anchor="middle" font-family="Nirmala UI, Arial, sans-serif" font-size="${fontSize}" font-weight="900" fill="#FFD700">${line}</text>`;
-                    }).join('')}
+            const y = titleStartY + ((i + firstLines.length) * lineSpacing);
+            return `<text x="${width / 2}" y="${y}" text-anchor="middle" font-family="Nirmala UI, Arial, sans-serif" font-size="${fontSize}" font-weight="900" fill="#FFD700">${line}</text>`;
+        }).join('')}
                 </g>
 
                 <!-- URL Sticker (Gold-to-Orange Pill) - DYNAMIC POSITION -->
@@ -370,7 +370,7 @@ const brandImageWithTitle = async (imageUrl, title, options = { addLogo: true, c
         // 6. PREMIUM GLASS BADGE FOR LOGO
         const logoSize = Math.min(Math.round(width * 0.18), 300);
         const badgeSize = logoSize + 60;
-        
+
         const logoBadge = Buffer.from(`
             <svg width="${badgeSize}" height="${badgeSize}">
                 <defs>
@@ -408,7 +408,7 @@ const brandImageWithTitle = async (imageUrl, title, options = { addLogo: true, c
         return finalBuffer;
     } catch (err) {
         console.error(`[Branding-Final] ❌ Error: ${err.message}`);
-        return null; 
+        return null;
     }
 };
 

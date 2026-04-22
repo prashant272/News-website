@@ -40,49 +40,49 @@ const CATEGORIES = [
 
 const ALL_SUBCATEGORIES = [
     { id: '', label: 'General / None' },
-    
+
     // Sports
     { id: 'sports', label: 'Sports (All)' },
     { id: 'cricket', label: 'Cricket' },
     { id: 'football', label: 'Football' },
     { id: 'ipl 2026', label: 'IPL 2026' },
-    
+
     // Entertainment
     { id: 'entertainment', label: 'Entertainment (All)' },
     { id: 'bollywood', label: 'Bollywood' },
     { id: 'hollywood', label: 'Hollywood' },
-    
+
     // Lifestyle
     { id: 'lifestyle', label: 'Lifestyle (All)' },
     { id: 'fashion', label: 'Fashion' },
     { id: 'culture', label: 'Culture' },
     { id: 'shopping', label: 'Shopping' },
-    
+
     // Custom Fallback
     { id: 'others', label: 'Others (Custom)' }
 ] as const;
 
 const STATES = [
-  
-  { id: 'universal', label: 'Universal / National' },
 
-  // States
-  { id: 'andhra-pradesh', label: 'Andhra Pradesh' },
-  { id: 'arunachal-pradesh', label: 'Arunachal Pradesh' },
-  { id: 'assam', label: 'Assam' },
-  { id: 'bihar', label: 'Bihar' },
-  { id: 'gujarat', label: 'Gujarat' },
-  { id: 'haryana', label: 'Haryana' },
-  { id: 'himachal-pradesh', label: 'Himachal Pradesh' },
-  { id: 'jharkhand', label: 'Jharkhand' },
-  { id: 'madhya-pradesh', label: 'Madhya Pradesh' },
-  { id: 'sikkim', label: 'Sikkim' },
-  { id: 'uttar-pradesh', label: 'Uttar Pradesh' },
-  { id: 'uttarakhand', label: 'Uttarakhand' },
-  { id: 'west-bengal', label: 'West Bengal' }, 
-  { id: 'maharashtra', label: 'Maharashtra' },
-  { id: 'telangana', label: 'Telangana' },
-  { id: 'others', label: 'Others' }
+    { id: 'universal', label: 'Universal / National' },
+
+    // States
+    { id: 'andhra-pradesh', label: 'Andhra Pradesh' },
+    { id: 'arunachal-pradesh', label: 'Arunachal Pradesh' },
+    { id: 'assam', label: 'Assam' },
+    { id: 'bihar', label: 'Bihar' },
+    { id: 'gujarat', label: 'Gujarat' },
+    { id: 'haryana', label: 'Haryana' },
+    { id: 'himachal-pradesh', label: 'Himachal Pradesh' },
+    { id: 'jharkhand', label: 'Jharkhand' },
+    { id: 'madhya-pradesh', label: 'Madhya Pradesh' },
+    { id: 'sikkim', label: 'Sikkim' },
+    { id: 'uttar-pradesh', label: 'Uttar Pradesh' },
+    { id: 'uttarakhand', label: 'Uttarakhand' },
+    { id: 'west-bengal', label: 'West Bengal' },
+    { id: 'maharashtra', label: 'Maharashtra' },
+    { id: 'telangana', label: 'Telangana' },
+    { id: 'others', label: 'Others' }
 
 ] as const;
 
@@ -154,7 +154,7 @@ const NewsManager: FC<NewsManagerProps> = ({
     const [showImage, setShowImage] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-    
+
     // Live Branded Preview State
     const [brandedPreview, setBrandedPreview] = useState<string | null>(null);
     const [isBranding, setIsBranding] = useState(false);
@@ -163,10 +163,10 @@ const NewsManager: FC<NewsManagerProps> = ({
     const [schedDate, setSchedDate] = useState("");
     const [schedHour, setSchedHour] = useState("12");
     const [schedMin, setSchedMin] = useState("00");
-    const [schedAmPm, setSchedAmPm] = useState<"AM"|"PM">("AM");
-    const [timeFormat, setTimeFormat] = useState<"12h"|"24h">("12h");
+    const [schedAmPm, setSchedAmPm] = useState<"AM" | "PM">("AM");
+    const [timeFormat, setTimeFormat] = useState<"12h" | "24h">("12h");
 
-    const buildScheduledISO = useCallback((date: string, hour: string, min: string, ampm: "AM"|"PM", fmt: "12h"|"24h") => {
+    const buildScheduledISO = useCallback((date: string, hour: string, min: string, ampm: "AM" | "PM", fmt: "12h" | "24h") => {
         if (!date) return "";
         let h = parseInt(hour, 10);
         if (fmt === "12h") {
@@ -193,12 +193,12 @@ const NewsManager: FC<NewsManagerProps> = ({
             const m = String(now.getMonth() + 1).padStart(2, '0');
             const d = String(now.getDate()).padStart(2, '0');
             setSchedDate(`${y}-${m}-${d}`);
-            
+
             let h = now.getHours();
-            
+
             // Round minutes to nearest 5 for the select dropdown
             const minFloored = Math.floor(now.getMinutes() / 5) * 5;
-            
+
             const ampm = h >= 12 ? "PM" : "AM";
             if (timeFormat === "12h") {
                 h = h % 12;
@@ -339,10 +339,10 @@ const NewsManager: FC<NewsManagerProps> = ({
         setFormState(prev => {
             const current = Array.isArray(prev.category) ? prev.category : [String(prev.category).toLowerCase()];
             const exists = current.includes(catId);
-            const next = exists 
+            const next = exists
                 ? current.filter(c => c !== catId)
                 : [...current, catId];
-            
+
             // Keep at least one category
             if (next.length === 0) return prev;
             return { ...prev, category: next };
@@ -438,7 +438,7 @@ const NewsManager: FC<NewsManagerProps> = ({
                 return;
             }
             setEditingSlug(item.slug);
-            
+
             // Format scheduledAt for datetime-local input (YYYY-MM-DDThh:mm)
             let formattedDate = "";
             if (item.scheduledAt) {
@@ -448,7 +448,7 @@ const NewsManager: FC<NewsManagerProps> = ({
                 }
             }
 
-            setFormState({ 
+            setFormState({
                 ...item,
                 scheduledAt: formattedDate
             });
@@ -518,12 +518,11 @@ const NewsManager: FC<NewsManagerProps> = ({
             try {
                 await setFlags({ slug, [field]: newValue });
                 showNotification(
-                    `Article ${newValue ? "marked as" : "removed from"} ${
-                        field === "isLatest" ? "Latest" : 
-                        field === "isTrending" ? "Trending" : 
-                        field === "isFeatured" ? "Featured" : 
-                        field === "isFiftyWordEdit" ? "50W Edit" : 
-                        field === "isHidden" ? "Hidden" : "Popup Rotation"
+                    `Article ${newValue ? "marked as" : "removed from"} ${field === "isLatest" ? "Latest" :
+                        field === "isTrending" ? "Trending" :
+                            field === "isFeatured" ? "Featured" :
+                                field === "isFiftyWordEdit" ? "50W Edit" :
+                                    field === "isHidden" ? "Hidden" : "Popup Rotation"
                     }`,
                     "success"
                 );
@@ -677,10 +676,10 @@ const NewsManager: FC<NewsManagerProps> = ({
 
                         <div className={`${styles.formGroup} ${styles.fullWidth}`}>
                             <label className={styles.label}>Categories (Select all that apply) <span className={styles.required}>*</span></label>
-                            <div style={{ 
-                                display: 'grid', 
-                                gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', 
-                                gap: '0.75rem', 
+                            <div style={{
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
+                                gap: '0.75rem',
                                 marginTop: '0.75rem',
                                 background: 'rgba(255,255,255,0.03)',
                                 padding: '1.25rem',
@@ -688,17 +687,17 @@ const NewsManager: FC<NewsManagerProps> = ({
                                 border: '1px solid var(--border-subtle)'
                             }}>
                                 {CATEGORIES.filter(c => c.id !== 'home').map(cat => {
-                                    const isSelected = Array.isArray(formState.category) 
-                                        ? formState.category.includes(cat.id) 
+                                    const isSelected = Array.isArray(formState.category)
+                                        ? formState.category.includes(cat.id)
                                         : formState.category?.toString().toLowerCase() === cat.id;
 
                                     return (
-                                        <label 
-                                            key={cat.id} 
-                                            style={{ 
-                                                display: 'flex', 
-                                                alignItems: 'center', 
-                                                gap: '0.6rem', 
+                                        <label
+                                            key={cat.id}
+                                            style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '0.6rem',
                                                 cursor: 'pointer',
                                                 padding: '0.5rem 0.75rem',
                                                 borderRadius: '8px',
@@ -710,8 +709,8 @@ const NewsManager: FC<NewsManagerProps> = ({
                                                 color: isSelected ? '#fff' : 'var(--text-muted)'
                                             }}
                                         >
-                                            <input 
-                                                type="checkbox" 
+                                            <input
+                                                type="checkbox"
                                                 checked={isSelected}
                                                 onChange={() => handleCategoryToggle(cat.id)}
                                                 style={{ cursor: 'pointer', width: '16px', height: '16px' }}
@@ -764,7 +763,7 @@ const NewsManager: FC<NewsManagerProps> = ({
                                                 <option key={sub.id} value={sub.id}>{sub.label}</option>
                                             ))}
                                         </select>
-                                        
+
                                         {activeSelectValue === 'others' && (
                                             <input
                                                 type="text"
@@ -861,7 +860,7 @@ const NewsManager: FC<NewsManagerProps> = ({
                                         value={schedMin}
                                         onChange={e => setSchedMin(e.target.value)}
                                     >
-                                        {["00","05","10","15","20","25","30","35","40","45","50","55"].map(m => (
+                                        {["00", "05", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55"].map(m => (
                                             <option key={m} value={m} style={{ background: '#1e293b', color: '#e2e8f0' }}>{m}</option>
                                         ))}
                                     </select>
@@ -949,7 +948,7 @@ const NewsManager: FC<NewsManagerProps> = ({
                                                     setShowImage(false);
                                                 }}
                                             >
-                                                Remove 
+                                                Remove
                                             </button>
                                         </div>
                                     </div>
@@ -1114,13 +1113,13 @@ const NewsManager: FC<NewsManagerProps> = ({
                                                     <button onClick={() => startEdit(item)} className={styles.editBtn} disabled={!canUpdate} title="Edit">✏️</button>
                                                     <button onClick={() => handleDelete(item.slug)} className={styles.deleteBtn} disabled={!canDelete} title="Delete">🗑️</button>
                                                     {(() => {
-                                                        const catNames = Array.isArray(item.category) 
-                                                            ? item.category.join(', ') 
+                                                        const catNames = Array.isArray(item.category)
+                                                            ? item.category.join(', ')
                                                             : String(item.category || '');
                                                         if (catNames.toLowerCase().includes('award')) {
                                                             return (
-                                                                <button 
-                                                                    onClick={() => openAwardPopup(item)} 
+                                                                <button
+                                                                    onClick={() => openAwardPopup(item)}
                                                                     style={{
                                                                         background: 'linear-gradient(135deg, #d4af37 0%, #b8860b 100%)',
                                                                         color: 'white',
@@ -1159,43 +1158,43 @@ const NewsManager: FC<NewsManagerProps> = ({
                                                     className={`${styles.flagBtn} ${item.isFeatured ? styles.flagActive : ""}`}
                                                     disabled={!canUpdate || flagsLoading}
                                                 >💎 {item.isFeatured ? "Featured" : "Featured"}</button>
-                                                    <button
-                                                        onClick={() => handleToggleFlag(item.slug, "isFiftyWordEdit", !item.isFiftyWordEdit)}
-                                                        className={`${styles.flagBtn} ${item.isFiftyWordEdit ? styles.flagActive : ""}`}
-                                                        disabled={!canUpdate || flagsLoading}
-                                                        title={item.isFiftyWordEdit ? "Remove from 50W Edit" : "Add to 50W Edit"}
-                                                    >📝 {item.isFiftyWordEdit ? "50W" : "50W"}</button>
-                                                    {(() => {
-                                                        const catNames = Array.isArray(item.category) 
-                                                            ? item.category.join(', ') 
-                                                            : String(item.category || '');
-                                                        if (catNames.toLowerCase().includes('award')) {
-                                                            return (
-                                                                <button
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation();
-                                                                        handleToggleFlag(item.slug, "showInPopup", !item.showInPopup);
-                                                                    }}
-                                                                    className={`${styles.flagBtn} ${item.showInPopup ? styles.flagActive : ""}`}
-                                                                    disabled={!canUpdate || flagsLoading}
-                                                                    style={{
-                                                                        marginLeft: '0.5rem',
-                                                                        background: item.showInPopup ? 'linear-gradient(135deg, #d4af37 0%, #b8860b 100%)' : '',
-                                                                        color: item.showInPopup ? 'white' : '',
-                                                                        borderColor: item.showInPopup ? '#b8860b' : '',
-                                                                        fontWeight: item.showInPopup ? 'bold' : 'normal',
-                                                                        padding: '2px 8px',
-                                                                        borderRadius: '4px',
-                                                                        fontSize: '0.75rem'
-                                                                    }}
-                                                                    title={item.showInPopup ? "Remove from Popup Rotation" : "Add to Popup Rotation"}
-                                                                >
-                                                                    🏆 {item.showInPopup ? "In Popup" : "Add to Popup"}
-                                                                </button>
-                                                            );
-                                                        }
-                                                        return null;
-                                                    })()}
+                                                <button
+                                                    onClick={() => handleToggleFlag(item.slug, "isFiftyWordEdit", !item.isFiftyWordEdit)}
+                                                    className={`${styles.flagBtn} ${item.isFiftyWordEdit ? styles.flagActive : ""}`}
+                                                    disabled={!canUpdate || flagsLoading}
+                                                    title={item.isFiftyWordEdit ? "Remove from 50W Edit" : "Add to 50W Edit"}
+                                                >📝 {item.isFiftyWordEdit ? "50W" : "50W"}</button>
+                                                {(() => {
+                                                    const catNames = Array.isArray(item.category)
+                                                        ? item.category.join(', ')
+                                                        : String(item.category || '');
+                                                    if (catNames.toLowerCase().includes('award')) {
+                                                        return (
+                                                            <button
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleToggleFlag(item.slug, "showInPopup", !item.showInPopup);
+                                                                }}
+                                                                className={`${styles.flagBtn} ${item.showInPopup ? styles.flagActive : ""}`}
+                                                                disabled={!canUpdate || flagsLoading}
+                                                                style={{
+                                                                    marginLeft: '0.5rem',
+                                                                    background: item.showInPopup ? 'linear-gradient(135deg, #d4af37 0%, #b8860b 100%)' : '',
+                                                                    color: item.showInPopup ? 'white' : '',
+                                                                    borderColor: item.showInPopup ? '#b8860b' : '',
+                                                                    fontWeight: item.showInPopup ? 'bold' : 'normal',
+                                                                    padding: '2px 8px',
+                                                                    borderRadius: '4px',
+                                                                    fontSize: '0.75rem'
+                                                                }}
+                                                                title={item.showInPopup ? "Remove from Popup Rotation" : "Add to Popup Rotation"}
+                                                            >
+                                                                🏆 {item.showInPopup ? "In Popup" : "Add to Popup"}
+                                                            </button>
+                                                        );
+                                                    }
+                                                    return null;
+                                                })()}
                                             </div>
                                         </div>
                                     </article>
@@ -1225,5 +1224,6 @@ const NewsManager: FC<NewsManagerProps> = ({
         </div>
     );
 };
+
 
 export default NewsManager;

@@ -31,7 +31,8 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "stat2.bollywoodhungama.in", pathname: "/**" },
       { protocol: "https", hostname: "english.cdn.zeenews.com", pathname: "/**" },
       { protocol: "https", hostname: "zeenews.india.com", pathname: "/**" },
-      { protocol: "https", hostname: "images.unsplash.com", pathname: "/**" }
+      { protocol: "https", hostname: "images.unsplash.com", pathname: "/**" },
+      { protocol: "https", hostname: "pub-2343d84e533742e08719e1d3d8c0a3d6.r2.dev", pathname: "/**" }
     ],
   },
   async rewrites() {

@@ -3,6 +3,7 @@ const { scrapeNews, getLatestLinks } = require("../Services/scraperService");
 const { generateArticle } = require("../Services/aiService");
 const NewsArticle = require("../Models/NewsArticle");
 const newsSources = require("../Config/newsSources");
+const { uploadToR2 } = require("../Services/storageService");
 const cloudinary = require("cloudinary").v2;
 const crypto = require("crypto");
 
@@ -49,10 +50,10 @@ const generateUrlHash = (url) => {
     return crypto.createHash("sha256").update(url).digest("hex");
 };
 
-const uploadImage = async (imageUrl, title = "", source = "", category = null) => {
+const uploadImage = async (imageUrl, title = "", sourceName = "", category = null) => {
     if (!imageUrl) return null;
     try {
-        console.log(`[Cloudinary] ${title ? "Branding" : "Watermarking"} and Uploading: ${imageUrl}`);
+        console.log(`[R2-Auto] ${title ? "Branding" : "Watermarking"} and Uploading: ${imageUrl}`);
 
         // 1. Apply branding/watermark
         let buffer;
@@ -61,36 +62,29 @@ const uploadImage = async (imageUrl, title = "", source = "", category = null) =
             buffer = await brandImageWithTitle(imageUrl, title, { category });
         } else {
             // Legacy anti-copyright watermark
-            buffer = await applyWatermark(imageUrl, source);
+            buffer = await applyWatermark(imageUrl, sourceName);
         }
+
+        const fileName = `auto_news/${Date.now()}-${crypto.randomBytes(4).toString('hex')}.png`;
 
         if (!buffer) {
-            console.log("[Cloudinary] Falling back to original image (no watermark).");
-            const response = await cloudinary.uploader.upload(imageUrl, {
-                folder: "auto_news",
-                fetch_format: "auto",
-                quality: "auto"
-            });
-            return response.secure_url;
+            console.log("[R2-Auto] Falling back to original image (no watermark).");
+            // If it's already a URL, we could return it, but better to host it ourselves for reliability
+            try {
+                const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+                const rawBuffer = Buffer.from(response.data);
+                return await uploadToR2(rawBuffer, fileName, "image/png");
+            } catch (e) {
+                console.error("[R2-Auto] Raw Fetch Error:", e.message);
+                return imageUrl; // Ultimate fallback
+            }
         }
 
-        // 2. Upload the watermarked buffer to Cloudinary
-        return new Promise((resolve, reject) => {
-            const uploadStream = cloudinary.uploader.upload_stream(
-                { folder: "auto_news", fetch_format: "auto", quality: "auto" },
-                (error, result) => {
-                    if (error) {
-                        console.error("Cloudinary Stream Error:", error.message);
-                        resolve(null); // Return null instead of rejecting to keep loop running
-                    } else {
-                        resolve(result.secure_url);
-                    }
-                }
-            );
-            uploadStream.end(buffer);
-        });
+        // 2. Upload the watermarked buffer to Cloudflare R2
+        const uploadedUrl = await uploadToR2(buffer, fileName, "image/png");
+        return uploadedUrl;
     } catch (error) {
-        console.error("Cloudinary Error:", error.message);
+        console.error("R2 Upload Error:", error.message);
         return null;
     }
 };

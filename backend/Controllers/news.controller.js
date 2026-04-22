@@ -4,6 +4,7 @@ const AppConfig = require("../Models/AppConfig");
 const { triggerAllSocialMedia } = require("../Services/socialTriggerService");
 const { getArticleUrl } = require("../Utils/articleUtils");
 const { brandImageWithTitle } = require("../Services/imageService");
+const { uploadToR2 } = require("../Services/storageService");
 const dotenv = require("dotenv");
 // dotenv.config({ path: "./Config/config.env" }); // Removed: Root server.js handles env loading
 const cloudinary = require("cloudinary").v2;
@@ -221,33 +222,38 @@ exports.AddNews = async (req, res) => {
         console.log(`[Admin-Upload] Requesting branded image for: ${finalTitleStr} (Category: ${finalCategory})`);
         const brandedBuffer = await brandImageWithTitle(image, finalTitleStr, { category: finalCategory });
 
-        const uploadResponse = await cloudinary.uploader.upload(
-          `data:image/png;base64,${brandedBuffer.toString('base64')}`,
-          { folder: "primetime" }
-        );
-        imageUrl = uploadResponse.secure_url;
+        // Cloudflare R2 Upload
+        const fileName = `primetime/${Date.now()}-${finalSlugStr}.png`;
+        imageUrl = await uploadToR2(brandedBuffer, fileName, "image/png");
+        console.log(`[R2-Upload] Success: ${imageUrl}`);
       } catch (uploadError) {
         console.error("Branding/Upload Error:", uploadError);
-        // Fallback to raw image if branding fails
-        if (image.startsWith("http")) {
+        // Fallback to raw image if branding fails and it's a URL
+        if (image && typeof image === 'string' && image.startsWith("http")) {
           imageUrl = image;
         } else {
-          const fallback = await cloudinary.uploader.upload(image, { folder: "primetime" });
-          imageUrl = fallback.secure_url;
+          // Attempt raw upload to R2
+          try {
+            const rawBuffer = Buffer.isBuffer(image) ? image : Buffer.from(image.split(',')[1] || image, 'base64');
+            const fileName = `primetime/raw-${Date.now()}-${finalSlugStr}.png`;
+            imageUrl = await uploadToR2(rawBuffer, fileName, "image/png");
+          } catch (e) {
+            console.error("Final Fallback Upload Error:", e);
+          }
         }
       }
     }
 
     const newItem = new NewsArticle({
-      title: finalTitleStr, 
-      slug: finalSlugStr, 
-      category: finalCategory, 
+      title: finalTitleStr,
+      slug: finalSlugStr,
+      category: finalCategory,
       subCategory: subCategory || null,
-      summary: summary || null, 
-      content, 
-      image: imageUrl, 
+      summary: summary || null,
+      content,
+      image: imageUrl,
       tags,
-      targetLink: targetLink || null, 
+      targetLink: targetLink || null,
       nominationLink: nominationLink || null,
       moreInfoLink: moreInfoLink || null,
       author: author || "Prime Time",
@@ -511,8 +517,8 @@ exports.updateNewsBySlug = async (req, res) => {
     // APPLY BRANDING ON UPDATE
     if (updateData.title || updateData.slug) {
       const brandedUpdate = ensureBranding(
-        updateData.title || item.title, 
-        updateData.slug || item.slug, 
+        updateData.title || item.title,
+        updateData.slug || item.slug,
         finalLang
       );
       updateData.title = brandedUpdate.title;
@@ -525,22 +531,26 @@ exports.updateNewsBySlug = async (req, res) => {
       try {
         // Resolve effective category for branding check
         const currentCategories = updateData.category || item.category || [];
-        
+
         console.log(`[Admin-Update] Requesting branded image for update: ${updateData.title} (Category: ${currentCategories})`);
         const brandedBuffer = await brandImageWithTitle(updateData.image, updateData.title, { category: currentCategories });
 
-        const uploadResponse = await cloudinary.uploader.upload(
-          `data:image/png;base64,${brandedBuffer.toString('base64')}`,
-          { folder: "primetime" }
-        );
-        imageUrl = uploadResponse.secure_url;
+        // Cloudflare R2 Upload
+        const fileName = `primetime/${Date.now()}-${updateData.slug || item.slug}.png`;
+        imageUrl = await uploadToR2(brandedBuffer, fileName, "image/png");
         updateData.image = imageUrl;
+        console.log(`[R2-Update] Success: ${imageUrl}`);
       } catch (uploadError) {
         console.error("Branding/Update Error:", uploadError);
-        if (!updateData.image.startsWith("http")) {
-          const uploadResponse = await cloudinary.uploader.upload(updateData.image, { folder: "primetime" });
-          imageUrl = uploadResponse.secure_url;
-          updateData.image = imageUrl;
+        if (updateData.image && typeof updateData.image === 'string' && !updateData.image.startsWith("http")) {
+          try {
+            const rawBuffer = Buffer.from(updateData.image.split(',')[1] || updateData.image, 'base64');
+            const fileName = `primetime/raw-update-${Date.now()}-${updateData.slug || item.slug}.png`;
+            imageUrl = await uploadToR2(rawBuffer, fileName, "image/png");
+            updateData.image = imageUrl;
+          } catch (e) {
+            console.error("Final Fallback Update Error:", e);
+          }
         }
       }
     }
