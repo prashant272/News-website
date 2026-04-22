@@ -59,6 +59,13 @@ const applyWatermark = async (imageUrl, source = "") => {
         const src = (source || "").toLowerCase();
         console.log(`[Anti-Copyright] Transforming image for ${src}`);
 
+        // SKIP if image is already on our storage
+        const brandedKeywords = ["r2.dev", "cloudflarestorage.com", "primetime/", "auto_news/"];
+        if (typeof imageUrl === "string" && brandedKeywords.some(kw => imageUrl.toLowerCase().includes(kw))) {
+            console.log(`[Anti-Copyright-Skip] Image already processed (URL: ${imageUrl}).`);
+            return await getImageBuffer(imageUrl);
+        }
+
         const inputBuffer = await getImageBuffer(imageUrl);
         const logoPath = path.join(__dirname, '..', 'Assets', 'logo1.jpeg');
 
@@ -229,8 +236,13 @@ const brandImageWithTitle = async (imageUrl, title, options = { addLogo: true, c
         const titleLower = (title || "").toLowerCase();
         const titleExcludes = categoriesToSkip.some(kw => titleLower.includes(kw));
 
-        if (isExcluded || titleExcludes) {
-            console.log(`[Branding-Skip] Exclusion rule triggered (Cat: ${category}, Title: ${title}). Returning original image.`);
+        // NEW: SKIP BRANDING if image is already on our storage (R2 or Cloudinary)
+        // This prevents double branding when drafts or already branded images are re-processed.
+        const brandedKeywords = ["r2.dev", "cloudflarestorage.com", "primetime/", "auto_news/"];
+        const alreadyBranded = typeof imageUrl === "string" && brandedKeywords.some(kw => imageUrl.toLowerCase().includes(kw));
+
+        if (isExcluded || titleExcludes || alreadyBranded) {
+            console.log(`[Branding-Skip] ${alreadyBranded ? 'Already branded' : 'Exclusion rule'} triggered (URL: ${imageUrl}). Returning original image.`);
             return await getImageBuffer(imageUrl);
         }
 
@@ -241,18 +253,14 @@ const brandImageWithTitle = async (imageUrl, title, options = { addLogo: true, c
         const logoPath = path.join(__dirname, '..', 'Assets', 'logo1.jpeg');
 
         const metadata = await sharp(imageBuffer).metadata();
-        let { width, height } = metadata;
 
-        // Safety fallback if metadata is missing (prevents NaN/crash errors)
-        if (!width || !height) {
-            console.warn('[Branding-Final] ⚠️ Could not determine image dimensions. Using 1080x1080 fallback.');
-            width = 1080;
-            height = 1080;
-        }
+        // 2. NORMALIZE DIMENSIONS (HD Standard 1200x675 for 16:9 Landscape)
+        // This ensures consistent text wrapping and prevents the "lamba" (too tall) effect
+        const width = 1200;
+        const height = 675;
 
-        // 2. HD IMAGE GRADING (Image Section Only)
         const gradedImage = await sharp(imageBuffer)
-            .resize(width, height)
+            .resize(width, height, { fit: 'cover', position: 'center' })
             .modulate({ brightness: 1.05, saturation: 1.25 })
             .linear(1.05, -5)
             .toBuffer();
