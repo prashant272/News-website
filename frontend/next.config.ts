@@ -38,9 +38,14 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
+        source: '/india-excellence',
+        destination: 'https://india-excellence.primetimemedia.in/upcoming-awards/india-excellence-awards-2026',
+        permanent: false,
+      },
+      {
         source: '/india-excellence/:path*',
-        destination: 'https://india-excellence.primetimemedia.in/:path*',
-        permanent: true,
+        destination: 'https://india-excellence.primetimemedia.in/upcoming-awards/india-excellence-awards-2026/:path*',
+        permanent: false,
       },
     ];
   },
