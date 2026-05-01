@@ -56,18 +56,18 @@ const filterVisibleNews = (newsArray: NewsItem[] | undefined): NewsItem[] | null
 export const NewsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const pathname = usePathname();
   const { lang } = useLanguage();
-  
+
   const isHomePage = pathname === '/';
-  
+
   // Use a smaller limit for non-home pages (Articles, etc.) to save resources
   const streamLimit = isHomePage ? 120 : 10;
-  
+
   // We MUST respect 'lang' strictly to avoid mixing English and Hindi
   const { news: rawData, loading, error, refetch } = useStreamingNews(undefined, streamLimit, lang);
-  
+
   // Use a throttle mechanism for context updates? 
   // No, let's just make the processing extremely efficient.
-  
+
   const newsState = useMemo(() => {
     if (!rawData || rawData.length === 0) {
       return {
@@ -84,12 +84,12 @@ export const NewsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const uniqueSortedAll = sortNewsByDate(rawData.filter(item => {
       const key = item._id || item.slug;
       if (!key || seenSlugs.has(key)) return false;
-      
+
       // Secondary safety: Ensure item language matches current context language
       const itemLang = (item.lang || item.language || '').toLowerCase();
       const content = (item.title || '') + (item.summary || '') + (item.content || '');
       const hasHindiChars = /[\u0900-\u097F]/.test(content);
-      
+
       if (lang === 'hi') {
         // If we are on Hindi portal, allow if tag is 'hi' OR if it has Hindi characters
         if (itemLang !== 'hi' && !hasHindiChars) return false;
@@ -97,7 +97,7 @@ export const NewsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         // If we are on English portal, strictly exclude Hindi content to keep it clean
         if (itemLang === 'hi' || hasHindiChars) return false;
       }
-      
+
       seenSlugs.add(key);
       return true;
     }));

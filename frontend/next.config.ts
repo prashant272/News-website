@@ -41,6 +41,10 @@ const nextConfig: NextConfig = {
         source: '/news/:path*',
         destination: '/Pages/:path*',
       },
+      {
+        source: '/india-excellence/:path*',
+        destination: 'https://india-excellence.primetimemedia.in/:path*',
+      },
     ];
   },
 };
