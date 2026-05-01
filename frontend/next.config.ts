@@ -35,15 +35,20 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "pub-2343d84e533742e08719e1d3d8c0a3d6.r2.dev", pathname: "/**" }
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: '/india-excellence/:path*',
+        destination: 'https://india-excellence.primetimemedia.in/:path*',
+        permanent: true,
+      },
+    ];
+  },
   async rewrites() {
     return [
       {
         source: '/news/:path*',
         destination: '/Pages/:path*',
-      },
-      {
-        source: '/india-excellence/:path*',
-        destination: 'https://india-excellence.primetimemedia.in/:path*',
       },
     ];
   },
