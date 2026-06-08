@@ -1,10 +1,12 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './AwardsPopup.module.scss';
-import { X, ExternalLink } from 'lucide-react';
+import { X } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { useNewsSectionData } from '@/app/hooks/useNewsSectionData';
 import { useNewsContext } from '@/app/context/NewsContext';
+import Image from 'next/image';
+import logo from "@/assets/Logo/logo.png";
 
 const SHOW_INTERVAL_MS = 2 * 60 * 1000;
 const FIRST_SHOW_DELAY_MS = 300; // Decreased delay for faster popup appearance
@@ -92,11 +94,9 @@ const AwardsPopup: React.FC = () => {
 
     let nominateUrl: string;
     let articleUrl: string;
-    let badgeLabel: string;
     let titleText: string;
     let descText: string;
     let imageUrl: string | undefined;
-    let showDots = false;
     let totalCount = 0;
     let currentPos = 0;
 
@@ -104,23 +104,19 @@ const AwardsPopup: React.FC = () => {
         // Specific Award View
         articleUrl = (selectedAward as any).moreInfoLink || (selectedAward as any).targetLink || `/Pages/${selectedAward.category}/${selectedAward.subCategory}/${selectedAward.slug}`;
         nominateUrl = (selectedAward as any).nominationLink || articleUrl;
-        badgeLabel = `🏆 ${(selectedAward as any).displaySubCategory || selectedAward.category || 'Awards'}`;
         titleText = selectedAward.title;
         descText = selectedAward.summary || "Recognizing excellence and leadership in India.";
         imageUrl = selectedAward.image;
-        showDots = false;
     } else {
         // Auto-rotation View
         const hasLiveAwards = liveAwards && liveAwards.length > 0;
         totalCount = hasLiveAwards ? liveAwards.length : FALLBACK_AWARDS.length;
         currentPos = awardIndex % totalCount;
-        showDots = true;
 
         if (hasLiveAwards) {
             const item = liveAwards[currentPos];
             articleUrl = item.targetLink || item.href;
             nominateUrl = item.nominationLink || articleUrl;
-            badgeLabel = `🏆 ${item.displaySubCategory || item.category || 'Awards'}`;
             titleText = item.title;
             descText = "Recognizing excellence and leadership in India.";
             imageUrl = item.image;
@@ -128,7 +124,6 @@ const AwardsPopup: React.FC = () => {
             const fb = FALLBACK_AWARDS[currentPos];
             nominateUrl = fb.nominateUrl;
             articleUrl = fb.articleUrl;
-            badgeLabel = fb.badge;
             titleText = fb.title;
             descText = fb.subtitle;
             imageUrl = undefined;
@@ -138,58 +133,31 @@ const AwardsPopup: React.FC = () => {
     return (
         <div className={styles.overlay} onClick={handleClose}>
             <div className={styles.popup} onClick={(e) => e.stopPropagation()}>
+                <button className={styles.closeBtn} onClick={handleClose} aria-label="Close">
+                    <X size={20} />
+                </button>
 
-                {imageUrl ? (
-                    <div className={styles.imageWrapper}>
-                        <img src={imageUrl} alt={titleText} className={styles.newsImage} />
-                        <div className={styles.imageOverlay} />
-                        <button className={styles.closeBtn} onClick={handleClose} aria-label="Close">
-                            <X size={18} />
-                        </button>
-                    </div>
-                ) : (
-                    <button className={styles.closeBtn} onClick={handleClose} aria-label="Close">
-                        <X size={18} />
-                    </button>
-                )}
-
-                <div className={styles.innerContent}>
-                    <span className={styles.badge}>{badgeLabel}</span>
-
-                    <div className={styles.content}>
-                        <h3 className={styles.title}>{titleText}</h3>
-                        <p className={styles.desc}>{descText}</p>
-                    </div>
-
-                    <div className={styles.actions}>
-                        <a href={nominateUrl} target="_blank" rel="noopener noreferrer"
-                            className={styles.nominateBtn} onClick={handleClose}>
-                            🏆 Nominate Now
-                        </a>
-                        <a href={articleUrl} target="_blank" rel="noopener noreferrer"
-                            className={styles.infoBtn} onClick={handleClose}>
-                            <ExternalLink size={14} /> More Info
-                        </a>
-                    </div>
-
-                    {showDots && (
-                        <>
-                            <div className={styles.dots}>
-                                {Array.from({ length: Math.min(totalCount, 12) }).map((_, i) => (
-                                    <span
-                                        key={i}
-                                        className={`${styles.dot} ${i === currentPos ? styles.activeDot : ''}`}
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setAwardIndex(i);
-                                            indexRef.current = i;
-                                        }}
-                                    />
-                                ))}
-                            </div>
-                            <p className={styles.counter}>{currentPos + 1} of {totalCount}</p>
-                        </>
+                <div className={styles.contentArea}>
+                    {imageUrl ? (
+                        <img src={imageUrl} alt={titleText} className={styles.popupImage} />
+                    ) : (
+                        <div className={styles.fallbackCard}>
+                            <Image src={logo} alt="PrimeTime" className={styles.fallbackLogo} width={120} height={120} />
+                            <h3 className={styles.fallbackTitle}>{titleText}</h3>
+                            <p className={styles.fallbackDesc}>{descText}</p>
+                        </div>
                     )}
+                </div>
+
+                <div className={styles.actions}>
+                    <a href={nominateUrl} target="_blank" rel="noopener noreferrer"
+                        className={styles.nominateBtn} onClick={handleClose}>
+                        🏆 Nominate Now
+                    </a>
+                    <a href={articleUrl} target="_blank" rel="noopener noreferrer"
+                        className={styles.infoBtn} onClick={handleClose}>
+                        More Info
+                    </a>
                 </div>
             </div>
         </div>

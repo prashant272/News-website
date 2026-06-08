@@ -116,20 +116,7 @@ const HindiNavbar: React.FC = () => {
                             <span className={styles.brand}>PRIME TIME</span>
                         </Link>
 
-                        <div className={styles.logoLangToggle}>
-                              <a 
-                                href="https://hindi.primetimemedia.in" 
-                                className={`${styles.logoLangBtn} ${lang === 'hi' ? styles.logoLangActive : ''}`}
-                            >
-                                हिन्दी
-                            </a>
-                            <a 
-                                href="https://primetimemedia.in" 
-                                className={`${styles.logoLangBtn} ${lang === 'en' ? styles.logoLangActive : ''}`}
-                            >
-                                ENGLISH
-                            </a>
-                        </div>
+
                     </div>
 
                     <nav className={styles.navLinks}>

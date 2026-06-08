@@ -10,30 +10,13 @@ exports.scrapeBreakingNews = async (req, res) => {
         await BreakingNews.deleteMany({ createdAt: { $lt: twoDaysAgo } });
 
         const sources = [
-            // --- NATIONAL / INDIA ---
-            { name: "Aaj Tak India", url: "https://www.aajtak.in/rssfeeds/?id=india", cat: 'india' },
-            { name: "Zee News Hindi", url: "https://zeenews.india.com/hindi/india.xml", cat: 'india' },
-            { name: "News18 Hindi", url: "https://hindi.news18.com/commonfeeds/v1/hindi/rss/india.xml", cat: 'india' },
-            { name: "Amar Ujala India", url: "https://www.amarujala.com/rss/india-news.xml", cat: 'india' },
-            { name: "NDTV India", url: "https://feeds.feedburner.com/ndtvnews-india-news", cat: 'india' },
-            { name: "India TV", url: "https://www.indiatvnews.com/rssnews/topstory.xml", cat: 'india' },
-            { name: "ABP News India", url: "https://news.abplive.com/news/india/feed", cat: 'india' },
-            
             // --- WORLD ---
             { name: "BBC News World", url: "http://feeds.bbci.co.uk/news/world/rss.xml", cat: 'world' },
             { name: "CNN World", url: "https://rss.cnn.com/rss/edition_world.rss", cat: 'world' },
-
-            // --- STATES / REGIONAL ---
-            { name: "Live Hindustan Bihar", url: "https://www.livehindustan.com/bihar/rss/", cat: 'state', state: 'bihar' },
-            { name: "Bihar Tak", url: "https://bihartak.tak.live/rss", cat: 'state', state: 'bihar' },
-            { name: "Live Hindustan UP", url: "https://www.livehindustan.com/uttar-pradesh/rss/", cat: 'state', state: 'uttar-pradesh' },
             
             // --- GENERAL / TOP STORIES ---
             { name: "The Hindu", url: "https://www.thehindu.com/news/national/feeder/default.rss", cat: 'india' },
             { name: "Times of India", url: "https://timesofindia.indiatimes.com/rssfeeds/296589292.cms", cat: 'india' },
-            
-            // --- LIVE BLOGS / REAL-TIME ---
-            { name: "Aaj Tak Live", url: "https://www.aajtak.in/breakingnews/story/latest-breaking-news-in-hindi-17-april-2026-ntc-rmxk-2525688-2026-04-17", cat: 'india', type: 'liveblog' },
         ];
 
         let allNewItems = [];

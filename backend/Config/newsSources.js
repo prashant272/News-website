@@ -2,18 +2,8 @@ const newsSources = [
 
     // --- INDIA (National) ---
     {
-        name: "Aaj Tak - India",
-        url: "https://www.aajtak.in/rssfeeds/?id=india",
-        category: "india",
-    },
-    {
         name: "India TV News",
         url: "https://www.indiatvnews.com/rssnews/topstory.xml",
-        category: "india",
-    },
-    {
-        name: "NDTV India News",
-        url: "https://feeds.feedburner.com/ndtvnews-india-news",
         category: "india",
     },
     {
@@ -33,8 +23,6 @@ const newsSources = [
         url: "https://www.hindustantimes.com/rss/cricket/rssfeed.xml",
         category: "sports"
     },
-
-
 
     // --- BUSINESS ---
     {
@@ -103,31 +91,6 @@ const newsSources = [
 
     // --- STATE NEWS (Regional) ---
     {
-        name: "Live Hindustan - West Bengal",
-        url: "https://api.livehindustan.com/feeds/rss/west-bengal/rssfeed.xml",
-        category: "state",
-    },
-    {
-        name: "Live Hindustan - Gujarat",
-        url: "https://api.livehindustan.com/feeds/rss/gujarat/rssfeed.xml",
-        category: "state",
-    },
-    {
-        name: "Live Hindustan - Punjab",
-        url: "https://api.livehindustan.com/feeds/rss/punjab/rssfeed.xml",
-        category: "state",
-    },
-    {
-        name: "Live Hindustan - Jharkhand",
-        url: "https://api.livehindustan.com/feeds/rss/jharkhand/rssfeed.xml",
-        category: "state",
-    },
-    {
-        name: "Live Hindustan - Chhattisgarh",
-        url: "https://api.livehindustan.com/feeds/rss/chhattisgarh/rssfeed.xml",
-        category: "state",
-    },
-    {
         name: "Telangana Today",
         url: "https://telanganatoday.com/feed",
         category: "state",
@@ -142,24 +105,7 @@ const newsSources = [
         url: "https://www.onmanorama.com/rss/news/kerala.xml",
         category: "state",
     },
-    {
-        name: "Amar Ujala - Bihar",
-        url: "https://www.amarujala.com/rss/bihar.xml",
-        category: "state",
-        state: "bihar"
-    },
-    {
-        name: "Bihar - Live Hindustan",
-        url: "https://api.livehindustan.com/feeds/rss/bihar/rssfeed.xml",
-        category: "state",
-        state: "bihar"
-    },
-    {
-        name: "UP - Live Hindustan",
-        url: "https://api.livehindustan.com/feeds/rss/uttar-pradesh/rssfeed.xml",
-        category: "state",
-        state: "uttar-pradesh"
-    },
+
     // --- EDUCATION ---
     {
         name: "India Today Education",
@@ -176,27 +122,6 @@ const newsSources = [
         name: "Moneycontrol Latest",
         url: "https://www.moneycontrol.com/rss/latestnews.xml",
         category: "business",
-    },
-    {
-        name: "Live Hindustan Business",
-        url: "https://api.livehindustan.com/feeds/rss/business/rssfeed.xml",
-        category: "business",
-    },
-
-    {
-        name: "PIB Hindi",
-        url: "https://pib.gov.in/RssMain.aspx?ModId=6&Lang=2&Regid=3",
-        category: "governance",
-    },
-    {
-        name: "Live Hindustan Career",
-        url: "https://api.livehindustan.com/feeds/rss/career/rssfeed.xml",
-        category: "careers",
-    },
-    {
-        name: "Amar Ujala Jobs",
-        url: "https://www.amarujala.com/rss/jobs.xml",
-        category: "careers",
     },
 ];
 
