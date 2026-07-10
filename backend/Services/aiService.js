@@ -7,8 +7,8 @@ const client = new GoogleGenAI({
 
 const generateArticle = async (facts, lang = 'en') => {
     try {
-        const isHindi = lang === 'hi';
-        const languageName = isHindi ? 'Hindi' : 'English';
+        const isHindi = false; // Forced to always be English per user request
+        const languageName = 'English';
         
         const prompt = `
 You are an expert news writer. Based on the facts below, write a FULL, LONG, SEO-optimized news article in ${languageName}.
