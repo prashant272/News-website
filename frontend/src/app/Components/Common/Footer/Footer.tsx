@@ -49,7 +49,6 @@ const Footer: React.FC = () => {
     phones: [
       { number: '+91 9971 00 2984', label: 'Sponsorship' },
       { number: '+91 9810 91 0686', label: 'Helpline' },
-      { number: '+91 11-69268754', label: 'Office' }
     ],
     email: 'contact@primetimemedia.in'
   }
