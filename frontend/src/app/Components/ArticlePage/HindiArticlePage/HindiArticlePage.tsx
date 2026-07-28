@@ -102,14 +102,14 @@ export default function HindiArticlePage({
     "dateModified": article.date,
     "author": [{
       "@type": "Person",
-      "name": article.author || "Prime Time"
+      "name": article.author || "Time Media"
     }],
     "publisher": {
       "@type": "Organization",
-      "name": "Prime Time Media",
+      "name": "Time Media",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://www.primetimemedia.in/logo.png"
+        "url": "https://www.timemedia.in/logo.png"
       }
     }
   };
@@ -136,7 +136,7 @@ export default function HindiArticlePage({
             <div className={styles.contentWrapper}>
                <div className={styles.stickyShare}>
                   <SocialShare
-                    url={typeof window !== 'undefined' ? window.location.href : `https://www.primetimemedia.in/Pages/${article.section}/${Array.isArray(article.category) ? article.category[0] : article.category}/${article.slug}`}
+                    url={typeof window !== 'undefined' ? window.location.href : `https://www.timemedia.in/Pages/${article.section}/${Array.isArray(article.category) ? article.category[0] : article.category}/${article.slug}`}
                     title={article.title}
                     description={article.subtitle}
                     image={article.image}
@@ -187,7 +187,7 @@ export default function HindiArticlePage({
                       </div>
                     ) : (
                       <div className={styles.simpleAuthor}>
-                        <span>{translations.publishedBy}: <strong>{article.author || 'Prime Time'}</strong></span>
+                        <span>{translations.publishedBy}: <strong>{article.author || 'Time Media'}</strong></span>
                       </div>
                     )}
                   </div>

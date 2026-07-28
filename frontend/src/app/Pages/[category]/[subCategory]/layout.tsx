@@ -10,7 +10,7 @@ interface LayoutProps {
 
 export async function generateMetadata({ params }: LayoutProps): Promise<Metadata> {
   const { category, subCategory } = await params;
-  const siteUrl = "https://www.primetimemedia.in";
+  const siteUrl = "https://www.timemedia.in";
   
   const decodeAndTitle = (str: string) => 
     decodeURIComponent(str)
@@ -21,8 +21,8 @@ export async function generateMetadata({ params }: LayoutProps): Promise<Metadat
   const categoryTitle = decodeAndTitle(category);
   const subCategoryTitle = decodeAndTitle(subCategory);
 
-  const title = `${subCategoryTitle} News - ${categoryTitle} | Prime Time News`;
-  const description = `Read the latest ${subCategoryTitle} news and updates in the ${categoryTitle} section. Stay informed with Prime Time News.`;
+  const title = `${subCategoryTitle} News - ${categoryTitle} | Time Media News`;
+  const description = `Read the latest ${subCategoryTitle} news and updates in the ${categoryTitle} section. Stay informed with Time Media News.`;
   const url = `${siteUrl}/Pages/${category}/${subCategory}`;
 
   return {
@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: LayoutProps): Promise<Metadat
       categoryTitle,
       `${subCategoryTitle} ${categoryTitle}`,
       "latest updates",
-      "Prime Time News"
+      "Time Media News"
     ],
     alternates: {
       canonical: url,
@@ -42,7 +42,7 @@ export async function generateMetadata({ params }: LayoutProps): Promise<Metadat
       title,
       description,
       url,
-      siteName: 'Prime Time News',
+      siteName: 'Time Media News',
       type: 'website',
     },
     twitter: {

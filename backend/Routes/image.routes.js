@@ -12,7 +12,7 @@ const upload = multer({
 
 /**
  * @route POST /api/images/brand
- * @desc Upload an image and get back a version with the Prime Time logo at top-left.
+ * @desc Upload an image and get back a version with the Time Media logo at top-left.
  * @access Public/Admin (depends on server.js placement)
  */
 router.post("/brand", upload.single("image"), imageController.brandImage);

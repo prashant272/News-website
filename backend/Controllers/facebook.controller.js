@@ -174,8 +174,8 @@ exports.testPost = async (req, res) => {
             const result = await facebookService.postToPage(
                 globalConfig.facebook.pageId,
                 globalConfig.facebook.pageAccessToken,
-                "✅ Test post from PrimeTime Media — Auto-Post is working!",
-                "https://www.primetimemedia.in"
+                "✅ Test post from TimeMedia Media — Auto-Post is working!",
+                "https://www.timemedia.in"
             );
             return res.json(result.success
                 ? { success: true, msg: "Test post successful!", postId: result.postId }
@@ -193,8 +193,8 @@ exports.testPost = async (req, res) => {
         const result = await facebookService.postToPage(
             user.facebook.pageId,
             user.facebook.pageAccessToken,
-            "✅ Test post from PrimeTime Media — Auto-Post is working!",
-            "https://www.primetimemedia.in"
+            "✅ Test post from TimeMedia Media — Auto-Post is working!",
+            "https://www.timemedia.in"
         );
 
         res.json(result.success

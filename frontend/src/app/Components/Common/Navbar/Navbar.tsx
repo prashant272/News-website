@@ -142,7 +142,7 @@ const Navbar: React.FC = () => {
 
   const navItems = useMemo<NavItem[]>(() => {
     const labels = isHindi ? SECTION_LABELS_HI : SECTION_LABELS;
-    
+
     const items: NavItem[] = [
       { label: labels.home || "Home", href: "/", key: "home" },
       { label: labels.india || "India", href: "/Pages/india", key: "india" },
@@ -155,9 +155,9 @@ const Navbar: React.FC = () => {
         href: "/Pages/awards",
         key: "awards",
         submenu: [
-          { label: isHindi ? "हेल्थकेयर अवॉर्ड्स" : "Healthcare Awards", href: "https://healthcareawards.primetimemedia.in/" },
-          { label: isHindi ? "शिक्षा अवॉर्ड्स" : "Education Awards", href: "https://education-awards.primetimemedia.in/" },
-          { label: isHindi ? "बिजनेस अवॉर्ड्स" : "Business Awards", href: "https://business-leadership.primetimemedia.in/" },
+          { label: isHindi ? "हेल्थकेयर अवॉर्ड्स" : "Healthcare Awards", href: "https://healthcareawards.timemedia.in/" },
+          { label: isHindi ? "शिक्षा अवॉर्ड्स" : "Education Awards", href: "https://education-awards.timemedia.in/" },
+          { label: isHindi ? "बिजनेस अवॉर्ड्स" : "Business Awards", href: "https://business-leadership.timemedia.in/" },
           { label: isHindi ? "अवॉर्ड्स न्यूज़" : "Awards News", href: "/Pages/awards" },
           ...(internationalPrograms.length > 0 ? [{
             label: isHindi ? "इंटरनेशनल प्रोग्राम" : "International Program",
@@ -347,13 +347,13 @@ const Navbar: React.FC = () => {
               <Link href="/" className={styles.logoContainer} onClick={closeMobileMenu}>
                 <Image
                   src={logo}
-                  alt="PrimeTime Logo"
+                  alt="TimeMedia Logo"
                   className={styles.logoImg}
                   width={160}
                   height={160}
                   priority
                 />
-                {/* prime time text */}
+                {/* time media text */}
                 <span className={styles.brandName}> </span>
               </Link>
 

@@ -39,14 +39,14 @@ app.use(helmet({
 app.use(compression())
 
 const allowedOrigins = [
-    "https://www.primetimemedia.in",
-    "https://primetimemedia.in",
+    "https://www.timemedia.in",
+    "https://timemedia.in",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "http://10.40.0.231:3000",
     "http://localhost:8086",
     "http://hindi.localhost:3000",
-    "https://hindi.primetimemedia.in",
+    "https://hindi.timemedia.in",
 ];
 
 app.use(cors({

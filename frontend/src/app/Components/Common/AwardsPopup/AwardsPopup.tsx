@@ -17,24 +17,24 @@ const FALLBACK_AWARDS = [
         title: "Global Healthcare Excellence Awards, 2026 & Summit",
         subtitle: "Recognizing outstanding achievements in India's healthcare sector.",
         badge: "🏥 Healthcare",
-        nominateUrl: "https://healthcareawards.primetimemedia.in/nominate",
-        articleUrl: "https://healthcareawards.primetimemedia.in/",
+        nominateUrl: "https://healthcareawards.timemedia.in/nominate",
+        articleUrl: "https://healthcareawards.timemedia.in/",
     },
     {
         _id: 'f2',
         title: "Global Education Excellence Awards, 2026 & Summit",
         subtitle: "Celebrating visionaries shaping the future of education in India.",
         badge: "🎓 Education",
-        nominateUrl: "https://education-awards.primetimemedia.in/nominate",
-        articleUrl: "https://education-awards.primetimemedia.in/",
+        nominateUrl: "https://education-awards.timemedia.in/nominate",
+        articleUrl: "https://education-awards.timemedia.in/",
     },
     {
         _id: 'f3',
         title: "UK Busnieiness Leadership Awards, 2026 & Summit",
         subtitle: "Honoring India's most influential business leaders of the year.",
         badge: "💼 Business",
-        nominateUrl: "https://business-leadership.primetimemedia.in/nominate",
-        articleUrl: "https://business-leadership.primetimemedia.in/",
+        nominateUrl: "https://business-leadership.timemedia.in/nominate",
+        articleUrl: "https://business-leadership.timemedia.in/",
     },
 ];
 
@@ -142,7 +142,7 @@ const AwardsPopup: React.FC = () => {
                         <img src={imageUrl} alt={titleText} className={styles.popupImage} />
                     ) : (
                         <div className={styles.fallbackCard}>
-                            <Image src={logo} alt="PrimeTime" className={styles.fallbackLogo} width={120} height={120} />
+                            <Image src={logo} alt="TimeMedia" className={styles.fallbackLogo} width={120} height={120} />
                             <h3 className={styles.fallbackTitle}>{titleText}</h3>
                             <p className={styles.fallbackDesc}>{descText}</p>
                         </div>

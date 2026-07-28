@@ -31,7 +31,7 @@ function getArticleUrl(newsItem) {
     const title = newsItem.title || "";
     const isHindi = newsItem.lang === "hi" || /[\u0900-\u097F]/.test(title);
     
-    const baseUrl = isHindi ? "https://hindi.primetimemedia.in" : "https://www.primetimemedia.in";
+    const baseUrl = isHindi ? "https://hindi.timemedia.in" : "https://www.timemedia.in";
     const cat = getEnglishSlug(newsItem.category);
     const subCat = getEnglishSlug(newsItem.subCategory || newsItem.category);
     return `${baseUrl}/Pages/${cat}/${subCat}/${newsItem.slug}`;

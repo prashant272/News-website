@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const MONGO_URL = "mongodb+srv://primetimemediaresearch_db_user:K9xtyBYGgdxCo9CC@cluster0.xvkqhrz.mongodb.net/";
+const MONGO_URL = "mongodb+srv://timemediaresearch_db_user:K9xtyBYGgdxCo9CC@cluster0.xvkqhrz.mongodb.net/";
 
 const InternationalProgramSchema = new mongoose.Schema({
     title: String,

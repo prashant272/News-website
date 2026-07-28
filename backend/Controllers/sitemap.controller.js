@@ -19,7 +19,7 @@ const generateSitemap = async (req, res) => {
         const forwardedHost = req.get('x-forwarded-host');
         const host = forwardedHost || req.get('host') || "";
         const isHindi = host.includes("hindi");
-        const BASE_URL = isHindi ? "https://hindi.primetimemedia.in" : "https://www.primetimemedia.in";
+        const BASE_URL = isHindi ? "https://hindi.timemedia.in" : "https://www.timemedia.in";
         const siteLang = isHindi ? "hi" : "en";
 
         const articles = await NewsArticle.find({ status: "published", lang: siteLang })
@@ -126,9 +126,9 @@ const generateNewsSitemap = async (req, res) => {
         const forwardedHost = req.get('x-forwarded-host');
         const host = forwardedHost || req.get('host') || "";
         const isHindi = host.includes("hindi");
-        const BASE_URL = isHindi ? "https://hindi.primetimemedia.in" : "https://www.primetimemedia.in";
+        const BASE_URL = isHindi ? "https://hindi.timemedia.in" : "https://www.timemedia.in";
         const siteLang = isHindi ? "hi" : "en";
-        const siteName = isHindi ? "Prime Time Hindi" : "Prime Time";
+        const siteName = isHindi ? "Time Media Hindi" : "Time Media";
         const langCode = isHindi ? "hi" : "en";
 
         const twoDaysAgo = new Date(Date.now() - 48 * 60 * 60 * 1000);

@@ -50,26 +50,26 @@ export async function generateMetadata(): Promise<Metadata> {
   const host = headerList.get("host") || "";
   const isHindi = host.startsWith('hindi.') || host.includes('.hindi.');
   
-  const siteName = isHindi ? "प्राइम टाइम" : "Prime Time";
+  const siteName = isHindi ? "प्राइम टाइम" : "Time Media";
   const defaultTitle = isHindi 
     ? "प्राइम टाइम | होम - एशिया का अग्रणी डिजिटल मीडिया हाउस" 
-    : "Prime Time | Asia Leading Media House";
+    : "Time Media | Asia Leading Media House";
 
   return {
-    metadataBase: new URL("https://www.primetimemedia.in"),
+    metadataBase: new URL("https://www.timemedia.in"),
     title: {
       default: defaultTitle,
       template: `%s | ${siteName}`,
     },
     description: isHindi 
       ? "प्राइम टाइम - राजनीति, खेल, मनोरंजन, व्यापार और विश्व समाचारों के लिए एशिया का अग्रणी डिजिटल मीडिया हाउस।"
-      : "Prime Time — Asia Leading Media House for breaking news, politics, sports, entertainment, technology, business and world news. Get live updates 24/7.",
+      : "Time Media — Asia Leading Media House for breaking news, politics, sports, entertainment, technology, business and world news. Get live updates 24/7.",
     keywords: [
       "Asia Leading Media House",
-      "Prime Time",
+      "Time Media",
       "प्राइम टाइम",
       "Asia Breaking News",
-    "Prime Time Media Asia",
+    "Time Media Asia",
       "Latest India News",
     "Asia News Portal",
       "Hindi news Asia",
@@ -80,16 +80,16 @@ export async function generateMetadata(): Promise<Metadata> {
     "Entertainment news Bollywood Asia",
     "Asia business news today",
     "Stock market news Asia",
-    "Prime Time Asia News Portal",
+    "Time Media Asia News Portal",
     "Hindi English News Asia",
-      "primetimemedia.in",
+      "timemedia.in",
     "Global News",
     "International Media House Asia",
     "Leading Asia News Network",
     "Worldwide Breaking News"
     ],
-    authors: [{ name: "Prime Time Editorial Team" }],
-  publisher: "Prime Time",
+    authors: [{ name: "Time Media Editorial Team" }],
+  publisher: "Time Media",
     category: "news",
     robots: {
       index: true,
@@ -107,7 +107,7 @@ export async function generateMetadata(): Promise<Metadata> {
       description: isHindi 
         ? "एशिया का अग्रणी मीडिया हाउस - ताज़ा खबरों के लिए।"
         : "Asia Leading Media House for breaking news, politics, sports, and world events.",
-      url: "https://www.primetimemedia.in/",
+      url: "https://www.timemedia.in/",
       siteName: siteName,
       images: [
         {
@@ -127,10 +127,10 @@ export async function generateMetadata(): Promise<Metadata> {
         ? "एशिया का अग्रणी मीडिया हाउस - ताज़ा खबरों के लिए।"
         : "Asia Leading Media House for breaking news, politics, sports, and world events.",
       images: ["/og-image.jpg"],
-      site: "@PrimeTimeNews",
+      site: "@TimeMediaNews",
     },
     alternates: {
-      canonical: "https://www.primetimemedia.in",
+      canonical: "https://www.timemedia.in",
     },
   };
 }
@@ -145,19 +145,19 @@ export default function RootLayout({
     "@graph": [
       {
         "@type": "WebSite",
-        "@id": "https://www.primetimemedia.in/#website",
-        "url": "https://www.primetimemedia.in",
-        "name": "Prime Time | Asia Leading Media House",
-        "alternateName": ["Prime Time", "Prime Time Research Media Pvt Ltd", "Prime Time Media", "primetimemedia.in"],
+        "@id": "https://www.timemedia.in/#website",
+        "url": "https://www.timemedia.in",
+        "name": "Time Media | Asia Leading Media House",
+        "alternateName": ["Time Media", "Time Media Research Media Pvt Ltd", "Time Media", "timemedia.in"],
         "description": "Asia Leading Media House for breaking news, politics, sports, entertainment, technology, business and world news.",
         "publisher": {
-          "@id": "https://www.primetimemedia.in/#organization"
+          "@id": "https://www.timemedia.in/#organization"
         },
         "potentialAction": {
           "@type": "SearchAction",
           "target": {
             "@type": "EntryPoint",
-            "urlTemplate": "https://www.primetimemedia.in/search?q={search_term_string}"
+            "urlTemplate": "https://www.timemedia.in/search?q={search_term_string}"
           },
           "query-input": "required name=search_term_string"
         },
@@ -165,21 +165,21 @@ export default function RootLayout({
       },
       {
         "@type": "NewsMediaOrganization",
-        "@id": "https://www.primetimemedia.in/#organization",
-        "name": "Prime Time | Asia Leading Media House",
-        "alternateName": ["Prime Time", "Prime Time Research Media Pvt Ltd", "Prime Time Media"],
-        "url": "https://www.primetimemedia.in",
+        "@id": "https://www.timemedia.in/#organization",
+        "name": "Time Media | Asia Leading Media House",
+        "alternateName": ["Time Media", "Time Media Research Media Pvt Ltd", "Time Media"],
+        "url": "https://www.timemedia.in",
         "logo": {
           "@type": "ImageObject",
-          "url": "https://www.primetimemedia.in/favicon.ico",
+          "url": "https://www.timemedia.in/favicon.ico",
           "width": 192,
           "height": 192
         },
         "sameAs": [
-          "https://www.facebook.com/primetimemedia",
-          "https://twitter.com/PrimeTimeNews"
+          "https://www.facebook.com/timemedia",
+          "https://twitter.com/TimeMediaNews"
         ],
-        "description": "Prime Time | Asia Leading Media House — Delivering fastest breaking news across politics, sports, entertainment, business, and technology. Stay informed with 24/7 live updates.",
+        "description": "Time Media | Asia Leading Media House — Delivering fastest breaking news across politics, sports, entertainment, business, and technology. Stay informed with 24/7 live updates.",
         "foundingDate": "2020",
         "address": {
           "@type": "PostalAddress",
@@ -191,45 +191,45 @@ export default function RootLayout({
         "contactPoint": {
           "@type": "ContactPoint",
           "contactType": "editorial",
-          "email": "editor@primetimemedia.in",
-          "url": "https://www.primetimemedia.in/Contact"
+          "email": "editor@timemedia.in",
+          "url": "https://www.timemedia.in/Contact"
         }
       },
       {
         "@type": "Organization",
-        "name": "Prime Time | Asia Leading Media House",
-        "alternateName": ["Prime Time Research Media Pvt Ltd", "Prime Time ", "Prime Time Media","Asia leading media house"],
-        "url": "https://www.primetimemedia.in",
-        "logo": "https://www.primetimemedia.in/favicon.ico",
-        "description": "Prime Time | Asia's leading media house delivering 24/7 breaking news, in-depth analysis, and latest updates across politics, sports, entertainment, and world events.",
+        "name": "Time Media | Asia Leading Media House",
+        "alternateName": ["Time Media Research Media Pvt Ltd", "Time Media ", "Time Media","Asia leading media house"],
+        "url": "https://www.timemedia.in",
+        "logo": "https://www.timemedia.in/favicon.ico",
+        "description": "Time Media | Asia's leading media house delivering 24/7 breaking news, in-depth analysis, and latest updates across politics, sports, entertainment, and world events.",
         "contactPoint": {
           "@type": "ContactPoint",
           "telephone": "+91-9810882769",
           "contactType": ""
         },
         "sameAs": [
-          "https://www.facebook.com/PrimeTimeResearchMedia",
+          "https://www.facebook.com/TimeMediaResearchMedia",
           "https://www.linkedin.com/company/prime-time-research-media-pvt-ltd"
         ]
       },
       {
         "@type": "WebPage",
-        "@id": "https://www.primetimemedia.in/#webpage",
-        "url": "https://www.primetimemedia.in",
-        "name": "Prime Time | Asia Leading Media House",
+        "@id": "https://www.timemedia.in/#webpage",
+        "url": "https://www.timemedia.in",
+        "name": "Time Media | Asia Leading Media House",
         "isPartOf": {
-          "@id": "https://www.primetimemedia.in/#website"
+          "@id": "https://www.timemedia.in/#website"
         },
-        "description": "Prime Time — Asia Leading Media House for breaking news, politics, sports, entertainment, technology, business and world news. Get live updates 24/7.",
+        "description": "Time Media — Asia Leading Media House for breaking news, politics, sports, entertainment, technology, business and world news. Get live updates 24/7.",
         "breadcrumb": {
-          "@id": "https://www.primetimemedia.in/#breadcrumb"
+          "@id": "https://www.timemedia.in/#breadcrumb"
         },
         "inLanguage": "en-IN",
         "potentialAction": [
           {
             "@type": "ReadAction",
             "target": [
-              "https://www.primetimemedia.in"
+              "https://www.timemedia.in"
             ]
           }
         ]

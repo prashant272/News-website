@@ -24,7 +24,7 @@ const BreakingNewsPage = () => {
     const [error, setError] = useState<string | null>(null);
     const { lang, isHindi, isMounted } = useLanguage();
 
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://api.primetimemedia.in";
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://api.timemedia.in";
 
     const fetchNews = async () => {
         if (!isMounted) return;

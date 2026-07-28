@@ -14,10 +14,10 @@ import { FaFacebookF, FaInstagram, FaYoutube, FaWhatsapp } from 'react-icons/fa'
 import { FaXTwitter } from 'react-icons/fa6';
 
 const SOCIAL_LINKS = [
-    { icon: <FaFacebookF />, href: 'https://www.facebook.com/primetimeresearch/', platform: 'facebook' },
+    { icon: <FaFacebookF />, href: 'https://www.facebook.com/timemediaresearch/', platform: 'facebook' },
     { icon: <FaXTwitter />, href: 'https://x.com/Prime_Time_Medi', platform: 'x' },
-    { icon: <FaInstagram />, href: 'https://www.instagram.com/primetimeresearchmedia/', platform: 'instagram' },
-    { icon: <FaYoutube />, href: 'https://www.youtube.com/@primetimermedia', platform: 'youtube' },
+    { icon: <FaInstagram />, href: 'https://www.instagram.com/timemediaresearchmedia/', platform: 'instagram' },
+    { icon: <FaYoutube />, href: 'https://www.youtube.com/@timemediarmedia', platform: 'youtube' },
     { icon: <FaWhatsapp />, href: 'https://whatsapp.com/channel/0029Vb314OB05MUbS6xEvU3g', platform: 'whatsapp' }
 ];
 
@@ -112,8 +112,8 @@ const HindiNavbar: React.FC = () => {
                             {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
                         </button>
                         <Link href={getLocalizedHref('/', lang)} className="flex items-center gap-3">
-                            <Image src={logo} alt="PrimeTime" width={45} height={45} className={styles.logoImg} />
-                            <span className={styles.brand}>PRIME TIME</span>
+                            <Image src={logo} alt="TimeMedia" width={45} height={45} className={styles.logoImg} />
+                            <span className={styles.brand}>TIME MEDIA</span>
                         </Link>
 
 

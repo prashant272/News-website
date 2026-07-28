@@ -24,7 +24,7 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
   
   // Get Hindi or English title
   let displayTitle = '';
-  const siteName = isHindi ? "प्राइम टाइम न्यूज़" : "Prime Time News";
+  const siteName = isHindi ? "प्राइम टाइम न्यूज़" : "Time Media News";
 
   if (isHindi) {
     displayTitle = getHindiCategory(urlCategory);
@@ -42,7 +42,7 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
   const description = lang === 'hi' 
     ? `ताज़ा ${displayTitle} समाचार, ब्रेकिंग न्यूज़, ट्रेंडिंग टॉपिक्स और ${siteName} पर गहन विश्लेषण।`
     : `Stay updated with the latest ${displayTitle} news, breaking stories, trending topics, and in-depth analysis on ${siteName}.`;
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.primetimemedia.in";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.timemedia.in";
   const imageUrl = `${siteUrl}/logo.png`;
 
   return {

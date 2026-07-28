@@ -4,7 +4,7 @@ import styles from '../Components/Common/LegalPage/LegalPage.module.scss';
 
 export const metadata: Metadata = {
     title: 'Privacy Policy',
-    description: 'Read the Privacy Policy of Prime Time — India\'s leading news portal. Learn how we collect, use, and protect your personal information.',
+    description: 'Read the Privacy Policy of Time Media — India\'s leading news portal. Learn how we collect, use, and protect your personal information.',
     robots: { index: false, follow: false },
 };
 
@@ -18,7 +18,7 @@ const PrivacyPolicy = () => {
 
                 <div className={styles.content}>
                     <p className={styles.intro}>
-                        <span className={styles.companyName}>Prime Time Research Media Pvt. Ltd.</span> (“Company”, “we”, “our”, or “us”) respects your privacy and is committed to protecting the personal information you share with us. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website, participate in our events, submit nominations, or use our services.
+                        <span className={styles.companyName}>Time Media Research Media Pvt. Ltd.</span> (“Company”, “we”, “our”, or “us”) respects your privacy and is committed to protecting the personal information you share with us. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website, participate in our events, submit nominations, or use our services.
                     </p>
 
                     <p>By accessing or using our website, you agree to the terms of this Privacy Policy.</p>
@@ -113,8 +113,8 @@ const PrivacyPolicy = () => {
                         <h2>10. Contact Us</h2>
                         <p>If you have any questions regarding this Privacy Policy, please contact:</p>
                         <div className={styles.contactDetails}>
-                            <span className={styles.contactItem}><strong>Prime Time Research Media Pvt. Ltd.</strong></span>
-                            <span className={styles.contactItem}><strong>Email:</strong> contact@primetime.news</span>
+                            <span className={styles.contactItem}><strong>Time Media Research Media Pvt. Ltd.</strong></span>
+                            <span className={styles.contactItem}><strong>Email:</strong> contact@timemedia.news</span>
                             <span className={styles.contactItem}><strong>Phone:</strong> +91 11-69268754</span>
                             <span className={styles.contactItem}><strong>Registered Office:</strong> C-31, Nawada Housing Complex, New Delhi-110059</span>
                         </div>

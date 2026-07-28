@@ -164,6 +164,7 @@
 
   .logoImg {
     border-radius: 50%;
+    mix-blend-mode: multiply;
 
     @media (max-width: 768px) {
       width: 35px;

@@ -67,7 +67,7 @@ const HindiPoliticsSection: React.FC = () => {
                                         <div className={styles.content}>
                                             <h3>{mainStory.title}</h3>
                                             <div className={styles.meta}>
-                                                <span className={styles.author}>{mainStory.author || 'Primetime'}</span>
+                                                <span className={styles.author}>{mainStory.author || 'timemedia'}</span>
                                                 <span className={styles.date}>{formatDateTime(mainStory.publishedAt || "")}</span>
                                             </div>
                                             <p className={styles.summary}>
@@ -84,7 +84,7 @@ const HindiPoliticsSection: React.FC = () => {
                                     <Link key={idx} href={getUrl(item)} className={styles.listItem}>
                                         <h4>{item.title}</h4>
                                         <div className={styles.meta}>
-                                            <span className={styles.author}>{item.author || 'Primetime'}</span>
+                                            <span className={styles.author}>{item.author || 'timemedia'}</span>
                                             <span className={styles.date}>{formatDateTime(item.publishedAt || "")}</span>
                                         </div>
                                     </Link>

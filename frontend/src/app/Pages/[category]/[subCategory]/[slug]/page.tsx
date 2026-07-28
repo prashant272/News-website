@@ -14,14 +14,14 @@ interface PageProps {
   }>;
 }
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.primetimemedia.in";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.timemedia.in";
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug, category } = await params;
   const headerList = await headers();
   const host = headerList.get("host") || "";
   const isHindi = host.startsWith('hindi.') || host.includes('.hindi.');
-  const siteName = isHindi ? "प्राइम टाइम न्यूज़" : "Prime Time News";
+  const siteName = isHindi ? "प्राइम टाइम न्यूज़" : "Time Media News";
 
   try {
     const decodedCategory = decodeURIComponent(category || '');
@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       }
 
       const descriptionSnippet = news.summary || news.content?.substring(0, 150) || "";
-      const fullDescription = `${descriptionSnippet.replace(/[#*]/g, '')}... | ${isHindi ? 'पूरी खबर पढ़ें और प्राइम टाइम न्यूज़ पर और अपडेट देखें' : 'Click to read full news and view more updates on Prime Time News'}`;
+      const fullDescription = `${descriptionSnippet.replace(/[#*]/g, '')}... | ${isHindi ? 'पूरी खबर पढ़ें और प्राइम टाइम न्यूज़ पर और अपडेट देखें' : 'Click to read full news and view more updates on Time Media News'}`;
 
       const { subCategory } = await params;
       const articleUrl = `${siteUrl}/Pages/${category}/${subCategory}/${slug}`;
@@ -81,11 +81,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     metadataBase: new URL(siteUrl),
-    title: "News | Prime Time News",
-    description: "Latest breaking news and updates on Prime Time Media.",
+    title: "News | Time Media News",
+    description: "Latest breaking news and updates on Time Media.",
     openGraph: {
-      title: "Prime Time News",
-      description: "Latest breaking news and updates on Prime Time Media.",
+      title: "Time Media News",
+      description: "Latest breaking news and updates on Time Media.",
       images: [`${siteUrl}/favicon.ico`], // Or a larger logo image if available
     }
   };
@@ -140,7 +140,7 @@ function renderArticle(foundArticle: any, categoryNews: any[], category: string,
     subtitle: foundArticle.summary || '',
     image: foundArticle.image || '/placeholder.jpg',
     date: foundArticle.publishedAt || foundArticle.createdAt || new Date().toISOString(),
-    author: foundArticle.author || 'Prime Time News',
+    author: foundArticle.author || 'Time Media News',
     authorId: foundArticle.authorId,
     readTime: '',
     content: foundArticle.content || 'Content not available',
@@ -218,7 +218,7 @@ function renderArticle(foundArticle: any, categoryNews: any[], category: string,
     }],
     "publisher": {
       "@type": "Organization",
-      "name": "Prime Time | Asia Leading Media House",
+      "name": "Time Media | Asia Leading Media House",
       "logo": {
         "@type": "ImageObject",
         "url": `${siteUrl}/favicon.ico`,

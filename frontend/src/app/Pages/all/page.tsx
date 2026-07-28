@@ -138,7 +138,7 @@ export default function AllNewsPage() {
             </div>
 
             <SocialShare
-                url={currentUrl || `https://www.primetimemedia.in${lang === 'hi' ? '/news' : '/Pages'}/all`}
+                url={currentUrl || `https://www.timemedia.in${lang === 'hi' ? '/news' : '/Pages'}/all`}
                 title="All News - Latest Breaking News & Updates"
                 description="Stay updated with all the latest news, breaking stories, and trending topics from all categories."
                 image={infiniteNews[0]?.image || ''}

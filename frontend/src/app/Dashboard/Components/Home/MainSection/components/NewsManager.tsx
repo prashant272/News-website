@@ -405,7 +405,7 @@ const NewsManager: FC<NewsManagerProps> = ({
             return;
         }
         try {
-            const authorName = userAuthData?.name || "Prime Time";
+            const authorName = userAuthData?.name || "Time Media";
             const currentUserId = userAuthData?.userId || userAuthData?._id || userAuthData?.id;
 
             // Convert datetime-local (local time) to UTC ISO string
@@ -468,7 +468,7 @@ const NewsManager: FC<NewsManagerProps> = ({
             return;
         }
         try {
-            const authorName = userAuthData?.name || "Prime Time";
+            const authorName = userAuthData?.name || "Time Media";
             const currentUserId = userAuthData?.userId || userAuthData?._id || userAuthData?.id;
 
             // Convert datetime-local (local time) to UTC ISO string
@@ -563,13 +563,13 @@ const NewsManager: FC<NewsManagerProps> = ({
 
     const getShareLink = (item: Partial<NewsItem>, platform: 'facebook' | 'whatsapp') => {
         if (!item.slug) return "#";
-        const siteUrl = "https://www.primetimemedia.in";
+        const siteUrl = "https://www.timemedia.in";
         const sectionSlug = String(selectedCategory).toLowerCase();
         const rawCat = item.category || selectedCategory;
         const firstCat = Array.isArray(rawCat) ? rawCat[0] : rawCat;
         const categorySlug = String(firstCat).toLowerCase().replace(/\s+/g, '-');
         const fullUrl = `${siteUrl}/Pages/${sectionSlug}/${categorySlug}/${item.slug}`;
-        const shareText = `${item.title} | View more news on Prime Time Media:`;
+        const shareText = `${item.title} | View more news on Time Media:`;
 
         if (platform === 'facebook') {
             return `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(fullUrl)}`;

@@ -36,21 +36,21 @@ const Footer: React.FC = () => {
   }
 
   const socialLinks = [
-    { icon: FaFacebookF, href: 'https://www.facebook.com/primetimeresearch/', label: 'Facebook', platform: 'facebook' },
+    { icon: FaFacebookF, href: 'https://www.facebook.com/timemediaresearch/', label: 'Facebook', platform: 'facebook' },
     { icon: FaXTwitter, href: 'https://x.com/Prime_Time_Medi', label: 'X (Twitter)', platform: 'x' },
-    { icon: FaInstagram, href: 'https://www.instagram.com/primetimeresearchmedia/', label: 'Instagram', platform: 'instagram' },
-    { icon: FaYoutube, href: 'https://www.youtube.com/@primetimermedia', label: 'YouTube', platform: 'youtube' },
+    { icon: FaInstagram, href: 'https://www.instagram.com/timemediaresearchmedia/', label: 'Instagram', platform: 'instagram' },
+    { icon: FaYoutube, href: 'https://www.youtube.com/@timemediarmedia', label: 'YouTube', platform: 'youtube' },
     { icon: FaLinkedinIn, href: 'https://linkedin.com', label: 'LinkedIn', platform: 'linkedin' },
     { icon: FaWhatsapp, href: 'https://whatsapp.com/channel/0029Vb314OB05MUbS6xEvU3g', label: 'WhatsApp', platform: 'whatsapp' }
   ]
 
   const contactInfo = {
-    office: 'Prime Time Research Media Pvt. Ltd, C-31, Nawada Housing Complex, New Delhi-110059',
+    office: 'Time Media Research Media Pvt. Ltd, C-31, Nawada Housing Complex, New Delhi-110059',
     phones: [
       { number: '+91 9971 00 2984', label: 'Sponsorship' },
       { number: '+91 9810 91 0686', label: 'Helpline' },
     ],
-    email: 'contact@primetimemedia.in'
+    email: 'contact@timemedia.in'
   }
 
   return (
@@ -61,7 +61,7 @@ const Footer: React.FC = () => {
             <div className={styles.logoSection}>
               <Image
                 src={logo}
-                alt="Prime Time"
+                alt="Time Media"
                 className={styles.logoImg}
                 width={150}
                 height={150}
@@ -148,7 +148,7 @@ const Footer: React.FC = () => {
           <div className={styles.bottomContent}>
             <div className={styles.attributionBlock}>
               <p className={styles.copyright}>
-                © {year} Prime Time Research Media Pvt. Ltd. All rights reserved.
+                © {year} Time Media Research Media Pvt. Ltd. All rights reserved.
               </p>
               <div className={styles.divider}></div>
               <div className={styles.developerBadge}>

@@ -38,7 +38,7 @@ export default function ArticleTags({ tags }: ArticleTagsProps) {
       <div className={styles.newsCtaBox}>
         <div className={styles.ctaAccent} />
         <p className={styles.ctaContent}>
-          Read all the <Link href="/Pages/all" className={styles.inlineLink}>Breaking News</Link> Live on primetimemedia.in. 
+          Read all the <Link href="/Pages/all" className={styles.inlineLink}>Breaking News</Link> Live on timemedia.in. 
           Follow us for the <Link href="/Pages/all" className={styles.inlineLink}>Latest English News</Link> & updates from the 
           <Link href="/Pages/sports" className={styles.inlineLink}> Sports</Link> world.
         </p>

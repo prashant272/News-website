@@ -1,9 +1,9 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "primetimemedia backend",
+  "description": "timemedia backend",
   "license": "ISC",
-  "author": "primetime media tech team",
+  "author": "timemedia media tech team",
   "type": "commonjs",
   "main": "server.js",
   "scripts": {

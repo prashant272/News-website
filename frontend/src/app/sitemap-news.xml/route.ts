@@ -8,7 +8,7 @@ export async function GET() {
         const headerList = await headers();
         const host = headerList.get("host") || "";
 
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.primetimemedia.in';
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.timemedia.in';
         const response = await fetch(`${apiUrl}/sitemap-news.xml?domain=${host}`, {
             headers: {
                 'X-Forwarded-Host': host

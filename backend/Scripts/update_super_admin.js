@@ -30,7 +30,7 @@ async function updateSuperAdmin() {
     // 2. Find and update Super Admin
     // We try to find by role and original name
     const result = await User.findOneAndUpdate(
-      { role: "SUPER_ADMIN", name: "primetime" },
+      { role: "SUPER_ADMIN", name: "timemedia" },
       { 
         name: "News Desk",
         ProfilePicture: uploadResult.secure_url
@@ -43,7 +43,7 @@ async function updateSuperAdmin() {
       console.log("New Name:", result.name);
       console.log("New Image:", result.ProfilePicture);
     } else {
-      console.log("Super Admin with name 'primetime' not found. Checking by ID or Role only...");
+      console.log("Super Admin with name 'timemedia' not found. Checking by ID or Role only...");
       const fallback = await User.findOneAndUpdate(
         { role: "SUPER_ADMIN" },
         { 

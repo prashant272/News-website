@@ -60,7 +60,7 @@ const applyWatermark = async (imageUrl, source = "") => {
         console.log(`[Anti-Copyright] Transforming image for ${src}`);
 
         // SKIP if image is already on our storage
-        const brandedKeywords = ["r2.dev", "cloudflarestorage.com", "primetime/", "auto_news/"];
+        const brandedKeywords = ["r2.dev", "cloudflarestorage.com", "timemedia/", "auto_news/"];
         if (typeof imageUrl === "string" && brandedKeywords.some(kw => imageUrl.toLowerCase().includes(kw))) {
             console.log(`[Anti-Copyright-Skip] Image already processed (URL: ${imageUrl}).`);
             return await getImageBuffer(imageUrl);
@@ -123,7 +123,7 @@ const applyWatermark = async (imageUrl, source = "") => {
 };
 
 /**
- * Adds the Prime Time logo with a white background to the TOP-LEFT of an image.
+ * Adds the Time Media logo with a white background to the TOP-LEFT of an image.
  * Provides a clean branded look for standalone images.
  */
 const addLogoToImage = async (imageBuffer) => {
@@ -169,7 +169,7 @@ const addLogoToImage = async (imageBuffer) => {
                     </linearGradient>
                 </defs>
                 <rect width="${width}" height="${stripH}" fill="url(#grad1)" />
-                <text x="${width - 20}" y="${stripH / 2 + 6}" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="white" text-anchor="end">PRIME TIME</text>
+                <text x="${width - 20}" y="${stripH / 2 + 6}" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="white" text-anchor="end">TIME MEDIA</text>
             </svg>
         `);
 
@@ -238,7 +238,7 @@ const brandImageWithTitle = async (imageUrl, title, options = { addLogo: true, c
 
         // NEW: SKIP BRANDING if image is already on our storage (R2 or Cloudinary)
         // This prevents double branding when drafts or already branded images are re-processed.
-        const brandedKeywords = ["r2.dev", "cloudflarestorage.com", "primetime/", "auto_news/"];
+        const brandedKeywords = ["r2.dev", "cloudflarestorage.com", "timemedia/", "auto_news/"];
         const alreadyBranded = typeof imageUrl === "string" && brandedKeywords.some(kw => imageUrl.toLowerCase().includes(kw));
 
         if (isExcluded || titleExcludes || alreadyBranded) {
@@ -355,7 +355,7 @@ const brandImageWithTitle = async (imageUrl, title, options = { addLogo: true, c
 
                 <!-- Header Ticker Badge -->
                 <rect x="${width / 2 - 120}" y="20" width="240" height="42" rx="21" fill="#CC0000" filter="url(#shadow)" />
-                <text x="${width / 2}" y="48" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="20px" fill="white" letter-spacing="1.5px">PRIME TIME</text>
+                <text x="${width / 2}" y="48" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="20px" fill="white" letter-spacing="1.5px">TIME MEDIA</text>
 
                 <!-- Headline (Luxury White & Gold) -->
                 <g filter="url(#shadow)">
@@ -371,7 +371,7 @@ const brandImageWithTitle = async (imageUrl, title, options = { addLogo: true, c
 
                 <!-- URL Sticker (Gold-to-Orange Pill) - DYNAMIC POSITION -->
                 <rect x="${width / 2 - 155}" y="${urlPillY}" width="310" height="46" rx="23" fill="#FFD700" filter="url(#shadow)" />
-                <text x="${width / 2}" y="${urlPillY + 31}" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="20px" fill="#4d0000" letter-spacing="0.05em">primetimemedia.in</text>
+                <text x="${width / 2}" y="${urlPillY + 31}" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="20px" fill="#4d0000" letter-spacing="0.05em">timemedia.in</text>
             </svg>
         `);
 

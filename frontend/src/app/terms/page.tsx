@@ -4,7 +4,7 @@ import styles from '../Components/Common/LegalPage/LegalPage.module.scss';
 
 export const metadata: Metadata = {
     title: 'Terms & Services',
-    description: 'Terms and Services of Prime Time — India\'s trusted news portal. Read our usage terms and conditions.',
+    description: 'Terms and Services of Time Media — India\'s trusted news portal. Read our usage terms and conditions.',
     robots: { index: false, follow: false },
 };
 
@@ -18,11 +18,11 @@ const TermsAndServices = () => {
 
                 <div className={styles.content}>
                     <p className={styles.intro}>
-                        Welcome to <span className={styles.companyName}>Prime Time Research Media Pvt. Ltd.</span> By accessing or using our website and services, you agree to comply with and be bound by the following Terms & Services. Please read them carefully.
+                        Welcome to <span className={styles.companyName}>Time Media Research Media Pvt. Ltd.</span> By accessing or using our website and services, you agree to comply with and be bound by the following Terms & Services. Please read them carefully.
                     </p>
 
                     <h2>1. Introduction</h2>
-                    <p>Prime Time Research Media Pvt. Ltd. (“Company,” “we,” “our,” or “us”) provides services including but not limited to:</p>
+                    <p>Time Media Research Media Pvt. Ltd. (“Company,” “we,” “our,” or “us”) provides services including but not limited to:</p>
                     <ul>
                         <li>Award nominations and event management</li>
                         <li>Summits, conferences & exhibitions</li>
@@ -72,7 +72,7 @@ const TermsAndServices = () => {
                     </ul>
 
                     <h2>7. Intellectual Property</h2>
-                    <p>All content on this website including text, logos, graphics, event names, and designs are the intellectual property of Prime Time Research Media Pvt. Ltd. and may not be copied, reproduced, or distributed without prior written permission.</p>
+                    <p>All content on this website including text, logos, graphics, event names, and designs are the intellectual property of Time Media Research Media Pvt. Ltd. and may not be copied, reproduced, or distributed without prior written permission.</p>
 
                     <h2>8. User Conduct</h2>
                     <p>Users agree not to:</p>
@@ -83,7 +83,7 @@ const TermsAndServices = () => {
                     </ul>
 
                     <h2>9. Limitation of Liability</h2>
-                    <p>Prime Time Research Media Pvt. Ltd. shall not be liable for:</p>
+                    <p>Time Media Research Media Pvt. Ltd. shall not be liable for:</p>
                     <ul>
                         <li>Any indirect or consequential loss.</li>
                         <li>Technical errors, website downtime, or service interruptions.</li>
@@ -103,16 +103,16 @@ const TermsAndServices = () => {
                     <p>These Terms & Services shall be governed by and interpreted in accordance with the laws of India. Any disputes shall be subject to the jurisdiction of courts located in Delhi, India.</p>
 
                     <h2>13. Changes to Terms</h2>
-                    <p>Prime Time Research Media Pvt. Ltd. reserves the right to modify these Terms at any time. Updated versions will be posted on the website.</p>
+                    <p>Time Media Research Media Pvt. Ltd. reserves the right to modify these Terms at any time. Updated versions will be posted on the website.</p>
 
                     <div className={styles.contactBox}>
                         <h2>14. Contact Information</h2>
                         <div className={styles.contactDetails}>
-                            <span className={styles.contactItem}><strong>Prime Time Research Media Pvt. Ltd.</strong></span>
+                            <span className={styles.contactItem}><strong>Time Media Research Media Pvt. Ltd.</strong></span>
                             <span className={styles.contactItem}><strong>Address:</strong> C-31, Nawada Housing Complex, New Delhi-110059</span>
-                            <span className={styles.contactItem}><strong>Email:</strong> contact@primetime.news</span>
+                            <span className={styles.contactItem}><strong>Email:</strong> contact@timemedia.news</span>
                             <span className={styles.contactItem}><strong>Phone:</strong> +91 11-69268754, +91 9810 88 2769</span>
-                            <span className={styles.contactItem}><strong>Website:</strong> https://primetime.news</span>
+                            <span className={styles.contactItem}><strong>Website:</strong> https://timemedia.news</span>
                         </div>
                     </div>
                 </div>

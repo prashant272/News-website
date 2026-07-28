@@ -39,12 +39,12 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/india-excellence',
-        destination: 'https://india-excellence.primetimemedia.in/upcoming-awards/india-excellence-awards-2026',
+        destination: 'https://india-excellence.timemedia.in/upcoming-awards/india-excellence-awards-2026',
         permanent: false,
       },
       {
         source: '/india-excellence/:path*',
-        destination: 'https://india-excellence.primetimemedia.in/upcoming-awards/india-excellence-awards-2026/:path*',
+        destination: 'https://india-excellence.timemedia.in/upcoming-awards/india-excellence-awards-2026/:path*',
         permanent: false,
       },
     ];

@@ -9,7 +9,7 @@ interface BreadcrumbSchemaProps {
     items: BreadcrumbItem[];
 }
 
-const BASE_URL = 'https://www.primetimemedia.in';
+const BASE_URL = 'https://www.timemedia.in';
 
 const BreadcrumbSchema: React.FC<BreadcrumbSchemaProps> = ({ items }) => {
     // Don't render if no items — prevents Google's "Missing itemListElement" error

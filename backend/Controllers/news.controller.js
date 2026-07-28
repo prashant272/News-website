@@ -16,7 +16,7 @@ cloudinary.config({
 });
 
 // --- BRANDING HELPERS ---
-const BRAND_EN = "Prime Time";
+const BRAND_EN = "Time Media";
 const BRAND_HI = "प्राइम टाइम";
 
 const ensureBranding = (title, slug, lang) => {
@@ -223,7 +223,7 @@ exports.AddNews = async (req, res) => {
         const brandedBuffer = await brandImageWithTitle(image, finalTitleStr, { category: finalCategory });
 
         // Cloudflare R2 Upload
-        const fileName = `primetime/${Date.now()}-${finalSlugStr}.png`;
+        const fileName = `timemedia/${Date.now()}-${finalSlugStr}.png`;
         imageUrl = await uploadToR2(brandedBuffer, fileName, "image/png");
         console.log(`[R2-Upload] Success: ${imageUrl}`);
       } catch (uploadError) {
@@ -235,7 +235,7 @@ exports.AddNews = async (req, res) => {
           // Attempt raw upload to R2
           try {
             const rawBuffer = Buffer.isBuffer(image) ? image : Buffer.from(image.split(',')[1] || image, 'base64');
-            const fileName = `primetime/raw-${Date.now()}-${finalSlugStr}.png`;
+            const fileName = `timemedia/raw-${Date.now()}-${finalSlugStr}.png`;
             imageUrl = await uploadToR2(rawBuffer, fileName, "image/png");
           } catch (e) {
             console.error("Final Fallback Upload Error:", e);
@@ -256,7 +256,7 @@ exports.AddNews = async (req, res) => {
       targetLink: targetLink || null,
       nominationLink: nominationLink || null,
       moreInfoLink: moreInfoLink || null,
-      author: author || "Prime Time",
+      author: author || "Time Media",
       authorId: authorId || null,
       status: status || "draft",
       scheduledAt: status === "scheduled" ? scheduledAt : null,
@@ -536,7 +536,7 @@ exports.updateNewsBySlug = async (req, res) => {
         const brandedBuffer = await brandImageWithTitle(updateData.image, updateData.title, { category: currentCategories });
 
         // Cloudflare R2 Upload
-        const fileName = `primetime/${Date.now()}-${updateData.slug || item.slug}.png`;
+        const fileName = `timemedia/${Date.now()}-${updateData.slug || item.slug}.png`;
         imageUrl = await uploadToR2(brandedBuffer, fileName, "image/png");
         updateData.image = imageUrl;
         console.log(`[R2-Update] Success: ${imageUrl}`);
@@ -545,7 +545,7 @@ exports.updateNewsBySlug = async (req, res) => {
         if (updateData.image && typeof updateData.image === 'string' && !updateData.image.startsWith("http")) {
           try {
             const rawBuffer = Buffer.from(updateData.image.split(',')[1] || updateData.image, 'base64');
-            const fileName = `primetime/raw-update-${Date.now()}-${updateData.slug || item.slug}.png`;
+            const fileName = `timemedia/raw-update-${Date.now()}-${updateData.slug || item.slug}.png`;
             imageUrl = await uploadToR2(rawBuffer, fileName, "image/png");
             updateData.image = imageUrl;
           } catch (e) {

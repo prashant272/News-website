@@ -232,7 +232,7 @@ export default function SubCategoryPage() {
       </div>
 
       <SocialShare
-        url={currentUrl || `https://www.primetimemedia.in/Pages/${category}/${subCategory}`}
+        url={currentUrl || `https://www.timemedia.in/Pages/${category}/${subCategory}`}
         title={`${subPageTitle} - ${pageTitle} | Latest News`}
         description={`Explore the latest ${subPageTitle} news from ${pageTitle} section.`}
         image={subFilteredNews[0]?.image || ''}

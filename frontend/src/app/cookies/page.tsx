@@ -4,7 +4,7 @@ import styles from '../Components/Common/LegalPage/LegalPage.module.scss';
 
 export const metadata: Metadata = {
     title: 'Cookie Policy',
-    description: 'Cookie Policy of Prime Time — India\'s trusted news portal. Learn how we use cookies.',
+    description: 'Cookie Policy of Time Media — India\'s trusted news portal. Learn how we use cookies.',
     robots: { index: false, follow: false },
 };
 
@@ -18,7 +18,7 @@ const CookiePolicy = () => {
 
                 <div className={styles.content}>
                     <p className={styles.intro}>
-                        <span className={styles.companyName}>Prime Time Research Media Pvt. Ltd.</span> (“Prime Time,” “we,” “our,” or “us”) uses cookies and similar technologies on our website to enhance user experience, analyze website performance, and provide relevant information about our services, events, awards, and media initiatives.
+                        <span className={styles.companyName}>Time Media Research Media Pvt. Ltd.</span> (“Time Media,” “we,” “our,” or “us”) uses cookies and similar technologies on our website to enhance user experience, analyze website performance, and provide relevant information about our services, events, awards, and media initiatives.
                     </p>
 
                     <p>This Cookies Policy explains what cookies are, how we use them, and your choices regarding their use.</p>
@@ -89,17 +89,17 @@ const CookiePolicy = () => {
                     <p>Any personal information collected through cookies will be processed in accordance with our Privacy Policy and applicable data protection laws.</p>
 
                     <h2>6. Updates to This Policy</h2>
-                    <p>Prime Time Research Media Pvt. Ltd. reserves the right to update this Cookies Policy at any time. Changes will be posted on this page with an updated effective date.</p>
+                    <p>Time Media Research Media Pvt. Ltd. reserves the right to update this Cookies Policy at any time. Changes will be posted on this page with an updated effective date.</p>
 
                     <div className={styles.contactBox}>
                         <h2>7. Contact Us</h2>
                         <p>If you have any questions about this Cookies Policy, please contact us:</p>
                         <div className={styles.contactDetails}>
-                            <span className={styles.contactItem}><strong>Prime Time Research Media Pvt. Ltd.</strong></span>
+                            <span className={styles.contactItem}><strong>Time Media Research Media Pvt. Ltd.</strong></span>
                             <span className={styles.contactItem}><strong>Address:</strong> C-31, Nawada Housing Complex, New Delhi-110059</span>
-                            <span className={styles.contactItem}><strong>Email:</strong> contact@primetime.news</span>
+                            <span className={styles.contactItem}><strong>Email:</strong> contact@timemedia.news</span>
                             <span className={styles.contactItem}><strong>Phone:</strong> +91 11-69268754</span>
-                            <span className={styles.contactItem}><strong>Website:</strong> https://primetime.news</span>
+                            <span className={styles.contactItem}><strong>Website:</strong> https://timemedia.news</span>
                         </div>
                     </div>
                 </div>

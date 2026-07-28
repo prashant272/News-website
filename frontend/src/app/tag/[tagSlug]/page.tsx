@@ -114,7 +114,7 @@ export default function TagPage() {
                                     <div className={styles.cardInfo}>
                                         <h3 className={styles.title}>{item.title}</h3>
                                         <div className={styles.footer}>
-                                           <span className={styles.author}>{item.author || 'Prime Time News'}</span>
+                                           <span className={styles.author}>{item.author || 'Time Media News'}</span>
                                            <span className={styles.dot} />
                                            <span className={styles.date}>
                                               {new Date(item.publishedAt || item.createdAt || "").toLocaleDateString('en-IN', {

@@ -14,7 +14,7 @@ cloudinary.config({
 });
 
 // --- BRANDING HELPERS ---
-const BRAND_EN = "Prime Time";
+const BRAND_EN = "Time Media";
 const BRAND_HI = "प्राइम टाइम";
 
 const ensureBranding = (title, slug, lang) => {

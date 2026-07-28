@@ -30,7 +30,7 @@ const BreakingNewsManager: React.FC = () => {
         if (lang) setLanguage(lang);
     }, [lang]);
 
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://api.primetimemedia.in";
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://api.timemedia.in";
 
     const fetchNews = async () => {
         try {

@@ -35,7 +35,7 @@ async function triggerFacebookPost(newsItem) {
 
     // SMART BRANDING: Avoid double-branding if the image is already on our own storage (R2 or Cloudinary)
     // We brand all images BEFORE uploading them to our storage.
-    const brandedKeywords = ["r2.dev", "cloudflarestorage.com", "primetime/", "auto_news/"];
+    const brandedKeywords = ["r2.dev", "cloudflarestorage.com", "timemedia/", "auto_news/"];
     const isAlreadyBranded = brandedKeywords.some(kw => (finalImageData || "").toLowerCase().includes(kw));
 
     if (!isAlreadyBranded && finalImageData && typeof finalImageData === "string" && finalImageData.startsWith("http")) {

@@ -235,7 +235,7 @@ export default function CategoryPageClient() {
       )}
 
       <SocialShare
-        url={currentUrl || `https://www.primetimemedia.in${lang === 'hi' ? '/news' : '/Pages'}/${category}`}
+        url={currentUrl || `https://www.timemedia.in${lang === 'hi' ? '/news' : '/Pages'}/${category}`}
         title={`${categoryTitle} - Latest News & Updates`}
         description={`Stay updated with the latest ${categoryTitle} news, breaking stories, trending topics, and in-depth analysis.`}
         image={infiniteNews[0]?.image || ''}

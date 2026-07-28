@@ -9,7 +9,7 @@ interface LayoutProps {
 
 export async function generateMetadata({ params }: LayoutProps): Promise<Metadata> {
   const { category } = await params;
-  const siteUrl = "https://www.primetimemedia.in";
+  const siteUrl = "https://www.timemedia.in";
   
   const categoryTitle = category
     .split('-')
@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: LayoutProps): Promise<Metadat
     .join(' ');
 
   const title = `${categoryTitle} News - Latest ${categoryTitle} Headlines Today`;
-  const description = `Get the latest ${categoryTitle} news, breaking stories, in-depth analysis and trending updates from India and around the world on Prime Time News.`;
+  const description = `Get the latest ${categoryTitle} news, breaking stories, in-depth analysis and trending updates from India and around the world on Time Media News.`;
   const url = `${siteUrl}/Pages/${category}`;
 
   return {
@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: LayoutProps): Promise<Metadat
       `Latest ${categoryTitle} news`,
       `${categoryTitle} headlines`,
       `${categoryTitle} updates`,
-      "Prime Time News",
+      "Time Media News",
       "प्राइम टाइम न्यूज़"
     ],
     alternates: {
@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: LayoutProps): Promise<Metadat
       title,
       description,
       url,
-      siteName: 'Prime Time News',
+      siteName: 'Time Media News',
       type: 'website',
     },
     twitter: {

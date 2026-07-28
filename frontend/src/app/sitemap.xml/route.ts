@@ -8,7 +8,7 @@ export async function GET() {
         const headerList = await headers();
         const host = headerList.get("host") || "";
         
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.primetimemedia.in';
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.timemedia.in';
         // Append host as query param to ensure unique cache keys if ever cached,
         // and disable Next.js fetch caching so we don't serve old invalid XMLs
         const response = await fetch(`${apiUrl}/sitemap.xml?domain=${host}`, {

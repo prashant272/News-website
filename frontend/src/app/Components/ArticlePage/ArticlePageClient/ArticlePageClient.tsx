@@ -103,14 +103,14 @@ export default function ArticlePageClient({
     "dateModified": article.date,
     "author": [{
       "@type": "Person",
-      "name": article.author || "Prime Time"
+      "name": article.author || "Time Media"
     }],
     "publisher": {
       "@type": "Organization",
-      "name": "Prime Time Media",
+      "name": "Time Media",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://www.primetimemedia.in/logo.png"
+        "url": "https://www.timemedia.in/logo.png"
       }
     },
     "description": article.subtitle || article.content.substring(0, 150)
@@ -145,7 +145,7 @@ export default function ArticlePageClient({
             <div className={styles.contentWrapper}>
               <div className={styles.stickyShare}>
                 <SocialShare
-                  url={typeof window !== 'undefined' ? window.location.href : `https://www.primetimemedia.in/Pages/${article.section}/${Array.isArray(article.category) ? article.category[0] : (article.category || category)}/${article.slug}`}
+                  url={typeof window !== 'undefined' ? window.location.href : `https://www.timemedia.in/Pages/${article.section}/${Array.isArray(article.category) ? article.category[0] : (article.category || category)}/${article.slug}`}
                   title={article.title}
                   description={article.subtitle}
                   image={article.image}
@@ -217,7 +217,7 @@ export default function ArticlePageClient({
                   ) : (
                     <div className={styles.authorAttribution}>
                       <span className={styles.authorPrefix}>{translations.publishedBy || "Published by"}:</span>
-                      <span className={styles.authorName}>{article.author || 'Prime Time'}</span>
+                      <span className={styles.authorName}>{article.author || 'Time Media'}</span>
                     </div>
                   )}
                 </div>

@@ -38,7 +38,7 @@ const BreakingNewsTicker: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const { lang, isHindi } = useLanguage();
 
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://api.primetimemedia.in";
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://api.timemedia.in";
 
     useEffect(() => {
         const fetchNews = async () => {
