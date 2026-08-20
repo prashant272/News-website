@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../Models/user.model');
 const permissionsByRole = require('../Config/permissions.js');
 const cloudinary = require("cloudinary").v2;
-
+const { uploadToR2 } = require('../Services/storageService');
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
   api_key: process.env.API_KEY,
@@ -215,12 +215,19 @@ exports.CreateUserByAdmin = async (req, res) => {
         profilePicUrl = ProfilePicture;
       } else {
         try {
-          const uploadResponse = await cloudinary.uploader.upload(ProfilePicture, {
-            folder: "profile_pictures"
-          });
-          profilePicUrl = uploadResponse.secure_url;
+          const matches = ProfilePicture.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+          let buffer, contentType;
+          if (matches && matches.length === 3) {
+            contentType = matches[1];
+            buffer = Buffer.from(matches[2], 'base64');
+          } else {
+            contentType = "image/png";
+            buffer = Buffer.from(ProfilePicture, 'base64');
+          }
+          const fileName = `profile_pictures/user-${Date.now()}-${Math.random().toString(36).substring(7)}.png`;
+          profilePicUrl = await uploadToR2(buffer, fileName, contentType);
         } catch (uploadError) {
-          console.error("Cloudinary Profile Pic Upload Error:", uploadError);
+          console.error("R2 Profile Pic Upload Error:", uploadError);
         }
       }
     }
@@ -270,12 +277,19 @@ exports.UpdateUser = async (req, res) => {
         updateData.ProfilePicture = ProfilePicture;
       } else {
         try {
-          const uploadResponse = await cloudinary.uploader.upload(ProfilePicture, {
-            folder: "profile_pictures"
-          });
-          updateData.ProfilePicture = uploadResponse.secure_url;
+          const matches = ProfilePicture.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+          let buffer, contentType;
+          if (matches && matches.length === 3) {
+            contentType = matches[1];
+            buffer = Buffer.from(matches[2], 'base64');
+          } else {
+            contentType = "image/png";
+            buffer = Buffer.from(ProfilePicture, 'base64');
+          }
+          const fileName = `profile_pictures/user-${Date.now()}-${Math.random().toString(36).substring(7)}.png`;
+          updateData.ProfilePicture = await uploadToR2(buffer, fileName, contentType);
         } catch (uploadError) {
-          console.error("Cloudinary Update Profile Pic Error:", uploadError);
+          console.error("R2 Update Profile Pic Error:", uploadError);
         }
       }
     }
