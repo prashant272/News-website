@@ -169,7 +169,7 @@ const addLogoToImage = async (imageBuffer) => {
                     </linearGradient>
                 </defs>
                 <rect width="${width}" height="${stripH}" fill="url(#grad1)" />
-                <text x="${width - 20}" y="${stripH / 2 + 6}" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="white" text-anchor="end">TIME MEDIA</text>
+                <text x="${width - 20}" y="${stripH / 2 + 6}" font-family="'DejaVu Sans', 'Noto Sans', Arial, sans-serif" font-size="16" font-weight="bold" fill="white" text-anchor="end">TIME MEDIA</text>
             </svg>
         `);
 
@@ -355,23 +355,23 @@ const brandImageWithTitle = async (imageUrl, title, options = { addLogo: true, c
 
                 <!-- Header Ticker Badge -->
                 <rect x="${width / 2 - 120}" y="20" width="240" height="42" rx="21" fill="#CC0000" filter="url(#shadow)" />
-                <text x="${width / 2}" y="48" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="20px" fill="white" letter-spacing="1.5px">TIME MEDIA</text>
+                <text x="${width / 2}" y="48" text-anchor="middle" font-family="'DejaVu Sans', 'Noto Sans', Arial, sans-serif" font-weight="900" font-size="20px" fill="white" letter-spacing="1.5px">TIME MEDIA</text>
 
                 <!-- Headline (Luxury White & Gold) -->
                 <g filter="url(#shadow)">
                     ${firstLines.map((line, i) => {
             const y = titleStartY + (i * lineSpacing);
-            return `<text x="${width / 2}" y="${y}" text-anchor="middle" font-family="Nirmala UI, Arial, sans-serif" font-size="${fontSize + 2}" font-weight="900" fill="#FFFFFF">${line}</text>`;
+            return `<text x="${width / 2}" y="${y}" text-anchor="middle" font-family="'Noto Sans Devanagari', 'Nirmala UI', 'DejaVu Sans', Arial, sans-serif" font-size="${fontSize + 2}" font-weight="900" fill="#FFFFFF">${line}</text>`;
         }).join('')}
                     ${restLines.map((line, i) => {
             const y = titleStartY + ((i + firstLines.length) * lineSpacing);
-            return `<text x="${width / 2}" y="${y}" text-anchor="middle" font-family="Nirmala UI, Arial, sans-serif" font-size="${fontSize}" font-weight="900" fill="#FFD700">${line}</text>`;
+            return `<text x="${width / 2}" y="${y}" text-anchor="middle" font-family="'Noto Sans Devanagari', 'Nirmala UI', 'DejaVu Sans', Arial, sans-serif" font-size="${fontSize}" font-weight="900" fill="#FFD700">${line}</text>`;
         }).join('')}
                 </g>
 
                 <!-- URL Sticker (Gold-to-Orange Pill) - DYNAMIC POSITION -->
                 <rect x="${width / 2 - 155}" y="${urlPillY}" width="310" height="46" rx="23" fill="#FFD700" filter="url(#shadow)" />
-                <text x="${width / 2}" y="${urlPillY + 31}" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="20px" fill="#4d0000" letter-spacing="0.05em">timemedia.in</text>
+                <text x="${width / 2}" y="${urlPillY + 31}" text-anchor="middle" font-family="'DejaVu Sans', 'Noto Sans', Arial, sans-serif" font-weight="900" font-size="20px" fill="#4d0000" letter-spacing="0.05em">timemedia.in</text>
             </svg>
         `);
 

@@ -4,6 +4,14 @@ FROM node:20-alpine
 # Set working directory
 WORKDIR /app
 
+# Install fontconfig and fonts for SVG/Canvas text rendering (Devanagari/Hindi & English)
+RUN apk add --no-cache \
+    fontconfig \
+    font-noto \
+    font-noto-devanagari \
+    ttf-dejavu \
+    && fc-cache -fv
+
 # Copy dependency definition files
 COPY package*.json ./
 
